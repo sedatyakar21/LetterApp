@@ -1,0 +1,26 @@
+@model (string Prefix, AddressInput Address)
+@* Ortak adres alanları. Prefix model bağlama için alan adının önekidir (ör. "SenderAddress"). *@
+@{
+    var p = Model.Prefix;
+    var a = Model.Address;
+}
+<div class="row g-2">
+    <div class="col-12">
+        <label class="form-label small" for="@(p)_Line">Adres</label>
+        <textarea class="form-control" id="@(p)_Line" name="@(p).Line" rows="2" maxlength="250" required>@a.Line</textarea>
+        <span class="text-danger small field-validation-valid" data-valmsg-for="@(p).Line"></span>
+    </div>
+    <div class="col-sm-5">
+        <label class="form-label small" for="@(p)_District">İlçe</label>
+        <input class="form-control" id="@(p)_District" name="@(p).District" value="@a.District" maxlength="60" required />
+    </div>
+    <div class="col-sm-4">
+        <label class="form-label small" for="@(p)_City">İl</label>
+        <input class="form-control" id="@(p)_City" name="@(p).City" value="@a.City" maxlength="60" required />
+    </div>
+    <div class="col-sm-3">
+        <label class="form-label small" for="@(p)_PostalCode">Posta Kodu</label>
+        <input class="form-control" id="@(p)_PostalCode" name="@(p).PostalCode" value="@a.PostalCode"
+               inputmode="numeric" pattern="\d{5}" maxlength="5" title="5 haneli posta kodu" required />
+    </div>
+</div>

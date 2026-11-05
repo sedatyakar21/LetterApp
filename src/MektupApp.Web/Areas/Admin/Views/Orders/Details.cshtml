@@ -1,0 +1,155 @@
+@model OrderDetailsViewModel
+@{
+    var l = Model.Letter;
+    ViewData["Title"] = $"Sipariş — {l.RecipientName}";
+}
+
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+    <div>
+        <a asp-action="Index" class="small">← Siparişler</a>
+        <h1 class="h4 mb-0 mt-1">@l.RecipientName <partial name="_StatusBadge" model="l.Status" /></h1>
+        <div class="text-muted small font-monospace">#@l.Id</div>
+    </div>
+    <a class="btn btn-outline-secondary btn-sm" asp-action="Print" asp-route-id="@l.Id" target="_blank">🖨️ Yazdır</a>
+</div>
+
+<div class="row g-3">
+    <div class="col-xl-7">
+        <!-- Sıradaki işlem -->
+        @if (l.Status is LetterStatus.Paid or LetterStatus.InProduction or LetterStatus.Shipped)
+        {
+            <div class="admin-card p-3 mb-3">
+                <div class="fw-semibold mb-2">Sıradaki adım</div>
+                @switch (l.Status)
+                {
+                    case LetterStatus.Paid:
+                        <form asp-action="StartProduction" asp-route-id="@l.Id" method="post" class="d-flex align-items-center gap-2">
+                            <button class="btn btn-warning">Basıma Al</button>
+                            <span class="text-muted small">Mektubu yazdırıp zarflamaya başlayın.</span>
+                        </form>
+                        break;
+                    case LetterStatus.InProduction:
+                        <form asp-action="Ship" asp-route-id="@l.Id" method="post" class="d-flex flex-wrap align-items-center gap-2">
+                            <label for="trackingCode" class="visually-hidden">Takip kodu</label>
+                            <input id="trackingCode" name="TrackingCode" class="form-control" style="max-width:220px" placeholder="RR123456789TR" required />
+                            <button class="btn btn-primary">Postaya Ver</button>
+                            <span class="text-muted small">Müşteriye takip kodu SMS ile gönderilir.</span>
+                        </form>
+                        break;
+                    case LetterStatus.Shipped:
+                        <form asp-action="Deliver" asp-route-id="@l.Id" method="post" class="d-flex align-items-center gap-2">
+                            <button class="btn btn-success">Teslim Edildi</button>
+                            <span class="text-muted small">Takip: <span class="font-monospace">@l.TrackingCode</span></span>
+                        </form>
+                        break;
+                }
+            </div>
+        }
+
+        <div class="envelope envelope-@l.Style.Envelope mb-3">
+            <div class="envelope-from small">@l.SenderName<br />@l.SenderAddress.Line, @l.SenderAddress.District / @l.SenderAddress.City</div>
+            <div class="envelope-to">@l.RecipientName</div>
+        </div>
+        <partial name="_LetterPaper" model="l" />
+
+        @if (l.Photos.Count > 0)
+        {
+            <div class="admin-card p-3 mt-3">
+                <div class="fw-semibold mb-2">Fotoğraflar (@l.Photos.Count)</div>
+                <div class="d-flex flex-wrap gap-2">
+                    @foreach (var p in l.Photos)
+                    {
+                        <a href="@Url.Action("Photo", "Letters", new { area = "", id = l.Id, photoId = p.Id })" target="_blank">
+                            <img class="photo-thumb" src="@Url.Action("Photo", "Letters", new { area = "", id = l.Id, photoId = p.Id })" alt="@p.OriginalFileName" />
+                        </a>
+                    }
+                </div>
+            </div>
+        }
+    </div>
+
+    <div class="col-xl-5">
+        <div class="card admin-card mb-3">
+            <div class="card-header">Sipariş bilgileri</div>
+            <ul class="list-group list-group-flush small">
+                <li class="list-group-item">
+                    <div class="text-muted">Alıcı</div>
+                    <strong>@l.RecipientName</strong> (@l.RecipientType.DisplayName())
+                    @if (l.RecipientDetail is not null) { <br />@l.RecipientDetail }
+                    <br />@l.RecipientAddress.Line, @l.RecipientAddress.District / @l.RecipientAddress.City @l.RecipientAddress.PostalCode
+                </li>
+                <li class="list-group-item">
+                    <div class="text-muted">Gönderen (iade adresi)</div>
+                    <strong>@l.SenderName</strong><br />
+                    @l.SenderAddress.Line, @l.SenderAddress.District / @l.SenderAddress.City @l.SenderAddress.PostalCode
+                </li>
+                <li class="list-group-item">
+                    <div class="text-muted">Üretim</div>
+                    @l.PageCount sayfa · Kağıt: @l.Style.Paper.DisplayName() · Zarf: @l.Style.Envelope.DisplayName()<br />
+                    Yazı: @l.Style.Font.DisplayName() / @l.Style.Ink.DisplayName() · Koku: @l.Scent.DisplayName()<br />
+                    Kartpostal: @(l.Postcard is null ? "Yok" : $"{l.Postcard.Category.DisplayName()} #{l.Postcard.Design}") · Fotoğraf: @l.Photos.Count
+                </li>
+                <li class="list-group-item">
+                    <div class="text-muted">Ödeme</div>
+                    @(l.PaidAmount is { } amt ? $"{new Money(amt)} · {l.PaymentMethod?.DisplayName()}" : "Ödenmedi")
+                    @if (l.PointsUsed > 0) { <br /><span>Puanla ödenen: @l.PointsUsed.ToString("N2")</span> }
+                    @if (l.PointsToEarn > 0)
+                    {
+                        <br /><span class="text-muted">Kazandıracağı puan: @l.PointsToEarn.ToString("N2")
+                            @(l.Status is LetterStatus.Shipped or LetterStatus.Delivered ? "(yüklendi)" : "(postaya verilince yüklenir)")</span>
+                    }
+                </li>
+            </ul>
+        </div>
+
+        @if (Model.Customer is { } c)
+        {
+            <div class="card admin-card mb-3">
+                <div class="card-header d-flex justify-content-between">
+                    <span>Müşteri</span>
+                    <a asp-controller="Customers" asp-action="Details" asp-route-id="@c.Id" class="small fw-normal">Profil →</a>
+                </div>
+                <div class="card-body small">
+                    <strong>@c.FullName</strong> @if (!c.IsActive) { <span class="badge bg-danger">Engelli</span> }<br />
+                    @c.Email · @c.Phone<br />
+                    <span class="text-muted">@c.OrderCount sipariş · @(new Money(c.TotalSpent))</span>
+                </div>
+            </div>
+        }
+
+        <div class="card admin-card mb-3">
+            <div class="card-header">Durum geçmişi</div>
+            <div class="card-body">
+                <ul class="timeline">
+                    @foreach (var h in l.History.Reverse())
+                    {
+                        <li>
+                            <div class="fw-semibold small">@h.Status.DisplayName()</div>
+                            <div class="small">@h.Note</div>
+                            <div class="text-muted small">@h.At.ToLocalTime().ToString("dd.MM.yyyy HH:mm")</div>
+                        </li>
+                    }
+                </ul>
+            </div>
+        </div>
+
+        @if (l.CanCancel)
+        {
+            <div class="card admin-card border-danger-subtle">
+                <div class="card-header text-danger">Siparişi iptal et</div>
+                <div class="card-body">
+                    <form asp-action="Cancel" asp-route-id="@l.Id" method="post"
+                          onsubmit="return confirm('Sipariş iptal edilecek. Emin misiniz?')">
+                        <label for="reason" class="form-label small">İptal nedeni (müşteri geçmişinde görünür)</label>
+                        <input id="reason" name="reason" class="form-control form-control-sm mb-2" maxlength="150" required />
+                        <button class="btn btn-sm btn-outline-danger">İptal Et</button>
+                        @if (l.Status == LetterStatus.Paid)
+                        {
+                            <div class="form-text">Ödeme alınmış; müşteriye iade bildirimi gönderilir. İadeyi ödeme sağlayıcısından yapmayı unutmayın.</div>
+                        }
+                    </form>
+                </div>
+            </div>
+        }
+    </div>
+</div>

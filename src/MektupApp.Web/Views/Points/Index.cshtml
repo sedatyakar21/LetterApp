@@ -1,0 +1,74 @@
+@model MektupApp.Application.Loyalty.LoyaltyAccountDto
+@using MektupApp.Domain.Common
+@using MektupApp.Domain.Loyalty
+@{
+    ViewData["Title"] = "Puanlarım";
+    var s = (MektupApp.Application.Loyalty.LoyaltySettingsDto)ViewBag.Settings;
+}
+<div class="container py-4" style="max-width: 760px">
+    <h1 class="h3 mb-3">MektupPuan</h1>
+
+    <div class="row g-3 mb-4">
+        <div class="col-sm-6">
+            <div class="card card-body">
+                <div class="text-muted small">Kullanılabilir bakiye</div>
+                <div class="display-6 fw-semibold">@Model.Balance.ToString("N2") <span class="fs-5">puan</span></div>
+                <div class="text-muted small">1 puan = 1 ₺ · Ödeme adımında kullanabilirsiniz.</div>
+            </div>
+        </div>
+        <div class="col-sm-6">
+            <div class="card card-body h-100">
+                <div class="text-muted small">Nasıl kazanılır?</div>
+                @if (s.IsEnabled)
+                {
+                    <div class="mt-1">
+                        Gönderdiğiniz her mektup postaya verildiğinde
+                        @if (s.RewardType == RewardType.Percentage)
+                        {
+                            @:ödediğiniz tutar üzerinden <strong>%@s.Value.ToString("0.##") oranında</strong> puan kazanırsınız.
+                        }
+                        else
+                        {
+                            <strong>@s.Value.ToString("0.##") puan</strong> @:kazanırsınız.
+                        }
+                    </div>
+                }
+                else
+                {
+                    <div class="mt-1 text-muted">Puan kazanımı şu an kapalı. Mevcut puanlarınızı kullanmaya devam edebilirsiniz.</div>
+                }
+                <div class="text-muted small mt-2">Toplam kazanılan: @Model.TotalEarned.ToString("N2") puan</div>
+            </div>
+        </div>
+    </div>
+
+    <h2 class="h5">Hareketler</h2>
+    @if (Model.Transactions.Count == 0)
+    {
+        <p class="text-muted">Henüz puan hareketi yok. İlk mektubunuzu gönderin, puanınız hesabınıza yüklensin. ✉️</p>
+    }
+    else
+    {
+        <div class="list-group">
+            @foreach (var t in Model.Transactions)
+            {
+                <div class="list-group-item d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="fw-semibold">@t.Type.DisplayName()</div>
+                        <div class="small text-muted">
+                            @t.Note
+                            @if (t.LetterId is { } lid)
+                            {
+                                <a asp-controller="Letters" asp-action="Details" asp-route-id="@lid">Mektubu gör</a>
+                            }
+                        </div>
+                        <div class="small text-muted">@t.At.ToLocalTime().ToString("dd.MM.yyyy HH:mm")</div>
+                    </div>
+                    <div class="fw-semibold @(t.Points >= 0 ? "text-success" : "text-danger")">
+                        @(t.Points >= 0 ? "+" : "")@t.Points.ToString("N2")
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>

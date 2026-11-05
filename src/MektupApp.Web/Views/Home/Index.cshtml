@@ -1,0 +1,68 @@
+﻿@model PriceList
+@{
+    ViewData["Title"] = "Online Mektup Gönder";
+    var features = new (string Icon, string Title, string Text)[]
+    {
+        ("🎨", "Kişiselleştir", "Kağıt ve zarf rengi, yazı stili, mürekkep rengi, koku ve kartpostal seçin; fotoğraf ekleyin."),
+        ("⏱️", "Sıra Beklemeden", "Mektubunuzu evden yazın, biz basıp zarflayalım ve postaya verelim."),
+        ("📦", "Takip Edilebilir", "Mektubunuz yola çıktığında kayıtlı gönderi takip kodunuz SMS ile gelir."),
+        ("😊", "Emoji Desteği", "Emojiler renkli olarak basılır; mektubunuz sizin gibi konuşur."),
+        ("🖨️", "Kaliteli Baskı", "Kaliteli kağıt ve profesyonel yazıcılarla okunaklı, temiz bir sonuç."),
+        ("💾", "Taslak ve Arşiv", "Yarım kalan mektubu kaydedin, gönderdiklerinizi istediğiniz zaman tekrar okuyun.")
+    };
+}
+
+<section class="hero">
+    <div class="container py-5">
+        <div class="row align-items-center g-5">
+            <div class="col-lg-6">
+                <h1 class="display-5 fw-semibold">Mektubunu yaz,<br />gerisini bize bırak.</h1>
+                <p class="lead mt-3">
+                    Sevdiklerine, askerdeki yakınına ya da cezaevindeki bir dostuna mektup göndermek için
+                    kağıda, kaleme, postane kuyruğuna gerek yok.
+                </p>
+                <div class="d-flex gap-2 mt-4">
+                    <a class="btn btn-primary btn-lg" asp-controller="Letters" asp-action="Write">Mektup Yaz</a>
+                    <a class="btn btn-outline-secondary btn-lg" asp-controller="Tracking" asp-action="Index">Gönderi Takibi</a>
+                </div>
+                <p class="text-muted small mt-3">Üyelik ücretsiz. Fiyatlar @(new MektupApp.Domain.Common.Money(Model.BasePrice))'den başlar.</p>
+            </div>
+            <div class="col-lg-6">
+                <div class="paper paper-Cream font-Handwriting ink-Navy hero-paper">
+                    <div class="paper-content">Sevgili Anneciğim,
+
+Burada her şey yolunda, merak etme. 🌿
+Seni çok özledim, mektubunu dört gözle bekliyorum. 💌</div>
+                    <div class="paper-signature">— Oğlun</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="container py-5">
+    <h2 class="h3 text-center mb-4">Nasıl çalışır?</h2>
+    <div class="row g-4 text-center steps">
+        <div class="col-md-3"><div class="step-no">1</div><h3 class="h6">Üye ol</h3><p class="text-muted small">Birkaç saniyede ücretsiz hesap aç.</p></div>
+        <div class="col-md-3"><div class="step-no">2</div><h3 class="h6">Yaz ve süsle</h3><p class="text-muted small">Mektubunu yaz, renkleri ve ekstraları seç.</p></div>
+        <div class="col-md-3"><div class="step-no">3</div><h3 class="h6">Öde</h3><p class="text-muted small">Fiyat dökümünü gör, kart veya mobil ödeme ile tamamla.</p></div>
+        <div class="col-md-3"><div class="step-no">4</div><h3 class="h6">Takip et</h3><p class="text-muted small">Basılıp postaya verilir, takip kodun SMS ile gelir.</p></div>
+    </div>
+</section>
+
+<section class="bg-light-subtle border-top border-bottom">
+    <div class="container py-5">
+        <div class="row g-4">
+            @foreach (var f in features)
+            {
+                <div class="col-md-6 col-lg-4">
+                    <div class="feature h-100">
+                        <div class="feature-icon">@f.Icon</div>
+                        <h3 class="h6 mt-2">@f.Title</h3>
+                        <p class="text-muted small mb-0">@f.Text</p>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</section>

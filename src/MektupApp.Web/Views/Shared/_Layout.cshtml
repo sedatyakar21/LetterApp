@@ -1,0 +1,75 @@
+﻿<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] | MektupApp</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Caveat:wght@500&family=Lora:ital@0;1&display=swap">
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+</head>
+<body>
+    <header>
+        <nav class="navbar navbar-expand-md navbar-light bg-white border-bottom">
+            <div class="container">
+                <a class="navbar-brand brand" asp-controller="Home" asp-action="Index">✉️ MektupApp</a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav"
+                        aria-controls="mainNav" aria-expanded="false" aria-label="Menüyü aç">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div id="mainNav" class="collapse navbar-collapse">
+                    <ul class="navbar-nav me-auto">
+                        <li class="nav-item"><a class="nav-link" asp-controller="Letters" asp-action="Write">Mektup Yaz</a></li>
+                        <li class="nav-item"><a class="nav-link" asp-controller="Tracking" asp-action="Index">Gönderi Takibi</a></li>
+                        <li class="nav-item"><a class="nav-link" asp-controller="Home" asp-action="Faq">S.S.S.</a></li>
+                    </ul>
+                    <ul class="navbar-nav">
+                        @if (User.Identity?.IsAuthenticated == true)
+                        {
+                            @if (User.IsInRole("Admin"))
+                            {
+                                <li class="nav-item"><a class="nav-link" asp-area="Admin" asp-controller="Dashboard" asp-action="Index">Yönetim</a></li>
+                            }
+                            <li class="nav-item"><a class="nav-link" asp-controller="Letters" asp-action="Index">Mektuplarım</a></li>
+                            <li class="nav-item"><a class="nav-link" asp-area="" asp-controller="Points" asp-action="Index">🎁 Puanlarım</a></li>
+                            <li class="nav-item">
+                                <form asp-controller="Account" asp-action="Logout" method="post" class="d-inline">
+                                    <button type="submit" class="btn btn-link nav-link">Çıkış (@User.Identity.Name)</button>
+                                </form>
+                            </li>
+                        }
+                        else
+                        {
+                            <li class="nav-item"><a class="nav-link" asp-controller="Account" asp-action="Login">Giriş Yap</a></li>
+                            <li class="nav-item"><a class="btn btn-primary ms-md-2" asp-controller="Account" asp-action="Register">Kayıt Ol</a></li>
+                        }
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main role="main" class="pb-5">
+        <div class="container mt-3">
+            <partial name="_Alerts" />
+        </div>
+        @RenderBody()
+    </main>
+
+    <footer class="site-footer">
+        <div class="container d-flex flex-wrap justify-content-between gap-3">
+            <span>&copy; @DateTime.Now.Year MektupApp — Online mektup gönderme</span>
+            <span>
+                <a asp-controller="Home" asp-action="Faq">Sıkça Sorulan Sorular</a> ·
+                <a asp-controller="Home" asp-action="Terms">Üyelik Sözleşmesi</a>
+            </span>
+        </div>
+    </footer>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

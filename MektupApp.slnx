@@ -1,0 +1,11 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/MektupApp.Application/MektupApp.Application.csproj" />
+    <Project Path="src/MektupApp.Domain/MektupApp.Domain.csproj" />
+    <Project Path="src/MektupApp.Infrastructure/MektupApp.Infrastructure.csproj" />
+    <Project Path="src/MektupApp.Web/MektupApp.Web.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/MektupApp.Domain.Tests/MektupApp.Domain.Tests.csproj" />
+  </Folder>
+</Solution>

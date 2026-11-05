@@ -1,0 +1,155 @@
+@model DashboardDto
+@{
+    ViewData["Title"] = "Genel Bakış";
+    Money M(decimal v) => new(v);
+    var max = Model.Last14Days.Max(d => d.Revenue);
+    // Eksen için "yuvarlak" bir üst sınır seç (ör. 1.000, 2.500, 5.000 ...).
+    decimal NiceCeiling(decimal v)
+    {
+        if (v <= 0) return 1000;
+        var pow = (decimal)Math.Pow(10, Math.Floor(Math.Log10((double)v)));
+        foreach (var step in new[] { 1m, 2m, 2.5m, 5m, 10m })
+            if (step * pow >= v) return step * pow;
+        return 10 * pow;
+    }
+    var axisMax = NiceCeiling(max);
+    var tr = System.Globalization.CultureInfo.GetCultureInfo("tr-TR");
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="h4 mb-0">Genel Bakış</h1>
+    <span class="text-muted small">@DateTime.Now.ToString("d MMMM yyyy, dddd", tr)</span>
+</div>
+
+<!-- Bekleyen işler: operasyon ekibinin ilk bakacağı yer -->
+<div class="row g-3 mb-3">
+    <div class="col-6 col-xl-3">
+        <a class="stat-tile" asp-controller="Orders" asp-action="Index" asp-route-status="@LetterStatus.Paid">
+            <div class="stat-label">Basım bekleyen</div>
+            <div class="stat-value">@Model.CountsByStatus[LetterStatus.Paid]</div>
+            <div class="stat-sub">Ödendi, henüz basılmadı →</div>
+        </a>
+    </div>
+    <div class="col-6 col-xl-3">
+        <a class="stat-tile" asp-controller="Orders" asp-action="Index" asp-route-status="@LetterStatus.InProduction">
+            <div class="stat-label">Postaya verilecek</div>
+            <div class="stat-value">@Model.CountsByStatus[LetterStatus.InProduction]</div>
+            <div class="stat-sub">Basımda →</div>
+        </a>
+    </div>
+    <div class="col-6 col-xl-3">
+        <a class="stat-tile" asp-controller="Orders" asp-action="Index" asp-route-status="@LetterStatus.Shipped">
+            <div class="stat-label">Yolda</div>
+            <div class="stat-value">@Model.CountsByStatus[LetterStatus.Shipped]</div>
+            <div class="stat-sub">Teslimat bekleniyor →</div>
+        </a>
+    </div>
+    <div class="col-6 col-xl-3">
+        <a class="stat-tile" asp-controller="Customers" asp-action="Index">
+            <div class="stat-label">Müşteri</div>
+            <div class="stat-value">@Model.CustomerCount</div>
+            <div class="stat-sub">Son 7 günde +@Model.NewCustomersLast7Days →</div>
+        </a>
+    </div>
+</div>
+
+<!-- Ciro -->
+<div class="row g-3 mb-3">
+    <div class="col-md-4">
+        <div class="stat-tile">
+            <div class="stat-label">Bugün</div>
+            <div class="stat-value">@M(Model.RevenueToday)</div>
+            <div class="stat-sub">@Model.OrdersToday sipariş</div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="stat-tile">
+            <div class="stat-label">Bu ay</div>
+            <div class="stat-value">@M(Model.RevenueThisMonth)</div>
+            <div class="stat-sub">İptaller hariç</div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="stat-tile">
+            <div class="stat-label">Toplam ciro</div>
+            <div class="stat-value">@M(Model.RevenueTotal)</div>
+            <div class="stat-sub">Teslim edilen: @Model.CountsByStatus[LetterStatus.Delivered] · İptal: @Model.CountsByStatus[LetterStatus.Cancelled]</div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-3">
+    <div class="col-xl-7">
+        <div class="card admin-card h-100">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span>Günlük ciro — son 14 gün</span>
+                <button class="btn btn-sm btn-link p-0" type="button" data-bs-toggle="collapse" data-bs-target="#dailyTable">Tablo görünümü</button>
+            </div>
+            <div class="card-body">
+                <div class="bar-chart" role="img" aria-label="Son 14 günün günlük cirosu, en yüksek gün @M(max)">
+                    @foreach (var frac in new[] { 0.5m, 1m })
+                    {
+                        <div class="gridline" style="bottom: @((frac * 100).ToString("0", System.Globalization.CultureInfo.InvariantCulture))%">
+                            <span>@((axisMax * frac).ToString("N0", tr)) ₺</span>
+                        </div>
+                    }
+                    @foreach (var d in Model.Last14Days)
+                    {
+                        var h = axisMax == 0 ? 0 : (double)(d.Revenue / axisMax * 100);
+                        <div class="bar-col" tabindex="0" aria-label="@d.Day.ToString("d MMMM", tr): @M(d.Revenue), @d.Orders sipariş">
+                            <div class="bar" style="height: @h.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture)%"></div>
+                            <div class="bar-tip"><strong>@d.Day.ToString("d MMM ddd", tr)</strong><br />@M(d.Revenue) · @d.Orders sipariş</div>
+                        </div>
+                    }
+                </div>
+                <div class="bar-axis" aria-hidden="true">
+                    @foreach (var (d, i) in Model.Last14Days.Select((d, i) => (d, i)))
+                    {
+                        <span>@(i % 2 == 1 || i == Model.Last14Days.Count - 1 ? d.Day.ToString("dd.MM") : "")</span>
+                    }
+                </div>
+
+                <div class="collapse mt-3" id="dailyTable">
+                    <table class="table table-sm small mb-0">
+                        <thead><tr><th>Gün</th><th class="text-end">Sipariş</th><th class="text-end">Ciro</th></tr></thead>
+                        <tbody>
+                            @foreach (var d in Model.Last14Days.Reverse())
+                            {
+                                <tr><td>@d.Day.ToString("d MMMM ddd", tr)</td><td class="text-end">@d.Orders</td><td class="text-end">@M(d.Revenue)</td></tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-5">
+        <div class="card admin-card h-100">
+            <div class="card-header d-flex justify-content-between">
+                <span>Son siparişler</span>
+                <a asp-controller="Orders" asp-action="Index" class="small fw-normal">Tümü →</a>
+            </div>
+            <div class="list-group list-group-flush">
+                @foreach (var o in Model.RecentOrders)
+                {
+                    <a class="list-group-item list-group-item-action d-flex justify-content-between align-items-center gap-2"
+                       asp-controller="Orders" asp-action="Details" asp-route-id="@o.Id">
+                        <div class="min-w-0">
+                            <div class="fw-semibold text-truncate">@o.RecipientName <span class="text-muted small fw-normal">· @o.City</span></div>
+                            <div class="text-muted small">@o.SenderName · @o.PaidAt?.ToLocalTime().ToString("dd.MM HH:mm")</div>
+                        </div>
+                        <div class="text-end flex-shrink-0">
+                            <div class="small fw-semibold">@(o.PaidAmount is { } a ? M(a).ToString() : "-")</div>
+                            <partial name="_StatusBadge" model="o.Status" />
+                        </div>
+                    </a>
+                }
+                @if (Model.RecentOrders.Count == 0)
+                {
+                    <div class="list-group-item text-muted small">Henüz sipariş yok.</div>
+                }
+            </div>
+        </div>
+    </div>
+</div>

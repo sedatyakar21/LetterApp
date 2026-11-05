@@ -1,0 +1,47 @@
+@model LetterDetailsDto
+@{
+    ViewData["Title"] = "Yazdır";
+}
+<div style="max-width: 820px">
+    <div class="no-print d-flex justify-content-between align-items-center mb-3">
+        <a asp-action="Details" asp-route-id="@Model.Id">← Sipariş</a>
+        <button class="btn btn-primary" onclick="window.print()">Yazdır</button>
+    </div>
+
+    <div class="border rounded p-3 mb-4 bg-white">
+        <div class="row small">
+            <div class="col-6">
+                <div class="text-muted">GÖNDEREN</div>
+                <strong>@Model.SenderName</strong><br />
+                @Model.SenderAddress.Line<br />
+                @Model.SenderAddress.District / @Model.SenderAddress.City @Model.SenderAddress.PostalCode
+            </div>
+            <div class="col-6">
+                <div class="text-muted">ALICI</div>
+                <strong>@Model.RecipientName</strong><br />
+                @if (Model.RecipientDetail is not null) { @Model.RecipientDetail<br /> }
+                @Model.RecipientAddress.Line<br />
+                @Model.RecipientAddress.District / @Model.RecipientAddress.City @Model.RecipientAddress.PostalCode
+            </div>
+        </div>
+        <hr />
+        <div class="small no-print">
+            Zarf: <strong>@Model.Style.Envelope.DisplayName()</strong> ·
+            Koku: <strong>@Model.Scent.DisplayName()</strong> ·
+            Kartpostal: <strong>@(Model.Postcard is null ? "Yok" : $"{Model.Postcard.Category.DisplayName()} #{Model.Postcard.Design}")</strong> ·
+            Fotoğraf: <strong>@Model.Photos.Count</strong>
+        </div>
+    </div>
+
+    <partial name="_LetterPaper" model="Model" />
+
+    @if (Model.Photos.Count > 0)
+    {
+        <div class="d-flex flex-wrap gap-3 mt-4">
+            @foreach (var p in Model.Photos)
+            {
+                <img src="@Url.Action("Photo", "Letters", new { area = "", id = Model.Id, photoId = p.Id })" style="max-width: 48%" alt="@p.OriginalFileName" />
+            }
+        </div>
+    }
+</div>

@@ -1,0 +1,118 @@
+:root {
+    --brand: #b5485d;
+    --brand-dark: #8f3446;
+    --ink: #2b2b2b;
+    --muted-bg: #faf7f2;
+}
+
+html { font-size: 15px; }
+@media (min-width: 768px) { html { font-size: 16px; } }
+
+body {
+    color: var(--ink);
+    background: #fff;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+main { flex: 1; }
+
+.btn-primary { --bs-btn-bg: var(--brand); --bs-btn-border-color: var(--brand); --bs-btn-hover-bg: var(--brand-dark); --bs-btn-hover-border-color: var(--brand-dark); --bs-btn-active-bg: var(--brand-dark); }
+.btn-outline-primary { --bs-btn-color: var(--brand); --bs-btn-border-color: var(--brand); --bs-btn-hover-bg: var(--brand); --bs-btn-hover-border-color: var(--brand); }
+a { color: var(--brand); }
+.brand { font-weight: 600; color: var(--brand) !important; }
+.min-w-0 { min-width: 0; }
+
+.hero { background: linear-gradient(135deg, #fdf3ee 0%, #f6eef6 100%); }
+.hero-paper { transform: rotate(-2deg); max-width: 460px; margin: 0 auto; }
+
+.step-no {
+    width: 44px; height: 44px; line-height: 44px; margin: 0 auto .5rem;
+    border-radius: 50%; background: var(--brand); color: #fff; font-weight: 600;
+}
+.feature { background: #fff; border: 1px solid #eee; border-radius: .75rem; padding: 1.25rem; }
+.feature-icon { font-size: 1.75rem; }
+
+.site-footer { border-top: 1px solid #eee; padding: 1.5rem 0; color: #777; font-size: .9rem; background: var(--muted-bg); }
+.site-footer a { color: #777; }
+
+/* ---------- Mektup kağıdı ---------- */
+.paper {
+    position: relative;
+    padding: 2.5rem 2.25rem 2rem;
+    min-height: 420px;
+    border-radius: 4px;
+    box-shadow: 0 2px 12px rgba(0,0,0,.12);
+    background-image: repeating-linear-gradient(transparent, transparent 31px, rgba(0,0,0,.06) 32px);
+    line-height: 32px;
+}
+.paper-content { white-space: pre-wrap; word-wrap: break-word; }
+.paper-signature { text-align: right; margin-top: 1.5rem; }
+
+.paper-White { background-color: #fff; }
+.paper-Cream { background-color: #fbf3df; }
+.paper-Pink  { background-color: #fde4ea; }
+.paper-Blue  { background-color: #e3eefb; }
+.paper-Green { background-color: #e5f4e3; }
+
+.font-Serif { font-family: "Lora", Georgia, serif; font-size: 1.05rem; }
+.font-Sans { font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; font-size: 1rem; }
+.font-Handwriting { font-family: "Caveat", "Segoe Script", cursive; font-size: 1.5rem; }
+
+.ink-Black { color: #222; }
+.ink-Navy { color: #1f3a68; }
+.ink-Burgundy { color: #7a1f33; }
+
+.letter-textarea { font-family: "Lora", Georgia, serif; }
+
+/* ---------- Zarf ---------- */
+.envelope {
+    position: relative;
+    height: 150px;
+    border-radius: 6px;
+    box-shadow: 0 2px 10px rgba(0,0,0,.12);
+    padding: 1rem 1.25rem;
+    overflow: hidden;
+}
+.envelope::before {
+    content: ""; position: absolute; inset: 0;
+    background: linear-gradient(160deg, transparent 49.5%, rgba(0,0,0,.07) 50%, transparent 50.5%),
+                linear-gradient(20deg, transparent 49.5%, rgba(0,0,0,.07) 50%, transparent 50.5%);
+}
+.envelope-from { position: relative; opacity: .8; }
+.envelope-to { position: absolute; right: 1.5rem; bottom: 1.25rem; font-weight: 600; font-size: 1.1rem; }
+.envelope-White { background: #fff; color: #333; border: 1px solid #eee; }
+.envelope-Kraft { background: #d2b48c; color: #3d2b16; }
+.envelope-Red { background: #b8323f; color: #fff; }
+.envelope-Navy { background: #1f2f55; color: #fff; }
+.envelope-Pink { background: #f4b6c6; color: #5a2333; }
+
+/* ---------- Kartpostal ---------- */
+.postcard-option input { position: absolute; opacity: 0; }
+.postcard-tile {
+    display: flex; align-items: center; justify-content: center;
+    width: 72px; height: 50px; border-radius: 6px; font-size: 1.4rem;
+    border: 2px solid transparent; cursor: pointer;
+}
+.postcard-option input:checked + .postcard-tile { border-color: var(--brand); box-shadow: 0 0 0 3px rgba(181,72,93,.2); }
+.postcard-option input:focus-visible + .postcard-tile { outline: 2px solid var(--brand); }
+.design-1 { background: linear-gradient(135deg, #ffd1dc, #ff9aa2); }
+.design-2 { background: linear-gradient(135deg, #b5ead7, #74c69d); }
+.design-3 { background: linear-gradient(135deg, #c7ceea, #8e9aaf); }
+.design-4 { background: linear-gradient(135deg, #ffdac1, #f9c74f); }
+
+/* ---------- Durum zaman çizelgesi ---------- */
+.timeline { list-style: none; padding-left: 0; margin: 0; }
+.timeline li { position: relative; padding: 0 0 1rem 1.5rem; border-left: 2px solid #e5e5e5; margin-left: .4rem; }
+.timeline li:last-child { border-left-color: transparent; }
+.timeline li::before {
+    content: ""; position: absolute; left: -7px; top: 4px; width: 12px; height: 12px;
+    border-radius: 50%; background: var(--brand);
+}
+
+.photo-thumb { width: 110px; height: 110px; object-fit: cover; border-radius: 6px; }
+
+@media print {
+    header, footer, .no-print { display: none !important; }
+    .paper { box-shadow: none; background-image: none; }
+}

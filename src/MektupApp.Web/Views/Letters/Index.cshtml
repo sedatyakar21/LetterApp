@@ -1,0 +1,43 @@
+@model IReadOnlyList<LetterSummaryDto>
+@{
+    ViewData["Title"] = "Mektuplarım";
+}
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 mb-0">Mektuplarım</h1>
+        <a class="btn btn-primary" asp-action="Write">+ Yeni Mektup</a>
+    </div>
+
+    @if (Model.Count == 0)
+    {
+        <div class="text-center text-muted py-5 border rounded">
+            <div class="display-6">✉️</div>
+            <p class="mt-2">Henüz bir mektubunuz yok.</p>
+            <a class="btn btn-outline-primary" asp-action="Write">İlk mektubunu yaz</a>
+        </div>
+    }
+    else
+    {
+        <div class="list-group">
+            @foreach (var l in Model)
+            {
+                <a class="list-group-item list-group-item-action py-3"
+                   href="@(l.Status == LetterStatus.Draft ? Url.Action("Edit", new { id = l.Id }) : Url.Action("Details", new { id = l.Id }))">
+                    <div class="d-flex justify-content-between align-items-start gap-3">
+                        <div class="min-w-0">
+                            <div class="fw-semibold">
+                                @l.RecipientName
+                                <span class="text-muted small fw-normal">· @l.RecipientType.DisplayName()</span>
+                            </div>
+                            <div class="text-muted small text-truncate">@(string.IsNullOrWhiteSpace(l.Preview) ? "(boş)" : l.Preview)</div>
+                        </div>
+                        <div class="text-end flex-shrink-0">
+                            <partial name="_StatusBadge" model="l.Status" />
+                            <div class="text-muted small mt-1">@l.UpdatedAt.ToLocalTime().ToString("dd.MM.yyyy HH:mm")</div>
+                        </div>
+                    </div>
+                </a>
+            }
+        </div>
+    }
+</div>

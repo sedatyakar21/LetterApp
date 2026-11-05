@@ -1,0 +1,13 @@
+@model LetterStatus
+@{
+    var css = Model switch
+    {
+        LetterStatus.Draft => "bg-secondary",
+        LetterStatus.Paid => "bg-info text-dark",
+        LetterStatus.InProduction => "bg-warning text-dark",
+        LetterStatus.Shipped => "bg-primary",
+        LetterStatus.Delivered => "bg-success",
+        _ => "bg-dark"
+    };
+}
+<span class="badge @css">@Model.DisplayName()</span>

@@ -1,0 +1,48 @@
+@{
+    var controller = ViewContext.RouteData.Values["controller"]?.ToString();
+    string Active(string name) => controller == name ? "active" : "";
+}
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] | MektupApp Yönetim</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Caveat:wght@500&family=Lora:ital@0;1&display=swap">
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/admin.css" asp-append-version="true" />
+</head>
+<body class="admin">
+    <div class="admin-shell">
+        <aside class="admin-sidebar no-print">
+            <div class="d-flex justify-content-between align-items-center">
+                <a class="admin-brand" asp-area="Admin" asp-controller="Dashboard" asp-action="Index">✉️ MektupApp <small>Yönetim</small></a>
+                <button class="btn btn-sm btn-outline-light d-md-none" type="button" data-bs-toggle="collapse" data-bs-target="#adminNav"
+                        aria-controls="adminNav" aria-expanded="false" aria-label="Menüyü aç">☰</button>
+            </div>
+            <nav id="adminNav" class="collapse d-md-block mt-3">
+                <a class="admin-link @Active("Dashboard")" asp-area="Admin" asp-controller="Dashboard" asp-action="Index">📊 Genel Bakış</a>
+                <a class="admin-link @Active("Orders")" asp-area="Admin" asp-controller="Orders" asp-action="Index">📬 Siparişler</a>
+                <a class="admin-link @Active("Customers")" asp-area="Admin" asp-controller="Customers" asp-action="Index">👥 Müşteriler</a>
+                <a class="admin-link @Active("Pricing")" asp-area="Admin" asp-controller="Pricing" asp-action="Index">💰 Fiyatlar</a>
+                <a class="admin-link @Active("Loyalty")" asp-area="Admin" asp-controller="Loyalty" asp-action="Index">🎁 MektupPuan</a>
+                <hr class="border-secondary" />
+                <a class="admin-link" asp-area="" asp-controller="Home" asp-action="Index">↩ Siteye dön</a>
+                <form asp-area="" asp-controller="Account" asp-action="Logout" method="post">
+                    <button type="submit" class="admin-link btn btn-link text-start w-100">Çıkış (@User.Identity?.Name)</button>
+                </form>
+            </nav>
+        </aside>
+
+        <main class="admin-main">
+            <partial name="_Alerts" />
+            @RenderBody()
+        </main>
+    </div>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

@@ -1,0 +1,46 @@
+@model RegisterViewModel
+@{
+    ViewData["Title"] = "Kayıt Ol";
+}
+<div class="container py-4" style="max-width: 480px">
+    <h1 class="h3 mb-4">Ücretsiz Kayıt Ol</h1>
+    <form asp-action="Register" method="post" class="card card-body">
+        <div asp-validation-summary="ModelOnly" class="text-danger small"></div>
+        <div class="mb-3">
+            <label asp-for="FullName" class="form-label"></label>
+            <input asp-for="FullName" class="form-control" autocomplete="name" />
+            <span asp-validation-for="FullName" class="text-danger small"></span>
+        </div>
+        <div class="mb-3">
+            <label asp-for="Email" class="form-label"></label>
+            <input asp-for="Email" class="form-control" autocomplete="email" />
+            <span asp-validation-for="Email" class="text-danger small"></span>
+        </div>
+        <div class="mb-3">
+            <label asp-for="Phone" class="form-label"></label>
+            <input asp-for="Phone" class="form-control" placeholder="05XX XXX XX XX" autocomplete="tel" />
+            <div class="form-text">Takip kodunuz bu numaraya SMS ile gönderilir.</div>
+            <span asp-validation-for="Phone" class="text-danger small"></span>
+        </div>
+        <div class="mb-3">
+            <label asp-for="Password" class="form-label"></label>
+            <input asp-for="Password" class="form-control" autocomplete="new-password" />
+            <span asp-validation-for="Password" class="text-danger small"></span>
+        </div>
+        <div class="mb-3">
+            <label asp-for="ConfirmPassword" class="form-label"></label>
+            <input asp-for="ConfirmPassword" class="form-control" autocomplete="new-password" />
+            <span asp-validation-for="ConfirmPassword" class="text-danger small"></span>
+        </div>
+        <div class="form-check mb-3">
+            <input asp-for="AcceptTerms" class="form-check-input" />
+            <label asp-for="AcceptTerms" class="form-check-label small">
+                <a asp-controller="Home" asp-action="Terms" target="_blank">Üyelik sözleşmesini</a> okudum ve kabul ediyorum.
+            </label>
+            <span asp-validation-for="AcceptTerms" class="text-danger small d-block"></span>
+        </div>
+        <button type="submit" class="btn btn-primary w-100">Kayıt Ol</button>
+        <p class="text-center small mt-3 mb-0">Zaten üye misin? <a asp-action="Login">Giriş yap</a></p>
+    </form>
+</div>
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }

@@ -1,0 +1,165 @@
+@model CustomerDetailsViewModel
+@{
+    var c = Model.Customer;
+    ViewData["Title"] = c.FullName;
+    var pager = new PagerModel(Model.Letters.Page, Model.Letters.TotalPages, Model.Letters.TotalCount,
+        p => Url.Action("Details", new { id = c.Id, page = p }));
+}
+
+<a asp-action="Index" class="small">← Müşteriler</a>
+<h1 class="h4 mt-1 mb-3">
+    @c.FullName
+    @if (c.IsAdmin) { <span class="badge bg-dark">Yönetici</span> }
+    @if (!c.IsActive) { <span class="badge bg-danger">Engelli</span> }
+</h1>
+
+<div class="row g-3 mb-3">
+    <div class="col-md-4">
+        <div class="stat-tile">
+            <div class="stat-label">İletişim</div>
+            <div class="mt-1">@c.Email</div>
+            <div>@c.Phone</div>
+            <div class="stat-sub mt-1">Üyelik: @c.CreatedAt.ToLocalTime().ToString("dd.MM.yyyy")</div>
+        </div>
+    </div>
+    <div class="col-6 col-md-2">
+        <div class="stat-tile">
+            <div class="stat-label">Sipariş</div>
+            <div class="stat-value">@c.OrderCount</div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="stat-tile">
+            <div class="stat-label">Toplam harcama</div>
+            <div class="stat-value">@(new Money(c.TotalSpent))</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-tile">
+            <div class="stat-label">MektupPuan bakiyesi</div>
+            <div class="stat-value">@Model.Points.Balance.ToString("N2")</div>
+            <div class="stat-sub">Toplam kazanılan: @Model.Points.TotalEarned.ToString("N2")</div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-3 mb-3">
+    <div class="col-lg-5">
+        <div class="admin-card p-3 h-100">
+            <div class="fw-semibold mb-2">Puan düzeltmesi</div>
+            <form asp-controller="Loyalty" asp-action="Adjust" method="post">
+                <input type="hidden" name="customerId" value="@c.Id" />
+                <div class="row g-2">
+                    <div class="col-5">
+                        <label class="form-label small" for="adjPoints">Puan (+ / −)</label>
+                        <input id="adjPoints" name="points" type="number" step="0.01" class="form-control form-control-sm" placeholder="ör. 50 veya -20" required />
+                    </div>
+                    <div class="col-7">
+                        <label class="form-label small" for="adjReason">Açıklama</label>
+                        <input id="adjReason" name="reason" maxlength="120" class="form-control form-control-sm" placeholder="ör. Gecikme telafisi" required />
+                    </div>
+                </div>
+                <button class="btn btn-sm btn-outline-primary mt-2">Uygula</button>
+                <div class="form-text">Düzeltme müşterinin puan geçmişinde açıklamasıyla görünür. Bakiye eksiye düşürülemez.</div>
+            </form>
+        </div>
+    </div>
+    <div class="col-lg-7">
+        <div class="admin-card h-100 overflow-hidden">
+            <div class="p-3 fw-semibold border-bottom">Puan hareketleri</div>
+            <div style="max-height: 260px; overflow-y: auto">
+                <table class="table table-admin table-sm mb-0">
+                    <tbody>
+                        @foreach (var t in Model.Points.Transactions)
+                        {
+                            <tr>
+                                <td class="small text-muted text-nowrap">@t.At.ToLocalTime().ToString("dd.MM.yy HH:mm")</td>
+                                <td class="small">@t.Type.DisplayName()</td>
+                                <td class="small">
+                                    @t.Note
+                                    @if (t.LetterId is { } lid) { <a asp-controller="Orders" asp-action="Details" asp-route-id="@lid">sipariş</a> }
+                                </td>
+                                <td class="small text-end fw-semibold @(t.Points >= 0 ? "text-success" : "text-danger")">@(t.Points >= 0 ? "+" : "")@t.Points.ToString("N2")</td>
+                            </tr>
+                        }
+                        @if (Model.Points.Transactions.Count == 0)
+                        {
+                            <tr><td class="text-muted small p-3">Henüz puan hareketi yok.</td></tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="admin-card p-3 mb-3">
+    <div class="fw-semibold mb-2">Hesap işlemleri</div>
+    @if (Model.IsSelf)
+    {
+        <p class="text-muted small mb-0">Bu sizin hesabınız; kendi hesabınızı engelleyemez veya yetkisini değiştiremezsiniz.</p>
+    }
+    else
+    {
+        <div class="d-flex flex-wrap gap-2">
+            @if (c.IsActive)
+            {
+                <form asp-action="Block" asp-route-id="@c.Id" method="post"
+                      onsubmit="return confirm('Hesap askıya alınacak ve kullanıcının oturumu kapatılacak. Emin misiniz?')">
+                    <button class="btn btn-sm btn-outline-danger" disabled="@c.IsAdmin"
+                            title="@(c.IsAdmin ? "Önce yönetici yetkisini kaldırın" : null)">Hesabı Engelle</button>
+                </form>
+            }
+            else
+            {
+                <form asp-action="Unblock" asp-route-id="@c.Id" method="post">
+                    <button class="btn btn-sm btn-outline-success">Engeli Kaldır</button>
+                </form>
+            }
+
+            @if (c.IsAdmin)
+            {
+                <form asp-action="RevokeAdmin" asp-route-id="@c.Id" method="post"
+                      onsubmit="return confirm('Yönetici yetkisi kaldırılacak. Emin misiniz?')">
+                    <button class="btn btn-sm btn-outline-secondary">Yönetici Yetkisini Kaldır</button>
+                </form>
+            }
+            else if (c.IsActive)
+            {
+                <form asp-action="GrantAdmin" asp-route-id="@c.Id" method="post"
+                      onsubmit="return confirm('Bu kullanıcı yönetim paneline tam erişim alacak. Emin misiniz?')">
+                    <button class="btn btn-sm btn-outline-dark">Yönetici Yap</button>
+                </form>
+            }
+        </div>
+    }
+</div>
+
+<div class="admin-card overflow-hidden">
+    <div class="p-3 fw-semibold border-bottom">Mektupları</div>
+    <div class="table-responsive">
+        <table class="table table-admin table-hover">
+            <thead>
+                <tr><th>Durum</th><th>Alıcı</th><th>İl</th><th class="text-end">Tutar</th><th>Ödeme</th><th>Takip</th></tr>
+            </thead>
+            <tbody>
+                @foreach (var o in Model.Letters.Items)
+                {
+                    <tr>
+                        <td><partial name="_StatusBadge" model="o.Status" /></td>
+                        <td><a asp-controller="Orders" asp-action="Details" asp-route-id="@o.Id">@o.RecipientName</a></td>
+                        <td>@o.City</td>
+                        <td class="text-end">@(o.PaidAmount is { } a ? new Money(a).ToString() : "-")</td>
+                        <td class="small">@(o.PaidAt?.ToLocalTime().ToString("dd.MM.yy HH:mm") ?? "-")</td>
+                        <td class="small font-monospace">@(o.TrackingCode ?? "-")</td>
+                    </tr>
+                }
+                @if (Model.Letters.Items.Count == 0)
+                {
+                    <tr><td colspan="6" class="text-center text-muted py-4">Henüz mektup yok.</td></tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+<partial name="_Pager" model="pager" />

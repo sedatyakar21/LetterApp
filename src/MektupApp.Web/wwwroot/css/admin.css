@@ -1,0 +1,71 @@
+/* ---------- Yönetim paneli ---------- */
+:root {
+    --admin-sidebar: #23202a;
+    --admin-surface: #ffffff;
+    --admin-bg: #f5f4f7;
+    --admin-border: #e7e5ec;
+    --admin-muted: #6b6775;
+    --chart-bar: #b5485d;
+    --chart-bar-hover: #8f3446;
+    --chart-grid: #ece9f0;
+}
+
+body.admin { background: var(--admin-bg); }
+
+.admin-shell { display: flex; min-height: 100vh; }
+.admin-sidebar {
+    width: 230px; flex-shrink: 0; background: var(--admin-sidebar); color: #fff;
+    padding: 1.25rem 1rem; position: sticky; top: 0; height: 100vh; overflow-y: auto;
+}
+.admin-brand { color: #fff !important; font-weight: 600; text-decoration: none; }
+.admin-brand small { opacity: .6; font-weight: 400; }
+.admin-link {
+    display: block; color: rgba(255,255,255,.75) !important; text-decoration: none;
+    padding: .5rem .75rem; border-radius: .4rem; margin-bottom: .15rem; font-size: .95rem;
+}
+.admin-link:hover { background: rgba(255,255,255,.08); color: #fff !important; }
+.admin-link.active { background: var(--brand); color: #fff !important; }
+.admin-main { flex: 1; min-width: 0; padding: 1.5rem 2rem 3rem; }
+
+@media (max-width: 767.98px) {
+    .admin-shell { flex-direction: column; }
+    .admin-sidebar { width: 100%; height: auto; position: static; }
+    .admin-main { padding: 1rem; }
+}
+
+.admin-card { background: var(--admin-surface); border: 1px solid var(--admin-border); border-radius: .6rem; }
+.admin-card > .card-header { background: transparent; border-bottom-color: var(--admin-border); font-weight: 600; }
+
+/* KPI kutuları */
+.stat-tile { background: var(--admin-surface); border: 1px solid var(--admin-border); border-radius: .6rem; padding: 1rem 1.1rem; height: 100%; }
+.stat-label { color: var(--admin-muted); font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; }
+.stat-value { font-size: 1.6rem; font-weight: 600; line-height: 1.2; margin-top: .25rem; }
+.stat-sub { color: var(--admin-muted); font-size: .8rem; }
+a.stat-tile { display: block; color: inherit; text-decoration: none; }
+a.stat-tile:hover { border-color: var(--brand); }
+
+/* Günlük ciro çubuk grafiği: tek seri, tek renk, taban çizgisine bağlı ince çubuklar */
+.bar-chart { position: relative; height: 200px; display: flex; align-items: flex-end; gap: 2px;
+             border-bottom: 1px solid #c9c5d1; padding-top: 1.25rem; }
+.bar-chart .gridline { position: absolute; left: 0; right: 0; border-top: 1px dashed var(--chart-grid); }
+.bar-chart .gridline span { position: absolute; right: 0; top: -1.1em; font-size: .7rem; color: var(--admin-muted); background: var(--admin-surface); padding-left: .25rem; }
+.bar-col { flex: 1; height: 100%; display: flex; align-items: flex-end; justify-content: center; position: relative; outline: none; cursor: default; }
+.bar { width: 60%; max-width: 28px; min-height: 0; background: var(--chart-bar); border-radius: 4px 4px 0 0; }
+.bar-col:hover .bar, .bar-col:focus-visible .bar { background: var(--chart-bar-hover); }
+.bar-col:focus-visible { box-shadow: inset 0 0 0 2px var(--brand); border-radius: 4px; }
+.bar-tip {
+    display: none; position: absolute; bottom: calc(100% + 6px); left: 50%; transform: translateX(-50%);
+    background: #23202a; color: #fff; font-size: .75rem; padding: .35rem .5rem; border-radius: .35rem;
+    white-space: nowrap; z-index: 5; pointer-events: none;
+}
+.bar-col:hover .bar-tip, .bar-col:focus-visible .bar-tip { display: block; }
+.bar-axis { display: flex; gap: 2px; margin-top: .3rem; }
+.bar-axis span { flex: 1; text-align: center; font-size: .68rem; color: var(--admin-muted); }
+
+.status-tabs .nav-link { color: var(--admin-muted); }
+.status-tabs .nav-link.active { color: var(--brand); border-bottom: 2px solid var(--brand); font-weight: 600; }
+.status-tabs .count { font-size: .75rem; background: #eee; border-radius: 1rem; padding: 0 .45rem; margin-left: .25rem; color: #555; }
+
+.table-admin { background: var(--admin-surface); margin-bottom: 0; }
+.table-admin th { font-size: .78rem; text-transform: uppercase; color: var(--admin-muted); font-weight: 600; white-space: nowrap; }
+.table-admin td { vertical-align: middle; }

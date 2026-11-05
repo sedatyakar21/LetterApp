@@ -1,0 +1,6 @@
+@model LetterDetailsDto
+@* Mektubun basılacağı halinin önizlemesi. Hem müşteri hem yönetim ekranında kullanılır. *@
+<div class="paper paper-@Model.Style.Paper font-@Model.Style.Font ink-@Model.Style.Ink">
+    <div class="paper-content">@Model.Content</div>
+    <div class="paper-signature">— @Model.SenderName</div>
+</div>

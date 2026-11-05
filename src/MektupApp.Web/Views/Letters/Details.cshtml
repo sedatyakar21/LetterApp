@@ -1,0 +1,155 @@
+@model LetterDetailsDto
+@{
+    ViewData["Title"] = $"Mektup — {Model.RecipientName}";
+}
+<div class="container py-4">
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+        <div>
+            <a asp-action="Index" class="small">← Mektuplarım</a>
+            <h1 class="h3 mb-0 mt-1">@Model.RecipientName <partial name="_StatusBadge" model="Model.Status" /></h1>
+        </div>
+        <div class="d-flex gap-2">
+            @if (Model.IsEditable)
+            {
+                <a class="btn btn-outline-secondary" asp-action="Edit" asp-route-id="@Model.Id">Düzenle</a>
+                <a class="btn btn-primary" asp-action="Checkout" asp-route-id="@Model.Id">Ödemeye Geç</a>
+            }
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-lg-7">
+            <div class="envelope envelope-@Model.Style.Envelope mb-3">
+                <div class="envelope-from small">@Model.SenderName<br />@Model.SenderAddress.Line, @Model.SenderAddress.District / @Model.SenderAddress.City</div>
+                <div class="envelope-to">@Model.RecipientName</div>
+            </div>
+            <partial name="_LetterPaper" model="Model" />
+        </div>
+
+        <div class="col-lg-5">
+            <div class="card mb-3">
+                <div class="card-header fw-semibold">Özet</div>
+                <ul class="list-group list-group-flush small">
+                    <li class="list-group-item"><strong>Alıcı:</strong> @Model.RecipientName (@Model.RecipientType.DisplayName())
+                        @if (Model.RecipientDetail is not null) { <br /><span class="text-muted">@Model.RecipientDetail</span> }
+                        <br />@Model.RecipientAddress.Line, @Model.RecipientAddress.District / @Model.RecipientAddress.City @Model.RecipientAddress.PostalCode
+                    </li>
+                    <li class="list-group-item"><strong>Sayfa:</strong> @Model.PageCount · <strong>Fotoğraf:</strong> @Model.Photos.Count</li>
+                    <li class="list-group-item">
+                        <strong>Kağıt / Zarf:</strong> @Model.Style.Paper.DisplayName() / @Model.Style.Envelope.DisplayName() ·
+                        <strong>Koku:</strong> @Model.Scent.DisplayName() ·
+                        <strong>Kartpostal:</strong> @(Model.Postcard is null ? "Yok" : $"{Model.Postcard.Category.DisplayName()} #{Model.Postcard.Design}")
+                    </li>
+                    @if (Model.PaidAmount is not null)
+                    {
+                        <li class="list-group-item"><strong>Ödenen:</strong>
+                            @if (Model.PaidAmount.Value > 0)
+                            {
+                                @(new MektupApp.Domain.Common.Money(Model.PaidAmount.Value)) @:(@Model.PaymentMethod?.DisplayName())
+                                @if (Model.PointsUsed > 0) { <span class="text-muted">+ @Model.PointsUsed.ToString("N2") puan</span> }
+                            }
+                            else
+                            {
+                                @:Tamamı puanla ödendi (@Model.PointsUsed.ToString("N2") puan)
+                            }
+                        </li>
+                    }
+                    @if (Model.PointsToEarn > 0 && Model.Status != LetterStatus.Cancelled)
+                    {
+                        <li class="list-group-item">
+                            <strong>MektupPuan:</strong>
+                            @if (Model.Status is LetterStatus.Shipped or LetterStatus.Delivered)
+                            {
+                                <span class="text-success">@Model.PointsToEarn.ToString("N2") puan kazanıldı 🎁</span>
+                            }
+                            else
+                            {
+                                <span>Postaya verildiğinde @Model.PointsToEarn.ToString("N2") puan kazanacaksınız.</span>
+                            }
+                        </li>
+                    }
+                    @if (Model.TrackingCode is not null)
+                    {
+                        <li class="list-group-item"><strong>Takip kodu:</strong>
+                            <a asp-controller="Tracking" asp-action="Index" asp-route-code="@Model.TrackingCode">@Model.TrackingCode</a>
+                        </li>
+                    }
+                </ul>
+            </div>
+
+            <div class="card mb-3" id="photos">
+                <div class="card-header fw-semibold">Fotoğraflar (@Model.Photos.Count / @Letter.MaxPhotos)</div>
+                <div class="card-body">
+                    <div class="d-flex flex-wrap gap-2 mb-2">
+                        @foreach (var p in Model.Photos)
+                        {
+                            <div class="text-center">
+                                <img class="photo-thumb" src="@Url.Action("Photo", new { id = Model.Id, photoId = p.Id })" alt="@p.OriginalFileName" />
+                                @if (Model.IsEditable)
+                                {
+                                    <form asp-action="RemovePhoto" asp-route-id="@Model.Id" asp-route-photoId="@p.Id" method="post">
+                                        <button class="btn btn-link btn-sm text-danger p-0" type="submit">Kaldır</button>
+                                    </form>
+                                }
+                            </div>
+                        }
+                        @if (Model.Photos.Count == 0) { <span class="text-muted small">Fotoğraf eklenmemiş.</span> }
+                    </div>
+                    @if (Model.IsEditable && Model.Photos.Count < Letter.MaxPhotos)
+                    {
+                        <form asp-action="AddPhoto" asp-route-id="@Model.Id" method="post" enctype="multipart/form-data" class="d-flex gap-2">
+                            <input type="file" name="photo" accept=".jpg,.jpeg,.png,.webp" class="form-control form-control-sm" required />
+                            <button class="btn btn-sm btn-outline-primary" type="submit">Yükle</button>
+                        </form>
+                        <div class="form-text">JPG, PNG veya WEBP · en fazla 5 MB</div>
+                    }
+                </div>
+            </div>
+
+            @if (Model.CanChangeAddress && !Model.IsEditable)
+            {
+                <div class="card mb-3">
+                    <div class="card-header fw-semibold">Alıcı adresini değiştir</div>
+                    <div class="card-body">
+                        <p class="small text-muted">Mektubunuz postaya verilene kadar adresi değiştirebilirsiniz.</p>
+                        <form asp-action="ChangeAddress" asp-route-id="@Model.Id" method="post">
+                            <partial name="_AddressFields" model='("address", AddressInput.From(Model.RecipientAddress))' />
+                            <button class="btn btn-sm btn-outline-primary mt-2" type="submit">Adresi Güncelle</button>
+                        </form>
+                    </div>
+                </div>
+            }
+
+            <div class="card mb-3">
+                <div class="card-header fw-semibold">Durum Geçmişi</div>
+                <div class="card-body">
+                    <ul class="timeline">
+                        @foreach (var h in Model.History.Reverse())
+                        {
+                            <li>
+                                <div class="fw-semibold small">@h.Status.DisplayName()</div>
+                                <div class="small">@h.Note</div>
+                                <div class="text-muted small">@h.At.ToLocalTime().ToString("dd.MM.yyyy HH:mm")</div>
+                            </li>
+                        }
+                    </ul>
+                </div>
+            </div>
+
+            <div class="d-flex gap-2">
+                @if (Model.CanCancel && !Model.IsEditable)
+                {
+                    <form asp-action="Cancel" asp-route-id="@Model.Id" method="post" onsubmit="return confirm('Mektubu iptal etmek istediğinize emin misiniz? Ücret iade edilecektir.')">
+                        <button class="btn btn-outline-danger btn-sm" type="submit">Siparişi İptal Et</button>
+                    </form>
+                }
+                @if (Model.CanDelete)
+                {
+                    <form asp-action="Delete" asp-route-id="@Model.Id" method="post" onsubmit="return confirm('Bu mektup silinecek. Emin misiniz?')">
+                        <button class="btn btn-outline-danger btn-sm" type="submit">Mektubu Sil</button>
+                    </form>
+                }
+            </div>
+        </div>
+    </div>
+</div>

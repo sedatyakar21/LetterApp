@@ -1,0 +1,164 @@
+@model LetterFormViewModel
+@{
+    ViewData["Title"] = Model.Id is null ? "Mektup Yaz" : "Mektubu Düzenle";
+    var prices = (PriceList)ViewBag.Prices;
+    var postcardIcons = new Dictionary<PostcardCategory, string>
+    {
+        [PostcardCategory.Love] = "❤️", [PostcardCategory.Nature] = "🌲", [PostcardCategory.Cities] = "🏙️",
+        [PostcardCategory.Celebration] = "🎉", [PostcardCategory.Motivation] = "⭐"
+    };
+}
+
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h1 class="h3 mb-0">@ViewData["Title"]</h1>
+        @if (Model.Id is not null)
+        {
+            <a asp-action="Details" asp-route-id="@Model.Id" class="small">Fotoğraflar ve detaylar →</a>
+        }
+    </div>
+
+    <form asp-action="Save" method="post" id="letterForm">
+        <input type="hidden" asp-for="Id" />
+        <div asp-validation-summary="All" class="alert alert-danger" style="display:@(ViewData.ModelState.IsValid ? "none" : "block")"></div>
+
+        <div class="row g-4">
+            <!-- SOL: form -->
+            <div class="col-lg-6">
+                <div class="card mb-3">
+                    <div class="card-header fw-semibold">1. Alıcı</div>
+                    <div class="card-body">
+                        <div class="row g-2 mb-2">
+                            <div class="col-sm-7">
+                                <label asp-for="RecipientName" class="form-label small"></label>
+                                <input asp-for="RecipientName" class="form-control" />
+                            </div>
+                            <div class="col-sm-5">
+                                <label asp-for="RecipientType" class="form-label small"></label>
+                                <select asp-for="RecipientType" asp-items="Html.GetEnumSelectList<RecipientType>()" class="form-select"></select>
+                            </div>
+                        </div>
+                        <div class="mb-2" id="recipientDetailGroup">
+                            <label asp-for="RecipientDetail" class="form-label small" id="recipientDetailLabel"></label>
+                            <input asp-for="RecipientDetail" class="form-control" />
+                        </div>
+                        <partial name="_AddressFields" model="(nameof(Model.RecipientAddress), Model.RecipientAddress)" />
+                    </div>
+                </div>
+
+                <div class="card mb-3">
+                    <div class="card-header fw-semibold">2. Gönderen (iade adresi)</div>
+                    <div class="card-body">
+                        <div class="mb-2">
+                            <label asp-for="SenderName" class="form-label small"></label>
+                            <input asp-for="SenderName" class="form-control" />
+                        </div>
+                        <partial name="_AddressFields" model="(nameof(Model.SenderAddress), Model.SenderAddress)" />
+                    </div>
+                </div>
+
+                <div class="card mb-3">
+                    <div class="card-header fw-semibold">3. Mektubun</div>
+                    <div class="card-body">
+                        <textarea asp-for="Content" class="form-control letter-textarea" rows="14"
+                                  placeholder="Sevgili ..., (emoji kullanabilirsiniz 😊)"></textarea>
+                        <div class="d-flex justify-content-between small text-muted mt-1">
+                            <span><span id="charCount">0</span> / @Letter.MaxContentLength karakter</span>
+                            <span>Tahmini <strong id="pageCount">1</strong> sayfa</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card mb-3">
+                    <div class="card-header fw-semibold">4. Görünüm ve Ekstralar</div>
+                    <div class="card-body">
+                        <div class="row g-2">
+                            <div class="col-6">
+                                <label asp-for="Paper" class="form-label small"></label>
+                                <select asp-for="Paper" asp-items="Html.GetEnumSelectList<PaperColor>()" class="form-select"></select>
+                            </div>
+                            <div class="col-6">
+                                <label asp-for="Envelope" class="form-label small"></label>
+                                <select asp-for="Envelope" asp-items="Html.GetEnumSelectList<EnvelopeColor>()" class="form-select"></select>
+                            </div>
+                            <div class="col-6">
+                                <label asp-for="Font" class="form-label small"></label>
+                                <select asp-for="Font" asp-items="Html.GetEnumSelectList<LetterFont>()" class="form-select"></select>
+                            </div>
+                            <div class="col-6">
+                                <label asp-for="Ink" class="form-label small"></label>
+                                <select asp-for="Ink" asp-items="Html.GetEnumSelectList<InkColor>()" class="form-select"></select>
+                            </div>
+                            <div class="col-12">
+                                <label asp-for="Scent" class="form-label small"></label>
+                                <select asp-for="Scent" asp-items="Html.GetEnumSelectList<Scent>()" class="form-select"></select>
+                            </div>
+                        </div>
+
+                        <label class="form-label small mt-3">Kartpostal</label>
+                        <select asp-for="PostcardCategory" class="form-select mb-2">
+                            <option value="">Kartpostal istemiyorum</option>
+                            @foreach (var c in Enum.GetValues<PostcardCategory>())
+                            {
+                                <option value="@((int)c)" selected="@(Model.PostcardCategory == c)">@c.DisplayName()</option>
+                            }
+                        </select>
+                        <div id="postcardDesigns" class="d-flex gap-2 flex-wrap">
+                            @for (var d = 1; d <= Postcard.DesignsPerCategory; d++)
+                            {
+                                <label class="postcard-option">
+                                    <input type="radio" name="PostcardDesign" value="@d" checked="@((Model.PostcardDesign ?? 1) == d)" />
+                                    <span class="postcard-tile design-@d"><span class="postcard-icon"></span></span>
+                                </label>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SAĞ: canlı önizleme -->
+            <div class="col-lg-6">
+                <div class="sticky-lg-top" style="top: 1rem">
+                    <div class="envelope envelope-@Model.Envelope mb-3" id="envelopePreview">
+                        <div class="envelope-from small"><span id="pvSender">@Model.SenderName</span></div>
+                        <div class="envelope-to"><span id="pvRecipient">@Model.RecipientName</span></div>
+                    </div>
+                    <div class="paper paper-@Model.Paper font-@Model.Font ink-@Model.Ink" id="paperPreview">
+                        <div class="paper-content" id="pvContent">@Model.Content</div>
+                        <div class="paper-signature">— <span id="pvSignature">@Model.SenderName</span></div>
+                    </div>
+
+                    <div class="card mt-3">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <span>Tahmini tutar <span class="text-muted small">(kart ile)</span></span>
+                                <strong id="estimate">—</strong>
+                            </div>
+                            <div class="text-muted small">Fotoğraf: @Model.PhotoCount adet. Kesin tutar ödeme adımında gösterilir.</div>
+                            <div class="d-grid gap-2 mt-3">
+                                <button type="submit" name="next" value="checkout" class="btn btn-primary">Kaydet ve Ödemeye Geç</button>
+                                <div class="d-flex gap-2">
+                                    <button type="submit" name="next" value="save" class="btn btn-outline-secondary flex-fill">Taslak Kaydet</button>
+                                    <button type="submit" name="next" value="photos" class="btn btn-outline-secondary flex-fill">📷 Fotoğraf Ekle</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        window.letterEditor = {
+            prices: @Json.Serialize(prices),
+            charsPerPage: @LetterPages.CharsPerPage,
+            photoCount: @Model.PhotoCount,
+            postcardIcons: @Json.Serialize(postcardIcons.ToDictionary(k => ((int)k.Key).ToString(), v => v.Value))
+        };
+    </script>
+    <script src="~/js/letter-editor.js" asp-append-version="true"></script>
+}

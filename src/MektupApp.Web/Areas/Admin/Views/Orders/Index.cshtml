@@ -1,0 +1,98 @@
+@model OrdersIndexViewModel
+@{
+    ViewData["Title"] = "Siparişler";
+    var tabs = new LetterStatus?[] { null, LetterStatus.Paid, LetterStatus.InProduction, LetterStatus.Shipped, LetterStatus.Delivered, LetterStatus.Cancelled, LetterStatus.Draft };
+    var allCount = Model.Counts.Values.Sum();
+    var canBulk = Model.Status == LetterStatus.Paid && Model.Result.Items.Count > 0;
+    var pager = new PagerModel(Model.Result.Page, Model.Result.TotalPages, Model.Result.TotalCount,
+        p => Url.Action("Index", new { status = Model.Status, q = Model.Query, page = p }));
+}
+
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+    <h1 class="h4 mb-0">Siparişler</h1>
+    <form method="get" class="d-flex gap-2" role="search">
+        @if (Model.Status is not null) { <input type="hidden" name="status" value="@Model.Status" /> }
+        <input type="search" name="q" value="@Model.Query" class="form-control form-control-sm" style="min-width:240px"
+               placeholder="Alıcı, gönderen, il veya takip kodu" aria-label="Siparişlerde ara" />
+        <button class="btn btn-sm btn-primary" type="submit">Ara</button>
+    </form>
+</div>
+
+<ul class="nav status-tabs border-bottom mb-3 flex-nowrap overflow-auto">
+    @foreach (var s in tabs)
+    {
+        var count = s is null ? allCount : Model.Counts[s.Value];
+        <li class="nav-item">
+            <a class="nav-link @(Model.Status == s ? "active" : "")" asp-action="Index" asp-route-status="@s" asp-route-q="@Model.Query">
+                @(s?.DisplayName() ?? "Tümü")<span class="count">@count</span>
+            </a>
+        </li>
+    }
+</ul>
+
+<form asp-action="StartProductionMany" method="post" id="bulkForm">
+    <div class="admin-card overflow-hidden">
+        @if (canBulk)
+        {
+            <div class="d-flex align-items-center gap-2 p-2 border-bottom">
+                <span class="small text-muted">Seçilenleri:</span>
+                <button type="submit" class="btn btn-sm btn-warning">Basıma Al</button>
+            </div>
+        }
+        <div class="table-responsive">
+            <table class="table table-admin table-hover">
+                <thead>
+                    <tr>
+                        @if (canBulk)
+                        {
+                            <th style="width:1%"><input type="checkbox" class="form-check-input" id="selectAll" aria-label="Tümünü seç" /></th>
+                        }
+                        <th>Durum</th>
+                        <th>Alıcı</th>
+                        <th>Gönderen</th>
+                        <th>İl</th>
+                        <th class="text-end">Tutar</th>
+                        <th>Ödeme</th>
+                        <th>Takip</th>
+                        <th>Güncelleme</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var o in Model.Result.Items)
+                    {
+                        <tr>
+                            @if (canBulk)
+                            {
+                                <td><input type="checkbox" class="form-check-input row-check" name="ids" value="@o.Id" aria-label="Seç: @o.RecipientName" /></td>
+                            }
+                            <td><partial name="_StatusBadge" model="o.Status" /></td>
+                            <td>
+                                <a asp-action="Details" asp-route-id="@o.Id" class="fw-semibold">@o.RecipientName</a>
+                                <div class="text-muted small">@o.RecipientType.DisplayName()@(o.PhotoCount > 0 ? $" · 📷 {o.PhotoCount}" : "")</div>
+                            </td>
+                            <td><a asp-controller="Customers" asp-action="Details" asp-route-id="@o.CustomerId" class="text-reset">@o.SenderName</a></td>
+                            <td>@o.City</td>
+                            <td class="text-end">@(o.PaidAmount is { } a ? new Money(a).ToString() : "-")</td>
+                            <td class="small">@(o.PaidAt?.ToLocalTime().ToString("dd.MM.yy HH:mm") ?? "-")</td>
+                            <td class="small font-monospace">@(o.TrackingCode ?? "-")</td>
+                            <td class="small text-muted">@o.UpdatedAt.ToLocalTime().ToString("dd.MM.yy HH:mm")</td>
+                        </tr>
+                    }
+                    @if (Model.Result.Items.Count == 0)
+                    {
+                        <tr><td colspan="9" class="text-center text-muted py-4">Kayıt bulunamadı.</td></tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</form>
+
+<partial name="_Pager" model="pager" />
+
+@section Scripts {
+    <script>
+        document.getElementById("selectAll")?.addEventListener("change", e =>
+            document.querySelectorAll(".row-check").forEach(c => c.checked = e.target.checked));
+    </script>
+}

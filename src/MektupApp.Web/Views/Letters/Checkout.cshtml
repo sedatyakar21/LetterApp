@@ -1,0 +1,81 @@
+@model CheckoutViewModel
+@using MektupApp.Domain.Common
+@{
+    ViewData["Title"] = "Ödeme";
+    var l = Model.Letter;
+    var q = Model.Quote;
+}
+<div class="container py-4" style="max-width: 760px">
+    <a asp-action="Edit" asp-route-id="@l.Id" class="small">← Mektuba geri dön</a>
+    <h1 class="h3 mt-1 mb-4">Ödeme</h1>
+
+    <div class="card mb-3">
+        <div class="card-body small">
+            <strong>@l.RecipientName</strong> (@l.RecipientType.DisplayName())<br />
+            @l.RecipientAddress.Line, @l.RecipientAddress.District / @l.RecipientAddress.City @l.RecipientAddress.PostalCode
+        </div>
+    </div>
+
+    <div class="btn-group w-100 mb-3" role="group" aria-label="Ödeme yöntemi">
+        @foreach (var m in Enum.GetValues<PaymentMethod>())
+        {
+            <a class="btn @(q.Method == m ? "btn-primary" : "btn-outline-primary")"
+               asp-action="Checkout" asp-route-id="@l.Id" asp-route-method="@m" asp-route-usePoints="@q.UsePoints">@m.DisplayName()</a>
+        }
+    </div>
+
+    <table class="table">
+        <tbody>
+            @foreach (var line in q.Lines)
+            {
+                <tr><td>@line.Description</td><td class="text-end">@(new Money(line.Amount))</td></tr>
+            }
+            @if (q.PointsUsed > 0)
+            {
+                <tr class="text-success"><td>MektupPuan kullanımı</td><td class="text-end">−@(new Money(q.PointsUsed))</td></tr>
+            }
+        </tbody>
+        <tfoot>
+            <tr class="fw-bold fs-5"><td>Ödenecek tutar</td><td class="text-end">@(new Money(q.AmountToPay))</td></tr>
+        </tfoot>
+    </table>
+
+    @if (q.PointsBalance > 0)
+    {
+        <div class="card mb-3">
+            <div class="card-body d-flex justify-content-between align-items-center gap-3">
+                <div>
+                    <div class="fw-semibold">MektupPuan bakiyeniz: @q.PointsBalance.ToString("N2") puan</div>
+                    <div class="small text-muted">1 puan = 1 ₺. Puanınız tutarın tamamını karşılıyorsa ayrıca ödeme alınmaz.</div>
+                </div>
+                <a class="btn btn-sm @(q.UsePoints ? "btn-outline-secondary" : "btn-success") flex-shrink-0"
+                   asp-action="Checkout" asp-route-id="@l.Id" asp-route-method="@q.Method" asp-route-usePoints="@(!q.UsePoints)">
+                    @(q.UsePoints ? "Puan kullanma" : "Puanımı kullan")
+                </a>
+            </div>
+        </div>
+    }
+
+    @if (q.PointsToEarn > 0)
+    {
+        <div class="alert alert-success small">
+            🎁 Bu mektup postaya verildiğinde <strong>@q.PointsToEarn.ToString("N2") MektupPuan</strong> kazanacaksınız.
+        </div>
+    }
+
+    @if (q.AmountToPay > 0)
+    {
+        <div class="alert alert-info small">
+            Bu geliştirme sürümünde ödeme <strong>simüle edilir</strong>; kart bilgisi istenmez.
+            Canlıya almadan önce Infrastructure katmanındaki <code>FakePaymentGateway</code> bir ödeme sağlayıcısı ile değiştirilmelidir.
+        </div>
+    }
+
+    <form asp-action="Pay" asp-route-id="@l.Id" method="post">
+        <input type="hidden" name="method" value="@q.Method" />
+        <input type="hidden" name="usePoints" value="@(q.UsePoints ? "true" : "false")" />
+        <button type="submit" class="btn btn-primary btn-lg w-100">
+            @(q.AmountToPay > 0 ? $"{new Money(q.AmountToPay)} Öde ve Gönder" : "Puanla Öde ve Gönder")
+        </button>
+    </form>
+</div>
