@@ -1,0 +1,30 @@
+@model MektupApp.Application.Payments.PaymentStatusDto
+@using MektupApp.Domain.Payments
+@{
+    ViewData["Title"] = "Ödeme Sonucu";
+    var pending = Model.Status == PaymentStatus.Pending;
+}
+@if (pending)
+{
+    @* Kesin sonuç PayTR'nin sunucumuza gönderdiği bildirimle gelir; o gelene kadar sayfa yenilenir. *@
+    <meta http-equiv="refresh" content="3" />
+}
+<div class="container py-5 text-center" style="max-width: 560px">
+    @if (pending)
+    {
+        <div class="spinner-border text-primary mb-3" role="status" aria-hidden="true"></div>
+        <h1 class="h4">Ödemeniz doğrulanıyor…</h1>
+        <p class="text-muted">Bu birkaç saniye sürebilir, lütfen sayfayı kapatmayın.</p>
+        <p class="small text-muted mt-4">
+            Ödeme sayfasından çıktıysanız <a asp-action="Checkout" asp-route-id="@Model.LetterId">ödeme ekranına dönebilirsiniz</a>.
+        </p>
+    }
+    else
+    {
+        <div class="display-6 mb-2">⚠️</div>
+        <h1 class="h4">Ödeme tamamlanamadı</h1>
+        <p class="text-muted">@(Model.FailureReason ?? "Ödeme onaylanmadı.")</p>
+        <p class="small text-muted">Kartınızdan tahsilat yapılmadı. Ödemede puan kullandıysanız iade edildi.</p>
+        <a class="btn btn-primary mt-2" asp-action="Checkout" asp-route-id="@Model.LetterId">Tekrar Dene</a>
+    }
+</div>

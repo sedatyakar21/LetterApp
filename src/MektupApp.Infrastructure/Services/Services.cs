@@ -15,21 +15,6 @@ internal sealed class LoggingSmsSender(ILogger<LoggingSmsSender> logger) : ISmsS
     }
 }
 
-/// <summary>
-/// Geliştirme için sahte ödeme sağlayıcısı: her ödemeyi onaylar. Kart bilgisi toplanmaz.
-/// Canlı ortamda iyzico / PayTR gibi bir sağlayıcının 3D Secure akışı ile değiştirilmelidir.
-/// </summary>
-internal sealed class FakePaymentGateway(ILogger<FakePaymentGateway> logger) : IPaymentGateway
-{
-    public Task<PaymentResult> ChargeAsync(PaymentRequest request, CancellationToken ct = default)
-    {
-        var reference = $"SIM-{DateTime.UtcNow:yyyyMMddHHmmss}-{Random.Shared.Next(1000, 9999)}";
-        logger.LogInformation("Simüle ödeme: {Letter} {Amount} {Method} -> {Ref}",
-            request.LetterId, request.Amount, request.Method, reference);
-        return Task.FromResult(new PaymentResult(true, reference, null));
-    }
-}
-
 /// <summary>Dosyaları web kökü dışında, yerel diskte saklar (fotoğraflar herkese açık olmaz).</summary>
 internal sealed class LocalFileStorage(string rootPath) : IFileStorage
 {

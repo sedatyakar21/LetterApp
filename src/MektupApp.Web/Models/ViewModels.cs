@@ -40,6 +40,12 @@ public sealed class RegisterViewModel
     public string ConfirmPassword { get; set; } = string.Empty;
 
     public bool AcceptTerms { get; set; }
+
+    [Display(Name = "Bizi nereden duydunuz?")]
+    public MektupApp.Domain.Customers.AcquisitionChannel? Channel { get; set; }
+
+    [StringLength(20), Display(Name = "Arkadaşınızın referans no'su")]
+    public string? ReferralCode { get; set; }
 }
 
 public sealed class AddressInput
@@ -127,6 +133,12 @@ public sealed class CheckoutViewModel
 {
     public required LetterDetailsDto Letter { get; init; }
     public required QuoteDto Quote { get; init; }
+}
+
+public sealed class PendingPaymentViewModel
+{
+    public required LetterDetailsDto Letter { get; init; }
+    public MektupApp.Application.Payments.PaymentStatusDto? Payment { get; init; }
 }
 
 public sealed class ShipInput

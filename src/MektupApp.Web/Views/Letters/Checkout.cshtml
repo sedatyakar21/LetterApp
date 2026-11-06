@@ -16,13 +16,16 @@
         </div>
     </div>
 
-    <div class="btn-group w-100 mb-3" role="group" aria-label="Ödeme yöntemi">
-        @foreach (var m in Enum.GetValues<PaymentMethod>())
-        {
-            <a class="btn @(q.Method == m ? "btn-primary" : "btn-outline-primary")"
-               asp-action="Checkout" asp-route-id="@l.Id" asp-route-method="@m" asp-route-usePoints="@q.UsePoints">@m.DisplayName()</a>
-        }
-    </div>
+    @if (q.MobilePaymentAvailable)
+    {
+        <div class="btn-group w-100 mb-3" role="group" aria-label="Ödeme yöntemi">
+            @foreach (var m in Enum.GetValues<PaymentMethod>())
+            {
+                <a class="btn @(q.Method == m ? "btn-primary" : "btn-outline-primary")"
+                   asp-action="Checkout" asp-route-id="@l.Id" asp-route-method="@m" asp-route-usePoints="@q.UsePoints">@m.DisplayName()</a>
+            }
+        </div>
+    }
 
     <table class="table">
         <tbody>
@@ -32,7 +35,7 @@
             }
             @if (q.PointsUsed > 0)
             {
-                <tr class="text-success"><td>MektupPuan kullanımı</td><td class="text-end">−@(new Money(q.PointsUsed))</td></tr>
+                <tr class="text-success"><td>MektupPuan kullanımı <span class="small">(@q.PointsUsed.ToString("N2") puan)</span></td><td class="text-end">−@(new Money(q.PointsDiscount))</td></tr>
             }
         </tbody>
         <tfoot>
@@ -45,8 +48,8 @@
         <div class="card mb-3">
             <div class="card-body d-flex justify-content-between align-items-center gap-3">
                 <div>
-                    <div class="fw-semibold">MektupPuan bakiyeniz: @q.PointsBalance.ToString("N2") puan</div>
-                    <div class="small text-muted">1 puan = 1 ₺. Puanınız tutarın tamamını karşılıyorsa ayrıca ödeme alınmaz.</div>
+                    <div class="fw-semibold">MektupPuan bakiyeniz: @q.PointsBalance.ToString("N2") puan <span class="text-muted fw-normal">(= @(new Money(q.BalanceValue)))</span></div>
+                    <div class="small text-muted">1 puan = @(new Money(q.PointValue)). Puanınız tutarın tamamını karşılıyorsa ayrıca ödeme alınmaz.</div>
                 </div>
                 <a class="btn btn-sm @(q.UsePoints ? "btn-outline-secondary" : "btn-success") flex-shrink-0"
                    asp-action="Checkout" asp-route-id="@l.Id" asp-route-method="@q.Method" asp-route-usePoints="@(!q.UsePoints)">
@@ -59,23 +62,33 @@
     @if (q.PointsToEarn > 0)
     {
         <div class="alert alert-success small">
-            🎁 Bu mektup postaya verildiğinde <strong>@q.PointsToEarn.ToString("N2") MektupPuan</strong> kazanacaksınız.
+            🎁 Bu mektup postaya verildiğinde <strong>@q.PointsToEarn.ToString("N2") MektupPuan</strong>
+            (= @(new Money(decimal.Round(q.PointsToEarn * q.PointValue, 2)))) kazanacaksınız.
         </div>
     }
 
     @if (q.AmountToPay > 0)
     {
-        <div class="alert alert-info small">
-            Bu geliştirme sürümünde ödeme <strong>simüle edilir</strong>; kart bilgisi istenmez.
-            Canlıya almadan önce Infrastructure katmanındaki <code>FakePaymentGateway</code> bir ödeme sağlayıcısı ile değiştirilmelidir.
-        </div>
+        @if (q.ProviderIsSimulation)
+        {
+            <div class="alert alert-warning small">
+                <strong>Simülasyon modu:</strong> gerçek tahsilat yapılmaz, kart bilgisi istenmez.
+                Bir sonraki sayfada ödemenin başarılı mı başarısız mı olacağını seçebilirsiniz.
+            </div>
+        }
+        else
+        {
+            <div class="small text-muted mb-3 d-flex align-items-center gap-2">
+                🔒 Kart bilgileriniz güvenli ödeme altyapısı <strong>PayTR</strong> üzerinden alınır; bizim sistemimizde saklanmaz.
+            </div>
+        }
     }
 
     <form asp-action="Pay" asp-route-id="@l.Id" method="post">
         <input type="hidden" name="method" value="@q.Method" />
         <input type="hidden" name="usePoints" value="@(q.UsePoints ? "true" : "false")" />
         <button type="submit" class="btn btn-primary btn-lg w-100">
-            @(q.AmountToPay > 0 ? $"{new Money(q.AmountToPay)} Öde ve Gönder" : "Puanla Öde ve Gönder")
+            @(q.AmountToPay > 0 ? $"{new Money(q.AmountToPay)} Ödemeye Geç" : "Puanla Öde ve Gönder")
         </button>
     </form>
 </div>

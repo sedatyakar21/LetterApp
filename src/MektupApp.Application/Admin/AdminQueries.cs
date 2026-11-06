@@ -1,3 +1,4 @@
+using MektupApp.Domain.Customers;
 using MektupApp.Domain.Letters;
 
 namespace MektupApp.Application.Admin;
@@ -46,7 +47,18 @@ public sealed record DashboardDto(
     int CustomerCount,
     int NewCustomersLast7Days,
     IReadOnlyList<DailyStatDto> Last14Days,
-    IReadOnlyList<AdminLetterRowDto> RecentOrders);
+    IReadOnlyList<AdminLetterRowDto> RecentOrders,
+    IReadOnlyList<ChannelCountDto> Acquisition);
+
+/// <summary>"Bizi nereden duydunuz?" dağılımı. Channel null: bilgi yok (eski / sistem hesapları).</summary>
+public sealed record ChannelCountDto(AcquisitionChannel? Channel, int Count, int WithReferral);
+
+public sealed record CustomerSearchCriteria(
+    string? Query = null,
+    AcquisitionChannel? Channel = null,
+    Guid? ReferredBy = null,
+    int Page = 1,
+    int PageSize = 20);
 
 public sealed record CustomerRowDto(
     Guid Id,
@@ -58,13 +70,18 @@ public sealed record CustomerRowDto(
     int OrderCount,
     decimal TotalSpent,
     decimal PointsBalance,
-    DateTime CreatedAt);
+    DateTime CreatedAt,
+    AcquisitionChannel? AcquisitionChannel,
+    string ReferralCode,
+    Guid? ReferredById,
+    string? ReferredByName,
+    int ReferredCount);
 
 public interface IAdminQueries
 {
     Task<DashboardDto> GetDashboardAsync(CancellationToken ct = default);
     Task<IReadOnlyDictionary<LetterStatus, int>> CountLettersByStatusAsync(CancellationToken ct = default);
     Task<PagedResult<AdminLetterRowDto>> SearchLettersAsync(LetterSearchCriteria criteria, CancellationToken ct = default);
-    Task<PagedResult<CustomerRowDto>> SearchCustomersAsync(string? query, int page, int pageSize, CancellationToken ct = default);
+    Task<PagedResult<CustomerRowDto>> SearchCustomersAsync(CustomerSearchCriteria criteria, CancellationToken ct = default);
     Task<CustomerRowDto?> GetCustomerAsync(Guid id, CancellationToken ct = default);
 }

@@ -4,6 +4,7 @@
 @{
     ViewData["Title"] = "Puanlarım";
     var s = (MektupApp.Application.Loyalty.LoyaltySettingsDto)ViewBag.Settings;
+    var referral = ViewBag.Referral as MektupApp.Application.Customers.ReferralInfoDto;
 }
 <div class="container py-4" style="max-width: 760px">
     <h1 class="h3 mb-3">MektupPuan</h1>
@@ -13,7 +14,8 @@
             <div class="card card-body">
                 <div class="text-muted small">Kullanılabilir bakiye</div>
                 <div class="display-6 fw-semibold">@Model.Balance.ToString("N2") <span class="fs-5">puan</span></div>
-                <div class="text-muted small">1 puan = 1 ₺ · Ödeme adımında kullanabilirsiniz.</div>
+                <div class="small">≈ <strong>@(new Money(decimal.Round(Model.Balance * s.PointValue, 2)))</strong> değerinde</div>
+                <div class="text-muted small">1 puan = @(new Money(s.PointValue)) · Ödeme adımında kullanabilirsiniz.</div>
             </div>
         </div>
         <div class="col-sm-6">
@@ -42,6 +44,42 @@
         </div>
     </div>
 
+    @if (referral is not null)
+    {
+        var inviteUrl = Url.Action("Register", "Account", new { @ref = referral.ReferralCode }, Context.Request.Scheme);
+        <div class="card mb-4">
+            <div class="card-body">
+                <div class="d-flex flex-wrap justify-content-between align-items-start gap-3">
+                    <div>
+                        <div class="text-muted small">Referans no'nuz</div>
+                        <div class="fs-3 fw-semibold font-monospace" id="refCode">@referral.ReferralCode</div>
+                        <div class="small text-muted">Davet ettiğiniz üye sayısı: <strong>@referral.ReferredCount</strong></div>
+                    </div>
+                    <button type="button" class="btn btn-outline-primary btn-sm" id="copyInvite" data-url="@inviteUrl">Davet linkini kopyala</button>
+                </div>
+                <p class="small mt-3 mb-0">
+                    Arkadaşlarınız üye olurken "Bizi nereden duydunuz?" sorusunda <strong>Arkadaş</strong>'ı seçip bu numarayı girerse,
+                    @if (s.ReferralEnabled)
+                    {
+                        @:onların gönderdiği her mektup postaya verildiğinde siz de
+                        @if (s.ReferralRewardType == RewardType.Percentage)
+                        {
+                            @:ödedikleri tutar üzerinden <strong>%@s.ReferralValue.ToString("0.##") oranında</strong> puan kazanırsınız.
+                        }
+                        else
+                        {
+                            <strong>@s.ReferralValue.ToString("0.##") puan</strong> @:kazanırsınız.
+                        }
+                    }
+                    else
+                    {
+                        @:referans kazancı açıldığında onların mektuplarından siz de puan kazanırsınız.
+                    }
+                </p>
+            </div>
+        </div>
+    }
+
     <h2 class="h5">Hareketler</h2>
     @if (Model.Transactions.Count == 0)
     {
@@ -57,7 +95,8 @@
                         <div class="fw-semibold">@t.Type.DisplayName()</div>
                         <div class="small text-muted">
                             @t.Note
-                            @if (t.LetterId is { } lid)
+                            @* Referans kazancındaki mektup arkadaşınıza aittir; sadece kendi mektuplarınıza link verilir. *@
+                            @if (t.LetterId is { } lid && t.Type != PointTransactionType.ReferralEarned)
                             {
                                 <a asp-controller="Letters" asp-action="Details" asp-route-id="@lid">Mektubu gör</a>
                             }
@@ -72,3 +111,17 @@
         </div>
     }
 </div>
+
+@section Scripts {
+    <script>
+        document.getElementById("copyInvite")?.addEventListener("click", async e => {
+            const btn = e.currentTarget;
+            try {
+                await navigator.clipboard.writeText(btn.dataset.url);
+                btn.textContent = "Kopyalandı ✓";
+            } catch {
+                prompt("Davet linkiniz:", btn.dataset.url);
+            }
+        });
+    </script>
+}

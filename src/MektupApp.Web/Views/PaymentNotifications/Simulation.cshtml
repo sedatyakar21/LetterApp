@@ -1,0 +1,28 @@
+@model MektupApp.Application.Payments.PaymentStatusDto
+@using MektupApp.Domain.Common
+@{
+    ViewData["Title"] = "Ödeme (Simülasyon)";
+}
+<div class="container py-5" style="max-width: 520px">
+    <div class="card border-warning">
+        <div class="card-header bg-warning-subtle fw-semibold">Ödeme Simülasyonu</div>
+        <div class="card-body">
+            <p class="mb-1">Gerçek PayTR formu yerine bu sayfa gösterilir; kart bilgisi istenmez, tahsilat yapılmaz.</p>
+            <p class="small text-muted mb-3">Sipariş no: <span class="font-monospace">@Model.MerchantOid</span></p>
+            <div class="fs-3 fw-semibold mb-3">@(new Money(Model.Amount))</div>
+
+            @if (Model.Status == MektupApp.Domain.Payments.PaymentStatus.Pending)
+            {
+                <form method="post" class="d-flex gap-2">
+                    <button name="result" value="success" class="btn btn-success flex-fill">Ödeme Başarılı</button>
+                    <button name="result" value="fail" class="btn btn-outline-danger flex-fill">Kart Reddedildi</button>
+                </form>
+                <p class="small text-muted mt-3 mb-0">Seçiminiz, PayTR'nin sunucuya göndereceği bildirimi taklit eder.</p>
+            }
+            else
+            {
+                <p class="text-muted">Bu ödeme denemesi kapandı (@Model.Status).</p>
+            }
+        </div>
+    </div>
+</div>

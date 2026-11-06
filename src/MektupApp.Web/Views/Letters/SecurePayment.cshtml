@@ -1,0 +1,23 @@
+@model MektupApp.Application.Payments.PaymentStatusDto
+@using MektupApp.Domain.Common
+@{
+    ViewData["Title"] = "Güvenli Ödeme";
+}
+<div class="container py-4" style="max-width: 760px">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h1 class="h4 mb-0">Güvenli Ödeme · @(new Money(Model.Amount))</h1>
+        <form asp-action="AbandonPayment" asp-route-id="@Model.LetterId" method="post"
+              onsubmit="return confirm('Ödemeden vazgeçmek istiyor musunuz? Ödemeyi tamamladıysanız vazgeçmeyin; sonuç birkaç saniye içinde gelir.')">
+            <button class="btn btn-sm btn-outline-secondary">Vazgeç</button>
+        </form>
+    </div>
+    <p class="small text-muted">
+        🔒 Kart bilgileriniz PayTR'nin güvenli ödeme sayfasında alınır. Ödeme tamamlandığında otomatik olarak yönlendirileceksiniz.
+    </p>
+
+    @* PayTR iFrame API: iframeResizer + /odeme/guvenli/{token} *@
+    <script src="https://www.paytr.com/js/iframeResizer.min.js"></script>
+    <iframe src="@Model.FormUrl" id="paytriframe" title="PayTR güvenli ödeme formu"
+            frameborder="0" scrolling="no" style="width: 100%; min-height: 600px;"></iframe>
+    <script>iFrameResize({}, '#paytriframe');</script>
+</div>

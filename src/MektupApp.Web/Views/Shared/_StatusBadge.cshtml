@@ -3,6 +3,7 @@
     var css = Model switch
     {
         LetterStatus.Draft => "bg-secondary",
+        LetterStatus.AwaitingPayment => "bg-light text-dark border",
         LetterStatus.Paid => "bg-info text-dark",
         LetterStatus.InProduction => "bg-warning text-dark",
         LetterStatus.Shipped => "bg-primary",

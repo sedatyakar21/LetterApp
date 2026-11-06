@@ -27,6 +27,12 @@ builder.Services
     });
 builder.Services.AddAuthorization();
 
+// PayTR ödemede müşterinin gerçek IP'sini (user_ip) ister. Uygulama Nginx / yük dengeleyici arkasındaysa
+// X-Forwarded-For okunur; proxy adresini ForwardedHeadersOptions.KnownProxies'e ekleyin.
+builder.Services.Configure<Microsoft.AspNetCore.Builder.ForwardedHeadersOptions>(o =>
+    o.ForwardedHeaders = Microsoft.AspNetCore.HttpOverrides.ForwardedHeaders.XForwardedFor |
+                         Microsoft.AspNetCore.HttpOverrides.ForwardedHeaders.XForwardedProto);
+
 builder.Services.AddControllersWithViews(o =>
 {
     o.Filters.Add<UserFacingExceptionFilter>();
@@ -38,6 +44,8 @@ builder.Services.AddControllersWithViews(o =>
 var app = builder.Build();
 
 await app.Services.InitializeDatabaseAsync(app.Configuration);
+
+app.UseForwardedHeaders();
 
 if (!app.Environment.IsDevelopment())
 {

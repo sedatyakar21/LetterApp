@@ -29,18 +29,51 @@
                         </form>
                         break;
                     case LetterStatus.InProduction:
-                        <form asp-action="Ship" asp-route-id="@l.Id" method="post" class="d-flex flex-wrap align-items-center gap-2">
-                            <label for="trackingCode" class="visually-hidden">Takip kodu</label>
-                            <input id="trackingCode" name="TrackingCode" class="form-control" style="max-width:220px" placeholder="RR123456789TR" required />
-                            <button class="btn btn-primary">Postaya Ver</button>
-                            <span class="text-muted small">Müşteriye takip kodu SMS ile gönderilir.</span>
+                        <form asp-action="ShipWithCarrier" asp-route-id="@l.Id" method="post" class="d-flex flex-wrap align-items-center gap-2">
+                            <button class="btn btn-primary">@ViewBag.CarrierName'ye Kaydet ve Postaya Ver</button>
+                            <span class="badge @(ViewBag.CarrierIsSimulation == true ? "bg-warning text-dark" : "bg-info text-dark")">@ViewBag.CarrierLabel</span>
                         </form>
+                        <div class="text-muted small mt-1">Barkod otomatik alınır, gönderi @ViewBag.CarrierName sistemine kaydedilir ve müşteriye SMS gider.</div>
+                        <details class="mt-2">
+                            <summary class="small">Barkodu elle gir (gişeden verildiyse)</summary>
+                            <form asp-action="Ship" asp-route-id="@l.Id" method="post" class="d-flex flex-wrap align-items-center gap-2 mt-2">
+                                <label for="trackingCode" class="visually-hidden">Takip kodu</label>
+                                <input id="trackingCode" name="TrackingCode" class="form-control form-control-sm" style="max-width:220px" placeholder="RR123456789TR" required />
+                                <button class="btn btn-sm btn-outline-primary">Postaya Ver</button>
+                            </form>
+                            <div class="form-text">Elle girilen barkodlar @ViewBag.CarrierName'den otomatik takip edilmez.</div>
+                        </details>
                         break;
                     case LetterStatus.Shipped:
-                        <form asp-action="Deliver" asp-route-id="@l.Id" method="post" class="d-flex align-items-center gap-2">
-                            <button class="btn btn-success">Teslim Edildi</button>
+                        <div class="d-flex flex-wrap align-items-center gap-2">
+                            @if (l.Carrier is not null)
+                            {
+                                <form asp-action="SyncCarrier" asp-route-id="@l.Id" method="post">
+                                    <button class="btn btn-outline-primary">@l.Carrier'den Güncelle</button>
+                                </form>
+                            }
+                            <form asp-action="Deliver" asp-route-id="@l.Id" method="post"
+                                  onsubmit="return confirm('Mektubu elle teslim edildi olarak işaretlemek istediğinize emin misiniz?')">
+                                <button class="btn btn-success">Teslim Edildi</button>
+                            </form>
                             <span class="text-muted small">Takip: <span class="font-monospace">@l.TrackingCode</span></span>
-                        </form>
+                        </div>
+                        @if (l.Carrier is not null)
+                        {
+                            <div class="small mt-2">
+                                <strong>@l.Carrier son hareket:</strong>
+                                @(l.CarrierLastMovement ?? "henüz hareket yok")
+                                @if (l.CarrierLastMovementAt is { } mAt) { <span class="text-muted">· @mAt.ToLocalTime().ToString("dd.MM.yyyy HH:mm")</span> }
+                                <div class="text-muted">
+                                    Son sorgu: @(l.CarrierCheckedAt?.ToLocalTime().ToString("dd.MM.yyyy HH:mm") ?? "henüz sorgulanmadı")
+                                    · Teslim edildiğinde durum otomatik güncellenir.
+                                </div>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="text-muted small mt-2">Barkod elle girildiği için otomatik takip yapılmıyor.</div>
+                        }
                         break;
                 }
             </div>
@@ -92,10 +125,16 @@
                 <li class="list-group-item">
                     <div class="text-muted">Ödeme</div>
                     @(l.PaidAmount is { } amt ? $"{new Money(amt)} · {l.PaymentMethod?.DisplayName()}" : "Ödenmedi")
-                    @if (l.PointsUsed > 0) { <br /><span>Puanla ödenen: @l.PointsUsed.ToString("N2")</span> }
+                    @if (l.PointsUsed > 0) { <br /><span>Puanla ödenen: @l.PointsUsed.ToString("N2") puan = @(new Money(l.PointsDiscount)) indirim</span> }
                     @if (l.PointsToEarn > 0)
                     {
                         <br /><span class="text-muted">Kazandıracağı puan: @l.PointsToEarn.ToString("N2")
+                            @(l.Status is LetterStatus.Shipped or LetterStatus.Delivered ? "(yüklendi)" : "(postaya verilince yüklenir)")</span>
+                    }
+                    @if (l.ReferrerCustomerId is { } refId && l.ReferralPointsToEarn > 0)
+                    {
+                        <br /><span class="text-muted">Referans puanı: @l.ReferralPointsToEarn.ToString("N2") →
+                            <a asp-controller="Customers" asp-action="Details" asp-route-id="@refId">davet eden üye</a>
                             @(l.Status is LetterStatus.Shipped or LetterStatus.Delivered ? "(yüklendi)" : "(postaya verilince yüklenir)")</span>
                     }
                 </li>
@@ -114,6 +153,45 @@
                     @c.Email · @c.Phone<br />
                     <span class="text-muted">@c.OrderCount sipariş · @(new Money(c.TotalSpent))</span>
                 </div>
+            </div>
+        }
+
+        @if (Model.Payments.Count > 0)
+        {
+            <div class="card admin-card mb-3">
+                <div class="card-header">Ödeme denemeleri</div>
+                <ul class="list-group list-group-flush small">
+                    @foreach (var p in Model.Payments)
+                    {
+                        var badge = p.Status switch
+                        {
+                            MektupApp.Domain.Payments.PaymentStatus.Succeeded => "bg-success",
+                            MektupApp.Domain.Payments.PaymentStatus.Pending => "bg-warning text-dark",
+                            _ => "bg-secondary"
+                        };
+                        <li class="list-group-item">
+                            <div class="d-flex justify-content-between">
+                                <span class="font-monospace">@p.MerchantOid</span>
+                                <span class="badge @badge">@p.Status.DisplayName()</span>
+                            </div>
+                            <div>
+                                @p.Provider · @(new Money(p.PaidTotal ?? p.Amount))
+                                @if (p.PointsUsed > 0) { <span class="text-muted">+ @p.PointsUsed.ToString("N2") puan</span> }
+                                @if (p.IsTest) { <span class="badge bg-info text-dark">test</span> }
+                            </div>
+                            <div class="text-muted">@p.CreatedAt.ToLocalTime().ToString("dd.MM.yyyy HH:mm")@(p.CompletedAt is { } done ? " → " + done.ToLocalTime().ToString("HH:mm") : "")</div>
+                            @if (p.FailureReason is not null) { <div class="text-danger">@p.FailureReason</div> }
+                            @if (p.RefundStatus == MektupApp.Domain.Payments.RefundStatus.Refunded)
+                            {
+                                <div class="text-success">İade edildi: @(new Money(p.RefundedAmount ?? 0))</div>
+                            }
+                            else if (p.RefundStatus == MektupApp.Domain.Payments.RefundStatus.Failed)
+                            {
+                                <div class="text-danger fw-semibold">İade başarısız — PayTR panelinden elle iade edin: @p.RefundError</div>
+                            }
+                        </li>
+                    }
+                </ul>
             </div>
         }
 

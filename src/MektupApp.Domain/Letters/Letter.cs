@@ -31,9 +31,20 @@ public sealed class Letter : AggregateRoot
     public decimal? PaidAmount { get; private set; }
     public DateTime? PaidAt { get; private set; }
     public decimal PointsUsed { get; private set; }
+    /// <summary>Kullanılan puanın ödeme anındaki TL karşılığı (indirim tutarı).</summary>
+    public decimal PointsDiscount { get; private set; }
     public decimal PointsToEarn { get; private set; }
+    public Guid? ReferrerCustomerId { get; private set; }
+    public decimal ReferralPointsToEarn { get; private set; }
     public string? PaymentReference { get; private set; }
     public string? TrackingCode { get; private set; }
+
+    // Taşıyıcı (PTT) entegrasyonu
+    public string? Carrier { get; private set; }
+    public string? CarrierReference { get; private set; }
+    public string? CarrierLastMovement { get; private set; }
+    public DateTime? CarrierLastMovementAt { get; private set; }
+    public DateTime? CarrierCheckedAt { get; private set; }
     public bool IsDeleted { get; private set; }
 
     public DateTime CreatedAt { get; private set; }
@@ -144,25 +155,73 @@ public sealed class Letter : AggregateRoot
             throw new DomainException("Boş bir mektup gönderilemez.");
     }
 
-    /// <param name="amount">Karttan / mobil ödemeyle tahsil edilen tutar (puan indirimi düşülmüş).</param>
-    /// <param name="pointsUsed">Ödemede kullanılan MektupPuan (1 puan = 1 ₺).</param>
-    /// <param name="pointsToEarn">Mektup postaya verildiğinde kazanılacak puan (ödeme anındaki ayara göre sabitlenir).</param>
-    public void MarkPaid(Money amount, PaymentMethod method, string paymentReference,
-        decimal pointsUsed = 0, decimal pointsToEarn = 0)
+    /// <summary>
+    /// Kart ödemesi başladı: sonuç gelene kadar mektup kilitlenir (içerik / fotoğraf değişip
+    /// ödenen tutarla uyuşmazlık oluşmasın).
+    /// </summary>
+    public void BeginPayment(string paymentReference)
     {
         EnsureReadyForCheckout();
-        if (pointsUsed < 0 || pointsToEarn < 0)
+        PaymentReference = Guard.Required(paymentReference, "Ödeme referansı", 100);
+        Transition(LetterStatus.AwaitingPayment, "Ödeme sayfasına yönlendirildi.");
+    }
+
+    /// <summary>Ödeme başarısız oldu, süresi doldu veya müşteri vazgeçti: mektup tekrar düzenlenebilir.</summary>
+    public void AbandonPayment(string reason)
+    {
+        if (Status != LetterStatus.AwaitingPayment) return;
+        PaymentReference = null;
+        Transition(LetterStatus.Draft, Guard.Required(reason, "Neden", 200));
+    }
+
+    public bool IsAwaitingPayment(string paymentReference) =>
+        Status == LetterStatus.AwaitingPayment && PaymentReference == paymentReference;
+
+    /// <param name="amount">Karttan / mobil ödemeyle tahsil edilen tutar (puan indirimi düşülmüş).</param>
+    /// <param name="pointsUsed">Ödemede kullanılan MektupPuan.</param>
+    /// <param name="pointsToEarn">Mektup postaya verildiğinde kazanılacak puan (ödeme anındaki ayara göre sabitlenir).</param>
+    /// <param name="referrerCustomerId">Gönderen üyeyi davet eden üye (varsa).</param>
+    /// <param name="referralPointsToEarn">Mektup postaya verildiğinde davet eden üyenin kazanacağı puan.</param>
+    /// <param name="pointsDiscount">Kullanılan puanın ödeme anındaki TL karşılığı. Verilmezse 1 puan = 1 ₺ kabul edilir.</param>
+    public void MarkPaid(Money amount, PaymentMethod method, string paymentReference,
+        decimal pointsUsed = 0, decimal pointsToEarn = 0,
+        Guid? referrerCustomerId = null, decimal referralPointsToEarn = 0,
+        decimal? pointsDiscount = null)
+    {
+        // Doğrudan (tamamı puanla) ödemede taslaktan, kart ödemesinde ise bu ödemeyi bekleyen durumdan gelinir.
+        if (Status == LetterStatus.AwaitingPayment)
+        {
+            if (PaymentReference != paymentReference)
+                throw new DomainException("Bu mektup başka bir ödemeyi bekliyor.");
+        }
+        else
+        {
+            EnsureReadyForCheckout();
+        }
+        if (string.IsNullOrWhiteSpace(Content))
+            throw new DomainException("Boş bir mektup gönderilemez.");
+        if (pointsUsed < 0 || pointsToEarn < 0 || referralPointsToEarn < 0 || pointsDiscount < 0)
             throw new DomainException("Puan tutarı negatif olamaz.");
+        if (pointsUsed == 0 && pointsDiscount > 0)
+            throw new DomainException("Puan kullanılmadan puan indirimi yapılamaz.");
+        if (referrerCustomerId == CustomerId)
+            throw new DomainException("Üye kendi referansından puan kazanamaz.");
+        if (referralPointsToEarn > 0 && referrerCustomerId is null)
+            throw new DomainException("Referans puanı için davet eden üye gereklidir.");
+
+        ReferrerCustomerId = referrerCustomerId;
+        ReferralPointsToEarn = referrerCustomerId is null ? 0 : decimal.Round(referralPointsToEarn, 2);
 
         PaidAmount = amount.Amount;
         PaidAt = DateTime.UtcNow;
         PaymentMethod = method;
         PaymentReference = Guard.Required(paymentReference, "Ödeme referansı", 100);
         PointsUsed = decimal.Round(pointsUsed, 2);
+        PointsDiscount = decimal.Round(pointsDiscount ?? pointsUsed, 2);
         PointsToEarn = decimal.Round(pointsToEarn, 2);
 
         var note = PointsUsed > 0
-            ? $"Ödeme alındı ({amount} + {PointsUsed:N2} puan)."
+            ? $"Ödeme alındı ({amount} + {PointsUsed:N2} puan = {new Money(PointsDiscount)} indirim)."
             : $"Ödeme alındı ({amount}).";
         Transition(LetterStatus.Paid, note);
         Raise(new LetterPaid(Id, CustomerId, amount.Amount));
@@ -175,20 +234,50 @@ public sealed class Letter : AggregateRoot
         Transition(LetterStatus.InProduction, "Mektup basılıyor ve zarflanıyor.");
     }
 
-    public void Ship(string trackingCode)
+    /// <param name="carrier">Gönderiyi kayıt altına alan taşıyıcı (ör. "PTT"); elle girilen barkodda boş.</param>
+    /// <param name="carrierReference">Taşıyıcı tarafındaki kayıt referansı (PTT'de "dosyaAdi").</param>
+    public void Ship(string trackingCode, string? carrier = null, string? carrierReference = null)
     {
         if (Status != LetterStatus.InProduction)
             throw new DomainException("Sadece basımı tamamlanan mektuplar kargoya verilebilir.");
         TrackingCode = Letters.TrackingCode.Normalize(trackingCode);
-        Transition(LetterStatus.Shipped, $"Postaya verildi. Takip kodu: {TrackingCode}");
-        Raise(new LetterShipped(Id, CustomerId, TrackingCode, PointsToEarn));
+        Carrier = Guard.Optional(carrier, "Taşıyıcı", 20);
+        CarrierReference = Guard.Optional(carrierReference, "Taşıyıcı referansı", 100);
+        Transition(LetterStatus.Shipped, Carrier is null
+            ? $"Postaya verildi. Takip kodu: {TrackingCode}"
+            : $"{Carrier} kaydı oluşturuldu, postaya verildi. Takip kodu: {TrackingCode}");
+        Raise(new LetterShipped(Id, CustomerId, TrackingCode, PointsToEarn, ReferrerCustomerId, ReferralPointsToEarn));
     }
 
-    public void MarkDelivered()
+    /// <summary>
+    /// Taşıyıcıdan gelen son hareketi kaydeder. Hareket değiştiyse durum geçmişine not düşer
+    /// (takip sayfasında görünür). Mektubun durumunu değiştirmez; teslim için MarkDelivered çağrılır.
+    /// </summary>
+    /// <returns>Yeni bir hareket kaydedildiyse true.</returns>
+    public bool RecordCarrierUpdate(string movement, DateTime? occurredAt)
+    {
+        if (Status != LetterStatus.Shipped)
+            throw new DomainException("Sadece kargodaki mektuplar için taşıyıcı hareketi kaydedilebilir.");
+
+        CarrierCheckedAt = DateTime.UtcNow;
+        var text = Guard.Required(movement, "Taşıyıcı hareketi", 250);
+        if (text == CarrierLastMovement && occurredAt == CarrierLastMovementAt) return false;
+
+        CarrierLastMovement = text;
+        CarrierLastMovementAt = occurredAt;
+        AddHistory(LetterStatus.Shipped, $"{Carrier ?? "Posta"}: {text}");
+        Touch();
+        return true;
+    }
+
+    /// <summary>Taşıyıcı sorgulandı ama yeni hareket yok (bir sonraki kontrol zamanı için).</summary>
+    public void MarkCarrierChecked() => CarrierCheckedAt = DateTime.UtcNow;
+
+    public void MarkDelivered(string? note = null)
     {
         if (Status != LetterStatus.Shipped)
             throw new DomainException("Sadece kargodaki mektuplar teslim edildi olarak işaretlenebilir.");
-        Transition(LetterStatus.Delivered, "Alıcıya teslim edildi.");
+        Transition(LetterStatus.Delivered, Guard.Optional(note, "Not", 250) ?? "Alıcıya teslim edildi.");
         Raise(new LetterDelivered(Id, CustomerId));
     }
 
@@ -224,6 +313,8 @@ public sealed class Letter : AggregateRoot
 
     private void EnsureEditable()
     {
+        if (Status == LetterStatus.AwaitingPayment)
+            throw new DomainException("Ödeme işlemi sürüyor. Değişiklik yapmak için ödeme sayfasından vazgeçin.");
         if (!IsEditable)
             throw new DomainException("Ödemesi yapılmış bir mektup düzenlenemez.");
     }

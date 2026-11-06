@@ -20,8 +20,25 @@ public sealed class LoyaltySettingsForm
     [Display(Name = "Değer")]
     public decimal Value { get; set; }
 
+    [Display(Name = "Referans kazancı açık")]
+    public bool ReferralEnabled { get; set; }
+
+    public RewardType ReferralRewardType { get; set; }
+
+    [Range(0, 10000, ErrorMessage = "Geçerli bir değer girin.")]
+    public decimal ReferralValue { get; set; }
+
+    // Sınırlar tr-TR kültüründe "0.01" olarak okunamadığı için kültürden bağımsız parse edilir.
+    [Range(typeof(decimal), "0.01", "1000", ParseLimitsInInvariantCulture = true, ConvertValueInInvariantCulture = true,
+        ErrorMessage = "1 puanın değeri 0,01 ₺ ile 1.000 ₺ arasında olmalıdır.")]
+    [Display(Name = "1 puanın TL karşılığı")]
+    public decimal PointValue { get; set; } = 1m;
+
     public DateTime? UpdatedAt { get; set; }
     public string? UpdatedBy { get; set; }
+
+    public LoyaltySettingsInput ToInput() =>
+        new(IsEnabled, RewardType, Value, ReferralEnabled, ReferralRewardType, ReferralValue, PointValue);
 }
 
 /// <summary>MektupPuan ayarları ve müşteri bakiyesi düzeltmeleri.</summary>
@@ -37,6 +54,10 @@ public class LoyaltyController(LoyaltyService loyalty) : AdminControllerBase
             IsEnabled = s.IsEnabled,
             RewardType = s.RewardType,
             Value = s.Value,
+            ReferralEnabled = s.ReferralEnabled,
+            ReferralRewardType = s.ReferralRewardType,
+            ReferralValue = s.ReferralValue,
+            PointValue = s.PointValue,
             UpdatedAt = s.UpdatedAt,
             UpdatedBy = s.UpdatedBy
         });
@@ -48,7 +69,7 @@ public class LoyaltyController(LoyaltyService loyalty) : AdminControllerBase
         if (!ModelState.IsValid) return View(form);
         try
         {
-            await loyalty.UpdateSettingsAsync(form.IsEnabled, form.RewardType, form.Value, AdminName, ct);
+            await loyalty.UpdateSettingsAsync(form.ToInput(), AdminName, ct);
         }
         catch (DomainException ex)
         {

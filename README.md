@@ -29,11 +29,51 @@ Sadece `Admin` rolündeki kullanıcılar erişebilir (MVC Area: `src/MektupApp.W
 ### MektupPuan (sadakat puanı)
 
 - Kazanılacak puan **ödeme anında** o anki ayara göre hesaplanıp mektuba yazılır (ödeme ekranında gösterilir); puan, mektup **postaya verildiğinde** (`LetterShipped` olayı) hesaba geçer. Ödeme sonrası iptal edilen mektup puan kazandırmaz.
-- 1 puan = 1 ₺. Müşteri ödeme adımında bakiyesini kullanabilir; tutarın tamamı puanla karşılanırsa ödeme sağlayıcısına gidilmez. Yüzdesel kazanım sadece kart / mobil ile ödenen kısım üzerinden hesaplanır.
+- **Puan değeri:** 1 puanın TL karşılığı admin → MektupPuan → "Puan değeri" bölümünden ayarlanır (varsayılan 1 puan = 1 ₺, 0,01–1.000 ₺ arası). Kazanım kuralları puan cinsindendir; değer sadece puan harcanırken TL'ye çevirmede kullanılır. Ödemede kullanılan puan ve TL indirim ayrı ayrı kaydedilir (`PointsUsed`, `PointsDiscount`), iptalde puan olarak iade edilir. Değeri değiştirmek mevcut bakiyelerin TL karşılığını da değiştirir.
+- Müşteri ödeme adımında bakiyesini kullanabilir; tutarın tamamı puanla karşılanırsa ödeme sağlayıcısına gidilmez. Yüzdesel kazanım sadece kart / mobil ile ödenen kısım üzerinden hesaplanır.
 - İptal edilen siparişte kullanılan puan otomatik iade edilir (`LetterCancelledAfterPayment` olayı).
+- **Referans (arkadaş daveti):** her üyenin benzersiz ve akılda kalıcı bir referans no'su vardır: ad-soyad baş harfleri + 6 haneli sayı (ör. "Ayşe Yılmaz" → `AY482915`; Türkçe harfler sadeleştirilir, yazarken boşluk / küçük harf / Türkçe harf fark etmez) ve "Puanlarım" sayfasında davet linkiyle (`/kayit?ref=MK...`) paylaşılır. Kayıtta "Bizi nereden duydunuz?" (Sosyal medya / Radyo / Arkadaş / Diğer) zorunludur; "Arkadaş" seçilince isteğe bağlı referans no alanı açılır, girilirse geçerli olmak zorundadır. Davet edilen üyenin her mektubu postaya verildiğinde, davet eden üye ayrı bir kurala göre (yüzde veya sabit, admin → MektupPuan → Referans kazancı) puan kazanır. Bu puan da ödeme anında sabitlenir; davet eden hesabı engellenmişse puan verilmez.
 - Bakiye hiçbir zaman eksiye düşmez; her hareket `PointTransactions` tablosunda kayıtlıdır. Puan hesabındaki `RowVersion`, aynı bakiyenin eşzamanlı iki ödemede harcanmasını engeller.
 
 Listeleme ekranları aggregate yüklemeden doğrudan okuma modeline projekte eden `IAdminQueries` ile çalışır (CQRS-lite); durum değiştiren her işlem ise aggregate metotlarından geçer.
+
+### PayTR ödeme entegrasyonu
+
+[PayTR iFrame API](https://dev.paytr.com/iframe-api) kullanılır. Ödeme asenkrondur: kesin sonuç, müşterinin döndüğü sayfadan değil PayTR'nin sunucuya gönderdiği bildirimden gelir.
+
+1. **Başlatma** (`PaymentService.StartAsync`): tutar, kullanılan / kazanılacak puan ve referans puanı bir `Payment` kaydında sabitlenir; puan ayrılır; mektup **Ödeme Bekleniyor** durumuna geçip kilitlenir; PayTR `get-token` ile iFrame açılır. Tutarın tamamı puanla ödeniyorsa PayTR'ye gidilmez.
+2. **Bildirim** (`POST /odeme/paytr/bildirim`): hash doğrulanır; başarılıysa mektup ödenir, başarısızsa taslağa döner ve ayrılan puan iade edilir. Aynı bildirim tekrar gelirse sadece `OK` dönülür.
+3. **Vazgeçme / süre dolumu:** müşteri vazgeçebilir; sonucu gelmeyen denemeler `Payment:ExpireAfterMinutes` sonra arka planda kapatılır (puan iade). Kapanmış denemeye sonradan "başarılı" bildirimi gelirse tutar otomatik iade edilir.
+4. **İade:** ödenmiş mektup iptal edilince PayTR `odeme/iade` ile kart iadesi yapılır; başarısız olursa admin sipariş detayında "elle iade edin" uyarısı çıkar.
+
+`Payment:Provider = "Simulation"` (varsayılan) iken PayTR yerine uygulamanın simülasyon sayfası açılır, "Ödeme Başarılı / Kart Reddedildi" seçilerek bildirim taklit edilir. Dışarıdan gelen bildirimler simülasyonda kabul edilmez.
+
+**Canlıya geçiş:**
+1. PayTR mağaza başvurusu → Mağaza Paneli → Destek & Kurulum → Entegrasyon Bilgileri'nden Mağaza No / Key / Salt'ı alın; user-secrets veya ortam değişkeniyle verin (`Payment__PayTR__MerchantId`, `Payment__PayTR__MerchantKey`, `Payment__PayTR__MerchantSalt`).
+2. Mağaza Paneli → Ayarlar'da **Bildirim URL**'yi `https://<alan-adınız>/odeme/paytr/bildirim` yapın (sitenin herkese açık ve HTTPS olması gerekir; localhost'a bildirim gelmez).
+3. `Payment:Provider = "PayTR"`, `PayTR:TestMode = true` ile PayTR test kartlarıyla deneyin; işlemin panelde "Başarılı" göründüğünü kontrol edin. Sonra `TestMode = false`, `DebugOn = false` yapın.
+4. Uygulama bir proxy (Nginx, yük dengeleyici) arkasındaysa proxy adresini `ForwardedHeadersOptions.KnownProxies`'e ekleyin; PayTR müşterinin gerçek IP'sini (`user_ip`) ister.
+5. PayTR iFrame kart ödemesi içindir; PayTR açıkken "Mobil Ödeme" seçeneği gizlenir.
+
+### PTT entegrasyonu
+
+PTT'nin SOAP web servisleri kullanılır (`pttws.ptt.gov.tr`); istekler PTT'nin yayınladığı WSDL'lere göre yazılmış ve testlerde bu WSDL şemalarına karşı doğrulanır (`tests/MektupApp.Infrastructure.Tests/Fixtures`).
+
+| İşlem | Servis / metot | Uygulamada |
+|---|---|---|
+| Gönderi kaydı | `PttVeriYukleme[Test]` → `kabulEkle2` | Admin → sipariş → "PTT'ye Kaydet ve Postaya Ver" (tek tek veya "Basımda" sekmesinde toplu) |
+| Gönderi takip | `GonderiTakipV2[Test]` → `gonderiSorgu2` | Arka plan servisi (`Ptt:Sync`) + sipariş detayında "PTT'den Güncelle" |
+
+- **DDD yapısı:** `IPostalCarrier` (port, Application) → `PttPostalCarrier` / `SimulatedPostalCarrier` (adapter, Infrastructure). İş kuralları `Letter` içinde: `Ship(barkod, "PTT", dosyaAdi)`, `RecordCarrierUpdate(...)`, `MarkDelivered(...)`.
+- **Barkod:** PTT'nin tahsis ettiği aralıktan (`Ptt:Barcode`) veritabanındaki sayaçla sırayla üretilir; S10 kontrol hanesi hesaplanır (ör. `RR100000003TR`). Aralık dolunca admin'e uyarı verilir.
+- **Takip:** Kargodaki mektupların PTT hareketleri durum geçmişine ve takip sayfasına yazılır; PTT "teslim edildi" dediğinde (`TESALAN` dolu veya son işlem `TESLİM EDİLDİ`) mektup otomatik kapanır, puan ve SMS bu sırada tetiklenir.
+- **Simülasyon:** `Ptt:Enabled = false` iken (varsayılan) gerçek gönderi yapılmaz; hareketler zamanla ilerler (geliştirmede 30 sn'de bir).
+
+**Canlıya geçiş:**
+1. PTT ile kurumsal sözleşme yapın; müşteri no, şifre ve barkod aralığı alın (entegrasyon@ptt.gov.tr).
+2. Bilgileri gizli tutun: `dotnet user-secrets` veya ortam değişkeni (`Ptt__CustomerId`, `Ptt__Password`, gerekirse `Ptt__TrackingUsername` / `Ptt__TrackingPassword`).
+3. `Ptt:Barcode` aralığını, `Ptt:ShipmentType` (gonderiTur), `Ptt:ShipmentKind` (gonderiTip), `Ptt:PaymentMethod` (odemesekli) ve `Ptt:ExtraService` (ekhizmet) değerlerini PTT'nin size verdiği kodlarla güncelleyin. Varsayılanlar (`KARGO` / `NORMAL` / `MH`) yer tutucudur, taahhütlü mektup için farklı olabilir.
+4. `Ptt:Enabled = true`, `Ptt:UseTestEnvironment = true` ile test gönderisi oluşturun; PTT'nin onay sürecini tamamlayın, ardından `UseTestEnvironment = false` yapın.
 
 ### Migration
 

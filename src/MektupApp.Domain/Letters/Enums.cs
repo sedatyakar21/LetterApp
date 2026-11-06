@@ -9,7 +9,9 @@ public enum LetterStatus
     [Display(Name = "Basımda")] InProduction = 2,
     [Display(Name = "Kargoda")] Shipped = 3,
     [Display(Name = "Teslim Edildi")] Delivered = 4,
-    [Display(Name = "İptal Edildi")] Cancelled = 5
+    [Display(Name = "İptal Edildi")] Cancelled = 5,
+    /// <summary>Kart ödemesi başladı, ödeme sağlayıcısının (PayTR) sonucu bekleniyor. Mektup kilitlidir.</summary>
+    [Display(Name = "Ödeme Bekleniyor")] AwaitingPayment = 6
 }
 
 public enum RecipientType

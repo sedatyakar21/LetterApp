@@ -2,6 +2,7 @@ using System.Security.Claims;
 using MektupApp.Application.Abstractions;
 using MektupApp.Application.Customers;
 using MektupApp.Domain.Common;
+using MektupApp.Domain.Customers;
 using MektupApp.Web.Models;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -31,20 +32,27 @@ public class AccountController(AccountService accounts) : Controller
         return Url.IsLocalUrl(model.ReturnUrl) ? Redirect(model.ReturnUrl) : RedirectToAction("Index", "Letters");
     }
 
+    /// <param name="ref">Davet linkinden gelen referans no (/kayit?ref=MK...); "Arkadaş" seçili gelir.</param>
     [HttpGet("kayit")]
-    public IActionResult Register() => View(new RegisterViewModel());
+    public IActionResult Register([FromQuery(Name = "ref")] string? @ref) =>
+        View(string.IsNullOrWhiteSpace(@ref)
+            ? new RegisterViewModel()
+            : new RegisterViewModel { Channel = AcquisitionChannel.Friend, ReferralCode = @ref.Trim() });
 
     [HttpPost("kayit")]
     public async Task<IActionResult> Register(RegisterViewModel model, CancellationToken ct)
     {
         if (!model.AcceptTerms)
             ModelState.AddModelError(nameof(model.AcceptTerms), "Üyelik sözleşmesini onaylamalısınız.");
+        if (model.Channel is null)
+            ModelState.AddModelError(nameof(model.Channel), "Lütfen bizi nereden duyduğunuzu seçin.");
         if (!ModelState.IsValid) return View(model);
 
         try
         {
             var customer = await accounts.RegisterAsync(
-                new RegisterCommand(model.FullName, model.Email, model.Phone, model.Password), ct);
+                new RegisterCommand(model.FullName, model.Email, model.Phone, model.Password,
+                    model.Channel, model.Channel == AcquisitionChannel.Friend ? model.ReferralCode : null), ct);
             await SignInAsync(customer);
             TempData["Success"] = "Hoş geldiniz! İlk mektubunuzu yazmaya başlayabilirsiniz.";
             return RedirectToAction("Write", "Letters");

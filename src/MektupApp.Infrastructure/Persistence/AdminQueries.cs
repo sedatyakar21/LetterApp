@@ -78,7 +78,31 @@ internal sealed class AdminQueries(AppDbContext db) : IAdminQueries
             CustomerCount: await db.Customers.CountAsync(ct),
             NewCustomersLast7Days: await db.Customers.CountAsync(c => c.CreatedAt >= weekAgo, ct),
             Last14Days: days,
-            RecentOrders: recent);
+            RecentOrders: recent,
+            Acquisition: await GetAcquisitionAsync(ct));
+    }
+
+    private async Task<IReadOnlyList<ChannelCountDto>> GetAcquisitionAsync(CancellationToken ct)
+    {
+        var rows = await db.Customers.AsNoTracking()
+            .GroupBy(c => c.AcquisitionChannel)
+            .Select(g => new
+            {
+                Channel = g.Key,
+                Count = g.Count(),
+                WithReferral = g.Count(c => c.ReferredByCustomerId != null)
+            })
+            .ToListAsync(ct);
+
+        // Tüm seçenekler sabit sırada görünsün (0 olsa bile); bilgi olmayanlar en sonda.
+        var result = Enum.GetValues<AcquisitionChannel>()
+            .Select(ch => rows.FirstOrDefault(r => r.Channel == ch) is { } r
+                ? new ChannelCountDto(ch, r.Count, r.WithReferral)
+                : new ChannelCountDto(ch, 0, 0))
+            .ToList();
+        if (rows.FirstOrDefault(r => r.Channel == null) is { Count: > 0 } unknown)
+            result.Add(new ChannelCountDto(null, unknown.Count, 0));
+        return result;
     }
 
     public async Task<PagedResult<AdminLetterRowDto>> SearchLettersAsync(LetterSearchCriteria c, CancellationToken ct = default)
@@ -111,23 +135,29 @@ internal sealed class AdminQueries(AppDbContext db) : IAdminQueries
         return new PagedResult<AdminLetterRowDto>(items, page, size, total);
     }
 
-    public async Task<PagedResult<CustomerRowDto>> SearchCustomersAsync(string? query, int page, int pageSize, CancellationToken ct = default)
+    public async Task<PagedResult<CustomerRowDto>> SearchCustomersAsync(CustomerSearchCriteria c, CancellationToken ct = default)
     {
         var customers = db.Customers.AsNoTracking();
 
-        if (!string.IsNullOrWhiteSpace(query))
+        if (c.Channel is { } channel)
+            customers = customers.Where(x => x.AcquisitionChannel == channel);
+        if (c.ReferredBy is { } referrerId)
+            customers = customers.Where(x => x.ReferredByCustomerId == referrerId);
+
+        if (!string.IsNullOrWhiteSpace(c.Query))
         {
-            var q = query.Trim();
+            var q = c.Query.Trim();
+            var code = ReferralCode.Normalize(q);
             // E-posta ve telefon value object olarak saklandığı için tam eşleşme ile, ad soyad ise içerik ile aranır.
             if (TryCreate(() => new Email(q)) is { } email)
                 customers = customers.Where(x => x.Email == email);
             else if (TryCreate(() => new PhoneNumber(q)) is { } phone)
                 customers = customers.Where(x => x.Phone == phone);
             else
-                customers = customers.Where(x => x.FullName.Contains(q));
+                customers = customers.Where(x => x.FullName.Contains(q) || x.ReferralCode == code);
         }
 
-        var (p, size) = Normalize(page, pageSize);
+        var (p, size) = Normalize(c.Page, c.PageSize);
         var total = await customers.CountAsync(ct);
         var rows = await ToCustomerRows(customers.OrderByDescending(x => x.CreatedAt).Skip((p - 1) * size).Take(size), ct);
         return new PagedResult<CustomerRowDto>(rows, p, size, total);
@@ -166,12 +196,21 @@ internal sealed class AdminQueries(AppDbContext db) : IAdminQueries
             Points = db.Set<LoyaltyAccount>()
                 .Where(a => a.CustomerId == c.Id)
                 .Select(a => (decimal?)a.Balance)
-                .FirstOrDefault() ?? 0
+                .FirstOrDefault() ?? 0,
+            c.AcquisitionChannel,
+            c.ReferralCode,
+            c.ReferredByCustomerId,
+            ReferredByName = db.Customers
+                .Where(r => r.Id == c.ReferredByCustomerId)
+                .Select(r => r.FullName)
+                .FirstOrDefault(),
+            ReferredCount = db.Customers.Count(r => r.ReferredByCustomerId == c.Id)
         }).ToListAsync(ct);
 
         return rows.Select(r => new CustomerRowDto(
                 r.Id, r.FullName, r.Email.Value, r.Phone.ToString(), r.IsAdmin, r.IsActive,
-                r.OrderCount, r.TotalSpent, r.Points, r.CreatedAt))
+                r.OrderCount, r.TotalSpent, r.Points, r.CreatedAt,
+                r.AcquisitionChannel, r.ReferralCode, r.ReferredByCustomerId, r.ReferredByName, r.ReferredCount))
             .ToList();
     }
 

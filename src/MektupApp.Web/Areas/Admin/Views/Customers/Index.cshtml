@@ -1,18 +1,35 @@
 @model CustomersIndexViewModel
+@using MektupApp.Domain.Customers
 @{
     ViewData["Title"] = "Müşteriler";
     var pager = new PagerModel(Model.Result.Page, Model.Result.TotalPages, Model.Result.TotalCount,
-        p => Url.Action("Index", new { q = Model.Query, page = p }));
+        p => Url.Action("Index", new { q = Model.Query, channel = Model.Channel, referredBy = Model.ReferredBy, page = p }));
 }
 
 <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
     <h1 class="h4 mb-0">Müşteriler</h1>
-    <form method="get" class="d-flex gap-2" role="search">
+    <form method="get" class="d-flex flex-wrap gap-2" role="search">
+        @if (Model.ReferredBy is not null) { <input type="hidden" name="referredBy" value="@Model.ReferredBy" /> }
+        <select name="channel" class="form-select form-select-sm" style="width:auto" aria-label="Bizi nereden duydu">
+            <option value="">Tüm kaynaklar</option>
+            @foreach (var ch in Enum.GetValues<AcquisitionChannel>())
+            {
+                <option value="@ch" selected="@(Model.Channel == ch)">@ch.DisplayName()</option>
+            }
+        </select>
         <input type="search" name="q" value="@Model.Query" class="form-control form-control-sm" style="min-width:240px"
-               placeholder="Ad soyad, e-posta veya telefon" aria-label="Müşterilerde ara" />
+               placeholder="Ad soyad, e-posta, telefon veya referans no" aria-label="Müşterilerde ara" />
         <button class="btn btn-sm btn-primary" type="submit">Ara</button>
     </form>
 </div>
+
+@if (Model.ReferredBy is { } rid)
+{
+    <div class="alert alert-light border small d-flex justify-content-between align-items-center">
+        <span><a asp-action="Details" asp-route-id="@rid">@Model.ReferredByName</a> tarafından davet edilen üyeler</span>
+        <a asp-action="Index" class="small">Filtreyi kaldır ×</a>
+    </div>
+}
 
 <div class="admin-card overflow-hidden">
     <div class="table-responsive">
@@ -22,6 +39,7 @@
                     <th>Ad Soyad</th>
                     <th>E-posta</th>
                     <th>Telefon</th>
+                    <th>Kaynak</th>
                     <th class="text-end">Sipariş</th>
                     <th class="text-end">Harcama</th>
                     <th class="text-end">Puan</th>
@@ -36,6 +54,13 @@
                         <td><a asp-action="Details" asp-route-id="@c.Id" class="fw-semibold">@c.FullName</a></td>
                         <td class="small">@c.Email</td>
                         <td class="small">@c.Phone</td>
+                        <td class="small">
+                            @(c.AcquisitionChannel?.DisplayName() ?? "—")
+                            @if (c.ReferredById is { } refId)
+                            {
+                                <div class="text-muted">↳ <a asp-action="Details" asp-route-id="@refId" class="text-reset">@c.ReferredByName</a></div>
+                            }
+                        </td>
                         <td class="text-end">@c.OrderCount</td>
                         <td class="text-end">@(new Money(c.TotalSpent))</td>
                         <td class="text-end">@c.PointsBalance.ToString("N2")</td>
@@ -49,7 +74,7 @@
                 }
                 @if (Model.Result.Items.Count == 0)
                 {
-                    <tr><td colspan="8" class="text-center text-muted py-4">Kayıt bulunamadı.</td></tr>
+                    <tr><td colspan="9" class="text-center text-muted py-4">Kayıt bulunamadı.</td></tr>
                 }
             </tbody>
         </table>

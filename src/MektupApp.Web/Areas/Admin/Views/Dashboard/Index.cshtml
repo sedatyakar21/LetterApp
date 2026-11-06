@@ -153,3 +153,34 @@
         </div>
     </div>
 </div>
+
+<!-- Bizi nereden duydular? (tek ölçü, tek renk; her satırda sayı ve oran yazılı) -->
+@{
+    var totalAcq = Model.Acquisition.Sum(a => a.Count);
+}
+<div class="row g-3 mt-0">
+    <div class="col-xl-7">
+        <div class="card admin-card">
+            <div class="card-header d-flex justify-content-between">
+                <span>Bizi nereden duydular?</span>
+                <a asp-controller="Customers" asp-action="Index" class="small fw-normal">Müşteriler →</a>
+            </div>
+            <div class="card-body">
+                @foreach (var a in Model.Acquisition)
+                {
+                    var pct = totalAcq == 0 ? 0 : a.Count * 100.0 / totalAcq;
+                    <a class="acq-row" asp-controller="Customers" asp-action="Index" asp-route-channel="@a.Channel"
+                       aria-label="@(a.Channel?.DisplayName() ?? "Belirtilmemiş"): @a.Count üye">
+                        <span class="acq-label">@(a.Channel?.DisplayName() ?? "Belirtilmemiş")</span>
+                        <span class="acq-track"><span class="acq-bar" style="width: @pct.ToString("0.#", System.Globalization.CultureInfo.InvariantCulture)%"></span></span>
+                        <span class="acq-value">@a.Count <span class="text-muted">(%@pct.ToString("0"))</span></span>
+                    </a>
+                    @if (a.Channel == MektupApp.Domain.Customers.AcquisitionChannel.Friend && a.Count > 0)
+                    {
+                        <div class="small text-muted mb-2 ps-1">↳ @a.WithReferral üye referans no ile kayıt oldu</div>
+                    }
+                }
+            </div>
+        </div>
+    </div>
+</div>

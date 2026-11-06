@@ -17,17 +17,47 @@ public sealed class Customer : AggregateRoot
     public bool IsActive { get; private set; } = true;
     public DateTime CreatedAt { get; private set; }
 
-    public static Customer Register(string fullName, Email email, PhoneNumber phone, string passwordHash, bool isAdmin = false) =>
-        new()
+    /// <summary>Üyenin bizi nereden duyduğu (eski / sistem hesaplarında boş olabilir).</summary>
+    public AcquisitionChannel? AcquisitionChannel { get; private set; }
+
+    /// <summary>Bu üyenin arkadaşlarıyla paylaştığı benzersiz referans numarası.</summary>
+    public string ReferralCode { get; private set; } = string.Empty;
+
+    /// <summary>Bu üyeyi davet eden üye (referans no ile kayıt olduysa).</summary>
+    public Guid? ReferredByCustomerId { get; private set; }
+
+    /// <param name="referrer">"Arkadaş" seçilip geçerli bir referans no girildiyse, davet eden üye.</param>
+    public static Customer Register(string fullName, Email email, PhoneNumber phone, string passwordHash,
+        bool isAdmin = false, AcquisitionChannel? channel = null, Customer? referrer = null)
+    {
+        if (channel is { } c && !Enum.IsDefined(c))
+            throw new DomainException("Geçersiz seçim: bizi nereden duydunuz?");
+        if (referrer is not null)
         {
-            FullName = Guard.Required(fullName, "Ad soyad", 100),
+            if (channel != Customers.AcquisitionChannel.Friend)
+                throw new DomainException("Referans no sadece 'Arkadaş' seçildiğinde kullanılabilir.");
+            if (!referrer.IsActive)
+                throw new DomainException("Bu referans no artık geçerli değil.");
+        }
+
+        var name = Guard.Required(fullName, "Ad soyad", 100);
+        return new Customer
+        {
+            FullName = name,
             Email = email,
             Phone = phone,
             PasswordHash = Guard.Required(passwordHash, "Şifre", 500),
             IsAdmin = isAdmin,
             IsActive = true,
-            CreatedAt = DateTime.UtcNow
+            CreatedAt = DateTime.UtcNow,
+            AcquisitionChannel = channel,
+            ReferredByCustomerId = referrer?.Id,
+            ReferralCode = Customers.ReferralCode.Generate(name)
         };
+    }
+
+    /// <summary>Üretilen kod başka bir üyede varsa (aynı baş harfler + aynı sayı) yenisi atanır.</summary>
+    public void RegenerateReferralCode() => ReferralCode = Customers.ReferralCode.Generate(FullName);
 
     public void ChangePasswordHash(string passwordHash) =>
         PasswordHash = Guard.Required(passwordHash, "Şifre", 500);
@@ -91,5 +121,8 @@ public interface ICustomerRepository
     Task<Customer?> GetAsync(Guid id, CancellationToken ct = default);
     Task<Customer?> GetByEmailAsync(Email email, CancellationToken ct = default);
     Task<bool> EmailExistsAsync(Email email, CancellationToken ct = default);
+    Task<Customer?> GetByReferralCodeAsync(string referralCode, CancellationToken ct = default);
+    Task<bool> ReferralCodeExistsAsync(string referralCode, CancellationToken ct = default);
+    Task<int> CountReferredAsync(Guid referrerId, CancellationToken ct = default);
     void Add(Customer customer);
 }

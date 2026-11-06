@@ -23,7 +23,15 @@ internal sealed class LetterConfiguration : IEntityTypeConfiguration<Letter>
         b.HasIndex(l => l.TrackingCode);
         b.HasIndex(l => l.PaidAt);
         b.Property(l => l.PointsUsed).HasPrecision(10, 2);
+        b.Property(l => l.PointsDiscount).HasPrecision(10, 2);
+
+        b.Property(l => l.Carrier).HasMaxLength(20);
+        b.Property(l => l.CarrierReference).HasMaxLength(100);
+        b.Property(l => l.CarrierLastMovement).HasMaxLength(250);
+        b.HasIndex(l => new { l.Status, l.Carrier, l.CarrierCheckedAt });
         b.Property(l => l.PointsToEarn).HasPrecision(10, 2);
+        b.Property(l => l.ReferralPointsToEarn).HasPrecision(10, 2);
+        b.HasIndex(l => l.ReferrerCustomerId);
         b.HasIndex(l => new { l.Status, l.UpdatedAt });
         b.HasIndex(l => new { l.CustomerId, l.IsDeleted });
 
@@ -95,6 +103,13 @@ internal sealed class CustomerConfiguration : IEntityTypeConfiguration<Customer>
         b.Property(c => c.PasswordHash).HasMaxLength(500).IsRequired();
         b.Property(c => c.IsActive);
         b.HasIndex(c => c.CreatedAt);
+
+        b.Property(c => c.AcquisitionChannel).HasConversion<string>().HasMaxLength(20);
+        b.Property(c => c.ReferralCode).HasMaxLength(ReferralCode.Length).IsRequired();
+        b.HasIndex(c => c.ReferralCode).IsUnique();
+        b.HasIndex(c => c.ReferredByCustomerId);
+        // Davet eden üyeye referans (silinirse bağ korunmaz, kayıt kalır).
+        b.HasOne<Customer>().WithMany().HasForeignKey(c => c.ReferredByCustomerId).OnDelete(DeleteBehavior.NoAction);
     }
 }
 

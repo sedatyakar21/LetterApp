@@ -32,6 +32,20 @@
             <input asp-for="ConfirmPassword" class="form-control" autocomplete="new-password" />
             <span asp-validation-for="ConfirmPassword" class="text-danger small"></span>
         </div>
+        <div class="mb-3">
+            <label asp-for="Channel" class="form-label"></label>
+            <select asp-for="Channel" asp-items="Html.GetEnumSelectList<MektupApp.Domain.Customers.AcquisitionChannel>()"
+                    class="form-select" required>
+                <option value="">Seçiniz…</option>
+            </select>
+            <span asp-validation-for="Channel" class="text-danger small"></span>
+        </div>
+        <div class="mb-3" id="referralGroup" hidden>
+            <label asp-for="ReferralCode" class="form-label"></label>
+            <input asp-for="ReferralCode" class="form-control text-uppercase" placeholder="ör. AY482915" autocomplete="off" maxlength="20" />
+            <div class="form-text">İsteğe bağlı. Arkadaşınızın referans no'sunu girerseniz, siz mektup gönderdikçe arkadaşınız MektupPuan kazanır.</div>
+            <span asp-validation-for="ReferralCode" class="text-danger small"></span>
+        </div>
         <div class="form-check mb-3">
             <input asp-for="AcceptTerms" class="form-check-input" />
             <label asp-for="AcceptTerms" class="form-check-label small">
@@ -43,4 +57,17 @@
         <p class="text-center small mt-3 mb-0">Zaten üye misin? <a asp-action="Login">Giriş yap</a></p>
     </form>
 </div>
-@section Scripts { <partial name="_ValidationScriptsPartial" /> }
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        // "Arkadaş" seçildiğinde referans no alanını göster.
+        (function () {
+            const select = document.getElementById("Channel");
+            const group = document.getElementById("referralGroup");
+            const friend = "@((int)MektupApp.Domain.Customers.AcquisitionChannel.Friend)";
+            const toggle = () => group.hidden = select.value !== friend;
+            select.addEventListener("change", toggle);
+            toggle();
+        })();
+    </script>
+}

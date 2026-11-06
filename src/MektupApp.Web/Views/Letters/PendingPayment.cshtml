@@ -1,0 +1,36 @@
+@model PendingPaymentViewModel
+@using MektupApp.Domain.Common
+@{
+    ViewData["Title"] = "Ödeme Bekleniyor";
+    var l = Model.Letter;
+    var p = Model.Payment;
+}
+<div class="container py-4" style="max-width: 640px">
+    <a asp-action="Details" asp-route-id="@l.Id" class="small">← Mektup</a>
+    <h1 class="h4 mt-1 mb-3">Ödemeniz devam ediyor</h1>
+
+    <div class="card mb-3">
+        <div class="card-body">
+            <p class="mb-2">
+                <strong>@l.RecipientName</strong> adlı alıcıya mektubunuz için başlatılmış bir ödeme var
+                @if (p is not null) { <span>(@(new Money(p.Amount)), @p.CreatedAt.ToLocalTime().ToString("HH:mm"))</span> }.
+                Ödeme tamamlanana kadar mektup düzenlenemez.
+            </p>
+            <div class="d-flex flex-wrap gap-2 mt-3">
+                @if (p?.FormUrl is not null)
+                {
+                    <a class="btn btn-primary" asp-action="SecurePayment" asp-route-id="@l.Id" asp-route-oid="@p.MerchantOid">Ödemeye Devam Et</a>
+                    <a class="btn btn-outline-secondary" asp-action="PaymentResult" asp-route-id="@l.Id" asp-route-oid="@p.MerchantOid">Ödedim, sonucu göster</a>
+                }
+                <form asp-action="AbandonPayment" asp-route-id="@l.Id" method="post"
+                      onsubmit="return confirm('Bu ödemeden vazgeçilecek. Ödemeyi tamamladıysanız vazgeçmeyin. Devam edilsin mi?')">
+                    <button class="btn btn-outline-danger">Vazgeç ve Yeniden Başla</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    <p class="small text-muted">
+        Vazgeçerseniz mektubunuz tekrar düzenlenebilir olur ve ödemede kullandığınız puan iade edilir.
+        Vazgeçtikten sonra ödeme yine de onaylanırsa tutar otomatik olarak kartınıza iade edilir.
+    </p>
+</div>

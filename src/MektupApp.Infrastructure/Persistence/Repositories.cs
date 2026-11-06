@@ -32,6 +32,14 @@ internal sealed class LetterRepository(AppDbContext db) : ILetterRepository
             .ToListAsync(ct);
     }
 
+    public async Task<IReadOnlyList<Letter>> ListForCarrierSyncAsync(string carrier, DateTime checkedBefore, int maxCount, CancellationToken ct = default) =>
+        await db.Letters
+            .Where(l => l.Status == LetterStatus.Shipped && l.Carrier == carrier &&
+                        (l.CarrierCheckedAt == null || l.CarrierCheckedAt < checkedBefore))
+            .OrderBy(l => l.CarrierCheckedAt ?? DateTime.MinValue)
+            .Take(maxCount)
+            .ToListAsync(ct);
+
     public void Add(Letter letter) => db.Letters.Add(letter);
 }
 
@@ -69,6 +77,15 @@ internal sealed class CustomerRepository(AppDbContext db) : ICustomerRepository
 
     public Task<bool> EmailExistsAsync(Email email, CancellationToken ct = default) =>
         db.Customers.AnyAsync(c => c.Email == email, ct);
+
+    public Task<Customer?> GetByReferralCodeAsync(string referralCode, CancellationToken ct = default) =>
+        db.Customers.FirstOrDefaultAsync(c => c.ReferralCode == referralCode, ct);
+
+    public Task<bool> ReferralCodeExistsAsync(string referralCode, CancellationToken ct = default) =>
+        db.Customers.AnyAsync(c => c.ReferralCode == referralCode, ct);
+
+    public Task<int> CountReferredAsync(Guid referrerId, CancellationToken ct = default) =>
+        db.Customers.CountAsync(c => c.ReferredByCustomerId == referrerId, ct);
 
     public void Add(Customer customer) => db.Customers.Add(customer);
 }

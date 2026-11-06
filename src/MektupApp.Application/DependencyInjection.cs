@@ -3,6 +3,7 @@ using MektupApp.Application.Admin;
 using MektupApp.Application.Customers;
 using MektupApp.Application.Letters;
 using MektupApp.Application.Loyalty;
+using MektupApp.Application.Payments;
 using MektupApp.Application.Pricing;
 using MektupApp.Domain.Letters;
 using Microsoft.Extensions.DependencyInjection;
@@ -20,9 +21,12 @@ public static class DependencyInjection
         services.AddScoped<PricingService>();
         services.AddScoped<LetterService>();
         services.AddScoped<FulfillmentService>();
+        services.AddScoped<CarrierShippingService>();
         services.AddScoped<AccountService>();
         services.AddScoped<CustomerAdminService>();
         services.AddScoped<LoyaltyService>();
+        services.AddScoped<CheckoutCalculator>();
+        services.AddScoped<PaymentService>();
 
         services.AddScoped<IDomainEventHandler<LetterPaid>, LetterNotificationHandlers>();
         services.AddScoped<IDomainEventHandler<LetterShipped>, LetterNotificationHandlers>();
@@ -32,6 +36,9 @@ public static class DependencyInjection
         // MektupPuan: postaya verilen mektupta puan kazanımı, iptalde kullanılan puanın iadesi.
         services.AddScoped<IDomainEventHandler<LetterShipped>, LoyaltyEventHandlers>();
         services.AddScoped<IDomainEventHandler<LetterCancelledAfterPayment>, LoyaltyEventHandlers>();
+
+        // Ödemesi alınmış mektup iptal edilince ödeme sağlayıcısında (PayTR) iade.
+        services.AddScoped<IDomainEventHandler<LetterCancelledAfterPayment>, PaymentRefundHandler>();
         return services;
     }
 }

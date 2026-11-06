@@ -6,6 +6,11 @@
       "runtimeExecutable": "dotnet",
       "runtimeArgs": ["run", "--project", "src/MektupApp.Web", "--launch-profile", "http"],
       "port": 5212
+    },
+    {
+      "name": "letterapp-5213",
+      "url": "http://localhost:5213",
+      "port": 5213
     }
   ]
 }

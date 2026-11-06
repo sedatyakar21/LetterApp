@@ -20,12 +20,16 @@ public sealed class OrderDetailsViewModel
 {
     public required LetterDetailsDto Letter { get; init; }
     public CustomerRowDto? Customer { get; init; }
+    public IReadOnlyList<MektupApp.Application.Payments.PaymentRowDto> Payments { get; init; } = [];
 }
 
 public sealed class CustomersIndexViewModel
 {
     public required PagedResult<CustomerRowDto> Result { get; init; }
     public string? Query { get; init; }
+    public MektupApp.Domain.Customers.AcquisitionChannel? Channel { get; init; }
+    public Guid? ReferredBy { get; init; }
+    public string? ReferredByName { get; init; }
 }
 
 public sealed class CustomerDetailsViewModel

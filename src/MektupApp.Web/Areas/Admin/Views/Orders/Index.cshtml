@@ -1,15 +1,20 @@
 @model OrdersIndexViewModel
 @{
     ViewData["Title"] = "Siparişler";
-    var tabs = new LetterStatus?[] { null, LetterStatus.Paid, LetterStatus.InProduction, LetterStatus.Shipped, LetterStatus.Delivered, LetterStatus.Cancelled, LetterStatus.Draft };
+    var tabs = new LetterStatus?[] { null, LetterStatus.Paid, LetterStatus.InProduction, LetterStatus.Shipped, LetterStatus.Delivered, LetterStatus.Cancelled, LetterStatus.AwaitingPayment, LetterStatus.Draft };
     var allCount = Model.Counts.Values.Sum();
-    var canBulk = Model.Status == LetterStatus.Paid && Model.Result.Items.Count > 0;
+    // Toplu işlem: "Ödendi" sekmesinde basıma alma, "Basımda" sekmesinde PTT'ye kaydedip postaya verme.
+    var canBulk = Model.Status is LetterStatus.Paid or LetterStatus.InProduction && Model.Result.Items.Count > 0;
     var pager = new PagerModel(Model.Result.Page, Model.Result.TotalPages, Model.Result.TotalCount,
         p => Url.Action("Index", new { status = Model.Status, q = Model.Query, page = p }));
 }
 
 <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
-    <h1 class="h4 mb-0">Siparişler</h1>
+    <h1 class="h4 mb-0">
+        Siparişler
+        <span class="badge fs-6 fw-normal align-middle @(ViewBag.CarrierIsSimulation == true ? "bg-warning text-dark" : "bg-info text-dark")"
+              title="Posta entegrasyonu">@ViewBag.CarrierLabel</span>
+    </h1>
     <form method="get" class="d-flex gap-2" role="search">
         @if (Model.Status is not null) { <input type="hidden" name="status" value="@Model.Status" /> }
         <input type="search" name="q" value="@Model.Query" class="form-control form-control-sm" style="min-width:240px"
@@ -36,7 +41,16 @@
         {
             <div class="d-flex align-items-center gap-2 p-2 border-bottom">
                 <span class="small text-muted">Seçilenleri:</span>
-                <button type="submit" class="btn btn-sm btn-warning">Basıma Al</button>
+                @if (Model.Status == LetterStatus.Paid)
+                {
+                    <button type="submit" class="btn btn-sm btn-warning">Basıma Al</button>
+                }
+                else
+                {
+                    <button type="submit" class="btn btn-sm btn-primary" formaction="@Url.Action("ShipManyWithCarrier")">
+                        @ViewBag.CarrierName'ye Kaydet ve Postaya Ver
+                    </button>
+                }
             </div>
         }
         <div class="table-responsive">

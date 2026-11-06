@@ -87,17 +87,40 @@ public sealed record Postcard
     }
 }
 
-/// <summary>PTT kayıtlı gönderi barkodu (UPU S10 formatı, ör. RR123456789TR).</summary>
+/// <summary>
+/// PTT gönderi barkodu. İki biçim kabul edilir:
+/// UPU S10 (kayıtlı posta, ör. RR123456789TR) ve PTT Kargo (2 harf + 11 rakam, ör. KP12345678901).
+/// </summary>
 public static partial class TrackingCode
 {
+    private static readonly int[] S10Weights = [8, 6, 4, 2, 3, 5, 9, 7];
+
     public static string Normalize(string? code)
     {
         var value = (code ?? string.Empty).Trim().ToUpperInvariant().Replace(" ", "");
-        if (!Format().IsMatch(value))
-            throw new DomainException("Takip kodu 'RR123456789TR' formatında olmalıdır.");
+        if (!S10Format().IsMatch(value) && !CargoFormat().IsMatch(value))
+            throw new DomainException("Takip kodu 'RR123456789TR' veya 'KP12345678901' formatında olmalıdır.");
         return value;
     }
 
+    /// <summary>UPU S10 kontrol hanesi: 8 haneli seri numarası için 9. hane.</summary>
+    public static int S10CheckDigit(long serial)
+    {
+        if (serial is < 0 or > 99_999_999)
+            throw new DomainException("S10 seri numarası 8 haneli olmalıdır.");
+        var digits = serial.ToString("00000000");
+        var sum = digits.Select((d, i) => (d - '0') * S10Weights[i]).Sum();
+        var check = 11 - sum % 11;
+        return check switch { 10 => 0, 11 => 5, _ => check };
+    }
+
+    /// <summary>Önek + 8 haneli seri + kontrol hanesi + sonek (ör. RR + 12345678 + 6 + TR).</summary>
+    public static string BuildS10(string prefix, long serial, string suffix) =>
+        Normalize($"{prefix}{serial:00000000}{S10CheckDigit(serial)}{suffix}");
+
     [GeneratedRegex(@"^[A-Z]{2}\d{9}[A-Z]{2}$")]
-    private static partial Regex Format();
+    private static partial Regex S10Format();
+
+    [GeneratedRegex(@"^[A-Z]{2}\d{11}$")]
+    private static partial Regex CargoFormat();
 }

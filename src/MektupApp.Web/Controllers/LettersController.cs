@@ -1,6 +1,7 @@
 ﻿using MektupApp.Application.Abstractions;
 using MektupApp.Application.Customers;
 using MektupApp.Application.Letters;
+using MektupApp.Application.Payments;
 using MektupApp.Application.Pricing;
 using MektupApp.Domain.Common;
 using MektupApp.Domain.Letters;
@@ -13,7 +14,8 @@ using Microsoft.AspNetCore.StaticFiles;
 namespace MektupApp.Web.Controllers;
 
 [Authorize]
-public class LettersController(LetterService letters, AccountService accounts, PricingService pricing) : Controller
+public class LettersController(LetterService letters, AccountService accounts, PricingService pricing, PaymentService payments)
+    : Controller
 {
     private Guid CustomerId => User.GetCustomerId();
 
@@ -97,10 +99,21 @@ public class LettersController(LetterService letters, AccountService accounts, P
     public async Task<IActionResult> Checkout(Guid id, PaymentMethod method, bool usePoints, CancellationToken ct)
     {
         var letter = await letters.GetAsync(id, CustomerId, ct);
+
+        // Başlamış bir ödeme varsa: ödeme sayfasına dönme veya vazgeçme seçenekleri.
+        if (letter.Status == LetterStatus.AwaitingPayment)
+            return View("PendingPayment", new PendingPaymentViewModel
+            {
+                Letter = letter,
+                Payment = await payments.GetPendingForLetterAsync(id, CustomerId, ct)
+            });
+
         if (!letter.IsEditable) return RedirectToAction(nameof(Details), new { id });
         try
         {
             var quote = await letters.GetQuoteAsync(id, CustomerId, method, usePoints, ct);
+            if (quote.Method == PaymentMethod.Mobile && !quote.MobilePaymentAvailable)
+                return RedirectToAction(nameof(Checkout), new { id, method = PaymentMethod.Card, usePoints });
             return View(new CheckoutViewModel { Letter = letter, Quote = quote });
         }
         catch (DomainException ex)
@@ -110,12 +123,67 @@ public class LettersController(LetterService letters, AccountService accounts, P
         }
     }
 
+    /// <summary>
+    /// Ödemeyi başlatır. Tamamı puanla ödeniyorsa hemen tamamlanır; değilse müşteri ödeme formuna
+    /// (PayTR iFrame) yönlendirilir ve kesin sonuç PayTR bildirimiyle gelir.
+    /// </summary>
     [HttpPost("mektup/{id:guid}/odeme")]
     public async Task<IActionResult> Pay(Guid id, PaymentMethod method, bool usePoints, CancellationToken ct)
     {
-        await letters.PayAsync(id, CustomerId, method, usePoints, ct);
-        TempData["Success"] = "Ödemeniz alındı! Mektubunuz ilk iş gününde basılıp postaya verilecek.";
-        return RedirectToAction(nameof(Details), new { id });
+        var result = await payments.StartAsync(new StartPaymentCommand(
+            id, CustomerId, method, usePoints,
+            HttpContext.Connection.RemoteIpAddress?.ToString() ?? "127.0.0.1",
+            oid => Url.Action(nameof(PaymentResult), "Letters", new { id, oid }, Request.Scheme)!), ct);
+
+        if (result.Completed)
+        {
+            TempData["Success"] = "Ödemeniz MektupPuan ile alındı! Mektubunuz ilk iş gününde basılıp postaya verilecek.";
+            return RedirectToAction(nameof(Details), new { id });
+        }
+
+        // Simülasyon formu uygulamanın kendi sayfasıdır; PayTR formu iFrame içinde açılır.
+        return result.FormUrl!.StartsWith('/')
+            ? Redirect(result.FormUrl)
+            : RedirectToAction(nameof(SecurePayment), new { id, oid = result.MerchantOid });
+    }
+
+    /// <summary>PayTR ödeme formunu (iFrame) gösterir.</summary>
+    [HttpGet("mektup/{id:guid}/odeme/guvenli")]
+    public async Task<IActionResult> SecurePayment(Guid id, string oid, CancellationToken ct)
+    {
+        var status = await payments.GetStatusAsync(oid, CustomerId, ct);
+        if (status is null || status.LetterId != id) return NotFound();
+        if (status.Status != Domain.Payments.PaymentStatus.Pending || status.FormUrl is null)
+            return RedirectToAction(nameof(PaymentResult), new { id, oid });
+        if (status.FormUrl.StartsWith('/')) return Redirect(status.FormUrl);
+        return View(status);
+    }
+
+    /// <summary>
+    /// Ödeme sonrası müşterinin döndüğü sayfa. Sonuç PayTR bildirimiyle kesinleşir;
+    /// bildirim gelene kadar sayfa kendini yeniler.
+    /// </summary>
+    [HttpGet("mektup/{id:guid}/odeme/sonuc")]
+    public async Task<IActionResult> PaymentResult(Guid id, string oid, CancellationToken ct)
+    {
+        var status = await payments.GetStatusAsync(oid, CustomerId, ct);
+        if (status is null || status.LetterId != id) return NotFound();
+
+        if (status.Status == Domain.Payments.PaymentStatus.Succeeded)
+        {
+            TempData["Success"] = "Ödemeniz alındı! Mektubunuz ilk iş gününde basılıp postaya verilecek.";
+            return RedirectToAction(nameof(Details), new { id });
+        }
+        return View(status);
+    }
+
+    /// <summary>Ödemeden vazgeç: mektup tekrar düzenlenebilir, ayrılan puan iade edilir.</summary>
+    [HttpPost("mektup/{id:guid}/odeme/vazgec")]
+    public async Task<IActionResult> AbandonPayment(Guid id, CancellationToken ct)
+    {
+        await payments.AbandonAsync(id, CustomerId, ct);
+        TempData["Success"] = "Ödemeden vazgeçildi. Mektubunuzu düzenleyebilir veya tekrar ödeyebilirsiniz.";
+        return RedirectToAction(nameof(Checkout), new { id });
     }
 
     [HttpPost("mektup/{id:guid}/iptal")]

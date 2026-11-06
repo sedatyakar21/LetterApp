@@ -32,15 +32,5 @@ public interface IFileStorage
     Task DeleteAsync(string key, CancellationToken ct = default);
 }
 
-public sealed record PaymentRequest(Guid LetterId, Money Amount, PaymentMethod Method, string CustomerPhone);
-
-public sealed record PaymentResult(bool Succeeded, string? Reference, string? Error);
-
-/// <summary>Ödeme sağlayıcısı (iyzico, PayTR vb.) için port.</summary>
-public interface IPaymentGateway
-{
-    Task<PaymentResult> ChargeAsync(PaymentRequest request, CancellationToken ct = default);
-}
-
 /// <summary>Uygulama katmanında oluşan, kullanıcıya gösterilebilir hata (ör. kayıt bulunamadı).</summary>
 public sealed class AppException(string message) : Exception(message);

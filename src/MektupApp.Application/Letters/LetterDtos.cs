@@ -65,7 +65,14 @@ public sealed record LetterDetailsDto(
     bool CanChangeAddress,
     DateTime CreatedAt,
     decimal PointsUsed,
-    decimal PointsToEarn)
+    decimal PointsToEarn,
+    Guid? ReferrerCustomerId,
+    decimal ReferralPointsToEarn,
+    decimal PointsDiscount,
+    string? Carrier,
+    string? CarrierLastMovement,
+    DateTime? CarrierLastMovementAt,
+    DateTime? CarrierCheckedAt)
 {
     public static LetterDetailsDto From(Letter l) => new(
         l.Id, l.CustomerId, l.SenderName, AddressDto.From(l.SenderAddress),
@@ -74,11 +81,15 @@ public sealed record LetterDetailsDto(
         l.Photos.Select(p => new LetterPhotoDto(p.Id, p.OriginalFileName)).ToList(),
         l.History.Select(h => new StatusChangeDto(h.Status, h.Note, h.At)).ToList(),
         l.IsEditable, l.CanCancel, l.CanDelete, l.CanChangeAddress, l.CreatedAt,
-        l.PointsUsed, l.PointsToEarn);
+        l.PointsUsed, l.PointsToEarn, l.ReferrerCustomerId, l.ReferralPointsToEarn, l.PointsDiscount,
+        l.Carrier, l.CarrierLastMovement, l.CarrierLastMovementAt, l.CarrierCheckedAt);
 }
 
 /// <param name="Total">Puan indirimi öncesi toplam.</param>
-/// <param name="AmountToPay">Kart / mobil ödemeyle tahsil edilecek tutar (Total − PointsUsed).</param>
+/// <param name="AmountToPay">Kart / mobil ödemeyle tahsil edilecek tutar (Total − PointsDiscount).</param>
+/// <param name="PointsDiscount">Kullanılan puanın TL karşılığı.</param>
+/// <param name="PointValue">1 puanın TL karşılığı.</param>
+/// <param name="BalanceValue">Puan bakiyesinin TL karşılığı.</param>
 /// <param name="PointsToEarn">Mektup postaya verildiğinde kazanılacak puan.</param>
 public sealed record QuoteDto(
     Guid LetterId,
@@ -90,6 +101,12 @@ public sealed record QuoteDto(
     decimal PointsUsed,
     decimal AmountToPay,
     decimal PointsToEarn,
-    bool LoyaltyEnabled);
+    bool LoyaltyEnabled,
+    decimal PointsDiscount,
+    decimal PointValue,
+    decimal BalanceValue,
+    bool MobilePaymentAvailable = true,
+    string ProviderLabel = "",
+    bool ProviderIsSimulation = false);
 
 public sealed record TrackingResultDto(string TrackingCode, string RecipientInitials, string City, LetterStatus Status, IReadOnlyList<StatusChangeDto> History);

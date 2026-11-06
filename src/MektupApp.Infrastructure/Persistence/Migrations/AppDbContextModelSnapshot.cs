@@ -29,6 +29,10 @@ namespace MektupApp.Infrastructure.Persistence.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<string>("AcquisitionChannel")
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
@@ -58,12 +62,25 @@ namespace MektupApp.Infrastructure.Persistence.Migrations
                         .HasMaxLength(10)
                         .HasColumnType("nvarchar(10)");
 
+                    b.Property<string>("ReferralCode")
+                        .IsRequired()
+                        .HasMaxLength(8)
+                        .HasColumnType("nvarchar(8)");
+
+                    b.Property<Guid?>("ReferredByCustomerId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.HasKey("Id");
 
                     b.HasIndex("CreatedAt");
 
                     b.HasIndex("Email")
                         .IsUnique();
+
+                    b.HasIndex("ReferralCode")
+                        .IsUnique();
+
+                    b.HasIndex("ReferredByCustomerId");
 
                     b.ToTable("Customers", (string)null);
                 });
@@ -73,6 +90,24 @@ namespace MektupApp.Infrastructure.Persistence.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Carrier")
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<DateTime?>("CarrierCheckedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("CarrierLastMovement")
+                        .HasMaxLength(250)
+                        .HasColumnType("nvarchar(250)");
+
+                    b.Property<DateTime?>("CarrierLastMovementAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("CarrierReference")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<string>("Content")
                         .IsRequired()
@@ -102,6 +137,10 @@ namespace MektupApp.Infrastructure.Persistence.Migrations
                     b.Property<string>("PaymentReference")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<decimal>("PointsDiscount")
+                        .HasPrecision(10, 2)
+                        .HasColumnType("decimal(10,2)");
+
                     b.Property<decimal>("PointsToEarn")
                         .HasPrecision(10, 2)
                         .HasColumnType("decimal(10,2)");
@@ -109,6 +148,13 @@ namespace MektupApp.Infrastructure.Persistence.Migrations
                     b.Property<decimal>("PointsUsed")
                         .HasPrecision(10, 2)
                         .HasColumnType("decimal(10,2)");
+
+                    b.Property<decimal>("ReferralPointsToEarn")
+                        .HasPrecision(10, 2)
+                        .HasColumnType("decimal(10,2)");
+
+                    b.Property<Guid?>("ReferrerCustomerId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Scent")
                         .IsRequired()
@@ -258,11 +304,15 @@ namespace MektupApp.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("PaidAt");
 
+                    b.HasIndex("ReferrerCustomerId");
+
                     b.HasIndex("TrackingCode");
 
                     b.HasIndex("CustomerId", "IsDeleted");
 
                     b.HasIndex("Status", "UpdatedAt");
+
+                    b.HasIndex("Status", "Carrier", "CarrierCheckedAt");
 
                     b.ToTable("Letters", (string)null);
                 });
@@ -423,6 +473,22 @@ namespace MektupApp.Infrastructure.Persistence.Migrations
                     b.Property<bool>("IsEnabled")
                         .HasColumnType("bit");
 
+                    b.Property<decimal>("PointValue")
+                        .HasPrecision(10, 4)
+                        .HasColumnType("decimal(10,4)");
+
+                    b.Property<bool>("ReferralEnabled")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("ReferralRewardType")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<decimal>("ReferralValue")
+                        .HasPrecision(10, 2)
+                        .HasColumnType("decimal(10,2)");
+
                     b.Property<string>("RewardType")
                         .IsRequired()
                         .HasMaxLength(20)
@@ -479,6 +545,140 @@ namespace MektupApp.Infrastructure.Persistence.Migrations
                     b.HasIndex("LetterId");
 
                     b.ToTable("PointTransactions", (string)null);
+                });
+
+            modelBuilder.Entity("MektupApp.Domain.Payments.Payment", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<decimal>("Amount")
+                        .HasPrecision(10, 2)
+                        .HasColumnType("decimal(10,2)");
+
+                    b.Property<DateTime?>("CompletedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("CustomerId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("FailureReason")
+                        .HasMaxLength(300)
+                        .HasColumnType("nvarchar(300)");
+
+                    b.Property<string>("FormUrl")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<bool>("IsTest")
+                        .HasColumnType("bit");
+
+                    b.Property<Guid>("LetterId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("MerchantOid")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("nvarchar(64)");
+
+                    b.Property<string>("Method")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<decimal?>("PaidTotal")
+                        .HasPrecision(10, 2)
+                        .HasColumnType("decimal(10,2)");
+
+                    b.Property<decimal>("PointsDiscount")
+                        .HasPrecision(10, 2)
+                        .HasColumnType("decimal(10,2)");
+
+                    b.Property<decimal>("PointsToEarn")
+                        .HasPrecision(10, 2)
+                        .HasColumnType("decimal(10,2)");
+
+                    b.Property<decimal>("PointsUsed")
+                        .HasPrecision(10, 2)
+                        .HasColumnType("decimal(10,2)");
+
+                    b.Property<string>("Provider")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<decimal>("ReferralPointsToEarn")
+                        .HasPrecision(10, 2)
+                        .HasColumnType("decimal(10,2)");
+
+                    b.Property<Guid?>("ReferrerCustomerId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("RefundError")
+                        .HasMaxLength(300)
+                        .HasColumnType("nvarchar(300)");
+
+                    b.Property<string>("RefundStatus")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<decimal?>("RefundedAmount")
+                        .HasPrecision(10, 2)
+                        .HasColumnType("decimal(10,2)");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("rowversion");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("LetterId");
+
+                    b.HasIndex("MerchantOid")
+                        .IsUnique();
+
+                    b.HasIndex("Status", "CreatedAt");
+
+                    b.ToTable("Payments", (string)null);
+                });
+
+            modelBuilder.Entity("MektupApp.Infrastructure.Carriers.BarcodeCounter", b =>
+                {
+                    b.Property<string>("Carrier")
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<long>("NextSerial")
+                        .HasColumnType("bigint");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .IsRequired()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("rowversion");
+
+                    b.HasKey("Carrier");
+
+                    b.ToTable("CarrierBarcodeCounters", (string)null);
+                });
+
+            modelBuilder.Entity("MektupApp.Domain.Customers.Customer", b =>
+                {
+                    b.HasOne("MektupApp.Domain.Customers.Customer", null)
+                        .WithMany()
+                        .HasForeignKey("ReferredByCustomerId")
+                        .OnDelete(DeleteBehavior.NoAction);
                 });
 
             modelBuilder.Entity("MektupApp.Domain.Letters.LetterPhoto", b =>

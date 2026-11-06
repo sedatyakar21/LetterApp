@@ -37,6 +37,17 @@ internal sealed class PointTransactionConfiguration : IEntityTypeConfiguration<P
     }
 }
 
+internal sealed class BarcodeCounterConfiguration : IEntityTypeConfiguration<MektupApp.Infrastructure.Carriers.BarcodeCounter>
+{
+    public void Configure(EntityTypeBuilder<MektupApp.Infrastructure.Carriers.BarcodeCounter> b)
+    {
+        b.ToTable("CarrierBarcodeCounters");
+        b.HasKey(c => c.Carrier);
+        b.Property(c => c.Carrier).HasMaxLength(20);
+        b.Property(c => c.RowVersion).IsRowVersion();
+    }
+}
+
 internal sealed class LoyaltySettingsConfiguration : IEntityTypeConfiguration<LoyaltySettings>
 {
     public void Configure(EntityTypeBuilder<LoyaltySettings> b)
@@ -47,6 +58,9 @@ internal sealed class LoyaltySettingsConfiguration : IEntityTypeConfiguration<Lo
         b.Ignore(s => s.DomainEvents);
         b.Property(s => s.RewardType).HasConversion<string>().HasMaxLength(20);
         b.Property(s => s.Value).HasPrecision(10, 2);
+        b.Property(s => s.ReferralRewardType).HasConversion<string>().HasMaxLength(20);
+        b.Property(s => s.ReferralValue).HasPrecision(10, 2);
+        b.Property(s => s.PointValue).HasPrecision(10, 4);
         b.Property(s => s.UpdatedBy).HasMaxLength(200);
     }
 }

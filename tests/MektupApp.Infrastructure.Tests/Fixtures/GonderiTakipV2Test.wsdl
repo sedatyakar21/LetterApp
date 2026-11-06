@@ -1,0 +1,1091 @@
+﻿<wsdl:definitions targetNamespace="http://takip.ptt.gov.tr" xmlns:ax21="http://takip.ptt.gov.tr/xsd" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:ns="http://takip.ptt.gov.tr" xmlns:ns1="http://org.apache.axis2/xsd" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+    <wsdl:documentation>
+		Please Type your service description here
+	</wsdl:documentation>
+    <wsdl:types>
+        <xs:schema attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://takip.ptt.gov.tr/xsd">
+            <xs:complexType name="InputDropPointAll">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="city_code" nillable="true" type="xs:int"/>
+                    <xs:element minOccurs="0" name="district_code" nillable="true" type="xs:int"/>
+                    <xs:element minOccurs="0" name="password" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="username" nillable="true" type="xs:string"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:complexType name="OutputDropPointAll">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="code" nillable="true" type="xs:int"/>
+                    <xs:element minOccurs="0" name="description" nillable="true" type="xs:string"/>
+                    <xs:element maxOccurs="unbounded" minOccurs="0" name="info" nillable="true" type="ax21:DropInfo"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:complexType name="DropInfo">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="dropPointAvailableCapacity" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="dropPointCode" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="dropPointCountry" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="dropPointDeadLine" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="dropPointEmail" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="dropPointFullAddress" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="dropPointLatitude" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="dropPointLongitude" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="dropPointName" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="dropPointNetwork" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="dropPointPhoneNumber" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="dropPointProvince" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="dropPointTotalCapacity" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="dropPointWorkHours" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="dropPointZipCode" nillable="true" type="xs:string"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:complexType name="InputCity">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="password" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="userName" nillable="true" type="xs:string"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:complexType name="OutputCity">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="code" nillable="true" type="xs:int"/>
+                    <xs:element minOccurs="0" name="description" nillable="true" type="xs:string"/>
+                    <xs:element maxOccurs="unbounded" minOccurs="0" name="information" nillable="true" type="ax21:CityInformation"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:complexType name="CityInformation">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="province_code" nillable="true" type="xs:int"/>
+                    <xs:element minOccurs="0" name="province_name" nillable="true" type="xs:string"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:complexType name="InputDistrict">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="city_code" nillable="true" type="xs:int"/>
+                    <xs:element minOccurs="0" name="password" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="userName" nillable="true" type="xs:string"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:complexType name="OutputDistrict">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="code" nillable="true" type="xs:int"/>
+                    <xs:element minOccurs="0" name="description" nillable="true" type="xs:string"/>
+                    <xs:element maxOccurs="unbounded" minOccurs="0" name="information" nillable="true" type="ax21:DistrictInformation"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:complexType name="DistrictInformation">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="city_code" nillable="true" type="xs:int"/>
+                    <xs:element minOccurs="0" name="city_name" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="province_code" nillable="true" type="xs:int"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:complexType name="InputReferansNo">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="kullanici" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="referansNo" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="sifre" nillable="true" type="xs:string"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:complexType name="OutputTumReferans">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="ALICI" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="BARNO" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="DEGKONUCR" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="EKHIZ" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="GONDEREN" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="IMERK" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="ITARIH" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="ODSARUCR" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="TESALAN" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="VMERK" nillable="true" type="xs:string"/>
+                    <xs:element maxOccurs="unbounded" minOccurs="0" name="dongu" nillable="true" type="ax21:OutputDongu"/>
+                    <xs:element minOccurs="0" name="parcaadet" nillable="true" type="xs:int"/>
+                    <xs:element minOccurs="0" name="sonucAciklama" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="sonucKodu" nillable="true" type="xs:int"/>
+                    <xs:element minOccurs="0" name="ucrliste" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="ucrtop" nillable="true" type="xs:float"/>
+                    <xs:element minOccurs="0" name="uedliste" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="uedtoplam" nillable="true" type="xs:float"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:complexType name="OutputDongu">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="IKODU" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="IMERK" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="ISAAT" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="ISLEM" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="ITARIH" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="siraNo" nillable="true" type="xs:int"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:complexType name="InputReferans">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="kullanici" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="referansNo" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="sifre" nillable="true" type="xs:string"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:complexType name="OutputTumReferans2">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="ALICI" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="BARNO" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="DEGKONUCR" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="EKHIZ" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="GONDEREN" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="IMERK" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="ITARIH" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="ODSARUCR" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="TESALAN" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="VMERK" nillable="true" type="xs:string"/>
+                    <xs:element maxOccurs="unbounded" minOccurs="0" name="dongu" nillable="true" type="ax21:OutputDongu"/>
+                    <xs:element minOccurs="0" name="parcaadet" nillable="true" type="xs:int"/>
+                    <xs:element minOccurs="0" name="sonucAciklama" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="sonucKodu" nillable="true" type="xs:int"/>
+                    <xs:element minOccurs="0" name="uedliste" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="uedtoplam" nillable="true" type="xs:float"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:complexType name="InputDropPoint">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="barcode" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="password" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="username" nillable="true" type="xs:string"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:complexType name="OutputDropPoint">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="dropPointAvailableCapacity" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="dropPointCode" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="dropPointCountry" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="dropPointDeadLine" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="dropPointEmail" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="dropPointFullAddress" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="dropPointLatitude" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="dropPointLongitude" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="dropPointName" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="dropPointNetwork" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="dropPointPhoneNumber" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="dropPointProvince" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="dropPointTotalCapacity" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="dropPointWorkHours" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="dropPointZipCode" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="resultCode" nillable="true" type="xs:int"/>
+                    <xs:element minOccurs="0" name="resultExplanation" nillable="true" type="xs:string"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:complexType name="OutputTum">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="ALICI" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="BARNO" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="DEGKONUCR" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="EKHIZ" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="GONDEREN" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="GONUCR" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="GR" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="IMERK" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="ITARIH" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="ODSARUCR" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="TESALAN" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="VMERK" nillable="true" type="xs:string"/>
+                    <xs:element maxOccurs="unbounded" minOccurs="0" name="dongu" nillable="true" type="ax21:OutputDongu"/>
+                    <xs:element minOccurs="0" name="sonucAciklama" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="sonucKodu" nillable="true" type="xs:int"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:complexType name="Input">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="barkod" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="kullanici" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="sifre" nillable="true" type="xs:string"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:complexType name="OutputTum2">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="ALICI" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="BARNO" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="DEGKONUCR" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="EKHIZ" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="GONDEREN" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="GONUCR" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="GR" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="IMERK" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="ITARIH" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="ODSARUCR" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="TESALAN" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="VMERK" nillable="true" type="xs:string"/>
+                    <xs:element maxOccurs="unbounded" minOccurs="0" name="dongu" nillable="true" type="ax21:OutputDongu2"/>
+                    <xs:element minOccurs="0" name="reserve1" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="reserve2" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="reserve3" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="reserve4" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="reserve5" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="sonucAciklama" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="sonucKodu" nillable="true" type="xs:int"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:complexType name="OutputDongu2">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="IMERK" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="ISLEM" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="ITARIH" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="gonderiDurumId" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="reserve1" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="reserve2" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="reserve3" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="reserve4" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="reserve5" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="siraNo" nillable="true" type="xs:int"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:complexType name="InputReferenceNumberEn">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="password" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="referenceNumber" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="username" nillable="true" type="xs:string"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:complexType name="OutputAllEn">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="additionalService" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="addressee" nillable="true" type="xs:string"/>
+                    <xs:element maxOccurs="unbounded" minOccurs="0" name="array" nillable="true" type="ax21:OutputArrayEn"/>
+                    <xs:element minOccurs="0" name="barcodeNumber" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="destinationCenter" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="gr" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="postagePaid" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="priceOfCashOnDelivery" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="priceWithInsurance" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="recipient" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="resultCode" nillable="true" type="xs:int"/>
+                    <xs:element minOccurs="0" name="resultExplanation" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="sender" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="transactionCenter" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="transactionDate" nillable="true" type="xs:string"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:complexType name="OutputArrayEn">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="itemNo" nillable="true" type="xs:int"/>
+                    <xs:element minOccurs="0" name="transaction" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="transactionCenter" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="transactionCode" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="transactionDate" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="transactionTime" nillable="true" type="xs:string"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:complexType name="InputEn">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="barcode" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="password" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="username" nillable="true" type="xs:string"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:complexType name="OutputReferansList">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="ALICI" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="BARNO" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="DEGKONUCR" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="EKHIZ" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="GONDEREN" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="IMERK" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="ITARIH" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="ODSARUCR" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="TESALAN" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="VMERK" nillable="true" type="xs:string"/>
+                    <xs:element maxOccurs="unbounded" minOccurs="0" name="dongu" nillable="true" type="ax21:OutputDonguReferans"/>
+                    <xs:element minOccurs="0" name="parcaadet" nillable="true" type="xs:int"/>
+                    <xs:element minOccurs="0" name="sonucAciklama" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="sonucKodu" nillable="true" type="xs:int"/>
+                    <xs:element minOccurs="0" name="ucrliste" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="ucrtop" nillable="true" type="xs:float"/>
+                    <xs:element minOccurs="0" name="uedliste" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="uedtoplam" nillable="true" type="xs:float"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:complexType name="OutputDonguReferans">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="IKODU" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="IL" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="ILCE" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="IMERK" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="ISAAT" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="ISLEM" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="ITARIH" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="ULKE" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="siraNo" nillable="true" type="xs:int"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:complexType name="OutputReferans">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="ALICI" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="BARNO" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="DEGKONUCR" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="EKHIZ" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="GONDEREN" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="IMERK" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="ITARIH" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="ODSARUCR" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="TESALAN" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="VMERK" nillable="true" type="xs:string"/>
+                    <xs:element maxOccurs="unbounded" minOccurs="0" name="dongu" nillable="true" type="ax21:OutputDonguReferansLokasyon"/>
+                    <xs:element minOccurs="0" name="parcaadet" nillable="true" type="xs:int"/>
+                    <xs:element minOccurs="0" name="sonucAciklama" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="sonucKodu" nillable="true" type="xs:int"/>
+                    <xs:element minOccurs="0" name="uedliste" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="uedtoplam" nillable="true" type="xs:float"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:complexType name="OutputDonguReferansLokasyon">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="IKODU" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="IL" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="ILCE" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="IMERK" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="ISAAT" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="ISLEM" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="ITARIH" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="ULKE" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="siraNo" nillable="true" type="xs:int"/>
+                </xs:sequence>
+            </xs:complexType>
+        </xs:schema>
+        <xs:schema attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://takip.ptt.gov.tr" xmlns:ax22="http://takip.ptt.gov.tr/xsd">
+            <xs:import namespace="http://takip.ptt.gov.tr/xsd"/>
+            <xs:element name="getAllDropPointInfo">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="input" nillable="true" type="ax22:InputDropPointAll"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="getAllDropPointInfoResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="return" nillable="true" type="ax22:OutputDropPointAll"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="getCity">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="input" nillable="true" type="ax22:InputCity"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="getCityResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="return" nillable="true" type="ax22:OutputCity"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="getDistrict">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="input" nillable="true" type="ax22:InputDistrict"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="getDistrictResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="return" nillable="true" type="ax22:OutputDistrict"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="gonderiSorgu_referansNo2">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="input" nillable="true" type="ax22:InputReferansNo"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="gonderiSorgu_referansNo2Response">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="return" nillable="true" type="ax22:OutputTumReferans"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="referansSorgu2">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="input" nillable="true" type="ax22:InputReferans"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="referansSorgu2Response">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="return" nillable="true" type="ax22:OutputTumReferans2"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="getDropPointInfo">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="input" nillable="true" type="ax22:InputDropPoint"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="getDropPointInfoResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="return" nillable="true" type="ax22:OutputDropPoint"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="referansSorgu">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="input" nillable="true" type="ax22:InputReferans"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="referansSorguResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="return" nillable="true" type="ax22:OutputTum"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="gonderiSorgu2">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="input" nillable="true" type="ax22:Input"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="gonderiSorgu2Response">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="return" nillable="true" type="ax22:OutputTum2"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="gonderiSorgu">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="input" nillable="true" type="ax22:Input"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="gonderiSorguResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="return" nillable="true" type="ax22:OutputTum"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="gonderiSorgu_referansNo">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="input" nillable="true" type="ax22:InputReferansNo"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="gonderiSorgu_referansNoResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="return" nillable="true" type="ax22:OutputTum"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="shipmentInquiry_ReferenceNumberEn">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="input" nillable="true" type="ax22:InputReferenceNumberEn"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="shipmentInquiry_ReferenceNumberEnResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="return" nillable="true" type="ax22:OutputAllEn"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="shipmentInquiryEn">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="input" nillable="true" type="ax22:InputEn"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="shipmentInquiryEnResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="return" nillable="true" type="ax22:OutputAllEn"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="referansSorguBarkodList">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="inputReferansList" nillable="true" type="ax22:InputReferansNo"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="referansSorguBarkodListResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="return" nillable="true" type="ax22:OutputReferansList"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="referansSorguLokasyon">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="inputReferans" nillable="true" type="ax22:InputReferans"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="referansSorguLokasyonResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="return" nillable="true" type="ax22:OutputReferans"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+        </xs:schema>
+    </wsdl:types>
+    <wsdl:message name="referansSorguLokasyonRequest">
+        <wsdl:part element="ns:referansSorguLokasyon" name="parameters"/>
+    </wsdl:message>
+    <wsdl:message name="referansSorguLokasyonResponse">
+        <wsdl:part element="ns:referansSorguLokasyonResponse" name="parameters"/>
+    </wsdl:message>
+    <wsdl:message name="getAllDropPointInfoRequest">
+        <wsdl:part element="ns:getAllDropPointInfo" name="parameters"/>
+    </wsdl:message>
+    <wsdl:message name="getAllDropPointInfoResponse">
+        <wsdl:part element="ns:getAllDropPointInfoResponse" name="parameters"/>
+    </wsdl:message>
+    <wsdl:message name="gonderiSorgu_referansNo2Request">
+        <wsdl:part element="ns:gonderiSorgu_referansNo2" name="parameters"/>
+    </wsdl:message>
+    <wsdl:message name="gonderiSorgu_referansNo2Response">
+        <wsdl:part element="ns:gonderiSorgu_referansNo2Response" name="parameters"/>
+    </wsdl:message>
+    <wsdl:message name="referansSorguBarkodListRequest">
+        <wsdl:part element="ns:referansSorguBarkodList" name="parameters"/>
+    </wsdl:message>
+    <wsdl:message name="referansSorguBarkodListResponse">
+        <wsdl:part element="ns:referansSorguBarkodListResponse" name="parameters"/>
+    </wsdl:message>
+    <wsdl:message name="gonderiSorgu_referansNoRequest">
+        <wsdl:part element="ns:gonderiSorgu_referansNo" name="parameters"/>
+    </wsdl:message>
+    <wsdl:message name="gonderiSorgu_referansNoResponse">
+        <wsdl:part element="ns:gonderiSorgu_referansNoResponse" name="parameters"/>
+    </wsdl:message>
+    <wsdl:message name="shipmentInquiry_ReferenceNumberEnRequest">
+        <wsdl:part element="ns:shipmentInquiry_ReferenceNumberEn" name="parameters"/>
+    </wsdl:message>
+    <wsdl:message name="shipmentInquiry_ReferenceNumberEnResponse">
+        <wsdl:part element="ns:shipmentInquiry_ReferenceNumberEnResponse" name="parameters"/>
+    </wsdl:message>
+    <wsdl:message name="referansSorgu2Request">
+        <wsdl:part element="ns:referansSorgu2" name="parameters"/>
+    </wsdl:message>
+    <wsdl:message name="referansSorgu2Response">
+        <wsdl:part element="ns:referansSorgu2Response" name="parameters"/>
+    </wsdl:message>
+    <wsdl:message name="getDistrictRequest">
+        <wsdl:part element="ns:getDistrict" name="parameters"/>
+    </wsdl:message>
+    <wsdl:message name="getDistrictResponse">
+        <wsdl:part element="ns:getDistrictResponse" name="parameters"/>
+    </wsdl:message>
+    <wsdl:message name="gonderiSorgu2Request">
+        <wsdl:part element="ns:gonderiSorgu2" name="parameters"/>
+    </wsdl:message>
+    <wsdl:message name="gonderiSorgu2Response">
+        <wsdl:part element="ns:gonderiSorgu2Response" name="parameters"/>
+    </wsdl:message>
+    <wsdl:message name="gonderiSorguRequest">
+        <wsdl:part element="ns:gonderiSorgu" name="parameters"/>
+    </wsdl:message>
+    <wsdl:message name="gonderiSorguResponse">
+        <wsdl:part element="ns:gonderiSorguResponse" name="parameters"/>
+    </wsdl:message>
+    <wsdl:message name="getDropPointInfoRequest">
+        <wsdl:part element="ns:getDropPointInfo" name="parameters"/>
+    </wsdl:message>
+    <wsdl:message name="getDropPointInfoResponse">
+        <wsdl:part element="ns:getDropPointInfoResponse" name="parameters"/>
+    </wsdl:message>
+    <wsdl:message name="shipmentInquiryEnRequest">
+        <wsdl:part element="ns:shipmentInquiryEn" name="parameters"/>
+    </wsdl:message>
+    <wsdl:message name="shipmentInquiryEnResponse">
+        <wsdl:part element="ns:shipmentInquiryEnResponse" name="parameters"/>
+    </wsdl:message>
+    <wsdl:message name="referansSorguRequest">
+        <wsdl:part element="ns:referansSorgu" name="parameters"/>
+    </wsdl:message>
+    <wsdl:message name="referansSorguResponse">
+        <wsdl:part element="ns:referansSorguResponse" name="parameters"/>
+    </wsdl:message>
+    <wsdl:message name="getCityRequest">
+        <wsdl:part element="ns:getCity" name="parameters"/>
+    </wsdl:message>
+    <wsdl:message name="getCityResponse">
+        <wsdl:part element="ns:getCityResponse" name="parameters"/>
+    </wsdl:message>
+    <wsdl:portType name="SorguPortType">
+        <wsdl:operation name="referansSorguLokasyon">
+            <wsdl:input message="ns:referansSorguLokasyonRequest" wsaw:Action="urn:referansSorguLokasyon"/>
+            <wsdl:output message="ns:referansSorguLokasyonResponse" wsaw:Action="urn:referansSorguLokasyonResponse"/>
+        </wsdl:operation>
+        <wsdl:operation name="getAllDropPointInfo">
+            <wsdl:input message="ns:getAllDropPointInfoRequest" wsaw:Action="urn:getAllDropPointInfo"/>
+            <wsdl:output message="ns:getAllDropPointInfoResponse" wsaw:Action="urn:getAllDropPointInfoResponse"/>
+        </wsdl:operation>
+        <wsdl:operation name="gonderiSorgu_referansNo2">
+            <wsdl:input message="ns:gonderiSorgu_referansNo2Request" wsaw:Action="urn:gonderiSorgu_referansNo2"/>
+            <wsdl:output message="ns:gonderiSorgu_referansNo2Response" wsaw:Action="urn:gonderiSorgu_referansNo2Response"/>
+        </wsdl:operation>
+        <wsdl:operation name="referansSorguBarkodList">
+            <wsdl:input message="ns:referansSorguBarkodListRequest" wsaw:Action="urn:referansSorguBarkodList"/>
+            <wsdl:output message="ns:referansSorguBarkodListResponse" wsaw:Action="urn:referansSorguBarkodListResponse"/>
+        </wsdl:operation>
+        <wsdl:operation name="gonderiSorgu_referansNo">
+            <wsdl:input message="ns:gonderiSorgu_referansNoRequest" wsaw:Action="urn:gonderiSorgu_referansNo"/>
+            <wsdl:output message="ns:gonderiSorgu_referansNoResponse" wsaw:Action="urn:gonderiSorgu_referansNoResponse"/>
+        </wsdl:operation>
+        <wsdl:operation name="shipmentInquiry_ReferenceNumberEn">
+            <wsdl:input message="ns:shipmentInquiry_ReferenceNumberEnRequest" wsaw:Action="urn:shipmentInquiry_ReferenceNumberEn"/>
+            <wsdl:output message="ns:shipmentInquiry_ReferenceNumberEnResponse" wsaw:Action="urn:shipmentInquiry_ReferenceNumberEnResponse"/>
+        </wsdl:operation>
+        <wsdl:operation name="referansSorgu2">
+            <wsdl:input message="ns:referansSorgu2Request" wsaw:Action="urn:referansSorgu2"/>
+            <wsdl:output message="ns:referansSorgu2Response" wsaw:Action="urn:referansSorgu2Response"/>
+        </wsdl:operation>
+        <wsdl:operation name="getDistrict">
+            <wsdl:input message="ns:getDistrictRequest" wsaw:Action="urn:getDistrict"/>
+            <wsdl:output message="ns:getDistrictResponse" wsaw:Action="urn:getDistrictResponse"/>
+        </wsdl:operation>
+        <wsdl:operation name="gonderiSorgu2">
+            <wsdl:input message="ns:gonderiSorgu2Request" wsaw:Action="urn:gonderiSorgu2"/>
+            <wsdl:output message="ns:gonderiSorgu2Response" wsaw:Action="urn:gonderiSorgu2Response"/>
+        </wsdl:operation>
+        <wsdl:operation name="gonderiSorgu">
+            <wsdl:input message="ns:gonderiSorguRequest" wsaw:Action="urn:gonderiSorgu"/>
+            <wsdl:output message="ns:gonderiSorguResponse" wsaw:Action="urn:gonderiSorguResponse"/>
+        </wsdl:operation>
+        <wsdl:operation name="getDropPointInfo">
+            <wsdl:input message="ns:getDropPointInfoRequest" wsaw:Action="urn:getDropPointInfo"/>
+            <wsdl:output message="ns:getDropPointInfoResponse" wsaw:Action="urn:getDropPointInfoResponse"/>
+        </wsdl:operation>
+        <wsdl:operation name="shipmentInquiryEn">
+            <wsdl:input message="ns:shipmentInquiryEnRequest" wsaw:Action="urn:shipmentInquiryEn"/>
+            <wsdl:output message="ns:shipmentInquiryEnResponse" wsaw:Action="urn:shipmentInquiryEnResponse"/>
+        </wsdl:operation>
+        <wsdl:operation name="referansSorgu">
+            <wsdl:input message="ns:referansSorguRequest" wsaw:Action="urn:referansSorgu"/>
+            <wsdl:output message="ns:referansSorguResponse" wsaw:Action="urn:referansSorguResponse"/>
+        </wsdl:operation>
+        <wsdl:operation name="getCity">
+            <wsdl:input message="ns:getCityRequest" wsaw:Action="urn:getCity"/>
+            <wsdl:output message="ns:getCityResponse" wsaw:Action="urn:getCityResponse"/>
+        </wsdl:operation>
+    </wsdl:portType>
+    <wsdl:binding name="SorguSoap11Binding" type="ns:SorguPortType">
+        <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+        <wsdl:operation name="referansSorguLokasyon">
+            <soap:operation soapAction="urn:referansSorguLokasyon" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="getAllDropPointInfo">
+            <soap:operation soapAction="urn:getAllDropPointInfo" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="gonderiSorgu_referansNo2">
+            <soap:operation soapAction="urn:gonderiSorgu_referansNo2" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="referansSorguBarkodList">
+            <soap:operation soapAction="urn:referansSorguBarkodList" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="gonderiSorgu_referansNo">
+            <soap:operation soapAction="urn:gonderiSorgu_referansNo" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="shipmentInquiry_ReferenceNumberEn">
+            <soap:operation soapAction="urn:shipmentInquiry_ReferenceNumberEn" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="referansSorgu2">
+            <soap:operation soapAction="urn:referansSorgu2" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="getDistrict">
+            <soap:operation soapAction="urn:getDistrict" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="gonderiSorgu2">
+            <soap:operation soapAction="urn:gonderiSorgu2" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="gonderiSorgu">
+            <soap:operation soapAction="urn:gonderiSorgu" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="getDropPointInfo">
+            <soap:operation soapAction="urn:getDropPointInfo" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="shipmentInquiryEn">
+            <soap:operation soapAction="urn:shipmentInquiryEn" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="referansSorgu">
+            <soap:operation soapAction="urn:referansSorgu" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="getCity">
+            <soap:operation soapAction="urn:getCity" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+    </wsdl:binding>
+    <wsdl:binding name="SorguSoap12Binding" type="ns:SorguPortType">
+        <soap12:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+        <wsdl:operation name="referansSorguLokasyon">
+            <soap12:operation soapAction="urn:referansSorguLokasyon" style="document"/>
+            <wsdl:input>
+                <soap12:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap12:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="getAllDropPointInfo">
+            <soap12:operation soapAction="urn:getAllDropPointInfo" style="document"/>
+            <wsdl:input>
+                <soap12:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap12:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="gonderiSorgu_referansNo2">
+            <soap12:operation soapAction="urn:gonderiSorgu_referansNo2" style="document"/>
+            <wsdl:input>
+                <soap12:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap12:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="referansSorguBarkodList">
+            <soap12:operation soapAction="urn:referansSorguBarkodList" style="document"/>
+            <wsdl:input>
+                <soap12:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap12:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="gonderiSorgu_referansNo">
+            <soap12:operation soapAction="urn:gonderiSorgu_referansNo" style="document"/>
+            <wsdl:input>
+                <soap12:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap12:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="shipmentInquiry_ReferenceNumberEn">
+            <soap12:operation soapAction="urn:shipmentInquiry_ReferenceNumberEn" style="document"/>
+            <wsdl:input>
+                <soap12:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap12:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="referansSorgu2">
+            <soap12:operation soapAction="urn:referansSorgu2" style="document"/>
+            <wsdl:input>
+                <soap12:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap12:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="getDistrict">
+            <soap12:operation soapAction="urn:getDistrict" style="document"/>
+            <wsdl:input>
+                <soap12:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap12:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="gonderiSorgu2">
+            <soap12:operation soapAction="urn:gonderiSorgu2" style="document"/>
+            <wsdl:input>
+                <soap12:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap12:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="gonderiSorgu">
+            <soap12:operation soapAction="urn:gonderiSorgu" style="document"/>
+            <wsdl:input>
+                <soap12:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap12:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="getDropPointInfo">
+            <soap12:operation soapAction="urn:getDropPointInfo" style="document"/>
+            <wsdl:input>
+                <soap12:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap12:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="shipmentInquiryEn">
+            <soap12:operation soapAction="urn:shipmentInquiryEn" style="document"/>
+            <wsdl:input>
+                <soap12:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap12:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="referansSorgu">
+            <soap12:operation soapAction="urn:referansSorgu" style="document"/>
+            <wsdl:input>
+                <soap12:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap12:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="getCity">
+            <soap12:operation soapAction="urn:getCity" style="document"/>
+            <wsdl:input>
+                <soap12:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap12:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+    </wsdl:binding>
+    <wsdl:binding name="SorguHttpBinding" type="ns:SorguPortType">
+        <http:binding verb="POST"/>
+        <wsdl:operation name="referansSorguLokasyon">
+            <http:operation location="referansSorguLokasyon"/>
+            <wsdl:input>
+                <mime:content part="parameters" type="application/xml"/>
+            </wsdl:input>
+            <wsdl:output>
+                <mime:content part="parameters" type="application/xml"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="getAllDropPointInfo">
+            <http:operation location="getAllDropPointInfo"/>
+            <wsdl:input>
+                <mime:content part="parameters" type="application/xml"/>
+            </wsdl:input>
+            <wsdl:output>
+                <mime:content part="parameters" type="application/xml"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="gonderiSorgu_referansNo2">
+            <http:operation location="gonderiSorgu_referansNo2"/>
+            <wsdl:input>
+                <mime:content part="parameters" type="application/xml"/>
+            </wsdl:input>
+            <wsdl:output>
+                <mime:content part="parameters" type="application/xml"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="referansSorguBarkodList">
+            <http:operation location="referansSorguBarkodList"/>
+            <wsdl:input>
+                <mime:content part="parameters" type="application/xml"/>
+            </wsdl:input>
+            <wsdl:output>
+                <mime:content part="parameters" type="application/xml"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="gonderiSorgu_referansNo">
+            <http:operation location="gonderiSorgu_referansNo"/>
+            <wsdl:input>
+                <mime:content part="parameters" type="application/xml"/>
+            </wsdl:input>
+            <wsdl:output>
+                <mime:content part="parameters" type="application/xml"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="shipmentInquiry_ReferenceNumberEn">
+            <http:operation location="shipmentInquiry_ReferenceNumberEn"/>
+            <wsdl:input>
+                <mime:content part="parameters" type="application/xml"/>
+            </wsdl:input>
+            <wsdl:output>
+                <mime:content part="parameters" type="application/xml"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="referansSorgu2">
+            <http:operation location="referansSorgu2"/>
+            <wsdl:input>
+                <mime:content part="parameters" type="application/xml"/>
+            </wsdl:input>
+            <wsdl:output>
+                <mime:content part="parameters" type="application/xml"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="getDistrict">
+            <http:operation location="getDistrict"/>
+            <wsdl:input>
+                <mime:content part="parameters" type="application/xml"/>
+            </wsdl:input>
+            <wsdl:output>
+                <mime:content part="parameters" type="application/xml"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="gonderiSorgu2">
+            <http:operation location="gonderiSorgu2"/>
+            <wsdl:input>
+                <mime:content part="parameters" type="application/xml"/>
+            </wsdl:input>
+            <wsdl:output>
+                <mime:content part="parameters" type="application/xml"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="gonderiSorgu">
+            <http:operation location="gonderiSorgu"/>
+            <wsdl:input>
+                <mime:content part="parameters" type="application/xml"/>
+            </wsdl:input>
+            <wsdl:output>
+                <mime:content part="parameters" type="application/xml"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="getDropPointInfo">
+            <http:operation location="getDropPointInfo"/>
+            <wsdl:input>
+                <mime:content part="parameters" type="application/xml"/>
+            </wsdl:input>
+            <wsdl:output>
+                <mime:content part="parameters" type="application/xml"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="shipmentInquiryEn">
+            <http:operation location="shipmentInquiryEn"/>
+            <wsdl:input>
+                <mime:content part="parameters" type="application/xml"/>
+            </wsdl:input>
+            <wsdl:output>
+                <mime:content part="parameters" type="application/xml"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="referansSorgu">
+            <http:operation location="referansSorgu"/>
+            <wsdl:input>
+                <mime:content part="parameters" type="application/xml"/>
+            </wsdl:input>
+            <wsdl:output>
+                <mime:content part="parameters" type="application/xml"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="getCity">
+            <http:operation location="getCity"/>
+            <wsdl:input>
+                <mime:content part="parameters" type="application/xml"/>
+            </wsdl:input>
+            <wsdl:output>
+                <mime:content part="parameters" type="application/xml"/>
+            </wsdl:output>
+        </wsdl:operation>
+    </wsdl:binding>
+    <wsdl:service name="Sorgu">
+        <wsdl:port binding="ns:SorguSoap11Binding" name="SorguHttpSoap11Endpoint">
+            <soap:address location="http://pttws.ptt.gov.tr/GonderiTakipV2Test/services/Sorgu"/>
+        </wsdl:port>
+        <wsdl:port binding="ns:SorguSoap12Binding" name="SorguHttpSoap12Endpoint">
+            <soap12:address location="http://pttws.ptt.gov.tr/GonderiTakipV2Test/services/Sorgu"/>
+        </wsdl:port>
+        <wsdl:port binding="ns:SorguHttpBinding" name="SorguHttpEndpoint">
+            <http:address location="http://pttws.ptt.gov.tr/GonderiTakipV2Test/services/Sorgu"/>
+        </wsdl:port>
+    </wsdl:service>
+</wsdl:definitions>

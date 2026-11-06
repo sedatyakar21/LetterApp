@@ -20,6 +20,20 @@
             <div class="mt-1">@c.Email</div>
             <div>@c.Phone</div>
             <div class="stat-sub mt-1">Üyelik: @c.CreatedAt.ToLocalTime().ToString("dd.MM.yyyy")</div>
+            <hr class="my-2" />
+            <div class="small">
+                Bizi nereden duydu: <strong>@(c.AcquisitionChannel?.DisplayName() ?? "—")</strong><br />
+                @if (c.ReferredById is { } refId)
+                {
+                    @:Davet eden: <a asp-action="Details" asp-route-id="@refId">@c.ReferredByName</a><br />
+                }
+                Referans no: <span class="font-monospace">@c.ReferralCode</span><br />
+                Davet ettiği üye: <strong>@c.ReferredCount</strong>
+                @if (c.ReferredCount > 0)
+                {
+                    <a asp-action="Index" asp-route-referredBy="@c.Id">(listele)</a>
+                }
+            </div>
         </div>
     </div>
     <div class="col-6 col-md-2">

@@ -59,6 +59,60 @@ public class LoyaltyTests
     }
 
     [Fact]
+    public void Point_value_converts_points_to_money()
+    {
+        var s = LoyaltySettings.CreateDefault();
+        Assert.Equal(1m, s.PointValue);
+        Assert.Equal(29m, s.ToMoney(29));
+
+        s.UpdatePointValue(0.5m, "admin");
+        Assert.Equal(14.50m, s.ToMoney(29));
+    }
+
+    [Fact]
+    public void Paid_letter_records_points_and_their_money_value()
+    {
+        var address = new MektupApp.Domain.Letters.PostalAddress("Atatürk Cad. 1", "Nilüfer", "Bursa", "16110");
+        var letter = MektupApp.Domain.Letters.Letter.CreateDraft(Guid.NewGuid(), "Ali", address,
+            new MektupApp.Domain.Letters.Recipient("Ayşe", MektupApp.Domain.Letters.RecipientType.Standard, null, address));
+        letter.WriteContent("Merhaba");
+
+        letter.MarkPaid(new Money(264.25m), MektupApp.Domain.Letters.PaymentMethod.Card, "REF",
+            pointsUsed: 51.5m, pointsDiscount: 25.75m);
+
+        Assert.Equal(51.5m, letter.PointsUsed);
+        Assert.Equal(25.75m, letter.PointsDiscount);
+    }
+
+    [Fact]
+    public void Point_value_must_be_in_range()
+    {
+        var s = LoyaltySettings.CreateDefault();
+        Assert.Throws<DomainException>(() => s.UpdatePointValue(0, "admin"));
+        Assert.Throws<DomainException>(() => s.UpdatePointValue(-1, "admin"));
+        Assert.Throws<DomainException>(() => s.UpdatePointValue(5000, "admin"));
+    }
+
+    [Theory]
+    // değer, toplam, bakiye → kullanılan puan, indirim
+    [InlineData(1.0, 290, 51.5, 51.5, 51.5)]      // bakiye yetmiyor: hepsi kullanılır
+    [InlineData(0.5, 290, 51.5, 51.5, 25.75)]     // 1 puan = 0,50 ₺
+    [InlineData(0.5, 290, 1000, 580, 290)]        // tutarın tamamı: 290 / 0,5 = 580 puan
+    [InlineData(2.0, 290, 1000, 145, 290)]        // 1 puan = 2 ₺
+    [InlineData(3.0, 100, 1000, 33.34, 100)]      // yukarı yuvarlanır, indirim tutarı aşmaz
+    [InlineData(1.0, 290, 0, 0, 0)]
+    public void Redeem_uses_point_value(double value, double total, double balance, double expectedPoints, double expectedDiscount)
+    {
+        var s = LoyaltySettings.CreateDefault();
+        s.UpdatePointValue((decimal)value, "admin");
+
+        var r = s.Redeem((decimal)total, (decimal)balance);
+
+        Assert.Equal((decimal)expectedPoints, r.Points);
+        Assert.Equal((decimal)expectedDiscount, r.Discount);
+    }
+
+    [Fact]
     public void Adjustment_cannot_make_balance_negative()
     {
         var acc = LoyaltyAccount.Open(Guid.NewGuid());

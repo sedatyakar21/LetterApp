@@ -22,7 +22,12 @@
             @foreach (var l in Model)
             {
                 <a class="list-group-item list-group-item-action py-3"
-                   href="@(l.Status == LetterStatus.Draft ? Url.Action("Edit", new { id = l.Id }) : Url.Action("Details", new { id = l.Id }))">
+                   href="@(l.Status switch
+                         {
+                             LetterStatus.Draft => Url.Action("Edit", new { id = l.Id }),
+                             LetterStatus.AwaitingPayment => Url.Action("Checkout", new { id = l.Id }),
+                             _ => Url.Action("Details", new { id = l.Id })
+                         })">
                     <div class="d-flex justify-content-between align-items-start gap-3">
                         <div class="min-w-0">
                             <div class="fw-semibold">

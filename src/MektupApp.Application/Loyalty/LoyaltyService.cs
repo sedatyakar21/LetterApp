@@ -5,7 +5,16 @@ using MektupApp.Domain.Loyalty;
 
 namespace MektupApp.Application.Loyalty;
 
-public sealed record LoyaltySettingsDto(bool IsEnabled, RewardType RewardType, decimal Value, DateTime UpdatedAt, string? UpdatedBy);
+public sealed record LoyaltySettingsDto(
+    bool IsEnabled, RewardType RewardType, decimal Value,
+    bool ReferralEnabled, RewardType ReferralRewardType, decimal ReferralValue,
+    decimal PointValue,
+    DateTime UpdatedAt, string? UpdatedBy);
+
+public sealed record LoyaltySettingsInput(
+    bool IsEnabled, RewardType RewardType, decimal Value,
+    bool ReferralEnabled, RewardType ReferralRewardType, decimal ReferralValue,
+    decimal PointValue);
 
 public sealed record PointTransactionDto(PointTransactionType Type, decimal Points, Guid? LetterId, string Note, DateTime At);
 
@@ -23,10 +32,11 @@ public sealed class LoyaltyService(
     public async Task<LoyaltySettingsDto> GetSettingsInfoAsync(CancellationToken ct = default)
     {
         var s = await GetSettingsAsync(ct);
-        return new LoyaltySettingsDto(s.IsEnabled, s.RewardType, s.Value, s.UpdatedAt, s.UpdatedBy);
+        return new LoyaltySettingsDto(s.IsEnabled, s.RewardType, s.Value,
+            s.ReferralEnabled, s.ReferralRewardType, s.ReferralValue, s.PointValue, s.UpdatedAt, s.UpdatedBy);
     }
 
-    public async Task UpdateSettingsAsync(bool isEnabled, RewardType type, decimal value, string updatedBy, CancellationToken ct = default)
+    public async Task UpdateSettingsAsync(LoyaltySettingsInput input, string updatedBy, CancellationToken ct = default)
     {
         var s = await settingsRepo.GetAsync(ct);
         if (s is null)
@@ -34,7 +44,9 @@ public sealed class LoyaltyService(
             s = LoyaltySettings.CreateDefault();
             settingsRepo.Add(s);
         }
-        s.Update(isEnabled, type, value, updatedBy);
+        s.Update(input.IsEnabled, input.RewardType, input.Value, updatedBy);
+        s.UpdateReferral(input.ReferralEnabled, input.ReferralRewardType, input.ReferralValue, updatedBy);
+        s.UpdatePointValue(input.PointValue, updatedBy);
         await unitOfWork.SaveChangesAsync(ct);
     }
 
@@ -89,6 +101,13 @@ public sealed class LoyaltyEventHandlers(
 {
     public async Task HandleAsync(LetterShipped e, CancellationToken ct)
     {
+        await CreditSenderAsync(e, ct);
+        await CreditReferrerAsync(e, ct);
+    }
+
+    /// <summary>Mektubu gönderen üyenin kendi kazancı.</summary>
+    private async Task CreditSenderAsync(LetterShipped e, CancellationToken ct)
+    {
         if (e.PointsToEarn <= 0) return;
 
         var account = await loyalty.GetOrOpenAccountAsync(e.CustomerId, ct);
@@ -99,6 +118,30 @@ public sealed class LoyaltyEventHandlers(
         if (customer is not null)
             await sms.SendAsync(customer.Phone.Value,
                 $"Tebrikler! Mektubunuz icin {e.PointsToEarn:0.00} MektupPuan kazandiniz. Bakiye: {account.Balance:0.00}", ct);
+    }
+
+    /// <summary>Gönderen üyeyi davet eden üyenin referans kazancı.</summary>
+    private async Task CreditReferrerAsync(LetterShipped e, CancellationToken ct)
+    {
+        if (e.ReferrerCustomerId is not { } referrerId || e.ReferralPointsToEarn <= 0) return;
+
+        var referrer = await customers.GetAsync(referrerId, ct);
+        if (referrer is null || !referrer.IsActive) return;
+
+        var sender = await customers.GetAsync(e.CustomerId, ct);
+        var account = await loyalty.GetOrOpenAccountAsync(referrerId, ct);
+        if (account.EarnReferral(e.LetterId, e.ReferralPointsToEarn, MaskName(sender?.FullName)) is null) return;
+        await unitOfWork.SaveChangesAsync(ct);
+
+        await sms.SendAsync(referrer.Phone.Value,
+            $"Davet ettiginiz arkadasiniz mektup gonderdi; {e.ReferralPointsToEarn:0.00} MektupPuan kazandiniz. Bakiye: {account.Balance:0.00}", ct);
+    }
+
+    /// <summary>"Ayşe Yılmaz" → "Ayşe Y." (davet eden üyeye tam ad gösterilmez).</summary>
+    private static string MaskName(string? fullName)
+    {
+        var parts = (fullName ?? "Bir arkadaşınız").Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        return parts.Length <= 1 ? parts.FirstOrDefault() ?? "Bir arkadaşınız" : $"{parts[0]} {parts[^1][0]}.";
     }
 
     public async Task HandleAsync(LetterCancelledAfterPayment e, CancellationToken ct)

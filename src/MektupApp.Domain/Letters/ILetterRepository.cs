@@ -7,5 +7,7 @@ public interface ILetterRepository
     Task<Letter?> GetByTrackingCodeAsync(string trackingCode, CancellationToken ct = default);
     Task<IReadOnlyList<Letter>> ListByCustomerAsync(Guid customerId, CancellationToken ct = default);
     Task<IReadOnlyList<Letter>> ListByStatusAsync(IEnumerable<LetterStatus> statuses, CancellationToken ct = default);
+    /// <summary>Taşıyıcıdan güncellenmesi gereken kargodaki mektuplar (en eski kontrol edilen önce).</summary>
+    Task<IReadOnlyList<Letter>> ListForCarrierSyncAsync(string carrier, DateTime checkedBefore, int maxCount, CancellationToken ct = default);
     void Add(Letter letter);
 }

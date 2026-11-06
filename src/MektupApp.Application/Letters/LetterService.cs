@@ -1,9 +1,6 @@
 using MektupApp.Application.Abstractions;
-using MektupApp.Application.Loyalty;
-using MektupApp.Application.Pricing;
-using MektupApp.Domain.Loyalty;
+using MektupApp.Application.Payments;
 using MektupApp.Domain.Common;
-using MektupApp.Domain.Customers;
 using MektupApp.Domain.Letters;
 
 namespace MektupApp.Application.Letters;
@@ -14,12 +11,7 @@ namespace MektupApp.Application.Letters;
 /// </summary>
 public sealed class LetterService(
     ILetterRepository letters,
-    ICustomerRepository customers,
-    LetterPricingPolicy pricing,
-    PricingService priceLists,
-    LoyaltyService loyalty,
-    ILoyaltyAccountRepository loyaltyAccounts,
-    IPaymentGateway paymentGateway,
+    CheckoutCalculator checkout,
     IFileStorage fileStorage,
     IUnitOfWork unitOfWork)
 {
@@ -115,66 +107,7 @@ public sealed class LetterService(
     {
         var letter = await LoadOwnedAsync(letterId, customerId, ct);
         letter.EnsureReadyForCheckout();
-        return (await BuildCheckoutAsync(letter, customerId, method, usePoints, ct)).Quote;
-    }
-
-    public async Task PayAsync(Guid letterId, Guid customerId, PaymentMethod method, bool usePoints, CancellationToken ct = default)
-    {
-        var letter = await LoadOwnedAsync(letterId, customerId, ct);
-        letter.EnsureReadyForCheckout();
-
-        var customer = await customers.GetAsync(customerId, ct) ?? throw new AppException("Müşteri bulunamadı.");
-        var (quote, account) = await BuildCheckoutAsync(letter, customerId, method, usePoints, ct);
-
-        // Tutarın tamamı puanla ödeniyorsa ödeme sağlayıcısına gidilmez.
-        string reference;
-        if (quote.AmountToPay > 0)
-        {
-            var result = await paymentGateway.ChargeAsync(
-                new PaymentRequest(letter.Id, new Money(quote.AmountToPay), method, customer.Phone.Value), ct);
-            if (!result.Succeeded)
-                throw new AppException(result.Error ?? "Ödeme alınamadı. Lütfen tekrar deneyin.");
-            reference = result.Reference!;
-        }
-        else
-        {
-            reference = $"PUAN-{DateTime.UtcNow:yyyyMMddHHmmss}";
-        }
-
-        letter.MarkPaid(new Money(quote.AmountToPay), method, reference, quote.PointsUsed, quote.PointsToEarn);
-
-        // Ödeme ile puan düşümü aynı işlemde (transaction) kaydedilir: biri olmadan diğeri olmamalı.
-        // Hesapta eşzamanlı harcama olursa RowVersion çakışması ile ikinci işlem reddedilir.
-        if (quote.PointsUsed > 0)
-            (account ?? throw new AppException("Puan hesabı bulunamadı.")).Spend(letter.Id, quote.PointsUsed);
-
-        await unitOfWork.SaveChangesAsync(ct);
-    }
-
-    /// <summary>Fiyatı hesaplar, puan kullanımını uygular ve kazanılacak puanı belirler.</summary>
-    private async Task<(QuoteDto Quote, LoyaltyAccount? Account)> BuildCheckoutAsync(
-        Letter letter, Guid customerId, PaymentMethod method, bool usePoints, CancellationToken ct)
-    {
-        var price = pricing.Calculate(letter, method, await priceLists.GetCurrentAsync(ct));
-        var account = await loyaltyAccounts.GetByCustomerAsync(customerId, ct);
-        var balance = account?.Balance ?? 0;
-
-        var pointsUsed = usePoints ? Math.Min(balance, price.Total.Amount) : 0;
-        var amountToPay = price.Total.Amount - pointsUsed;
-        var settings = await loyalty.GetSettingsAsync(ct);
-        var pointsToEarn = settings.CalculateReward(amountToPay);
-
-        var quote = new QuoteDto(
-            letter.Id, method,
-            price.Lines.Select(l => (l.Description, l.Amount.Amount)).ToList(),
-            price.Total.Amount,
-            UsePoints: usePoints,
-            PointsBalance: balance,
-            PointsUsed: pointsUsed,
-            AmountToPay: amountToPay,
-            PointsToEarn: pointsToEarn,
-            LoyaltyEnabled: settings.IsEnabled);
-        return (quote, account);
+        return (await checkout.CalculateAsync(letter, method, usePoints, ct)).Quote;
     }
 
     public async Task CancelAsync(Guid letterId, Guid customerId, CancellationToken ct = default)

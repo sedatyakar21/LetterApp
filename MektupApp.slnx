@@ -7,5 +7,6 @@
   </Folder>
   <Folder Name="/tests/">
     <Project Path="tests/MektupApp.Domain.Tests/MektupApp.Domain.Tests.csproj" />
+    <Project Path="tests/MektupApp.Infrastructure.Tests/MektupApp.Infrastructure.Tests.csproj" />
   </Folder>
 </Solution>

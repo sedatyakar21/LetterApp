@@ -1,0 +1,981 @@
+﻿<wsdl:definitions targetNamespace="http://kabul.ptt.gov.tr" xmlns:ax21="http://kabul.ptt.gov.tr/xsd" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:ns="http://kabul.ptt.gov.tr" xmlns:ns1="http://org.apache.axis2/xsd" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+    <wsdl:documentation>
+		Please Type your service description here
+	</wsdl:documentation>
+    <wsdl:types>
+        <xs:schema attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://kabul.ptt.gov.tr" xmlns:ax22="http://kabul.ptt.gov.tr/xsd">
+            <xs:import namespace="http://kabul.ptt.gov.tr/xsd"/>
+            <xs:element name="SorguException">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="SorguException" nillable="true" type="ns:Exception"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:complexType name="Exception">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="Message" nillable="true" type="xs:string"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:element name="kabulEkle">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="input" nillable="true" type="ax22:Input"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="kabulEkleResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="return" nillable="true" type="ax22:Output"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="kabulEkle2">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="input" nillable="true" type="ax22:Input2"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="kabulEkle2Response">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="return" nillable="true" type="ax22:Output2"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="kabulEkle_altmusteri">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="input" nillable="true" type="ax22:Input_altmusteri"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="kabulEkle_altmusteriResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="return" nillable="true" type="ax22:Output2"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="kabulEkleParcaliBarkod">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="input" nillable="true" type="ax22:InputParcaliBarkod"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="kabulEkleParcaliBarkodResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="return" nillable="true" type="ax22:Output2"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="referansVeriSil">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="inpRefDelete" nillable="true" type="ax22:InputRefDelete"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="referansVeriSilResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="return" nillable="true" type="ax22:OutputRefDelete"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="barkodVeriSil">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="inpDelete" nillable="true" type="ax22:InputDelete"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="barkodVeriSilResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="return" nillable="true" type="ax22:OutputDelete"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="siparisIstekEkle">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="input" nillable="true" type="ax22:InputIstek"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="siparisIstekEkleResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="return" nillable="true" type="ax22:OutputIstek"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="siparisIstekEkle2">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="input" nillable="true" type="ax22:InputIstek2"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="siparisIstekEkle2Response">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="return" nillable="true" type="ax22:OutputIstek"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="olcumGuncelle">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="inpUpdate" nillable="true" type="ax22:InputUpdate"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="olcumGuncelleResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="return" nillable="true" type="ax22:OutputUpdate"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="etiketGetir">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="input" nillable="true" type="ax22:EtiketGetirInput"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="etiketGetirResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="return" nillable="true" type="ax22:EtiketGetirOutput"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+        </xs:schema>
+        <xs:schema attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://kabul.ptt.gov.tr/xsd">
+            <xs:complexType name="Input">
+                <xs:sequence>
+                    <xs:element maxOccurs="unbounded" minOccurs="0" name="dongu" nillable="true" type="ax21:InputDongu"/>
+                    <xs:element minOccurs="0" name="dosyaAdi" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="gonderiTip" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="gonderiTur" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="kullanici" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="musteriId" nillable="true" type="xs:int"/>
+                    <xs:element minOccurs="0" name="sifre" nillable="true" type="xs:string"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:complexType name="InputDongu">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="aAdres" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="aAdres2" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="aAdres3" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="aIlKodu" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="aIlKodu2" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="aIlKodu3" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="aIlceKodu" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="aIlceKodu2" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="aIlceKodu3" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="agirlik" nillable="true" type="xs:int"/>
+                    <xs:element minOccurs="0" name="aliciAdi" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="aliciAdi2" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="aliciAdi3" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="aliciEmail" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="aliciEmail2" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="aliciEmail3" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="aliciIlAdi" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="aliciIlAdi2" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="aliciIlAdi3" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="aliciIlceAdi" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="aliciIlceAdi2" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="aliciIlceAdi3" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="aliciSms" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="aliciSms2" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="aliciSms3" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="aliciTel" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="aliciTel2" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="aliciTel3" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="barkodNo" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="boy" nillable="true" type="xs:int"/>
+                    <xs:element minOccurs="0" name="deger_ucreti" nillable="true" type="xs:double"/>
+                    <xs:element minOccurs="0" name="desi" nillable="true" type="xs:double"/>
+                    <xs:element minOccurs="0" name="ekhizmet" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="en" nillable="true" type="xs:int"/>
+                    <xs:element minOccurs="0" name="musteriReferansNo" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="odeme_sart_ucreti" nillable="true" type="xs:double"/>
+                    <xs:element minOccurs="0" name="parcali_barkod_referans_no" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="rezerve1" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="rezerve2" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="rezerve3" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="rezerve4" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="rezerve5" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="teslim_tip" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="ucret" nillable="true" type="xs:double"/>
+                    <xs:element minOccurs="0" name="yukseklik" nillable="true" type="xs:int"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:complexType name="Output">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="RCode" nillable="true" type="xs:int"/>
+                    <xs:element minOccurs="0" name="aciklama" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="sonuc" nillable="true" type="xs:boolean"/>
+                    <xs:element minOccurs="0" name="sqlCode" nillable="true" type="xs:int"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:complexType name="Input2">
+                <xs:sequence>
+                    <xs:element maxOccurs="unbounded" minOccurs="0" name="dongu" nillable="true" type="ax21:InputDongu2"/>
+                    <xs:element minOccurs="0" name="dosyaAdi" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="gonderiTip" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="gonderiTur" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="kullanici" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="musteriId" nillable="true" type="xs:int"/>
+                    <xs:element minOccurs="0" name="sifre" nillable="true" type="xs:string"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:complexType name="InputDongu2">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="aAdres" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="aAdres2" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="aAdres3" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="aIlKodu" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="aIlKodu2" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="aIlKodu3" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="aIlceKodu" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="aIlceKodu2" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="aIlceKodu3" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="agirlik" nillable="true" type="xs:int"/>
+                    <xs:element minOccurs="0" name="aliciAdi" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="aliciAdi2" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="aliciAdi3" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="aliciEmail" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="aliciEmail2" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="aliciEmail3" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="aliciIlAdi" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="aliciIlAdi2" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="aliciIlAdi3" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="aliciIlceAdi" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="aliciIlceAdi2" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="aliciIlceAdi3" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="aliciSms" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="aliciSms2" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="aliciSms3" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="aliciTel" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="aliciTel2" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="aliciTel3" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="barkodNo" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="boy" nillable="true" type="xs:int"/>
+                    <xs:element minOccurs="0" name="deger_ucreti" nillable="true" type="xs:double"/>
+                    <xs:element minOccurs="0" name="desi" nillable="true" type="xs:double"/>
+                    <xs:element minOccurs="0" name="ekhizmet" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="en" nillable="true" type="xs:int"/>
+                    <xs:element minOccurs="0" name="gondericibilgi" nillable="true" type="ax21:GondericiBilgi"/>
+                    <xs:element minOccurs="0" name="iadeAAdres" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="iadeAIlKodu" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="iadeAIlceKodu" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="iadeAliciAdi" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="iadeAliciEmail" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="iadeAliciIlAdi" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="iadeAliciIlceAdi" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="iadeAliciTel" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="mp_id" nillable="true" type="xs:int"/>
+                    <xs:element minOccurs="0" name="musteriReferansNo" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="odeme_sart_ucreti" nillable="true" type="xs:double"/>
+                    <xs:element minOccurs="0" name="odemesekli" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="parcali_barkod_referans_no" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="rezerve1" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="rezerve2" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="rezerve3" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="rezerve4" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="rezerve5" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="teslim_tip" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="ucret" nillable="true" type="xs:double"/>
+                    <xs:element minOccurs="0" name="yukseklik" nillable="true" type="xs:int"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:complexType name="GondericiBilgi">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="gonderici_adi" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="gonderici_adresi" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="gonderici_email" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="gonderici_il_ad" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="gonderici_ilce_ad" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="gonderici_posta_kodu" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="gonderici_sms" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="gonderici_soyadi" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="gonderici_telefonu" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="gonderici_ulke_id" nillable="true" type="xs:string"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:complexType name="Output2">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="aciklama" nillable="true" type="xs:string"/>
+                    <xs:element maxOccurs="unbounded" minOccurs="0" name="dongu" nillable="true" type="ax21:OutputDongu2"/>
+                    <xs:element minOccurs="0" name="hataKodu" nillable="true" type="xs:int"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:complexType name="OutputDongu2">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="barkod" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="donguAciklama" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="donguHataKodu" nillable="true" type="xs:int"/>
+                    <xs:element minOccurs="0" name="donguSonuc" nillable="true" type="xs:boolean"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:complexType name="Input_altmusteri">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="altmusteriId" nillable="true" type="xs:int"/>
+                    <xs:element maxOccurs="unbounded" minOccurs="0" name="dongu" nillable="true" type="ax21:InputDongu2"/>
+                    <xs:element minOccurs="0" name="dosyaAdi" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="gonderiTip" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="gonderiTur" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="kullanici" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="musteriId" nillable="true" type="xs:int"/>
+                    <xs:element minOccurs="0" name="sifre" nillable="true" type="xs:string"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:complexType name="InputParcaliBarkod">
+                <xs:sequence>
+                    <xs:element maxOccurs="unbounded" minOccurs="0" name="dongu" nillable="true" type="ax21:InputParcaliBarkodDongu"/>
+                    <xs:element minOccurs="0" name="dosyaAdi" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="gonderiTip" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="gonderiTur" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="kullanici" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="musteriId" nillable="true" type="xs:int"/>
+                    <xs:element minOccurs="0" name="sifre" nillable="true" type="xs:string"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:complexType name="InputParcaliBarkodDongu">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="aAdres" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="aAdres2" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="aAdres3" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="aIlKodu" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="aIlKodu2" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="aIlKodu3" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="aIlceKodu" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="aIlceKodu2" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="aIlceKodu3" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="agirlik" nillable="true" type="xs:int"/>
+                    <xs:element minOccurs="0" name="aliciAdi" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="aliciAdi2" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="aliciAdi3" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="aliciEmail" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="aliciEmail2" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="aliciEmail3" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="aliciIlAdi" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="aliciIlAdi2" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="aliciIlAdi3" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="aliciIlceAdi" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="aliciIlceAdi2" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="aliciIlceAdi3" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="aliciSms" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="aliciSms2" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="aliciSms3" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="aliciTel" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="aliciTel2" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="aliciTel3" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="barkodNo" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="boy" nillable="true" type="xs:int"/>
+                    <xs:element minOccurs="0" name="deger_ucreti" nillable="true" type="xs:double"/>
+                    <xs:element minOccurs="0" name="desi" nillable="true" type="xs:double"/>
+                    <xs:element minOccurs="0" name="ekhizmet" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="en" nillable="true" type="xs:int"/>
+                    <xs:element minOccurs="0" name="gondericibilgi" nillable="true" type="ax21:GondericiBilgi"/>
+                    <xs:element minOccurs="0" name="iadeAAdres" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="iadeAIlKodu" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="iadeAIlceKodu" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="iadeAliciAdi" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="iadeAliciEmail" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="iadeAliciIlAdi" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="iadeAliciIlceAdi" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="iadeAliciTel" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="irsaliye_no" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="musteriReferansNo" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="odeme_sart_ucreti" nillable="true" type="xs:double"/>
+                    <xs:element minOccurs="0" name="odemesekli" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="parca_adet" nillable="true" type="xs:int"/>
+                    <xs:element minOccurs="0" name="posta_ceki_no" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="rezerve1" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="rezerve2" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="rezerve3" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="rezerve4" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="rezerve5" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="ucret" nillable="true" type="xs:double"/>
+                    <xs:element minOccurs="0" name="urun_ad" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="yukseklik" nillable="true" type="xs:int"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:complexType name="InputRefDelete">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="dosyaAdi" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="musteriId" nillable="true" type="xs:int"/>
+                    <xs:element minOccurs="0" name="referansNo" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="sifre" nillable="true" type="xs:string"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:complexType name="OutputRefDelete">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="aciklama" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="hataKodu" nillable="true" type="xs:int"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:complexType name="InputDelete">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="barcode" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="dosyaAdi" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="musteriId" nillable="true" type="xs:int"/>
+                    <xs:element minOccurs="0" name="sifre" nillable="true" type="xs:string"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:complexType name="OutputDelete">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="aciklama" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="hataKodu" nillable="true" type="xs:int"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:complexType name="InputIstek">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="adet" nillable="true" type="xs:int"/>
+                    <xs:element minOccurs="0" name="agirlik" nillable="true" type="xs:double"/>
+                    <xs:element minOccurs="0" name="boy" nillable="true" type="xs:double"/>
+                    <xs:element minOccurs="0" name="deger_konulmus_ucret" nillable="true" type="xs:double"/>
+                    <xs:element minOccurs="0" name="desi" nillable="true" type="xs:double"/>
+                    <xs:element minOccurs="0" name="dosyaAdi" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="ek_hizmetler" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="en" nillable="true" type="xs:double"/>
+                    <xs:element minOccurs="0" name="gonderiTip" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="gonderiTur" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="istekTipId" nillable="true" type="xs:int"/>
+                    <xs:element minOccurs="0" name="isyeriId" nillable="true" type="xs:int"/>
+                    <xs:element minOccurs="0" name="musteriId" nillable="true" type="xs:int"/>
+                    <xs:element minOccurs="0" name="musteriKullanici" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="randevu_baslangic" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="randevu_bitis" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="ucret" nillable="true" type="xs:double"/>
+                    <xs:element minOccurs="0" name="urunTipFatura" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="urunTur" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="yukseklik" nillable="true" type="xs:double"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:complexType name="OutputIstek">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="siparisId" nillable="true" type="xs:int"/>
+                    <xs:element minOccurs="0" name="sonucAciklama" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="sonucKodu" nillable="true" type="xs:int"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:complexType name="InputIstek2">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="adet" nillable="true" type="xs:int"/>
+                    <xs:element minOccurs="0" name="agirlik" nillable="true" type="xs:double"/>
+                    <xs:element minOccurs="0" name="boy" nillable="true" type="xs:double"/>
+                    <xs:element minOccurs="0" name="deger_konulmus_ucret" nillable="true" type="xs:double"/>
+                    <xs:element minOccurs="0" name="desi" nillable="true" type="xs:double"/>
+                    <xs:element minOccurs="0" name="dosyaAdi" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="ek_hizmetler" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="en" nillable="true" type="xs:double"/>
+                    <xs:element minOccurs="0" name="gonderiTip" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="gonderiTur" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="gondericibilgi" nillable="true" type="ax21:GondericiBilgi"/>
+                    <xs:element minOccurs="0" name="isyeriId" nillable="true" type="xs:int"/>
+                    <xs:element minOccurs="0" name="musteriId" nillable="true" type="xs:int"/>
+                    <xs:element minOccurs="0" name="musteriKullanici" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="randevu_baslangic" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="randevu_bitis" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="sifre" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="ucret" nillable="true" type="xs:double"/>
+                    <xs:element minOccurs="0" name="urunTipFatura" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="urunTur" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="yukseklik" nillable="true" type="xs:double"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:complexType name="InputUpdate">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="agirlik" nillable="true" type="xs:int"/>
+                    <xs:element minOccurs="0" name="barcode" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="boy" nillable="true" type="xs:int"/>
+                    <xs:element minOccurs="0" name="desi" nillable="true" type="xs:double"/>
+                    <xs:element minOccurs="0" name="dosyaAdi" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="en" nillable="true" type="xs:int"/>
+                    <xs:element minOccurs="0" name="musteriId" nillable="true" type="xs:int"/>
+                    <xs:element minOccurs="0" name="sifre" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="ucret" nillable="true" type="xs:double"/>
+                    <xs:element minOccurs="0" name="yukseklik" nillable="true" type="xs:int"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:complexType name="OutputUpdate">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="aciklama" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="hataKodu" nillable="true" type="xs:int"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:complexType name="EtiketGetirInput">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="barkodNo" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="musteriId" type="xs:int"/>
+                    <xs:element minOccurs="0" name="sifre" nillable="true" type="xs:string"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:complexType name="EtiketGetirOutput">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="aciklama" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="epl_format" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="hataKodu" nillable="true" type="xs:int"/>
+                    <xs:element minOccurs="0" name="rezerve1" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="rezerve2" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="rezerve3" nillable="true" type="xs:string"/>
+                </xs:sequence>
+            </xs:complexType>
+        </xs:schema>
+    </wsdl:types>
+    <wsdl:message name="kabulEkle2Request">
+        <wsdl:part element="ns:kabulEkle2" name="parameters"/>
+    </wsdl:message>
+    <wsdl:message name="kabulEkle2Response">
+        <wsdl:part element="ns:kabulEkle2Response" name="parameters"/>
+    </wsdl:message>
+    <wsdl:message name="SorguException">
+        <wsdl:part element="ns:SorguException" name="parameters"/>
+    </wsdl:message>
+    <wsdl:message name="kabulEkleParcaliBarkodRequest">
+        <wsdl:part element="ns:kabulEkleParcaliBarkod" name="parameters"/>
+    </wsdl:message>
+    <wsdl:message name="kabulEkleParcaliBarkodResponse">
+        <wsdl:part element="ns:kabulEkleParcaliBarkodResponse" name="parameters"/>
+    </wsdl:message>
+    <wsdl:message name="siparisIstekEkle2Request">
+        <wsdl:part element="ns:siparisIstekEkle2" name="parameters"/>
+    </wsdl:message>
+    <wsdl:message name="siparisIstekEkle2Response">
+        <wsdl:part element="ns:siparisIstekEkle2Response" name="parameters"/>
+    </wsdl:message>
+    <wsdl:message name="kabulEkle_altmusteriRequest">
+        <wsdl:part element="ns:kabulEkle_altmusteri" name="parameters"/>
+    </wsdl:message>
+    <wsdl:message name="kabulEkle_altmusteriResponse">
+        <wsdl:part element="ns:kabulEkle_altmusteriResponse" name="parameters"/>
+    </wsdl:message>
+    <wsdl:message name="referansVeriSilRequest">
+        <wsdl:part element="ns:referansVeriSil" name="parameters"/>
+    </wsdl:message>
+    <wsdl:message name="referansVeriSilResponse">
+        <wsdl:part element="ns:referansVeriSilResponse" name="parameters"/>
+    </wsdl:message>
+    <wsdl:message name="kabulEkleRequest">
+        <wsdl:part element="ns:kabulEkle" name="parameters"/>
+    </wsdl:message>
+    <wsdl:message name="kabulEkleResponse">
+        <wsdl:part element="ns:kabulEkleResponse" name="parameters"/>
+    </wsdl:message>
+    <wsdl:message name="olcumGuncelleRequest">
+        <wsdl:part element="ns:olcumGuncelle" name="parameters"/>
+    </wsdl:message>
+    <wsdl:message name="olcumGuncelleResponse">
+        <wsdl:part element="ns:olcumGuncelleResponse" name="parameters"/>
+    </wsdl:message>
+    <wsdl:message name="barkodVeriSilRequest">
+        <wsdl:part element="ns:barkodVeriSil" name="parameters"/>
+    </wsdl:message>
+    <wsdl:message name="barkodVeriSilResponse">
+        <wsdl:part element="ns:barkodVeriSilResponse" name="parameters"/>
+    </wsdl:message>
+    <wsdl:message name="siparisIstekEkleRequest">
+        <wsdl:part element="ns:siparisIstekEkle" name="parameters"/>
+    </wsdl:message>
+    <wsdl:message name="siparisIstekEkleResponse">
+        <wsdl:part element="ns:siparisIstekEkleResponse" name="parameters"/>
+    </wsdl:message>
+    <wsdl:message name="etiketGetirRequest">
+        <wsdl:part element="ns:etiketGetir" name="parameters"/>
+    </wsdl:message>
+    <wsdl:message name="etiketGetirResponse">
+        <wsdl:part element="ns:etiketGetirResponse" name="parameters"/>
+    </wsdl:message>
+    <wsdl:portType name="SorguPortType">
+        <wsdl:operation name="kabulEkle2">
+            <wsdl:input message="ns:kabulEkle2Request" wsaw:Action="urn:kabulEkle2"/>
+            <wsdl:output message="ns:kabulEkle2Response" wsaw:Action="urn:kabulEkle2Response"/>
+            <wsdl:fault message="ns:SorguException" name="SorguException" wsaw:Action="urn:kabulEkle2SorguException"/>
+        </wsdl:operation>
+        <wsdl:operation name="kabulEkleParcaliBarkod">
+            <wsdl:input message="ns:kabulEkleParcaliBarkodRequest" wsaw:Action="urn:kabulEkleParcaliBarkod"/>
+            <wsdl:output message="ns:kabulEkleParcaliBarkodResponse" wsaw:Action="urn:kabulEkleParcaliBarkodResponse"/>
+            <wsdl:fault message="ns:SorguException" name="SorguException" wsaw:Action="urn:kabulEkleParcaliBarkodSorguException"/>
+        </wsdl:operation>
+        <wsdl:operation name="siparisIstekEkle2">
+            <wsdl:input message="ns:siparisIstekEkle2Request" wsaw:Action="urn:siparisIstekEkle2"/>
+            <wsdl:output message="ns:siparisIstekEkle2Response" wsaw:Action="urn:siparisIstekEkle2Response"/>
+            <wsdl:fault message="ns:SorguException" name="SorguException" wsaw:Action="urn:siparisIstekEkle2SorguException"/>
+        </wsdl:operation>
+        <wsdl:operation name="kabulEkle_altmusteri">
+            <wsdl:input message="ns:kabulEkle_altmusteriRequest" wsaw:Action="urn:kabulEkle_altmusteri"/>
+            <wsdl:output message="ns:kabulEkle_altmusteriResponse" wsaw:Action="urn:kabulEkle_altmusteriResponse"/>
+            <wsdl:fault message="ns:SorguException" name="SorguException" wsaw:Action="urn:kabulEkle_altmusteriSorguException"/>
+        </wsdl:operation>
+        <wsdl:operation name="referansVeriSil">
+            <wsdl:input message="ns:referansVeriSilRequest" wsaw:Action="urn:referansVeriSil"/>
+            <wsdl:output message="ns:referansVeriSilResponse" wsaw:Action="urn:referansVeriSilResponse"/>
+        </wsdl:operation>
+        <wsdl:operation name="kabulEkle">
+            <wsdl:input message="ns:kabulEkleRequest" wsaw:Action="urn:kabulEkle"/>
+            <wsdl:output message="ns:kabulEkleResponse" wsaw:Action="urn:kabulEkleResponse"/>
+            <wsdl:fault message="ns:SorguException" name="SorguException" wsaw:Action="urn:kabulEkleSorguException"/>
+        </wsdl:operation>
+        <wsdl:operation name="olcumGuncelle">
+            <wsdl:input message="ns:olcumGuncelleRequest" wsaw:Action="urn:olcumGuncelle"/>
+            <wsdl:output message="ns:olcumGuncelleResponse" wsaw:Action="urn:olcumGuncelleResponse"/>
+        </wsdl:operation>
+        <wsdl:operation name="barkodVeriSil">
+            <wsdl:input message="ns:barkodVeriSilRequest" wsaw:Action="urn:barkodVeriSil"/>
+            <wsdl:output message="ns:barkodVeriSilResponse" wsaw:Action="urn:barkodVeriSilResponse"/>
+        </wsdl:operation>
+        <wsdl:operation name="siparisIstekEkle">
+            <wsdl:input message="ns:siparisIstekEkleRequest" wsaw:Action="urn:siparisIstekEkle"/>
+            <wsdl:output message="ns:siparisIstekEkleResponse" wsaw:Action="urn:siparisIstekEkleResponse"/>
+            <wsdl:fault message="ns:SorguException" name="SorguException" wsaw:Action="urn:siparisIstekEkleSorguException"/>
+        </wsdl:operation>
+        <wsdl:operation name="etiketGetir">
+            <wsdl:input message="ns:etiketGetirRequest" wsaw:Action="urn:etiketGetir"/>
+            <wsdl:output message="ns:etiketGetirResponse" wsaw:Action="urn:etiketGetirResponse"/>
+            <wsdl:fault message="ns:SorguException" name="SorguException" wsaw:Action="urn:etiketGetirSorguException"/>
+        </wsdl:operation>
+    </wsdl:portType>
+    <wsdl:binding name="SorguSoap11Binding" type="ns:SorguPortType">
+        <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+        <wsdl:operation name="kabulEkle2">
+            <soap:operation soapAction="urn:kabulEkle2" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="SorguException">
+                <soap:fault name="SorguException" use="literal"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="kabulEkleParcaliBarkod">
+            <soap:operation soapAction="urn:kabulEkleParcaliBarkod" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="SorguException">
+                <soap:fault name="SorguException" use="literal"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="siparisIstekEkle2">
+            <soap:operation soapAction="urn:siparisIstekEkle2" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="SorguException">
+                <soap:fault name="SorguException" use="literal"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="kabulEkle_altmusteri">
+            <soap:operation soapAction="urn:kabulEkle_altmusteri" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="SorguException">
+                <soap:fault name="SorguException" use="literal"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="referansVeriSil">
+            <soap:operation soapAction="urn:referansVeriSil" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="kabulEkle">
+            <soap:operation soapAction="urn:kabulEkle" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="SorguException">
+                <soap:fault name="SorguException" use="literal"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="olcumGuncelle">
+            <soap:operation soapAction="urn:olcumGuncelle" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="barkodVeriSil">
+            <soap:operation soapAction="urn:barkodVeriSil" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="siparisIstekEkle">
+            <soap:operation soapAction="urn:siparisIstekEkle" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="SorguException">
+                <soap:fault name="SorguException" use="literal"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="etiketGetir">
+            <soap:operation soapAction="urn:etiketGetir" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="SorguException">
+                <soap:fault name="SorguException" use="literal"/>
+            </wsdl:fault>
+        </wsdl:operation>
+    </wsdl:binding>
+    <wsdl:binding name="SorguSoap12Binding" type="ns:SorguPortType">
+        <soap12:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+        <wsdl:operation name="kabulEkle2">
+            <soap12:operation soapAction="urn:kabulEkle2" style="document"/>
+            <wsdl:input>
+                <soap12:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap12:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="SorguException">
+                <soap12:fault name="SorguException" use="literal"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="kabulEkleParcaliBarkod">
+            <soap12:operation soapAction="urn:kabulEkleParcaliBarkod" style="document"/>
+            <wsdl:input>
+                <soap12:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap12:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="SorguException">
+                <soap12:fault name="SorguException" use="literal"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="siparisIstekEkle2">
+            <soap12:operation soapAction="urn:siparisIstekEkle2" style="document"/>
+            <wsdl:input>
+                <soap12:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap12:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="SorguException">
+                <soap12:fault name="SorguException" use="literal"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="kabulEkle_altmusteri">
+            <soap12:operation soapAction="urn:kabulEkle_altmusteri" style="document"/>
+            <wsdl:input>
+                <soap12:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap12:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="SorguException">
+                <soap12:fault name="SorguException" use="literal"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="referansVeriSil">
+            <soap12:operation soapAction="urn:referansVeriSil" style="document"/>
+            <wsdl:input>
+                <soap12:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap12:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="kabulEkle">
+            <soap12:operation soapAction="urn:kabulEkle" style="document"/>
+            <wsdl:input>
+                <soap12:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap12:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="SorguException">
+                <soap12:fault name="SorguException" use="literal"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="olcumGuncelle">
+            <soap12:operation soapAction="urn:olcumGuncelle" style="document"/>
+            <wsdl:input>
+                <soap12:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap12:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="barkodVeriSil">
+            <soap12:operation soapAction="urn:barkodVeriSil" style="document"/>
+            <wsdl:input>
+                <soap12:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap12:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="siparisIstekEkle">
+            <soap12:operation soapAction="urn:siparisIstekEkle" style="document"/>
+            <wsdl:input>
+                <soap12:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap12:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="SorguException">
+                <soap12:fault name="SorguException" use="literal"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="etiketGetir">
+            <soap12:operation soapAction="urn:etiketGetir" style="document"/>
+            <wsdl:input>
+                <soap12:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap12:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="SorguException">
+                <soap12:fault name="SorguException" use="literal"/>
+            </wsdl:fault>
+        </wsdl:operation>
+    </wsdl:binding>
+    <wsdl:binding name="SorguHttpBinding" type="ns:SorguPortType">
+        <http:binding verb="POST"/>
+        <wsdl:operation name="kabulEkle2">
+            <http:operation location="kabulEkle2"/>
+            <wsdl:input>
+                <mime:content part="parameters" type="application/xml"/>
+            </wsdl:input>
+            <wsdl:output>
+                <mime:content part="parameters" type="application/xml"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="kabulEkleParcaliBarkod">
+            <http:operation location="kabulEkleParcaliBarkod"/>
+            <wsdl:input>
+                <mime:content part="parameters" type="application/xml"/>
+            </wsdl:input>
+            <wsdl:output>
+                <mime:content part="parameters" type="application/xml"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="siparisIstekEkle2">
+            <http:operation location="siparisIstekEkle2"/>
+            <wsdl:input>
+                <mime:content part="parameters" type="application/xml"/>
+            </wsdl:input>
+            <wsdl:output>
+                <mime:content part="parameters" type="application/xml"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="kabulEkle_altmusteri">
+            <http:operation location="kabulEkle_altmusteri"/>
+            <wsdl:input>
+                <mime:content part="parameters" type="application/xml"/>
+            </wsdl:input>
+            <wsdl:output>
+                <mime:content part="parameters" type="application/xml"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="referansVeriSil">
+            <http:operation location="referansVeriSil"/>
+            <wsdl:input>
+                <mime:content part="parameters" type="application/xml"/>
+            </wsdl:input>
+            <wsdl:output>
+                <mime:content part="parameters" type="application/xml"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="kabulEkle">
+            <http:operation location="kabulEkle"/>
+            <wsdl:input>
+                <mime:content part="parameters" type="application/xml"/>
+            </wsdl:input>
+            <wsdl:output>
+                <mime:content part="parameters" type="application/xml"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="olcumGuncelle">
+            <http:operation location="olcumGuncelle"/>
+            <wsdl:input>
+                <mime:content part="parameters" type="application/xml"/>
+            </wsdl:input>
+            <wsdl:output>
+                <mime:content part="parameters" type="application/xml"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="barkodVeriSil">
+            <http:operation location="barkodVeriSil"/>
+            <wsdl:input>
+                <mime:content part="parameters" type="application/xml"/>
+            </wsdl:input>
+            <wsdl:output>
+                <mime:content part="parameters" type="application/xml"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="siparisIstekEkle">
+            <http:operation location="siparisIstekEkle"/>
+            <wsdl:input>
+                <mime:content part="parameters" type="application/xml"/>
+            </wsdl:input>
+            <wsdl:output>
+                <mime:content part="parameters" type="application/xml"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="etiketGetir">
+            <http:operation location="etiketGetir"/>
+            <wsdl:input>
+                <mime:content part="parameters" type="application/xml"/>
+            </wsdl:input>
+            <wsdl:output>
+                <mime:content part="parameters" type="application/xml"/>
+            </wsdl:output>
+        </wsdl:operation>
+    </wsdl:binding>
+    <wsdl:service name="Sorgu">
+        <wsdl:port binding="ns:SorguSoap11Binding" name="SorguHttpSoap11Endpoint">
+            <soap:address location="http://pttws.ptt.gov.tr/PttVeriYuklemeTest/services/Sorgu*"/>
+        </wsdl:port>
+        <wsdl:port binding="ns:SorguSoap12Binding" name="SorguHttpSoap12Endpoint">
+            <soap12:address location="http://pttws.ptt.gov.tr/PttVeriYuklemeTest/services/Sorgu*"/>
+        </wsdl:port>
+        <wsdl:port binding="ns:SorguHttpBinding" name="SorguHttpEndpoint">
+            <http:address location="http://pttws.ptt.gov.tr/PttVeriYuklemeTest/services/Sorgu*"/>
+        </wsdl:port>
+    </wsdl:service>
+</wsdl:definitions>

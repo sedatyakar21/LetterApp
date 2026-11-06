@@ -69,3 +69,12 @@ a.stat-tile:hover { border-color: var(--brand); }
 .table-admin { background: var(--admin-surface); margin-bottom: 0; }
 .table-admin th { font-size: .78rem; text-transform: uppercase; color: var(--admin-muted); font-weight: 600; white-space: nowrap; }
 .table-admin td { vertical-align: middle; }
+
+/* "Bizi nereden duydular?" yatay çubukları */
+.acq-row { display: grid; grid-template-columns: 120px 1fr 90px; align-items: center; gap: .75rem;
+           padding: .35rem .25rem; color: inherit; text-decoration: none; border-radius: .35rem; }
+.acq-row:hover, .acq-row:focus-visible { background: var(--admin-bg); }
+.acq-label { font-size: .9rem; }
+.acq-track { height: 10px; background: var(--chart-grid); border-radius: 0 4px 4px 0; overflow: hidden; }
+.acq-bar { display: block; height: 100%; background: var(--chart-bar); border-radius: 0 4px 4px 0; }
+.acq-value { text-align: right; font-size: .85rem; font-variant-numeric: tabular-nums; }
