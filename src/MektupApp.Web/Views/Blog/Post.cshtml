@@ -1,0 +1,67 @@
+@model MektupApp.Application.Blog.BlogPostDto
+@using MektupApp.Domain.Blog
+@{
+    ViewData["Title"] = Model.Title;
+    ViewData["Description"] = Model.Excerpt;
+    ViewData["OgType"] = "article";
+    if (Model.HasCover) { ViewData["OgImage"] = Url.Action("Cover", "Blog", new { id = Model.Id }, Context.Request.Scheme); }
+    var tr = System.Globalization.CultureInfo.GetCultureInfo("tr-TR");
+    var related = ViewBag.Related as IReadOnlyList<MektupApp.Application.Blog.BlogPostSummaryDto> ?? [];
+}
+
+@if (Model.Status != BlogPostStatus.Published)
+{
+    <div class="container mt-3">
+        <div class="alert alert-warning mb-0">
+            <strong>Önizleme:</strong> bu yazı henüz yayında değil, sadece yöneticiler görebilir.
+            <a asp-area="Admin" asp-controller="Blog" asp-action="Edit" asp-route-id="@Model.Id">Düzenle</a>
+        </div>
+    </div>
+}
+
+<article class="blog-post">
+    <header class="container text-center pt-5 pb-4" style="max-width: 820px">
+        <a asp-action="Index" class="small">← Blog</a>
+        <h1 class="mt-2 blog-post-title">@Model.Title</h1>
+        <div class="blog-meta mt-2">
+            @Model.AuthorName · @((Model.PublishedAt ?? Model.UpdatedAt).ToLocalTime().ToString("d MMMM yyyy", tr)) · @Model.ReadingMinutes dk okuma
+        </div>
+    </header>
+
+    @if (Model.HasCover)
+    {
+        <div class="container" style="max-width: 960px">
+            <img src="@Url.Action("Cover", "Blog", new { id = Model.Id })" alt="" class="blog-post-cover" />
+        </div>
+    }
+
+    <div class="container py-4" style="max-width: 760px">
+        <p class="lead blog-lead">@Model.Excerpt</p>
+        <div class="blog-content">
+            @MarkdownRenderer.ToHtml(Model.ContentMarkdown)
+        </div>
+
+        <aside class="blog-cta mt-5" data-reveal>
+            <div>
+                <div class="fw-semibold">Siz de bir mektup yazın 💌</div>
+                <div class="small text-muted">Klavyeden yazın, biz basıp zarflayalım ve kayıtlı posta ile gönderelim.</div>
+            </div>
+            <a class="btn btn-primary" asp-controller="Letters" asp-action="Write">Mektup Yaz</a>
+        </aside>
+    </div>
+</article>
+
+@if (related.Count > 0)
+{
+    <section class="features-band">
+        <div class="container py-5">
+            <h2 class="h4 section-title mb-4" data-reveal>Diğer yazılar</h2>
+            <div class="row g-4" data-reveal-group="90">
+                @foreach (var p in related)
+                {
+                    <div class="col-md-4" data-reveal><partial name="_PostCard" model="p" /></div>
+                }
+            </div>
+        </div>
+    </section>
+}

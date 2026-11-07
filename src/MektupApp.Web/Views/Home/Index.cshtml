@@ -15,20 +15,41 @@
 <section class="hero">
     <div class="container py-5">
         <div class="row align-items-center g-5">
-            <div class="col-lg-6">
-                <h1 class="display-5 fw-semibold">Mektubunu yaz,<br />gerisini bize bırak.</h1>
+            <div class="col-lg-6 order-2 order-lg-1 hero-intro">
+                <h1>Mektubunu yaz,<br /><em>gerisini bize bırak.</em></h1>
                 <p class="lead mt-3">
                     Sevdiklerine, askerdeki yakınına ya da cezaevindeki bir dostuna mektup göndermek için
                     kağıda, kaleme, postane kuyruğuna gerek yok.
                 </p>
-                <div class="d-flex gap-2 mt-4">
-                    <a class="btn btn-primary btn-lg" asp-controller="Letters" asp-action="Write">Mektup Yaz</a>
+                <div class="d-flex flex-wrap gap-2 mt-4">
+                    <a class="btn btn-primary btn-lg px-4" asp-controller="Letters" asp-action="Write">Mektup Yaz</a>
                     <a class="btn btn-outline-secondary btn-lg" asp-controller="Tracking" asp-action="Index">Gönderi Takibi</a>
                 </div>
-                <p class="text-muted small mt-3">Üyelik ücretsiz. Fiyatlar @(new MektupApp.Domain.Common.Money(Model.BasePrice))'den başlar.</p>
+                <p class="text-muted small mt-3 mb-0">Üyelik ücretsiz. Fiyatlar @(new MektupApp.Domain.Common.Money(Model.BasePrice))'den başlar.</p>
             </div>
+            <div class="col-lg-6 order-1 order-lg-2 text-center hero-art-wrap">
+                <img src="~/img/bimektup-logo.png" alt="BiMektup.net — kalpli zarf ve dolma kalem" class="img-fluid hero-art"
+                     width="640" height="525" data-parallax="0.12" />
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="container py-5">
+    <h2 class="h3 text-center mb-4 section-title" data-reveal>Nasıl çalışır?</h2>
+    <div class="row g-4 text-center steps" data-reveal-group="120">
+        <div class="col-md-3" data-reveal><div class="step-no">1</div><h3 class="h6">Üye ol</h3><p class="text-muted small">Birkaç saniyede ücretsiz hesap aç.</p></div>
+        <div class="col-md-3" data-reveal><div class="step-no">2</div><h3 class="h6">Yaz ve süsle</h3><p class="text-muted small">Mektubunu yaz, renkleri ve ekstraları seç.</p></div>
+        <div class="col-md-3" data-reveal><div class="step-no">3</div><h3 class="h6">Öde</h3><p class="text-muted small">Fiyat dökümünü gör, kart veya mobil ödeme ile tamamla.</p></div>
+        <div class="col-md-3" data-reveal><div class="step-no">4</div><h3 class="h6">Takip et</h3><p class="text-muted small">Basılıp postaya verilir, takip kodun SMS ile gelir.</p></div>
+    </div>
+</section>
+
+<section class="features-band">
+    <div class="container py-5">
+        <div class="row align-items-center g-5 mb-5">
             <div class="col-lg-6">
-                <div class="paper paper-Cream font-Handwriting ink-Navy hero-paper">
+                <div class="paper paper-Cream font-Handwriting ink-Navy hero-paper" data-reveal>
                     <div class="paper-content">Sevgili Anneciğim,
 
 Burada her şey yolunda, merak etme. 🌿
@@ -36,26 +57,20 @@ Seni çok özledim, mektubunu dört gözle bekliyorum. 💌</div>
                     <div class="paper-signature">— Oğlun</div>
                 </div>
             </div>
+            <div class="col-lg-6" data-reveal="right">
+                <h2 class="h3 section-title">Mektubunuz böyle görünür</h2>
+                <p class="mb-2">Klavyeden yazarsınız, alıcının eline kağıt kokan gerçek bir mektup ulaşır.</p>
+                <ul class="text-muted mb-0">
+                    <li>El yazısı, klasik ya da modern yazı stili</li>
+                    <li>Krem, pembe, mavi kağıt; kraft veya renkli zarf</li>
+                    <li>Fotoğraf, kartpostal ve çiçek kokusu ekleme</li>
+                </ul>
+            </div>
         </div>
-    </div>
-</section>
-
-<section class="container py-5">
-    <h2 class="h3 text-center mb-4">Nasıl çalışır?</h2>
-    <div class="row g-4 text-center steps">
-        <div class="col-md-3"><div class="step-no">1</div><h3 class="h6">Üye ol</h3><p class="text-muted small">Birkaç saniyede ücretsiz hesap aç.</p></div>
-        <div class="col-md-3"><div class="step-no">2</div><h3 class="h6">Yaz ve süsle</h3><p class="text-muted small">Mektubunu yaz, renkleri ve ekstraları seç.</p></div>
-        <div class="col-md-3"><div class="step-no">3</div><h3 class="h6">Öde</h3><p class="text-muted small">Fiyat dökümünü gör, kart veya mobil ödeme ile tamamla.</p></div>
-        <div class="col-md-3"><div class="step-no">4</div><h3 class="h6">Takip et</h3><p class="text-muted small">Basılıp postaya verilir, takip kodun SMS ile gelir.</p></div>
-    </div>
-</section>
-
-<section class="bg-light-subtle border-top border-bottom">
-    <div class="container py-5">
-        <div class="row g-4">
+        <div class="row g-4" data-reveal-group="90">
             @foreach (var f in features)
             {
-                <div class="col-md-6 col-lg-4">
+                <div class="col-md-6 col-lg-4" data-reveal>
                     <div class="feature h-100">
                         <div class="feature-icon">@f.Icon</div>
                         <h3 class="h6 mt-2">@f.Title</h3>
@@ -66,3 +81,22 @@ Seni çok özledim, mektubunu dört gözle bekliyorum. 💌</div>
         </div>
     </div>
 </section>
+
+@{
+    var latestPosts = ViewBag.LatestPosts as IReadOnlyList<MektupApp.Application.Blog.BlogPostSummaryDto> ?? [];
+}
+@if (latestPosts.Count > 0)
+{
+    <section class="container py-5">
+        <div class="d-flex justify-content-between align-items-end mb-4" data-reveal>
+            <h2 class="h3 section-title mb-0">Blogdan son yazılar</h2>
+            <a asp-controller="Blog" asp-action="Index" class="small">Tüm yazılar →</a>
+        </div>
+        <div class="row g-4" data-reveal-group="90">
+            @foreach (var p in latestPosts)
+            {
+                <div class="col-md-4" data-reveal><partial name="~/Views/Blog/_PostCard.cshtml" model="p" /></div>
+            }
+        </div>
+    </section>
+}

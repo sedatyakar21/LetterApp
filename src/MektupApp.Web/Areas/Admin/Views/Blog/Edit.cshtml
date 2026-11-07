@@ -1,0 +1,152 @@
+@model MektupApp.Web.Areas.Admin.Controllers.BlogPostForm
+@using MektupApp.Domain.Blog
+@{
+    var isNew = Model.Id is null;
+    ViewData["Title"] = isNew ? "Yeni Yazı" : "Yazıyı Düzenle";
+    var published = Model.Status == BlogPostStatus.Published;
+}
+
+<a asp-action="Index" class="small">← Blog yazıları</a>
+<div class="d-flex flex-wrap align-items-center gap-2 mt-1 mb-3">
+    <h1 class="h4 mb-0">@ViewData["Title"]</h1>
+    @if (!isNew)
+    {
+        <span class="badge @(published ? "bg-success" : "bg-secondary")">@Model.Status.DisplayName()</span>
+    }
+</div>
+
+<div class="row g-3">
+    <div class="col-xl-8">
+        <form asp-action="@(isNew ? "Create" : "Edit")" asp-route-id="@Model.Id" method="post" class="admin-card p-3" id="postForm">
+            <div asp-validation-summary="All" class="text-danger small"></div>
+
+            <div class="mb-3">
+                <label asp-for="Title" class="form-label"></label>
+                <input asp-for="Title" class="form-control form-control-lg" placeholder="ör. Askere mektup nasıl gönderilir?" />
+            </div>
+            <div class="mb-3">
+                <label asp-for="Slug" class="form-label"></label>
+                <div class="input-group">
+                    <span class="input-group-text small">/blog/</span>
+                    <input asp-for="Slug" class="form-control font-monospace" placeholder="boş bırakılırsa başlıktan üretilir" />
+                </div>
+                @if (published)
+                {
+                    <div class="form-text text-warning">Yayındaki yazının adresini değiştirirseniz eski bağlantılar çalışmaz.</div>
+                }
+            </div>
+            <div class="mb-3">
+                <label asp-for="Excerpt" class="form-label"></label>
+                <textarea asp-for="Excerpt" class="form-control" rows="2" maxlength="@BlogPost.ExcerptMax"></textarea>
+                <div class="form-text">Liste kartında ve Google arama sonuçlarında görünür (en fazla @BlogPost.ExcerptMax karakter).</div>
+            </div>
+
+            <div class="mb-2 d-flex justify-content-between align-items-end">
+                <label asp-for="ContentMarkdown" class="form-label mb-0"></label>
+                <ul class="nav nav-pills nav-sm small" role="tablist">
+                    <li class="nav-item"><button type="button" class="nav-link py-1 active" data-tab="write">Yaz</button></li>
+                    <li class="nav-item"><button type="button" class="nav-link py-1" data-tab="preview">Önizleme</button></li>
+                </ul>
+            </div>
+            <textarea asp-for="ContentMarkdown" class="form-control font-monospace" rows="18" id="contentInput"
+                      placeholder="## Ara başlık&#10;&#10;Paragraf metni. **kalın**, *italik*, [bağlantı](https://...)&#10;&#10;- madde&#10;- madde&#10;&#10;> alıntı"></textarea>
+            <div class="blog-content admin-card p-3 bg-white" id="contentPreview" hidden style="min-height: 300px"></div>
+            <details class="small text-muted mt-2">
+                <summary>Markdown yardımı</summary>
+                <code>## Başlık</code> · <code>**kalın**</code> · <code>*italik*</code> · <code>[metin](https://adres)</code> ·
+                <code>- madde</code> · <code>1. sıralı</code> · <code>&gt; alıntı</code> · <code>![açıklama](https://görsel-adresi)</code>.
+                Güvenlik için HTML etiketleri kabul edilmez.
+            </details>
+
+            <div class="mb-3 mt-3" style="max-width: 320px">
+                <label asp-for="AuthorName" class="form-label"></label>
+                <input asp-for="AuthorName" class="form-control" />
+            </div>
+
+            <div class="d-flex flex-wrap gap-2">
+                <button type="submit" class="btn btn-outline-secondary">@(published ? "Kaydet" : "Taslak Olarak Kaydet")</button>
+                @if (!published)
+                {
+                    <button type="submit" name="publish" value="true" class="btn btn-primary">Kaydet ve Yayınla</button>
+                }
+            </div>
+        </form>
+    </div>
+
+    @if (!isNew)
+    {
+        <div class="col-xl-4">
+            <div class="admin-card p-3 mb-3">
+                <div class="fw-semibold mb-2">Yayın</div>
+                <div class="small text-muted mb-2">
+                    @(published ? $"Yayında · {Model.PublishedAt?.ToLocalTime():dd.MM.yyyy HH:mm}" : "Taslak — ziyaretçiler göremez.")
+                </div>
+                <div class="d-flex flex-wrap gap-2">
+                    <a class="btn btn-sm btn-outline-secondary" target="_blank"
+                       href="@Url.Action("Post", "Blog", new { area = "", slug = Model.Slug, onizleme = published ? (bool?)null : true })">
+                        @(published ? "Yazıyı görüntüle ↗" : "Önizle ↗")
+                    </a>
+                    @if (published)
+                    {
+                        <form asp-action="Unpublish" asp-route-id="@Model.Id" method="post">
+                            <button class="btn btn-sm btn-outline-warning">Yayından Kaldır</button>
+                        </form>
+                    }
+                    else
+                    {
+                        <form asp-action="Publish" asp-route-id="@Model.Id" method="post">
+                            <button class="btn btn-sm btn-success">Yayınla</button>
+                        </form>
+                    }
+                </div>
+            </div>
+
+            <div class="admin-card p-3 mb-3">
+                <div class="fw-semibold mb-2">Kapak görseli</div>
+                @if (Model.HasCover)
+                {
+                    <img src="@Url.Action("Cover", "Blog", new { area = "", id = Model.Id })" alt="Kapak" class="img-fluid rounded mb-2" />
+                    <form asp-action="RemoveCover" asp-route-id="@Model.Id" method="post" class="mb-2">
+                        <button class="btn btn-sm btn-link text-danger p-0">Kapağı kaldır</button>
+                    </form>
+                }
+                <form asp-action="Cover" asp-route-id="@Model.Id" method="post" enctype="multipart/form-data" class="d-flex gap-2">
+                    <input type="file" name="cover" accept=".jpg,.jpeg,.png,.webp" class="form-control form-control-sm" required />
+                    <button class="btn btn-sm btn-outline-primary">Yükle</button>
+                </form>
+                <div class="form-text">JPG, PNG, WEBP · en fazla 4 MB · önerilen 1600×900</div>
+            </div>
+
+            <div class="admin-card p-3 border-danger-subtle">
+                <form asp-action="Delete" asp-route-id="@Model.Id" method="post"
+                      onsubmit="return confirm('Bu yazı kalıcı olarak silinecek. Emin misiniz?')">
+                    <button class="btn btn-sm btn-outline-danger">Yazıyı Sil</button>
+                </form>
+            </div>
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <script>
+        // Yaz / Önizleme sekmeleri: önizleme sunucudaki aynı güvenli Markdown dönüştürücüsüyle üretilir.
+        (function () {
+            const input = document.getElementById("contentInput");
+            const preview = document.getElementById("contentPreview");
+            const token = document.querySelector("#postForm input[name=__RequestVerificationToken]").value;
+            document.querySelectorAll("[data-tab]").forEach(btn => btn.addEventListener("click", async () => {
+                document.querySelectorAll("[data-tab]").forEach(b => b.classList.toggle("active", b === btn));
+                const showPreview = btn.dataset.tab === "preview";
+                input.hidden = showPreview;
+                preview.hidden = !showPreview;
+                if (!showPreview) return;
+                preview.innerHTML = "<p class='text-muted'>Önizleme hazırlanıyor…</p>";
+                const body = new FormData();
+                body.append("markdown", input.value);
+                body.append("__RequestVerificationToken", token);
+                const res = await fetch("@Url.Action("Preview")", { method: "POST", body });
+                preview.innerHTML = res.ok ? await res.text() : "<p class='text-danger'>Önizleme alınamadı.</p>";
+            }));
+        })();
+    </script>
+}

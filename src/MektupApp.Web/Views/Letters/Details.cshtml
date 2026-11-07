@@ -1,6 +1,10 @@
 @model LetterDetailsDto
 @{
     ViewData["Title"] = $"Mektup — {Model.RecipientName}";
+    // WhatsApp yardım mesajına eklenir: destek ekibi siparişi hemen bulsun.
+    ViewData["SupportOrderRef"] = Model.TrackingCode is { } code
+        ? $"{code} ({Model.RecipientName})"
+        : $"#{Model.Id.ToString()[..8]} ({Model.RecipientName})";
 }
 <div class="container py-4">
     <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">

@@ -1,0 +1,25 @@
+@model MektupApp.Application.Blog.BlogPostSummaryDto
+@{
+    var tr = System.Globalization.CultureInfo.GetCultureInfo("tr-TR");
+}
+<article class="blog-card h-100">
+    <a asp-controller="Blog" asp-action="Post" asp-route-slug="@Model.Slug" class="blog-card-link">
+        <div class="blog-card-cover">
+            @if (Model.HasCover)
+            {
+                <img src="@Url.Action("Cover", "Blog", new { id = Model.Id })" alt="" loading="lazy" />
+            }
+            else
+            {
+                <img src="~/img/bimektup-mark.svg" alt="" class="blog-card-placeholder" />
+            }
+        </div>
+        <div class="blog-card-body">
+            <div class="blog-meta">
+                @Model.PublishedAt?.ToLocalTime().ToString("d MMMM yyyy", tr) · @Model.ReadingMinutes dk okuma
+            </div>
+            <h3 class="h5 blog-card-title">@Model.Title</h3>
+            <p class="text-muted small mb-0">@Model.Excerpt</p>
+        </div>
+    </a>
+</article>

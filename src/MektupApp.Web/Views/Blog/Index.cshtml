@@ -1,0 +1,48 @@
+@model MektupApp.Application.Admin.PagedResult<MektupApp.Application.Blog.BlogPostSummaryDto>
+@{
+    ViewData["Title"] = "Blog";
+    ViewData["Description"] = "Mektup yazma ipuçları, askere ve cezaevine mektup gönderme rehberleri ve BiMektup'tan haberler.";
+}
+
+<section class="blog-hero">
+    <div class="container py-5 text-center">
+        <h1 data-reveal>BiMektup <em>Blog</em></h1>
+        <p class="lead text-muted mb-0" data-reveal>Mektup yazma ipuçları, rehberler ve kağıda dökülen güzel sözler.</p>
+    </div>
+</section>
+
+<div class="container py-5">
+    @if (Model.Items.Count == 0)
+    {
+        <div class="text-center text-muted py-5">
+            <div class="display-6">✍️</div>
+            <p class="mt-2">Yakında burada yazılar olacak.</p>
+        </div>
+    }
+    else
+    {
+        <div class="row g-4" data-reveal-group="90">
+            @foreach (var p in Model.Items)
+            {
+                <div class="col-md-6 col-lg-4" data-reveal>
+                    <partial name="_PostCard" model="p" />
+                </div>
+            }
+        </div>
+
+        @if (Model.TotalPages > 1)
+        {
+            <nav class="d-flex justify-content-center gap-2 mt-5" aria-label="Sayfalar">
+                @if (Model.HasPrevious)
+                {
+                    <a class="btn btn-outline-secondary" asp-action="Index" asp-route-sayfa="@(Model.Page - 1)">‹ Daha yeni yazılar</a>
+                }
+                <span class="align-self-center text-muted small">Sayfa @Model.Page / @Model.TotalPages</span>
+                @if (Model.HasNext)
+                {
+                    <a class="btn btn-outline-secondary" asp-action="Index" asp-route-sayfa="@(Model.Page + 1)">Daha eski yazılar ›</a>
+                }
+            </nav>
+        }
+    }
+</div>

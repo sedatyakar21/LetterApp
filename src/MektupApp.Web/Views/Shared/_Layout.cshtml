@@ -3,46 +3,77 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] | MektupApp</title>
+    <title>@ViewData["Title"] | BiMektup</title>
+    @{
+        var metaDescription = ViewData["Description"] as string
+            ?? "BiMektup ile online mektup yazın; biz basıp zarflayalım ve kayıtlı posta ile gönderelim.";
+    }
+    <meta name="description" content="@metaDescription" />
+    <meta property="og:site_name" content="BiMektup" />
+    <meta property="og:title" content="@ViewData["Title"]" />
+    <meta property="og:description" content="@metaDescription" />
+    <meta property="og:type" content="@(ViewData["OgType"] as string ?? "website")" />
+    @if (ViewData["OgImage"] is string ogImage) { <meta property="og:image" content="@ogImage" /> }
+    <meta name="theme-color" content="#26304E" />
+    <link rel="icon" href="~/favicon.svg" type="image/svg+xml" />
+    <link rel="alternate icon" href="~/favicon.ico" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Caveat:wght@500&family=Lora:ital@0;1&display=swap">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Caveat:wght@500&family=Lora:ital,wght@0,400;0,600;0,700;1,400;1,600;1,700&display=swap">
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
 </head>
 <body>
-    <header>
-        <nav class="navbar navbar-expand-md navbar-light bg-white border-bottom">
+    <header class="site-header">
+        <nav class="navbar navbar-expand-lg py-2">
             <div class="container">
-                <a class="navbar-brand brand" asp-controller="Home" asp-action="Index">✉️ MektupApp</a>
+                <a class="navbar-brand brand" asp-area="" asp-controller="Home" asp-action="Index" aria-label="BiMektup ana sayfa">
+                    <img src="~/img/bimektup-mark.svg" class="brand-mark" alt="" />
+                    <span class="brand-word"><span class="bi">Bi</span>Mektup<span class="tld">.net</span></span>
+                </a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav"
                         aria-controls="mainNav" aria-expanded="false" aria-label="Menüyü aç">
                     <span class="navbar-toggler-icon"></span>
                 </button>
                 <div id="mainNav" class="collapse navbar-collapse">
-                    <ul class="navbar-nav me-auto">
-                        <li class="nav-item"><a class="nav-link" asp-controller="Letters" asp-action="Write">Mektup Yaz</a></li>
-                        <li class="nav-item"><a class="nav-link" asp-controller="Tracking" asp-action="Index">Gönderi Takibi</a></li>
-                        <li class="nav-item"><a class="nav-link" asp-controller="Home" asp-action="Faq">S.S.S.</a></li>
+                    <ul class="navbar-nav me-auto ms-lg-3">
+                        @if (User.Identity?.IsAuthenticated != true)
+                        {
+                            <li class="nav-item"><a class="nav-link" asp-area="" asp-controller="Letters" asp-action="Write">Mektup Yaz</a></li>
+                        }
+                        <li class="nav-item"><a class="nav-link" asp-area="" asp-controller="Tracking" asp-action="Index">Gönderi Takibi</a></li>
+                        <li class="nav-item"><a class="nav-link" asp-area="" asp-controller="Blog" asp-action="Index">Blog</a></li>
+                        <li class="nav-item"><a class="nav-link" asp-area="" asp-controller="Home" asp-action="Faq">S.S.S.</a></li>
                     </ul>
-                    <ul class="navbar-nav">
+                    <ul class="navbar-nav align-items-lg-center">
                         @if (User.Identity?.IsAuthenticated == true)
                         {
-                            @if (User.IsInRole("Admin"))
-                            {
-                                <li class="nav-item"><a class="nav-link" asp-area="Admin" asp-controller="Dashboard" asp-action="Index">Yönetim</a></li>
-                            }
-                            <li class="nav-item"><a class="nav-link" asp-controller="Letters" asp-action="Index">Mektuplarım</a></li>
-                            <li class="nav-item"><a class="nav-link" asp-area="" asp-controller="Points" asp-action="Index">🎁 Puanlarım</a></li>
-                            <li class="nav-item">
-                                <form asp-controller="Account" asp-action="Logout" method="post" class="d-inline">
-                                    <button type="submit" class="btn btn-link nav-link">Çıkış (@User.Identity.Name)</button>
-                                </form>
+                            <li class="nav-item"><a class="nav-link" asp-area="" asp-controller="Letters" asp-action="Index">Mektuplarım</a></li>
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    @User.Identity.Name
+                                </a>
+                                <ul class="dropdown-menu dropdown-menu-end">
+                                    <li><a class="dropdown-item" asp-area="" asp-controller="Points" asp-action="Index">🎁 Puanlarım</a></li>
+                                    <li><a class="dropdown-item" asp-area="" asp-controller="Letters" asp-action="Index">✉️ Mektuplarım</a></li>
+                                    @if (User.IsInRole("Admin"))
+                                    {
+                                        <li><a class="dropdown-item" asp-area="Admin" asp-controller="Dashboard" asp-action="Index">⚙️ Yönetim Paneli</a></li>
+                                    }
+                                    <li><hr class="dropdown-divider" /></li>
+                                    <li>
+                                        <form asp-area="" asp-controller="Account" asp-action="Logout" method="post">
+                                            <button type="submit" class="dropdown-item">Çıkış Yap</button>
+                                        </form>
+                                    </li>
+                                </ul>
                             </li>
+                            <li class="nav-item ms-lg-2"><a class="btn btn-primary btn-sm px-3" asp-area="" asp-controller="Letters" asp-action="Write">Mektup Yaz</a></li>
                         }
                         else
                         {
-                            <li class="nav-item"><a class="nav-link" asp-controller="Account" asp-action="Login">Giriş Yap</a></li>
-                            <li class="nav-item"><a class="btn btn-primary ms-md-2" asp-controller="Account" asp-action="Register">Kayıt Ol</a></li>
+                            <li class="nav-item"><a class="nav-link" asp-area="" asp-controller="Account" asp-action="Login">Giriş Yap</a></li>
+                            <li class="nav-item ms-lg-2"><a class="btn btn-primary btn-sm px-3" asp-area="" asp-controller="Account" asp-action="Register">Kayıt Ol</a></li>
                         }
                     </ul>
                 </div>
@@ -58,14 +89,28 @@
     </main>
 
     <footer class="site-footer">
-        <div class="container d-flex flex-wrap justify-content-between gap-3">
-            <span>&copy; @DateTime.Now.Year MektupApp — Online mektup gönderme</span>
-            <span>
-                <a asp-controller="Home" asp-action="Faq">Sıkça Sorulan Sorular</a> ·
-                <a asp-controller="Home" asp-action="Terms">Üyelik Sözleşmesi</a>
-            </span>
+        <div class="container">
+            <div class="d-flex flex-wrap justify-content-between align-items-start gap-4">
+                <div>
+                    <div class="footer-brand"><span class="bi">Bi</span>Mektup<span class="small fw-normal opacity-75">.net</span></div>
+                    <div class="mt-1">Sevdiklerinize kağıt kokan bir mektup. Siz yazın, biz basıp postalayalım.</div>
+                </div>
+                <nav class="d-flex flex-wrap gap-3" aria-label="Alt menü">
+                    <a asp-area="" asp-controller="Letters" asp-action="Write">Mektup Yaz</a>
+                    <a asp-area="" asp-controller="Tracking" asp-action="Index">Gönderi Takibi</a>
+                    <a asp-area="" asp-controller="Blog" asp-action="Index">Blog</a>
+                    <a asp-area="" asp-controller="Home" asp-action="Faq">Sıkça Sorulan Sorular</a>
+                    <a asp-area="" asp-controller="Home" asp-action="Terms">Üyelik Sözleşmesi</a>
+                </nav>
+            </div>
+            <div class="mt-4 pt-3 border-top border-light border-opacity-25 small opacity-75">
+                &copy; @DateTime.Now.Year BiMektup — Online mektup gönderme
+            </div>
         </div>
     </footer>
+
+    <partial name="_WhatsAppHelp" />
+    <button type="button" id="toTop" class="to-top" aria-label="Sayfanın başına dön" title="Başa dön">↑</button>
 
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>

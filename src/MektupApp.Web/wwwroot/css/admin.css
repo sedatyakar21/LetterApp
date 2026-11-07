@@ -1,24 +1,33 @@
 /* ---------- Yönetim paneli ---------- */
 :root {
-    --admin-sidebar: #23202a;
+    /* BiMektup paleti (site.css'teki --navy / --burgundy ile aynı aile) */
+    --admin-sidebar: #1B2238;
     --admin-surface: #ffffff;
-    --admin-bg: #f5f4f7;
-    --admin-border: #e7e5ec;
-    --admin-muted: #6b6775;
-    --chart-bar: #b5485d;
-    --chart-bar-hover: #8f3446;
-    --chart-grid: #ece9f0;
+    --admin-bg: #F4F3EE;
+    --admin-border: #E3DFD2;
+    --admin-muted: #686D7A;
+    --chart-bar: #8E2235;
+    --chart-bar-hover: #6F1A29;
+    --chart-grid: #ECE9E0;
 }
 
 body.admin { background: var(--admin-bg); }
 
 .admin-shell { display: flex; min-height: 100vh; }
 .admin-sidebar {
-    width: 230px; flex-shrink: 0; background: var(--admin-sidebar); color: #fff;
+    width: 236px; flex-shrink: 0; color: #fff;
+    background: linear-gradient(180deg, #26304E 0%, var(--admin-sidebar) 100%);
+    border-right: 3px solid transparent; border-image: linear-gradient(180deg, #26304E, #8E2235) 1;
     padding: 1.25rem 1rem; position: sticky; top: 0; height: 100vh; overflow-y: auto;
 }
-.admin-brand { color: #fff !important; font-weight: 600; text-decoration: none; }
-.admin-brand small { opacity: .6; font-weight: 400; }
+.admin-brand { display: inline-flex; align-items: center; gap: .55rem; color: #fff !important; text-decoration: none;
+               font-family: "Lora", Georgia, serif; font-weight: 700; font-size: 1.15rem; }
+.admin-brand img { border-radius: 8px; }
+.admin-brand .bi { color: #f0a7b3; font-style: italic; }
+.admin-brand .admin-word { position: relative; padding-bottom: .5em; line-height: 1; }
+.admin-brand .tld { position: absolute; right: -.15em; bottom: 0; font-size: .55em; font-style: italic; font-weight: 600; opacity: .85; line-height: 1; }
+.admin-brand small { opacity: .6; font-weight: 400; font-family: system-ui, sans-serif; font-size: .75rem; margin-left: .15rem; }
+.admin-main h1 { font-family: "Lora", Georgia, serif; }
 .admin-link {
     display: block; color: rgba(255,255,255,.75) !important; text-decoration: none;
     padding: .5rem .75rem; border-radius: .4rem; margin-bottom: .15rem; font-size: .95rem;
@@ -64,7 +73,7 @@ a.stat-tile:hover { border-color: var(--brand); }
 
 .status-tabs .nav-link { color: var(--admin-muted); }
 .status-tabs .nav-link.active { color: var(--brand); border-bottom: 2px solid var(--brand); font-weight: 600; }
-.status-tabs .count { font-size: .75rem; background: #eee; border-radius: 1rem; padding: 0 .45rem; margin-left: .25rem; color: #555; }
+.status-tabs .count { font-size: .75rem; background: var(--chart-grid); border-radius: 1rem; padding: 0 .45rem; margin-left: .25rem; color: #555; }
 
 .table-admin { background: var(--admin-surface); margin-bottom: 0; }
 .table-admin th { font-size: .78rem; text-transform: uppercase; color: var(--admin-muted); font-weight: 600; white-space: nowrap; }

@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 72 52" role="img" aria-label="BiMektup">
+  <defs>
+    <linearGradient id="bm-g" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#26304E"/>
+      <stop offset="1" stop-color="#8E2235"/>
+    </linearGradient>
+  </defs>
+  <g fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <!-- zarf -->
+    <rect x="3" y="6" width="52" height="38" rx="5" stroke="url(#bm-g)" stroke-width="3"/>
+    <path d="M5 9 L24 28 M53 9 L36 26 M5 42 L20 29 M53 42 L40 31" stroke="url(#bm-g)" stroke-width="2.6"/>
+    <!-- kalp ve kıvrımlı kuyruk -->
+    <path d="M29 32 C18 25 18 13.5 24 13.5 C27 13.5 29 16 29 19 C29 16 31 13.5 34 13.5 C40 13.5 40 25 31 32 C27 35.5 26 41 31 45 C34 47.5 37 47 39 46"
+          stroke="#A8263A" stroke-width="2.6"/>
+    <!-- dolma kalem -->
+    <path d="M68 9 L51 37" stroke="#26304E" stroke-width="5.5"/>
+    <path d="M68 9 L51 37" stroke="#F7F6F0" stroke-width="2"/>
+    <path d="M51 37 L46.5 45.5 L53.5 40.5 Z" fill="#26304E" stroke="#26304E" stroke-width="1.6"/>
+  </g>
+</svg>

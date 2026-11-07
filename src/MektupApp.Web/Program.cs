@@ -26,6 +26,7 @@ builder.Services
         o.Events.OnValidatePrincipal = SessionValidator.ValidateAsync;
     });
 builder.Services.AddAuthorization();
+builder.Services.Configure<SupportOptions>(builder.Configuration.GetSection(SupportOptions.Section));
 
 // PayTR ödemede müşterinin gerçek IP'sini (user_ip) ister. Uygulama Nginx / yük dengeleyici arkasındaysa
 // X-Forwarded-For okunur; proxy adresini ForwardedHeadersOptions.KnownProxies'e ekleyin.

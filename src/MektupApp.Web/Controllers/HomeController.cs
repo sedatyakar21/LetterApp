@@ -5,9 +5,13 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace MektupApp.Web.Controllers;
 
-public class HomeController(PricingService pricing) : Controller
+public class HomeController(PricingService pricing, MektupApp.Application.Blog.BlogService blog) : Controller
 {
-    public async Task<IActionResult> Index(CancellationToken ct) => View(await pricing.GetCurrentAsync(ct));
+    public async Task<IActionResult> Index(CancellationToken ct)
+    {
+        ViewBag.LatestPosts = await blog.LatestAsync(3, ct);
+        return View(await pricing.GetCurrentAsync(ct));
+    }
 
     [HttpGet("sss")]
     public async Task<IActionResult> Faq(CancellationToken ct) => View(await pricing.GetCurrentAsync(ct));

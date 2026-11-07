@@ -1,4 +1,12 @@
-# MektupApp
+# BiMektup (BiMektup.net)
+
+Kod tabanı ve projeler `MektupApp.*` adını korur; kullanıcıya görünen marka **BiMektup**'tur.
+
+**Tasarım:** Renkler logodan alınmıştır: lacivert `#26304E`, bordo `#8E2235`, kalp kırmızısı `#A8263A`, krem kağıt `#F7F6F0`. Başlık ve marka yazısında Lora serif kullanılır. Değişkenler `wwwroot/css/site.css` dosyasının başında tanımlıdır. Logo dosyaları `wwwroot/img/` klasöründedir: arka planı kaldırılmış `bimektup-logo.png` ve küçük işaret `bimektup-mark.svg`; favicon `wwwroot/favicon.svg`'dir.
+
+**Blog:** `/blog` (liste) ve `/blog/{adres}` (yazı). Yazılar admin → 📝 Blog'dan eklenir: Markdown içerik, canlı önizleme, kapak görseli, taslak / yayın. Yazı adresi başlıktan Türkçe karakterler sadeleştirilerek üretilir, çakışırsa sonuna `-2` eklenir. Taslaklar ziyaretçiye 404 döner; yönetici `?onizleme=1` ile görebilir. Güvenlik için Markdown içinde ham HTML kapalıdır, bağlantılarda sadece http(s), mailto ve site içi adreslere izin verilir (`MarkdownRenderer`, testleri `tests/MektupApp.Web.Tests`). Ana sayfada son 3 yazı gösterilir.
+
+**WhatsApp yardım menüsü:** Sitenin sağ altındaki "Yardım" butonu hazır konularla (sipariş takibi, ödeme, adres değişikliği, puan…) WhatsApp'ı önceden yazılmış mesajla açar. Mektup detay sayfasında mesaja takip kodu, giriş yapılmışsa ad soyad eklenir. Numara `appsettings.json` → `Support:WhatsAppNumber` (ülke koduyla, ör. `905321234567`); boşsa buton gösterilmez. Geliştirme ayarındaki numara yer tutucudur.
 
 Online mektup gönderme uygulaması: kullanıcı mektubunu yazar, kağıt/zarf rengi, yazı stili, koku, kartpostal ve fotoğraf seçer, öder. Mektup basılıp postaya verilir, takip kodu SMS ile gelir.
 

@@ -1,11 +1,11 @@
-@model PriceList
+﻿@model PriceList
 @using MektupApp.Domain.Common
 @{
     ViewData["Title"] = "Sıkça Sorulan Sorular";
     Money M(decimal v) => new(v);
     var faqs = new (string Q, string A)[]
     {
-        ("MektupApp nedir?", "Online olarak yazdığınız mektubu basıp zarflayan ve kayıtlı posta ile alıcıya ulaştıran bir hizmettir."),
+        ("BiMektup nedir?", "Online olarak yazdığınız mektubu basıp zarflayan ve kayıtlı posta ile alıcıya ulaştıran bir hizmettir."),
         ("Üyelik ücretli mi?", "Hayır. Üyelik ve abonelik ücreti yoktur; sadece gönderdiğiniz mektup için ödeme yaparsınız."),
         ("Askere veya cezaevine mektup gönderebilir miyim?", "Evet. Alıcı türünü seçtiğinizde birlik ya da kurum/koğuş bilgisini girmeniz istenir; bu bilgi zarfa basılır."),
         ("Mektubumu yarım bırakabilir miyim?", "Evet. Taslak olarak kaydedip daha sonra kaldığınız yerden devam edebilirsiniz."),
@@ -18,10 +18,10 @@
 <div class="container py-4" style="max-width: 860px">
     <h1 class="h3 mb-4">Sıkça Sorulan Sorular</h1>
 
-    <div class="accordion mb-5" id="faq">
+    <div class="accordion mb-5" id="faq" data-reveal-group="70">
         @for (var i = 0; i < faqs.Length; i++)
         {
-            <div class="accordion-item">
+            <div class="accordion-item" data-reveal>
                 <h2 class="accordion-header">
                     <button class="accordion-button @(i > 0 ? "collapsed" : "")" type="button" data-bs-toggle="collapse" data-bs-target="#faq@(i)">
                         @faqs[i].Q
@@ -34,9 +34,9 @@
         }
     </div>
 
-    <h2 class="h4">Fiyatlandırma</h2>
+    <h2 class="h4" data-reveal>Fiyatlandırma</h2>
     <p class="text-muted">Fiyat, seçtiğiniz özelliklere göre otomatik hesaplanır ve ödeme öncesinde size satır satır gösterilir.</p>
-    <table class="table">
+    <table class="table" data-reveal>
         <tbody>
             <tr><td>Mektup (1 sayfa, zarf ve kayıtlı posta dahil)</td><td class="text-end">@M(Model.BasePrice)</td></tr>
             <tr><td>Her ek sayfa</td><td class="text-end">@M(Model.ExtraPage)</td></tr>
