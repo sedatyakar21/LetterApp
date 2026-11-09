@@ -1,0 +1,80 @@
+@model MektupApp.Application.Admin.PagedResult<MektupApp.Application.Reviews.ReviewDto>
+@{
+    var summary = (MektupApp.Domain.Reviews.RatingSummary)ViewBag.Summary;
+    ViewData["Title"] = "Müşteri Yorumları";
+    ViewData["Description"] = summary.Count > 0
+        ? $"BiMektup müşteri yorumları: {summary.Count} değerlendirme, ortalama {summary.Average:0.0} / 5."
+        : "BiMektup ile mektup gönderen müşterilerimizin yorumları.";
+}
+
+<section class="blog-hero">
+    <div class="container py-5 text-center">
+        <h1 data-reveal>Müşteri <em>Yorumları</em></h1>
+        <p class="lead text-muted mb-0" data-reveal>Mektubu yerine ulaşan müşterilerimiz anlatıyor.</p>
+    </div>
+</section>
+
+<div class="container py-5">
+    @if (summary.Count > 0)
+    {
+        <div class="review-summary mb-5" data-reveal>
+            <div class="text-center">
+                <div class="review-average">@summary.Average.ToString("0.0")</div>
+                <partial name="_Stars" model="summary.Average" />
+                <div class="small text-muted mt-1">@summary.Count değerlendirme</div>
+            </div>
+            <div class="review-bars">
+                @for (var star = 5; star >= 1; star--)
+                {
+                    var n = summary.Distribution[star];
+                    var pct = summary.Count == 0 ? 0 : n * 100 / summary.Count;
+                    <div class="review-bar-row">
+                        <span class="small">@star ★</span>
+                        <div class="review-bar"><span style="width: @pct%"></span></div>
+                        <span class="small text-muted">@n</span>
+                    </div>
+                }
+            </div>
+        </div>
+    }
+
+    @if (Model.Items.Count == 0)
+    {
+        <div class="text-center text-muted py-5">
+            <div class="display-6">💬</div>
+            <p class="mt-2">Henüz yayınlanmış yorum yok. İlk yorumu siz yazın!</p>
+        </div>
+    }
+    else
+    {
+        <div class="row g-4" data-reveal-group="80">
+            @foreach (var r in Model.Items)
+            {
+                <div class="col-md-6 col-lg-4" data-reveal><partial name="_ReviewCard" model="r" /></div>
+            }
+        </div>
+
+        @if (Model.TotalPages > 1)
+        {
+            <nav class="d-flex justify-content-center gap-2 mt-5" aria-label="Sayfalar">
+                @if (Model.HasPrevious)
+                {
+                    <a class="btn btn-outline-secondary" asp-action="Index" asp-route-sayfa="@(Model.Page - 1)">‹ Daha yeni</a>
+                }
+                <span class="align-self-center text-muted small">Sayfa @Model.Page / @Model.TotalPages</span>
+                @if (Model.HasNext)
+                {
+                    <a class="btn btn-outline-secondary" asp-action="Index" asp-route-sayfa="@(Model.Page + 1)">Daha eski ›</a>
+                }
+            </nav>
+        }
+    }
+
+    <aside class="blog-cta mt-5" data-reveal>
+        <div>
+            <div class="fw-semibold">Siz de yorum yazın ✍️</div>
+            <div class="small text-muted">Mektubunuz teslim edildikten sonra, <strong>Mektuplarım</strong> sayfasında mektubun detayından değerlendirebilirsiniz.</div>
+        </div>
+        <a class="btn btn-primary" asp-controller="Letters" asp-action="Index">Mektuplarım</a>
+    </aside>
+</div>

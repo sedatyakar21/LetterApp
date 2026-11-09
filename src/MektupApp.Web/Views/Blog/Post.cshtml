@@ -7,6 +7,8 @@
     if (Model.HasCover) { ViewData["OgImage"] = Url.Action("Cover", "Blog", new { id = Model.Id }, Context.Request.Scheme); }
     var tr = System.Globalization.CultureInfo.GetCultureInfo("tr-TR");
     var related = ViewBag.Related as IReadOnlyList<MektupApp.Application.Blog.BlogPostSummaryDto> ?? [];
+    var comments = ViewBag.Comments as IReadOnlyList<MektupApp.Application.Reviews.BlogCommentDto> ?? [];
+    var myPending = ViewBag.MyPending as IReadOnlyList<MektupApp.Application.Reviews.BlogCommentDto> ?? [];
 }
 
 @if (Model.Status != BlogPostStatus.Published)
@@ -48,6 +50,50 @@
             </div>
             <a class="btn btn-primary" asp-controller="Letters" asp-action="Write">Mektup Yaz</a>
         </aside>
+
+        @if (Model.Status == BlogPostStatus.Published)
+        {
+            <section class="blog-comments mt-5" id="yorumlar" aria-labelledby="commentsTitle">
+                <h2 class="h5 mb-3" id="commentsTitle">💬 Yorumlar (@comments.Count)</h2>
+
+                @foreach (var c in comments.Concat(myPending))
+                {
+                    var pending = c.Status != MektupApp.Domain.Reviews.ModerationStatus.Approved;
+                    <div class="blog-comment @(pending ? "is-pending" : "")">
+                        <span class="review-avatar" aria-hidden="true">@c.AuthorName[..1]</span>
+                        <div>
+                            <div class="small">
+                                <strong>@c.AuthorName</strong>
+                                <span class="text-muted">· @c.CreatedAt.ToLocalTime().ToString("d MMMM yyyy", tr)</span>
+                                @if (pending) { <span class="badge bg-warning text-dark ms-1">Onay bekliyor · sadece siz görüyorsunuz</span> }
+                            </div>
+                            <p class="mb-0 mt-1 blog-comment-body">@c.Body</p>
+                        </div>
+                    </div>
+                }
+                @if (comments.Count == 0 && myPending.Count == 0)
+                {
+                    <p class="text-muted small">Henüz yorum yok. İlk yorumu siz yazın.</p>
+                }
+
+                @if (User.Identity?.IsAuthenticated == true)
+                {
+                    <form asp-action="Comment" asp-route-slug="@Model.Slug" method="post" class="mt-3">
+                        <label for="commentBody" class="form-label small fw-semibold">Yorumunuz</label>
+                        <textarea id="commentBody" name="body" class="form-control" rows="3" required
+                                  maxlength="@MektupApp.Domain.Reviews.BlogComment.BodyMax" placeholder="Düşüncelerinizi paylaşın…"></textarea>
+                        <div class="d-flex justify-content-between align-items-center mt-2">
+                            <span class="form-text m-0">Yorumlar onaydan sonra adınız ve soyadınızın baş harfiyle yayınlanır.</span>
+                            <button type="submit" class="btn btn-primary btn-sm">Gönder</button>
+                        </div>
+                    </form>
+                }
+                else
+                {
+                    <p class="small mt-3">Yorum yazmak için <a asp-controller="Account" asp-action="Login" asp-route-returnUrl="@(Context.Request.Path + "#yorumlar")">giriş yapın</a> veya <a asp-controller="Account" asp-action="Register">üye olun</a>.</p>
+                }
+            </section>
+        }
     </div>
 </article>
 

@@ -1,0 +1,23 @@
+@model (Guid Id, string Kind, MektupApp.Domain.Reviews.ModerationStatus Status)
+@using MektupApp.Domain.Reviews
+<div class="d-flex flex-wrap gap-2 align-items-start">
+    @if (Model.Status != ModerationStatus.Approved)
+    {
+        <form asp-action="Approve" asp-route-id="@Model.Id" method="post">
+            <input type="hidden" name="kind" value="@Model.Kind" />
+            <button class="btn btn-sm btn-success">Onayla</button>
+        </form>
+    }
+    @if (Model.Status != ModerationStatus.Rejected)
+    {
+        <form asp-action="Reject" asp-route-id="@Model.Id" method="post" class="d-flex gap-1">
+            <input type="hidden" name="kind" value="@Model.Kind" />
+            <input type="text" name="reason" class="form-control form-control-sm" maxlength="300" placeholder="Ret nedeni (isteğe bağlı)" style="max-width: 220px" />
+            <button class="btn btn-sm btn-outline-warning">@(Model.Status == ModerationStatus.Approved ? "Yayından Kaldır" : "Reddet")</button>
+        </form>
+    }
+    <form asp-action="Delete" asp-route-id="@Model.Id" method="post" onsubmit="return confirm('Yorum kalıcı olarak silinecek. Emin misiniz?')">
+        <input type="hidden" name="kind" value="@Model.Kind" />
+        <button class="btn btn-sm btn-outline-danger">Sil</button>
+    </form>
+</div>

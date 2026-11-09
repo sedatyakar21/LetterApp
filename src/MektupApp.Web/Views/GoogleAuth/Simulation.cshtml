@@ -1,0 +1,28 @@
+@model MektupApp.Web.Controllers.GoogleSimulationViewModel
+@{
+    ViewData["Title"] = "Google (Simülasyon)";
+}
+<div class="container py-5" style="max-width: 440px">
+    <div class="alert alert-warning small">
+        <strong>Geliştirme simülasyonu:</strong> gerçek Google'a gidilmez. <code>Authentication:Google:ClientId</code> ve
+        <code>ClientSecret</code> tanımlanınca bu sayfa yerine Google'ın giriş ekranı açılır. Canlı ortamda bu sayfa kapalıdır.
+    </div>
+    <form asp-action="Simulation" method="post" class="card card-body">
+        <h1 class="h5 mb-3">Google hesabı seçin</h1>
+        <input type="hidden" asp-for="ReturnUrl" />
+        <input type="hidden" asp-for="Mode" />
+        <div class="mb-3">
+            <label asp-for="FullName" class="form-label">Ad Soyad (Google profili)</label>
+            <input asp-for="FullName" class="form-control" />
+        </div>
+        <div class="mb-3">
+            <label asp-for="Email" class="form-label">Google e-postası</label>
+            <input asp-for="Email" class="form-control" />
+        </div>
+        <div class="form-check mb-3">
+            <input asp-for="EmailVerified" class="form-check-input" />
+            <label asp-for="EmailVerified" class="form-check-label small">Google e-postayı doğrulamış (email_verified)</label>
+        </div>
+        <button type="submit" class="btn btn-google w-100">Bu hesapla devam et</button>
+    </form>
+</div>

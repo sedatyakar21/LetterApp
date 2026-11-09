@@ -75,6 +75,9 @@ internal sealed class CustomerRepository(AppDbContext db) : ICustomerRepository
     public Task<Customer?> GetByEmailAsync(Email email, CancellationToken ct = default) =>
         db.Customers.FirstOrDefaultAsync(c => c.Email == email, ct);
 
+    public Task<Customer?> GetByGoogleSubjectAsync(string googleSubject, CancellationToken ct = default) =>
+        db.Customers.FirstOrDefaultAsync(c => c.GoogleSubject == googleSubject, ct);
+
     public Task<bool> EmailExistsAsync(Email email, CancellationToken ct = default) =>
         db.Customers.AnyAsync(c => c.Email == email, ct);
 

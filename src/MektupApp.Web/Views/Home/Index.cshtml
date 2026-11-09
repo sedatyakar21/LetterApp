@@ -104,6 +104,32 @@ Seni çok özledim, mektubunu dört gözle bekliyorum. 💌</div>
 </section>
 
 @{
+    var homeReviews = ViewBag.Reviews as IReadOnlyList<MektupApp.Application.Reviews.ReviewDto> ?? [];
+    var reviewSummary = ViewBag.ReviewSummary as MektupApp.Domain.Reviews.RatingSummary;
+}
+@if (homeReviews.Count > 0 && reviewSummary is not null)
+{
+    <section class="container py-5">
+        <div class="d-flex flex-wrap justify-content-between align-items-end gap-2 mb-4" data-reveal>
+            <div>
+                <h2 class="h3 section-title mb-1">Müşterilerimiz ne diyor?</h2>
+                <div class="small text-muted">
+                    <partial name="_Stars" model="reviewSummary.Average" />
+                    <strong class="ms-1">@reviewSummary.Average.ToString("0.0")</strong> / 5 · @reviewSummary.Count değerlendirme
+                </div>
+            </div>
+            <a asp-controller="Reviews" asp-action="Index" class="small">Tüm yorumlar →</a>
+        </div>
+        <div class="row g-4" data-reveal-group="90">
+            @foreach (var r in homeReviews)
+            {
+                <div class="col-md-4" data-reveal><partial name="_ReviewCard" model="r" /></div>
+            }
+        </div>
+    </section>
+}
+
+@{
     var latestPosts = ViewBag.LatestPosts as IReadOnlyList<MektupApp.Application.Blog.BlogPostSummaryDto> ?? [];
 }
 @if (latestPosts.Count > 0)

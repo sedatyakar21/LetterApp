@@ -1,0 +1,104 @@
+@model MektupApp.Web.Areas.Admin.Controllers.CommentsIndexViewModel
+@using MektupApp.Domain.Reviews
+@{
+    ViewData["Title"] = "Yorumlar";
+    var durum = Model.Status is null ? "tumu" : Model.Status.ToString();
+    string StatusCss(ModerationStatus s) => s switch
+    {
+        ModerationStatus.Approved => "bg-success",
+        ModerationStatus.Rejected => "bg-secondary",
+        _ => "bg-warning text-dark"
+    };
+    var pageNo = Model.Reviews?.Page ?? Model.BlogComments!.Page;
+    var totalPages = Model.Reviews?.TotalPages ?? Model.BlogComments!.TotalPages;
+    var count = Model.Reviews?.Items.Count ?? Model.BlogComments!.Items.Count;
+}
+
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+    <h1 class="h4 mb-0">Yorumlar</h1>
+    <a class="btn btn-sm btn-outline-secondary" asp-area="" asp-controller="Reviews" asp-action="Index" target="_blank">Yorumlar sayfası ↗</a>
+</div>
+
+<ul class="nav nav-tabs mb-3">
+    <li class="nav-item">
+        <a class="nav-link @(Model.Tab == "musteri" ? "active" : "")" asp-action="Index" asp-route-tab="musteri" asp-route-durum="@durum">
+            Müşteri yorumları @if (Model.PendingReviews > 0) { <span class="badge bg-warning text-dark">@Model.PendingReviews</span> }
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link @(Model.Tab == "blog" ? "active" : "")" asp-action="Index" asp-route-tab="blog" asp-route-durum="@durum">
+            Blog yorumları @if (Model.PendingBlogComments > 0) { <span class="badge bg-warning text-dark">@Model.PendingBlogComments</span> }
+        </a>
+    </li>
+</ul>
+
+<div class="d-flex flex-wrap gap-2 mb-3">
+    @foreach (var (key, label) in new[] { ("Pending", "Onay bekleyen"), ("Approved", "Yayında"), ("Rejected", "Reddedilen"), ("tumu", "Tümü") })
+    {
+        <a class="btn btn-sm @(durum == key ? "btn-primary" : "btn-outline-secondary")" asp-action="Index" asp-route-tab="@Model.Tab" asp-route-durum="@key">@label</a>
+    }
+</div>
+
+@if (count == 0)
+{
+    <div class="admin-card p-4 text-center text-muted">Bu filtrede yorum yok.</div>
+}
+
+@if (Model.Reviews is { } reviews)
+{
+    foreach (var r in reviews.Items)
+    {
+        <div class="admin-card p-3 mb-2">
+            <div class="d-flex flex-wrap justify-content-between gap-2">
+                <div>
+                    <partial name="_Stars" model="(double)r.Rating" />
+                    <strong class="ms-1">@r.AuthorName</strong>
+                    <span class="small text-muted">· @r.CreatedAt.ToLocalTime().ToString("dd.MM.yyyy HH:mm") @(r.RecipientCity is null ? "" : $"· alıcı: {r.RecipientCity}")</span>
+                    <span class="badge @StatusCss(r.Status) ms-1">@r.Status.DisplayName()</span>
+                </div>
+                <div class="small">
+                    <a asp-controller="Orders" asp-action="Details" asp-route-id="@r.LetterId">Sipariş</a> ·
+                    <a asp-controller="Customers" asp-action="Details" asp-route-id="@r.CustomerId">Müşteri</a>
+                </div>
+            </div>
+            <p class="mt-2 mb-2" style="white-space: pre-line">@r.Comment</p>
+            @if (r.RejectionReason is not null) { <div class="small text-muted mb-2">Ret nedeni: @r.RejectionReason</div> }
+            <partial name="_ModerationActions" model='(r.Id, "musteri", r.Status)' />
+        </div>
+    }
+}
+
+@if (Model.BlogComments is { } comments)
+{
+    foreach (var c in comments.Items)
+    {
+        <div class="admin-card p-3 mb-2">
+            <div class="d-flex flex-wrap justify-content-between gap-2">
+                <div>
+                    <strong>@c.AuthorName</strong>
+                    <span class="small text-muted">· @c.CreatedAt.ToLocalTime().ToString("dd.MM.yyyy HH:mm")</span>
+                    <span class="badge @StatusCss(c.Status) ms-1">@c.Status.DisplayName()</span>
+                </div>
+                <div class="small">
+                    @if (c.PostSlug is not null)
+                    {
+                        <a asp-area="" asp-controller="Blog" asp-action="Post" asp-route-slug="@c.PostSlug" target="_blank">@c.PostTitle ↗</a> @:·
+                    }
+                    <a asp-controller="Customers" asp-action="Details" asp-route-id="@c.CustomerId">Üye</a>
+                </div>
+            </div>
+            <p class="mt-2 mb-2" style="white-space: pre-line">@c.Body</p>
+            @if (c.RejectionReason is not null) { <div class="small text-muted mb-2">Ret nedeni: @c.RejectionReason</div> }
+            <partial name="_ModerationActions" model='(c.Id, "blog", c.Status)' />
+        </div>
+    }
+}
+
+@if (totalPages > 1)
+{
+    <nav class="d-flex justify-content-center gap-2 mt-3">
+        @if (pageNo > 1) { <a class="btn btn-sm btn-outline-secondary" asp-action="Index" asp-route-tab="@Model.Tab" asp-route-durum="@durum" asp-route-page="@(pageNo - 1)">‹ Önceki</a> }
+        <span class="align-self-center small text-muted">Sayfa @pageNo / @totalPages</span>
+        @if (pageNo < totalPages) { <a class="btn btn-sm btn-outline-secondary" asp-action="Index" asp-route-tab="@Model.Tab" asp-route-durum="@durum" asp-route-page="@(pageNo + 1)">Sonraki ›</a> }
+    </nav>
+}

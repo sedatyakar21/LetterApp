@@ -29,6 +29,8 @@ public static class DependencyInjection
         services.AddScoped<PaymentService>();
         services.AddScoped<Blog.BlogService>();
         services.AddScoped<Campaigns.CampaignService>();
+        services.AddScoped<Reviews.ReviewService>();
+        services.AddScoped<Reviews.BlogCommentService>();
 
         services.AddScoped<IDomainEventHandler<LetterPaid>, LetterNotificationHandlers>();
         services.AddScoped<IDomainEventHandler<LetterShipped>, LetterNotificationHandlers>();

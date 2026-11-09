@@ -3,6 +3,7 @@ using MektupApp.Application.Abstractions;
 using MektupApp.Application.Customers;
 using MektupApp.Domain.Common;
 using MektupApp.Domain.Customers;
+using MektupApp.Web.Infrastructure;
 using MektupApp.Web.Models;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -21,7 +22,13 @@ public class AccountController(AccountService accounts) : Controller
     {
         if (!ModelState.IsValid) return View(model);
 
-        var customer = await accounts.AuthenticateAsync(model.Email, model.Password, ct);
+        AuthenticatedCustomer? customer;
+        try { customer = await accounts.AuthenticateAsync(model.Email, model.Password, ct); }
+        catch (AppException ex)
+        {
+            ModelState.AddModelError(string.Empty, ex.Message);
+            return View(model);
+        }
         if (customer is null)
         {
             ModelState.AddModelError(string.Empty, "E-posta veya şifre hatalı.");
@@ -77,6 +84,14 @@ public class AccountController(AccountService accounts) : Controller
         return RedirectToAction(nameof(Profile));
     }
 
+    [Authorize, HttpPost("hesabim/google/kaldir")]
+    public async Task<IActionResult> UnlinkGoogle(CancellationToken ct)
+    {
+        await accounts.UnlinkGoogleAsync(CurrentUserId, ct);
+        TempData["Success"] = "Google hesabınızın bağlantısı kaldırıldı.";
+        return RedirectToAction(nameof(Profile));
+    }
+
     private Guid CurrentUserId => Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
 
     [Authorize, HttpPost("cikis")]
@@ -86,18 +101,5 @@ public class AccountController(AccountService accounts) : Controller
         return RedirectToAction("Index", "Home");
     }
 
-    private Task SignInAsync(AuthenticatedCustomer customer)
-    {
-        var claims = new List<Claim>
-        {
-            new(ClaimTypes.NameIdentifier, customer.Id.ToString()),
-            new(ClaimTypes.Name, customer.FullName),
-            new(ClaimTypes.Email, customer.Email)
-        };
-        if (customer.IsAdmin) claims.Add(new Claim(ClaimTypes.Role, "Admin"));
-
-        var principal = new ClaimsPrincipal(new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme));
-        return HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal,
-            new AuthenticationProperties { IsPersistent = true });
-    }
+    private Task SignInAsync(AuthenticatedCustomer customer) => HttpContext.SignInCustomerAsync(customer);
 }

@@ -122,6 +122,47 @@
                 </div>
             </div>
 
+            @if (Model.Status == LetterStatus.Delivered)
+            {
+                var review = ViewBag.Review as MektupApp.Application.Reviews.ReviewDto;
+                <div class="card mb-3" id="review">
+                    <div class="card-header fw-semibold">⭐ Değerlendirmeniz</div>
+                    <div class="card-body">
+                        @if (review is null)
+                        {
+                            <p class="small text-muted">Mektubunuz yerine ulaştı. Deneyiminizi paylaşır mısınız? Yorumunuz onaylandıktan sonra <a asp-controller="Reviews" asp-action="Index">Yorumlar</a> sayfasında adınız ve soyadınızın baş harfiyle görünür.</p>
+                            <form asp-controller="Reviews" asp-action="Submit" asp-route-id="@Model.Id" method="post">
+                                <fieldset class="star-input mb-2">
+                                    <legend class="visually-hidden">Puanınız</legend>
+                                    @for (var s = 5; s >= 1; s--)
+                                    {
+                                        <input type="radio" id="star@(s)" name="rating" value="@s" required @(s == 5 ? "checked" : "") />
+                                        <label for="star@(s)" title="@s yıldız">★</label>
+                                    }
+                                </fieldset>
+                                <textarea name="comment" class="form-control" rows="3" required
+                                          minlength="@MektupApp.Domain.Reviews.CustomerReview.CommentMin" maxlength="@MektupApp.Domain.Reviews.CustomerReview.CommentMax"
+                                          placeholder="Mektubunuz nasıl ulaştı, alıcı ne hissetti?"></textarea>
+                                <button type="submit" class="btn btn-primary btn-sm mt-2">Yorumu Gönder</button>
+                            </form>
+                        }
+                        else
+                        {
+                            <partial name="_Stars" model="(double)review.Rating" />
+                            <p class="mt-2 mb-2">“@review.Comment”</p>
+                            <span class="badge @(review.Status switch {
+                                MektupApp.Domain.Reviews.ModerationStatus.Approved => "bg-success",
+                                MektupApp.Domain.Reviews.ModerationStatus.Rejected => "bg-secondary",
+                                _ => "bg-warning text-dark" })">@review.Status.DisplayName()</span>
+                            @if (review.Status == MektupApp.Domain.Reviews.ModerationStatus.Rejected && review.RejectionReason is not null)
+                            {
+                                <div class="small text-muted mt-1">Neden: @review.RejectionReason</div>
+                            }
+                        }
+                    </div>
+                </div>
+            }
+
             @if (Model.CanChangeAddress && !Model.IsEditable)
             {
                 <div class="card mb-3">

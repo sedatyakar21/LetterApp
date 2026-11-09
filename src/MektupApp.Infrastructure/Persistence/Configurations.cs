@@ -110,6 +110,8 @@ internal sealed class CustomerConfiguration : IEntityTypeConfiguration<Customer>
         b.Property(c => c.AcquisitionChannel).HasConversion<string>().HasMaxLength(20);
         b.Property(c => c.ReferralCode).HasMaxLength(ReferralCode.Length).IsRequired();
         b.HasIndex(c => c.ReferralCode).IsUnique();
+        b.Property(c => c.GoogleSubject).HasMaxLength(100);
+        b.HasIndex(c => c.GoogleSubject).IsUnique().HasFilter("[GoogleSubject] IS NOT NULL");
         b.HasIndex(c => c.ReferredByCustomerId);
         // Davet eden üyeye referans (silinirse bağ korunmaz, kayıt kalır).
         b.HasOne<Customer>().WithMany().HasForeignKey(c => c.ReferredByCustomerId).OnDelete(DeleteBehavior.NoAction);

@@ -4,6 +4,9 @@
 }
 <div class="container py-4" style="max-width: 480px">
     <h1 class="h3 mb-4">Ücretsiz Kayıt Ol</h1>
+    <div class="card card-body mb-3 pb-0">
+        <partial name="_GoogleButton" model='((string?)null, "Google ile kayıt ol")' />
+    </div>
     <form asp-action="Register" method="post" class="card card-body">
         <div asp-validation-summary="ModelOnly" class="text-danger small"></div>
         <div class="mb-3">

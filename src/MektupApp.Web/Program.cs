@@ -3,6 +3,7 @@ using MektupApp.Application;
 using MektupApp.Domain.Letters;
 using MektupApp.Infrastructure;
 using MektupApp.Web.Infrastructure;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Localization;
 
@@ -14,7 +15,7 @@ builder.Services
     .AddApplication(priceList)
     .AddInfrastructure(builder.Configuration, builder.Environment.ContentRootPath);
 
-builder.Services
+var auth = builder.Services
     .AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(o =>
     {
@@ -24,7 +25,29 @@ builder.Services
         o.SlidingExpiration = true;
         // Hesap engellendiyse veya yönetici yetkisi değiştiyse açık oturumu geçersiz say.
         o.Events.OnValidatePrincipal = SessionValidator.ValidateAsync;
+    })
+    // Google'dan dönen kimlik, üye bulunana / kayıt tamamlanana kadar burada kısa süre tutulur.
+    .AddCookie(GoogleSignIn.ExternalScheme, o =>
+    {
+        o.Cookie.Name = "BiMektup.External";
+        o.ExpireTimeSpan = TimeSpan.FromMinutes(15);
     });
+
+// Google ile giriş: kimlik bilgileri user-secrets / ortam değişkeninden okunur (appsettings.json'a yazmayın).
+var googleSection = builder.Configuration.GetSection("Authentication:Google");
+var googleConfigured = !string.IsNullOrWhiteSpace(googleSection["ClientId"]) && !string.IsNullOrWhiteSpace(googleSection["ClientSecret"]);
+if (googleConfigured)
+{
+    auth.AddGoogle(GoogleSignIn.Scheme, o =>
+    {
+        o.SignInScheme = GoogleSignIn.ExternalScheme;
+        o.ClientId = googleSection["ClientId"]!;
+        o.ClientSecret = googleSection["ClientSecret"]!;
+        o.CallbackPath = "/signin-google";
+        o.ClaimActions.MapJsonKey("email_verified", "email_verified");
+    });
+}
+builder.Services.AddSingleton(new GoogleSignIn(googleConfigured, Simulation: !googleConfigured && builder.Environment.IsDevelopment()));
 builder.Services.AddAuthorization();
 builder.Services.Configure<SupportOptions>(builder.Configuration.GetSection(SupportOptions.Section));
 

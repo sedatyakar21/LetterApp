@@ -1,4 +1,5 @@
 @model MektupApp.Application.Customers.AccountDto
+@inject MektupApp.Web.Infrastructure.GoogleSignIn Google
 @{
     ViewData["Title"] = "Hesabım";
     var inv = System.Globalization.CultureInfo.InvariantCulture;
@@ -15,6 +16,43 @@
             <li class="list-group-item"><span class="text-muted small d-block">Referans no</span><span class="font-monospace">@Model.ReferralCode</span></li>
         </ul>
     </div>
+
+    @if (Google.Available || Model.GoogleLinked)
+    {
+        <div class="card mb-3">
+            <div class="card-body d-flex flex-wrap justify-content-between align-items-center gap-2">
+                <div>
+                    <h2 class="h6 mb-1">Google ile giriş</h2>
+                    <div class="small text-muted">
+                        @if (Model.GoogleLinked)
+                        {
+                            @:✔️ Google hesabınız bağlı. Google ile tek tıkla giriş yapabilirsiniz.
+                        }
+                        else
+                        {
+                            @:Google hesabınızı bağlayın, şifre yazmadan giriş yapın.
+                        }
+                    </div>
+                </div>
+                @if (!Model.GoogleLinked)
+                {
+                    <form asp-controller="GoogleAuth" asp-action="Start" asp-route-baglan="true" method="post">
+                        <button type="submit" class="btn btn-sm btn-google">Google'ı Bağla</button>
+                    </form>
+                }
+                else if (Model.HasPassword)
+                {
+                    <form asp-action="UnlinkGoogle" method="post" onsubmit="return confirm('Google bağlantısı kaldırılacak; giriş için şifrenizi kullanacaksınız. Emin misiniz?')">
+                        <button type="submit" class="btn btn-sm btn-outline-secondary">Bağlantıyı Kaldır</button>
+                    </form>
+                }
+                else
+                {
+                    <span class="badge bg-light text-dark border">Hesap Google ile oluşturuldu</span>
+                }
+            </div>
+        </div>
+    }
 
     <div class="card">
         <div class="card-body">

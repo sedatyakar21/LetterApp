@@ -43,6 +43,9 @@ Sadece `Admin` rolündeki kullanıcılar erişebilir (MVC Area: `src/MektupApp.W
   - **Hedef kitle:** kampanya herkese, yeni üyelere (üyeliğin ilk N günü) veya doğum günü olanlara (doğum gününden ±N gün; 29 Şubat ve yılbaşı geçişi dahil) uygulanabilir.
   - **Üye başına kullanım sınırı:** örneğin "1 kez". Doğum günü kampanyasında hak her doğum günü yenilenir. Ödenmiş siparişler ve sonucu beklenen ödemeler sayılır; iptal edilen sipariş hakkı geri verir.
   - **Doğum tarihi:** üye olurken isteğe bağlı girilir ya da sonradan **Hesabım** (`/hesabim`) sayfasından eklenir. Üye bir kez girer, sonra değiştiremez; düzeltme ve silme yönetimdeki müşteri detayından yapılır.
+- **Yorumlar:** iki tür yorum var; ikisi de yönetici onaylamadan sitede görünmez. Yönetim → 💬 Yorumlar ekranında bekleyen, yayında ve reddedilen yorumlar listelenir. Bekleyen yorum sayısı menüde rozet olarak görünür. Yorum onaylanabilir, nedenli reddedilebilir, yayından kaldırılabilir ya da silinebilir.
+  - **Müşteri yorumları (`/yorumlar`):** üye, teslim edilen her mektup için mektup detayından bir kez 1–5 yıldız ve en az 10 karakterlik yorum yazar. Sayfada ortalama puan ve yıldız dağılımı gösterilir; ana sayfada son 3 yorum yer alır. Gizlilik için ad, soyadın baş harfiyle gösterilir ("Ayşe Y.").
+  - **Blog yorumları:** üyeler yazının altına yorum yazar ve onay bekleyen yorumlarını yalnızca kendileri görür. Spam önlemi olarak bir yazıda en fazla 3 bekleyen yorum olabilir.
 
 ### MektupPuan (sadakat puanı)
 
@@ -54,6 +57,32 @@ Sadece `Admin` rolündeki kullanıcılar erişebilir (MVC Area: `src/MektupApp.W
 - Bakiye hiçbir zaman eksiye düşmez; her hareket `PointTransactions` tablosunda kayıtlıdır. Puan hesabındaki `RowVersion`, aynı bakiyenin eşzamanlı iki ödemede harcanmasını engeller.
 
 Listeleme ekranları aggregate yüklemeden doğrudan okuma modeline projekte eden `IAdminQueries` ile çalışır (CQRS-lite); durum değiştiren her işlem ise aggregate metotlarından geçer.
+
+### Google ile giriş
+
+Giriş ve kayıt sayfalarında "Google ile devam et" butonu vardır.
+
+- **İlk giriş:** Google hesabı hiçbir üyeliğe bağlı değilse ve e-postası kayıtlı değilse, üye kısa bir formla telefon, "bizi nereden duydunuz", isteğe bağlı referans no ve doğum tarihi girip üyeliği tamamlar. E-posta Google'dan gelir.
+- **Mevcut hesap:** Google'ın **doğruladığı** e-posta zaten kayıtlıysa, Google o hesaba otomatik bağlanır. Doğrulanmamışsa bağlanmaz; üyeden şifresiyle girip **Hesabım** sayfasından Google'ı bağlaması istenir.
+- **Şifresiz hesaplar:** Google ile oluşturulan hesapların şifresi yoktur; şifreyle giriş denemesinde "Google ile devam et" uyarısı çıkar. Bu hesaplarda Google bağlantısı kaldırılamaz.
+- **Hesap eşleştirme:** üyeler Google'ın kalıcı kimliğiyle (`sub`) eşleştirilir; Google tarafında e-posta değişse de giriş çalışır.
+
+**Kurulum:**
+1. Google Cloud Console → *APIs & Services* → *Credentials* → **OAuth client ID** oluşturun (tür: *Web application*).
+2. *Authorized redirect URIs* alanına `https://alanadiniz/signin-google` ekleyin. Geliştirme için `http://localhost:5213/signin-google` de eklenebilir.
+3. Anahtarları `appsettings.json` dosyasına **yazmayın**; user-secrets veya ortam değişkeniyle verin:
+
+```bash
+dotnet user-secrets set "Authentication:Google:ClientId" "xxxx.apps.googleusercontent.com" --project src/MektupApp.Web
+```
+
+```bash
+dotnet user-secrets set "Authentication:Google:ClientSecret" "xxxx" --project src/MektupApp.Web
+```
+
+Canlı ortamda ortam değişkeni adları `Authentication__Google__ClientId` ve `Authentication__Google__ClientSecret` şeklindedir.
+
+**Anahtar yoksa:** geliştirme ortamında Google yerine simülasyon sayfası (`/giris/google/simulasyon`) açılır; buradan ad, e-posta ve "e-posta doğrulandı" bilgisi seçilerek akış denenebilir. Canlı ortamda anahtar yoksa buton hiç gösterilmez ve simülasyon sayfası kapalıdır.
 
 ### PayTR ödeme entegrasyonu
 

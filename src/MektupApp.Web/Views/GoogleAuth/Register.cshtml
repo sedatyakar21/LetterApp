@@ -1,0 +1,72 @@
+@model MektupApp.Web.Controllers.GoogleRegisterViewModel
+@{
+    ViewData["Title"] = "Google ile Kayıt";
+    var inv = System.Globalization.CultureInfo.InvariantCulture;
+}
+<div class="container py-4" style="max-width: 480px">
+    <h1 class="h3 mb-1">Üyeliğinizi tamamlayın</h1>
+    <p class="text-muted small mb-4">Google hesabınız doğrulandı. Mektup takibi için birkaç bilgi daha gerekiyor.</p>
+
+    <form asp-action="Register" method="post" class="card card-body">
+        <div asp-validation-summary="ModelOnly" class="text-danger small"></div>
+        <input type="hidden" asp-for="ReturnUrl" />
+
+        <div class="mb-3">
+            <label class="form-label">E-posta</label>
+            <div class="form-control bg-light d-flex align-items-center gap-2">
+                <span aria-hidden="true">✔️</span> @Model.Email
+            </div>
+            <div class="form-text">Google hesabınızdan alındı.</div>
+        </div>
+        <div class="mb-3">
+            <label asp-for="FullName" class="form-label"></label>
+            <input asp-for="FullName" class="form-control" autocomplete="name" />
+            <span asp-validation-for="FullName" class="text-danger small"></span>
+        </div>
+        <div class="mb-3">
+            <label asp-for="Phone" class="form-label"></label>
+            <input asp-for="Phone" class="form-control" placeholder="05XX XXX XX XX" autocomplete="tel" />
+            <div class="form-text">Takip kodunuz bu numaraya SMS ile gönderilir.</div>
+            <span asp-validation-for="Phone" class="text-danger small"></span>
+        </div>
+        <div class="mb-3">
+            <label asp-for="BirthDate" class="form-label"></label> <span class="small text-muted">(isteğe bağlı)</span>
+            <input type="date" name="BirthDate" id="BirthDate" class="form-control" autocomplete="bday"
+                   value="@(Model.BirthDate?.ToString("yyyy-MM-dd", inv))" max="@DateTime.Today.ToString("yyyy-MM-dd", inv)" />
+            <div class="form-text">🎂 Doğum gününüzde size özel kampanyalardan yararlanın. Sonradan değiştirilemez.</div>
+        </div>
+        <div class="mb-3">
+            <label asp-for="Channel" class="form-label"></label>
+            <select asp-for="Channel" asp-items="Html.GetEnumSelectList<MektupApp.Domain.Customers.AcquisitionChannel>()" class="form-select" required>
+                <option value="">Seçiniz…</option>
+            </select>
+            <span asp-validation-for="Channel" class="text-danger small"></span>
+        </div>
+        <div class="mb-3" id="referralGroup" hidden>
+            <label asp-for="ReferralCode" class="form-label"></label>
+            <input asp-for="ReferralCode" class="form-control text-uppercase" placeholder="ör. AY482915" autocomplete="off" maxlength="20" />
+            <div class="form-text">İsteğe bağlı. Siz mektup gönderdikçe arkadaşınız MektupPuan kazanır.</div>
+        </div>
+        <div class="form-check mb-3">
+            <input asp-for="AcceptTerms" class="form-check-input" />
+            <label asp-for="AcceptTerms" class="form-check-label small">
+                <a asp-controller="Home" asp-action="Terms" target="_blank">Üyelik sözleşmesini</a> okudum ve kabul ediyorum.
+            </label>
+            <span asp-validation-for="AcceptTerms" class="text-danger small d-block"></span>
+        </div>
+        <button type="submit" class="btn btn-primary w-100">Üyeliği Tamamla</button>
+    </form>
+</div>
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        (function () {
+            const select = document.getElementById("Channel");
+            const group = document.getElementById("referralGroup");
+            const friend = "@((int)MektupApp.Domain.Customers.AcquisitionChannel.Friend)";
+            const toggle = () => group.hidden = select.value !== friend;
+            select.addEventListener("change", toggle);
+            toggle();
+        })();
+    </script>
+}

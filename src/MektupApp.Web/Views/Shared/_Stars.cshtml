@@ -1,0 +1,7 @@
+@model double
+@* Yıldız gösterimi: değer en yakın yarıma yuvarlanır (4,3 → 4½); ekran okuyucu için metin verilir. *@
+@{
+    var halves = (int)Math.Round(Model * 2, MidpointRounding.AwayFromZero);
+}
+<span class="stars" role="img" aria-label="5 üzerinden @Model.ToString("0.#") yıldız">@for (var i = 1; i <= 5; i++)
+{<span class="@(halves >= i * 2 ? "on" : halves == i * 2 - 1 ? "half" : "off")">★</span>}</span>

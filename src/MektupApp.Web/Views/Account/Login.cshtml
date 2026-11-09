@@ -4,7 +4,9 @@
 }
 <div class="container py-4" style="max-width: 440px">
     <h1 class="h3 mb-4">Giriş Yap</h1>
-    <form asp-action="Login" method="post" class="card card-body">
+    <div class="card card-body">
+    <partial name="_GoogleButton" model='(Model.ReturnUrl, "Google ile devam et")' />
+    <form asp-action="Login" method="post">
         <div asp-validation-summary="ModelOnly" class="text-danger small"></div>
         <input type="hidden" asp-for="ReturnUrl" />
         <div class="mb-3">
@@ -20,5 +22,6 @@
         <button type="submit" class="btn btn-primary w-100">Giriş Yap</button>
         <p class="text-center small mt-3 mb-0">Hesabın yok mu? <a asp-action="Register">Ücretsiz kayıt ol</a></p>
     </form>
+    </div>
 </div>
 @section Scripts { <partial name="_ValidationScriptsPartial" /> }

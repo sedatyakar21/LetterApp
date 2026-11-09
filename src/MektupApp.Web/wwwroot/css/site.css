@@ -281,6 +281,49 @@ a:hover { color: var(--burgundy); }
 .campaign-strip-all { color: #fff; }
 .campaign-strip-all:hover { color: #f3c6cd; }
 
+/* ---------- Google ile giriş ---------- */
+.btn-google { display: inline-flex; align-items: center; justify-content: center; gap: .6rem;
+    background: #fff; color: #1f1f1f; border: 1px solid #747775; font-weight: 500; }
+.btn-google:hover, .btn-google:focus-visible { background: #f2f2f2; color: #1f1f1f; border-color: #747775; }
+.auth-divider { display: flex; align-items: center; gap: .75rem; color: var(--muted); font-size: .85rem; margin: 1rem 0; }
+.auth-divider::before, .auth-divider::after { content: ""; flex: 1; border-top: 1px solid var(--line); }
+
+/* ---------- Yorumlar ---------- */
+.stars { letter-spacing: .05em; white-space: nowrap; }
+.stars .on { color: #E0A526; }
+.stars .off { color: var(--line); }
+.stars .half { background: linear-gradient(90deg, #E0A526 50%, var(--line) 50%);
+    -webkit-background-clip: text; background-clip: text; color: transparent; }
+
+.review-card { background: #fff; border: 1px solid var(--line); border-radius: 14px; padding: 1.25rem 1.35rem; margin: 0;
+    display: flex; flex-direction: column; box-shadow: 0 6px 18px rgba(38, 48, 78, .05); }
+.review-text { font-family: 'Lora', Georgia, serif; font-style: italic; color: var(--ink); flex: 1; overflow-wrap: anywhere; }
+.review-meta { display: flex; align-items: center; gap: .65rem; }
+.review-avatar { width: 2.25rem; height: 2.25rem; border-radius: 50%; display: inline-grid; place-items: center; flex-shrink: 0;
+    background: var(--burgundy); color: #fff; font-weight: 600; }
+
+.review-summary { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 2rem 3rem;
+    background: #fff; border: 1px solid var(--line); border-radius: 16px; padding: 1.5rem; max-width: 640px; margin-inline: auto; }
+.review-average { font-family: 'Lora', Georgia, serif; font-size: 3rem; font-weight: 700; color: var(--navy); line-height: 1; }
+.review-summary .stars { font-size: 1.25rem; }
+.review-bars { flex: 1; min-width: 220px; }
+.review-bar-row { display: grid; grid-template-columns: 2.5rem 1fr 2rem; align-items: center; gap: .6rem; margin: .2rem 0; }
+.review-bar { height: .5rem; background: var(--paper); border-radius: 99px; overflow: hidden; }
+.review-bar span { display: block; height: 100%; background: #E0A526; border-radius: 99px; }
+
+/* Yıldız seçici: sağdan sola dizilir, böylece üzerine gelinen ve solundakiler birlikte yanar. */
+.star-input { display: inline-flex; flex-direction: row-reverse; gap: .1rem; border: 0; padding: 0; }
+.star-input input { position: absolute; opacity: 0; pointer-events: none; }
+.star-input label { font-size: 1.75rem; line-height: 1; color: var(--line); cursor: pointer; transition: color .15s; }
+.star-input input:checked ~ label,
+.star-input label:hover, .star-input label:hover ~ label { color: #E0A526; }
+.star-input input:focus-visible + label { outline: 2px solid var(--navy); outline-offset: 2px; border-radius: 4px; }
+
+.blog-comments { border-top: 1px solid var(--line); padding-top: 1.75rem; }
+.blog-comment { display: flex; gap: .75rem; padding: .9rem 0; border-bottom: 1px dashed var(--line); }
+.blog-comment.is-pending { opacity: .75; }
+.blog-comment-body { white-space: pre-line; overflow-wrap: anywhere; }
+
 /* ---------- WhatsApp yardım menüsü ---------- */
 .wa-help { position: fixed; right: 1.1rem; bottom: 1.1rem; z-index: 1045; display: flex; flex-direction: column; align-items: flex-end; gap: .75rem; }
 /* Yardım butonu varken "başa dön" onun üstünde dursun */

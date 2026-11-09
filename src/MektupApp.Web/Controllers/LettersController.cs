@@ -65,8 +65,13 @@ public class LettersController(LetterService letters, AccountService accounts, P
     }
 
     [HttpGet("mektup/{id:guid}")]
-    public async Task<IActionResult> Details(Guid id, CancellationToken ct) =>
-        View(await letters.GetAsync(id, CustomerId, ct));
+    public async Task<IActionResult> Details(Guid id, [FromServices] MektupApp.Application.Reviews.ReviewService reviews, CancellationToken ct)
+    {
+        var letter = await letters.GetAsync(id, CustomerId, ct);
+        if (letter.Status == LetterStatus.Delivered)
+            ViewBag.Review = await reviews.GetForLetterAsync(id, CustomerId, ct);
+        return View(letter);
+    }
 
     [HttpPost("mektup/{id:guid}/fotograf")]
     [RequestSizeLimit(6 * 1024 * 1024)]

@@ -193,6 +193,10 @@ namespace MektupApp.Infrastructure.Persistence.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
+                    b.Property<string>("GoogleSubject")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
 
@@ -223,6 +227,10 @@ namespace MektupApp.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("Email")
                         .IsUnique();
+
+                    b.HasIndex("GoogleSubject")
+                        .IsUnique()
+                        .HasFilter("[GoogleSubject] IS NOT NULL");
 
                     b.HasIndex("ReferralCode")
                         .IsUnique();
@@ -822,6 +830,106 @@ namespace MektupApp.Infrastructure.Persistence.Migrations
                     b.HasIndex("Status", "CreatedAt");
 
                     b.ToTable("Payments", (string)null);
+                });
+
+            modelBuilder.Entity("MektupApp.Domain.Reviews.BlogComment", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("AuthorName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<Guid>("BlogPostId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Body")
+                        .IsRequired()
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("CustomerId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("ModeratedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("RejectionReason")
+                        .HasMaxLength(300)
+                        .HasColumnType("nvarchar(300)");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Status", "CreatedAt");
+
+                    b.HasIndex("BlogPostId", "Status", "CreatedAt");
+
+                    b.ToTable("BlogComments", (string)null);
+                });
+
+            modelBuilder.Entity("MektupApp.Domain.Reviews.CustomerReview", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("AuthorName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("Comment")
+                        .IsRequired()
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("CustomerId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("LetterId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("ModeratedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("Rating")
+                        .HasColumnType("int");
+
+                    b.Property<string>("RecipientCity")
+                        .HasMaxLength(60)
+                        .HasColumnType("nvarchar(60)");
+
+                    b.Property<string>("RejectionReason")
+                        .HasMaxLength(300)
+                        .HasColumnType("nvarchar(300)");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("LetterId")
+                        .IsUnique();
+
+                    b.HasIndex("Status", "CreatedAt");
+
+                    b.ToTable("CustomerReviews", (string)null);
                 });
 
             modelBuilder.Entity("MektupApp.Infrastructure.Carriers.BarcodeCounter", b =>

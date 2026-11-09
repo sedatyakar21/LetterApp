@@ -12,7 +12,12 @@ public sealed class Customer : AggregateRoot
     public string FullName { get; private set; } = string.Empty;
     public Email Email { get; private set; } = null!;
     public PhoneNumber Phone { get; private set; } = null!;
+    /// <summary>Google ile oluşturulan hesaplarda boştur (şifreyle giriş yapılamaz).</summary>
     public string PasswordHash { get; private set; } = string.Empty;
+    /// <summary>Bağlı Google hesabının kalıcı kimliği ("sub"). E-posta değişse de aynı kalır.</summary>
+    public string? GoogleSubject { get; private set; }
+
+    public bool HasPassword => !string.IsNullOrEmpty(PasswordHash);
     public bool IsAdmin { get; private set; }
     public bool IsActive { get; private set; } = true;
     public DateTime CreatedAt { get; private set; }
@@ -36,6 +41,23 @@ public sealed class Customer : AggregateRoot
     public static Customer Register(string fullName, Email email, PhoneNumber phone, string passwordHash,
         bool isAdmin = false, AcquisitionChannel? channel = null, Customer? referrer = null)
     {
+        var c = Create(fullName, email, phone, isAdmin, channel, referrer);
+        c.PasswordHash = Guard.Required(passwordHash, "Şifre", 500);
+        return c;
+    }
+
+    /// <summary>Google hesabıyla üyelik: şifre yoktur, giriş Google ile yapılır.</summary>
+    public static Customer RegisterWithGoogle(string fullName, Email email, PhoneNumber phone, string googleSubject,
+        AcquisitionChannel? channel = null, Customer? referrer = null)
+    {
+        var c = Create(fullName, email, phone, isAdmin: false, channel, referrer);
+        c.GoogleSubject = Guard.Required(googleSubject, "Google hesabı", 100);
+        return c;
+    }
+
+    private static Customer Create(string fullName, Email email, PhoneNumber phone, bool isAdmin,
+        AcquisitionChannel? channel, Customer? referrer)
+    {
         if (channel is { } c && !Enum.IsDefined(c))
             throw new DomainException("Geçersiz seçim: bizi nereden duydunuz?");
         if (referrer is not null)
@@ -52,7 +74,6 @@ public sealed class Customer : AggregateRoot
             FullName = name,
             Email = email,
             Phone = phone,
-            PasswordHash = Guard.Required(passwordHash, "Şifre", 500),
             IsAdmin = isAdmin,
             IsActive = true,
             CreatedAt = DateTime.UtcNow,
@@ -81,6 +102,22 @@ public sealed class Customer : AggregateRoot
 
     /// <summary>Yönetici, hatalı girilen doğum tarihini silebilir.</summary>
     public void ClearBirthDate() => BirthDate = null;
+
+    public void LinkGoogle(string googleSubject)
+    {
+        var subject = Guard.Required(googleSubject, "Google hesabı", 100);
+        if (GoogleSubject is not null && GoogleSubject != subject)
+            throw new DomainException("Hesabınıza zaten başka bir Google hesabı bağlı. Önce onu kaldırın.");
+        GoogleSubject = subject;
+    }
+
+    /// <summary>Şifresi olmayan hesaptan Google kaldırılamaz; aksi halde üye giriş yapamaz hale gelir.</summary>
+    public void UnlinkGoogle()
+    {
+        if (!HasPassword)
+            throw new DomainException("Hesabınız Google ile oluşturulduğu için Google bağlantısı kaldırılamaz.");
+        GoogleSubject = null;
+    }
 
     public void ChangePasswordHash(string passwordHash) =>
         PasswordHash = Guard.Required(passwordHash, "Şifre", 500);
@@ -143,6 +180,7 @@ public interface ICustomerRepository
 {
     Task<Customer?> GetAsync(Guid id, CancellationToken ct = default);
     Task<Customer?> GetByEmailAsync(Email email, CancellationToken ct = default);
+    Task<Customer?> GetByGoogleSubjectAsync(string googleSubject, CancellationToken ct = default);
     Task<bool> EmailExistsAsync(Email email, CancellationToken ct = default);
     Task<Customer?> GetByReferralCodeAsync(string referralCode, CancellationToken ct = default);
     Task<bool> ReferralCodeExistsAsync(string referralCode, CancellationToken ct = default);

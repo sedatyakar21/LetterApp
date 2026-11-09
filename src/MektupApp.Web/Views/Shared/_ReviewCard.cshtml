@@ -1,0 +1,18 @@
+@model MektupApp.Application.Reviews.ReviewDto
+@{
+    var tr = System.Globalization.CultureInfo.GetCultureInfo("tr-TR");
+}
+<figure class="review-card h-100">
+    <partial name="_Stars" model="(double)Model.Rating" />
+    <blockquote class="review-text mt-2 mb-3">“@Model.Comment”</blockquote>
+    <figcaption class="review-meta">
+        <span class="review-avatar" aria-hidden="true">@Model.AuthorName[..1]</span>
+        <span>
+            <strong>@Model.AuthorName</strong>
+            <span class="d-block small text-muted">
+                @if (Model.RecipientCity is not null) { <span>📍 Alıcı: @Model.RecipientCity ·</span> }
+                @Model.CreatedAt.ToLocalTime().ToString("MMMM yyyy", tr)
+            </span>
+        </span>
+    </figcaption>
+</figure>
