@@ -1,0 +1,63 @@
+@model IReadOnlyList<MektupApp.Application.Campaigns.CampaignCardDto>
+@using MektupApp.Domain.Campaigns
+@{
+    ViewData["Title"] = "Kampanyalar";
+}
+
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-1">
+    <h1 class="h4 mb-0">Kampanyalar</h1>
+    <div class="d-flex gap-2">
+        <a class="btn btn-sm btn-outline-secondary" asp-area="" asp-controller="Campaigns" asp-action="Index" target="_blank">Sayfayı görüntüle ↗</a>
+        <a class="btn btn-sm btn-primary" asp-action="Create">+ Yeni Kampanya</a>
+    </div>
+</div>
+<p class="small text-muted mb-3">İndirim tanımlı kampanyalar ödeme ekranında uygulanır (kuponlu olanlar kod girilince). Siparişe en avantajlı tek kampanya uygulanır.</p>
+
+<div class="admin-card overflow-hidden">
+    <div class="table-responsive">
+        <table class="table table-admin table-hover">
+            <thead>
+                <tr><th>Kampanya</th><th>Durum</th><th>Tarihler</th><th>İndirim / Kod</th><th></th></tr>
+            </thead>
+            <tbody>
+                @foreach (var c in Model)
+                {
+                    var badge = c.Phase switch
+                    {
+                        CampaignPhase.Active => "bg-success",
+                        CampaignPhase.Upcoming => "badge-soft-navy",
+                        CampaignPhase.Ended => "bg-secondary",
+                        _ => "bg-light text-dark border"
+                    };
+                    <tr>
+                        <td>
+                            <a asp-action="Edit" asp-route-id="@c.Id" class="fw-semibold">@c.Title</a>
+                            <div class="small text-muted font-monospace">/kampanyalar/@c.Slug</div>
+                        </td>
+                        <td><span class="badge @badge">@c.Phase.DisplayName()</span></td>
+                        <td class="small">@CampaignText.DateRange(c.StartDate, c.EndDate)</td>
+                        <td class="small">
+                            @(c.BadgeText ?? "—")
+                            <div class="@(c.DiscountType == CampaignDiscountType.None ? "text-muted" : "text-success")">
+                                @c.DiscountType.DisplayName()@(c.DiscountType != CampaignDiscountType.None ? (c.CouponCode is null ? " · otomatik" : " · kuponla") : "")
+                            </div>
+                            @if (c.DiscountType != CampaignDiscountType.None && c.Audience != CampaignAudience.Everyone)
+                            {
+                                <div><span class="badge badge-soft-navy">@CampaignText.Audience(c.Audience, c.AudienceDays, c.UsageLimitPerCustomer)</span></div>
+                            }
+                            @if (c.CouponCode is not null) { <div class="font-monospace text-muted">@c.CouponCode</div> }
+                        </td>
+                        <td class="text-end">
+                            <a class="btn btn-sm btn-outline-secondary" target="_blank"
+                               href="@Url.Action("Detail", "Campaigns", new { area = "", slug = c.Slug, onizleme = c.Phase == CampaignPhase.Draft ? true : (bool?)null })">Görüntüle</a>
+                        </td>
+                    </tr>
+                }
+                @if (Model.Count == 0)
+                {
+                    <tr><td colspan="5" class="text-center text-muted py-4">Henüz kampanya yok. <a asp-action="Create">İlk kampanyayı ekle</a>.</td></tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

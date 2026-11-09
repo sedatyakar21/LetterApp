@@ -35,6 +35,27 @@
     </div>
 </section>
 
+@{
+    var activeCampaigns = ViewBag.ActiveCampaigns as IReadOnlyList<MektupApp.Application.Campaigns.CampaignCardDto> ?? [];
+}
+@if (activeCampaigns.Count > 0)
+{
+    <section class="campaign-strip" aria-label="Devam eden kampanyalar">
+        <div class="container d-flex flex-wrap align-items-center gap-2 gap-md-3 py-2">
+            <span class="campaign-strip-label">🎉 Kampanya</span>
+            @foreach (var c in activeCampaigns)
+            {
+                <a asp-controller="Campaigns" asp-action="Detail" asp-route-slug="@c.Slug" class="campaign-strip-item">
+                    <strong>@c.Title</strong>
+                    @if (c.BadgeText is not null) { <span class="campaign-strip-badge">@c.BadgeText</span> }
+                    <span class="campaign-strip-time">@CampaignText.Status(c.Phase, c.DaysLeft, c.StartDate)</span>
+                </a>
+            }
+            <a asp-controller="Campaigns" asp-action="Index" class="ms-auto small campaign-strip-all">Tüm kampanyalar →</a>
+        </div>
+    </section>
+}
+
 <section class="container py-5">
     <h2 class="h3 text-center mb-4 section-title" data-reveal>Nasıl çalışır?</h2>
     <div class="row g-4 text-center steps" data-reveal-group="120">

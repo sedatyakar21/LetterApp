@@ -10,9 +10,12 @@ public sealed record RegisterCommand(
     string Phone,
     string Password,
     AcquisitionChannel? Channel = null,
-    string? ReferralCode = null);
+    string? ReferralCode = null,
+    DateOnly? BirthDate = null);
 
 public sealed record AuthenticatedCustomer(Guid Id, string FullName, string Email, bool IsAdmin);
+
+public sealed record AccountDto(string FullName, string Email, string Phone, DateOnly MemberSince, DateOnly? BirthDate, string ReferralCode);
 
 public sealed record ReferralInfoDto(string ReferralCode, int ReferredCount);
 
@@ -43,6 +46,7 @@ public sealed class AccountService(ICustomerRepository customers, IPasswordHashe
 
         var customer = Customer.Register(cmd.FullName, email, new PhoneNumber(cmd.Phone), hasher.Hash(cmd.Password),
             channel: cmd.Channel, referrer: referrer);
+        if (cmd.BirthDate is { } birth) customer.SetBirthDate(birth);
 
         // Referans no rastgele üretilir; çakışma ihtimali çok düşük olsa da kontrol edilir.
         while (await customers.ReferralCodeExistsAsync(customer.ReferralCode, ct))
@@ -84,6 +88,20 @@ public sealed class AccountService(ICustomerRepository customers, IPasswordHashe
     {
         var c = await customers.GetAsync(customerId, ct);
         return c is null ? null : (c.FullName, c.Phone.ToString());
+    }
+
+    public async Task<AccountDto?> GetAccountAsync(Guid customerId, CancellationToken ct = default)
+    {
+        var c = await customers.GetAsync(customerId, ct);
+        return c is null ? null : new AccountDto(c.FullName, c.Email.Value, c.Phone.ToString(), c.MemberSince, c.BirthDate, c.ReferralCode);
+    }
+
+    /// <summary>Üye doğum tarihini bir kez girer; sonradan yalnızca yönetici değiştirebilir.</summary>
+    public async Task SetBirthDateAsync(Guid customerId, DateOnly birthDate, CancellationToken ct = default)
+    {
+        var c = await customers.GetAsync(customerId, ct) ?? throw new AppException("Üyelik bulunamadı.");
+        c.SetBirthDate(birthDate);
+        await unitOfWork.SaveChangesAsync(ct);
     }
 
     private static AuthenticatedCustomer ToAuth(Customer c) => new(c.Id, c.FullName, c.Email.Value, c.IsAdmin);

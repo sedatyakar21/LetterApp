@@ -34,6 +34,10 @@ public sealed class Letter : AggregateRoot
     /// <summary>Kullanılan puanın ödeme anındaki TL karşılığı (indirim tutarı).</summary>
     public decimal PointsDiscount { get; private set; }
     public decimal PointsToEarn { get; private set; }
+    /// <summary>Ödemede uygulanan kampanya ve indirim tutarı (ödeme anında sabitlenir).</summary>
+    public Guid? CampaignId { get; private set; }
+    public string? CampaignTitle { get; private set; }
+    public decimal CampaignDiscount { get; private set; }
     public Guid? ReferrerCustomerId { get; private set; }
     public decimal ReferralPointsToEarn { get; private set; }
     public string? PaymentReference { get; private set; }
@@ -186,7 +190,7 @@ public sealed class Letter : AggregateRoot
     public void MarkPaid(Money amount, PaymentMethod method, string paymentReference,
         decimal pointsUsed = 0, decimal pointsToEarn = 0,
         Guid? referrerCustomerId = null, decimal referralPointsToEarn = 0,
-        decimal? pointsDiscount = null)
+        decimal? pointsDiscount = null, Campaigns.AppliedCampaign? campaign = null)
     {
         // Doğrudan (tamamı puanla) ödemede taslaktan, kart ödemesinde ise bu ödemeyi bekleyen durumdan gelinir.
         if (Status == LetterStatus.AwaitingPayment)
@@ -219,10 +223,15 @@ public sealed class Letter : AggregateRoot
         PointsUsed = decimal.Round(pointsUsed, 2);
         PointsDiscount = decimal.Round(pointsDiscount ?? pointsUsed, 2);
         PointsToEarn = decimal.Round(pointsToEarn, 2);
+        CampaignId = campaign?.CampaignId;
+        CampaignTitle = campaign?.Title;
+        CampaignDiscount = campaign is null ? 0 : decimal.Round(campaign.Discount, 2);
 
         var note = PointsUsed > 0
             ? $"Ödeme alındı ({amount} + {PointsUsed:N2} puan = {new Money(PointsDiscount)} indirim)."
             : $"Ödeme alındı ({amount}).";
+        if (campaign is not null)
+            note = note.TrimEnd('.') + $"; kampanya: {campaign.Title} (−{new Money(CampaignDiscount)}).";
         Transition(LetterStatus.Paid, note);
         Raise(new LetterPaid(Id, CustomerId, amount.Amount));
     }

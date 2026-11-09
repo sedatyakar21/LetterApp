@@ -125,7 +125,8 @@
                 <li class="list-group-item">
                     <div class="text-muted">Ödeme</div>
                     @(l.PaidAmount is { } amt ? $"{new Money(amt)} · {l.PaymentMethod?.DisplayName()}" : "Ödenmedi")
-                    @if (l.PointsUsed > 0) { <br /><span>Puanla ödenen: @l.PointsUsed.ToString("N2") puan = @(new Money(l.PointsDiscount)) indirim</span> }
+                    @if (l.CampaignTitle is not null) { <br /><span class="text-success">Kampanya: @l.CampaignTitle (−@(new Money(l.CampaignDiscount)))</span> }
+                    @if (l.PointsUsed > 0) { <br /><span>Puanla ödenen:@l.PointsUsed.ToString("N2") puan = @(new Money(l.PointsDiscount)) indirim</span> }
                     @if (l.PointsToEarn > 0)
                     {
                         <br /><span class="text-muted">Kazandıracağı puan: @l.PointsToEarn.ToString("N2")

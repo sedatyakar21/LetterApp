@@ -1,0 +1,50 @@
+@model IReadOnlyList<MektupApp.Application.Campaigns.CampaignCardDto>
+@{
+    ViewData["Title"] = "Kampanyalar";
+    ViewData["Description"] = "BiMektup kampanyaları: özel günlere indirimler, ücretsiz ekstralar ve fırsatlar.";
+    var ended = ViewBag.Ended as IReadOnlyList<MektupApp.Application.Campaigns.CampaignCardDto> ?? [];
+}
+
+<section class="blog-hero">
+    <div class="container py-5 text-center">
+        <h1 data-reveal>Güncel <em>Kampanyalar</em></h1>
+        <p class="lead text-muted mb-0" data-reveal>Özel günlere özel fırsatlar. Mektubunuzu yazmak için güzel bir bahane.</p>
+    </div>
+</section>
+
+<div class="container py-5">
+    @if (Model.Count == 0)
+    {
+        <div class="text-center text-muted py-5">
+            <div class="display-6">🎈</div>
+            <p class="mt-2 mb-1">Şu an devam eden bir kampanya yok.</p>
+            <p class="small">Yeni kampanyalardan haberdar olmak için bizi takip edin; bu arada <a asp-controller="Blog" asp-action="Index">blogumuza</a> göz atabilirsiniz.</p>
+        </div>
+    }
+    else
+    {
+        <div class="row g-4" data-reveal-group="90">
+            @foreach (var c in Model)
+            {
+                <div class="col-md-6 col-lg-4" data-reveal><partial name="_CampaignCard" model="c" /></div>
+            }
+        </div>
+    }
+
+    @if (ended.Count > 0)
+    {
+        <details class="mt-5 ended-campaigns">
+            <summary class="h5 section-title">Sona eren kampanyalar (@ended.Count)</summary>
+            <div class="row g-4 mt-1">
+                @foreach (var c in ended)
+                {
+                    <div class="col-md-6 col-lg-4"><partial name="_CampaignCard" model="c" /></div>
+                }
+            </div>
+        </details>
+    }
+
+    <p class="small text-muted mt-5 mb-0">
+        Kampanya koşulları ve süreleri her kampanyanın sayfasında belirtilmiştir. BiMektup kampanyaları önceden haber vermeksizin değiştirme hakkını saklı tutar.
+    </p>
+</div>

@@ -1,0 +1,34 @@
+@model MektupApp.Application.Campaigns.CampaignCardDto
+@using MektupApp.Domain.Campaigns
+<article class="campaign-card h-100 @(Model.Phase == CampaignPhase.Ended ? "is-ended" : "")">
+    <a asp-area="" asp-controller="Campaigns" asp-action="Detail" asp-route-slug="@Model.Slug" class="campaign-card-link">
+        <div class="campaign-card-cover">
+            @if (Model.HasCover)
+            {
+                <img src="@Url.Action("Cover", "Campaigns", new { area = "", id = Model.Id })" alt="" loading="lazy" />
+            }
+            else
+            {
+                <div class="campaign-card-art" aria-hidden="true">
+                    <span>@(Model.BadgeText ?? "🎉")</span>
+                </div>
+            }
+            @if (Model.BadgeText is not null && Model.HasCover)
+            {
+                <span class="campaign-badge">@Model.BadgeText</span>
+            }
+            <span class="campaign-status @CampaignText.StatusCss(Model.Phase, Model.DaysLeft)">
+                @CampaignText.Status(Model.Phase, Model.DaysLeft, Model.StartDate)
+            </span>
+        </div>
+        <div class="campaign-card-body">
+            <div class="blog-meta">@CampaignText.DateRange(Model.StartDate, Model.EndDate)</div>
+            <h3 class="h5 campaign-card-title">@Model.Title</h3>
+            <p class="text-muted small mb-0">@Model.Summary</p>
+            @if (Model.CouponCode is not null && Model.Phase != CampaignPhase.Ended)
+            {
+                <div class="campaign-coupon-mini mt-2">Kod: <span class="font-monospace">@Model.CouponCode</span></div>
+            }
+        </div>
+    </a>
+</article>

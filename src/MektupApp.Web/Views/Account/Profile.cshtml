@@ -1,0 +1,40 @@
+@model MektupApp.Application.Customers.AccountDto
+@{
+    ViewData["Title"] = "Hesabım";
+    var inv = System.Globalization.CultureInfo.InvariantCulture;
+}
+<div class="container py-4" style="max-width: 560px">
+    <h1 class="h3 mb-4">Hesabım</h1>
+
+    <div class="card mb-3">
+        <ul class="list-group list-group-flush">
+            <li class="list-group-item"><span class="text-muted small d-block">Ad Soyad</span>@Model.FullName</li>
+            <li class="list-group-item"><span class="text-muted small d-block">E-posta</span>@Model.Email</li>
+            <li class="list-group-item"><span class="text-muted small d-block">Cep Telefonu</span>@Model.Phone</li>
+            <li class="list-group-item"><span class="text-muted small d-block">Üyelik tarihi</span>@Model.MemberSince.ToString("d MMMM yyyy")</li>
+            <li class="list-group-item"><span class="text-muted small d-block">Referans no</span><span class="font-monospace">@Model.ReferralCode</span></li>
+        </ul>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            <h2 class="h6 mb-2">🎂 Doğum tarihi</h2>
+            @if (Model.BirthDate is { } birth)
+            {
+                <p class="mb-1">@birth.ToString("d MMMM yyyy")</p>
+                <p class="small text-muted mb-0">Doğum günü kampanyaları size otomatik uygulanır. Tarih hatalıysa destek ekibimize yazın.</p>
+            }
+            else
+            {
+                <p class="small text-muted">Doğum tarihinizi ekleyin; doğum gününüze özel kampanyalar ödeme ekranında otomatik uygulansın.
+                    <strong>Bir kez girildikten sonra değiştirilemez.</strong></p>
+                <form asp-action="BirthDate" method="post" class="d-flex gap-2">
+                    <input type="date" name="birthDate" class="form-control" required autocomplete="bday"
+                           max="@DateTime.Today.ToString("yyyy-MM-dd", inv)" />
+                    <button type="submit" class="btn btn-primary flex-shrink-0"
+                            onclick="return confirm('Doğum tarihiniz kaydedildikten sonra değiştirilemez. Onaylıyor musunuz?')">Kaydet</button>
+                </form>
+            }
+        </div>
+    </div>
+</div>

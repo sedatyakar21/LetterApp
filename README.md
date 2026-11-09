@@ -6,7 +6,7 @@ Kod tabanı ve projeler `MektupApp.*` adını korur; kullanıcıya görünen mar
 
 **Blog:** `/blog` (liste) ve `/blog/{adres}` (yazı). Yazılar admin → 📝 Blog'dan eklenir: Markdown içerik, canlı önizleme, kapak görseli, taslak / yayın. Yazı adresi başlıktan Türkçe karakterler sadeleştirilerek üretilir, çakışırsa sonuna `-2` eklenir. Taslaklar ziyaretçiye 404 döner; yönetici `?onizleme=1` ile görebilir. Güvenlik için Markdown içinde ham HTML kapalıdır, bağlantılarda sadece http(s), mailto ve site içi adreslere izin verilir (`MarkdownRenderer`, testleri `tests/MektupApp.Web.Tests`). Ana sayfada son 3 yazı gösterilir.
 
-**WhatsApp yardım menüsü:** Sitenin sağ altındaki "Yardım" butonu hazır konularla (sipariş takibi, ödeme, adres değişikliği, puan…) WhatsApp'ı önceden yazılmış mesajla açar. Mektup detay sayfasında mesaja takip kodu, giriş yapılmışsa ad soyad eklenir. Numara `appsettings.json` → `Support:WhatsAppNumber` (ülke koduyla, ör. `905321234567`); boşsa buton gösterilmez. Geliştirme ayarındaki numara yer tutucudur.
+**WhatsApp yardım menüsü:** Sitenin sağ altındaki "Yardım" butonu hazır konularla (sipariş takibi, ödeme, adres değişikliği, puan…) WhatsApp'ı önceden yazılmış mesajla açar. Mektup detay sayfasında mesaja takip kodu, giriş yapılmışsa ad soyad eklenir. Numara `appsettings.json` → `Support:WhatsAppNumber` (ülke koduyla, ör. `905321234567`); boşsa buton gösterilmez. Şu anki destek hattı: 0543 427 77 91.
 
 Online mektup gönderme uygulaması: kullanıcı mektubunu yazar, kağıt/zarf rengi, yazı stili, koku, kartpostal ve fotoğraf seçer, öder. Mektup basılıp postaya verilir, takip kodu SMS ile gelir.
 
@@ -33,6 +33,16 @@ Sadece `Admin` rolündeki kullanıcılar erişebilir (MVC Area: `src/MektupApp.W
 - **Fiyatlar:** fiyat listesi veritabanında tutulur ve panelden değiştirilir; değişiklik yalnızca sonraki ödemeleri etkiler. `appsettings.json` → `Pricing` sadece ilk kurulumda kullanılan varsayılandır.
 
 - **MektupPuan:** puan programını açma / kapama ve kazanım kuralı: ödenen tutarın yüzdesi **veya** mektup başına sabit puan. Müşteri detayında bakiye, puan hareketleri ve elle düzeltme (+/−, açıklamalı).
+- **Kampanyalar:** duyuru sayfası (`/kampanyalar`). Başlık, kısa açıklama, Markdown koşullar, rozet, isteğe bağlı kupon kodu, başlangıç / bitiş tarihi (bitiş günü dahil, Türkiye saati) ve kapak görseli. Durum tarihlere göre kendiliğinden belirlenir (Yakında / Devam ediyor / Son N gün / Sona erdi); aktif kampanyalar ana sayfadaki şeritte görünür.
+  - **İndirim:** her kampanyaya bir indirim türü verilir: sadece duyuru, yüzde, sabit tutar (₺), ücretsiz koku veya ücretsiz kartpostal. İsteğe bağlı olarak en düşük sepet tutarı da tanımlanabilir.
+  - **Ödeme ekranında uygulanma:** kupon kodu olmayan kampanya otomatik uygulanır; kuponlu kampanya, kod "Kupon kodu" alanına girildiğinde uygulanır.
+  - **Birleşmeme kuralı:** kampanyalar birleşmez. Siparişe, koşulları sağlayanlar arasından müşteriye en çok indirim sağlayan tek kampanya uygulanır.
+  - **Puanlarla ilişkisi:** indirim, MektupPuan kullanımından önce düşülür. Kazanılacak puan ve referans puanı indirimli tutardan hesaplanır.
+  - **Kayıt:** uygulanan kampanya ve indirim tutarı, ödeme denemesine ve mektuba o anki haliyle kaydedilir; kampanya sonradan değişse de bu kayıt etkilenmez. Müşteri sipariş detayında ve yönetim sipariş detayında görünür.
+  - **Ücretsiz sipariş:** indirim tutarın tamamını karşılarsa ödeme formu açılmaz, sipariş doğrudan tamamlanır.
+  - **Hedef kitle:** kampanya herkese, yeni üyelere (üyeliğin ilk N günü) veya doğum günü olanlara (doğum gününden ±N gün; 29 Şubat ve yılbaşı geçişi dahil) uygulanabilir.
+  - **Üye başına kullanım sınırı:** örneğin "1 kez". Doğum günü kampanyasında hak her doğum günü yenilenir. Ödenmiş siparişler ve sonucu beklenen ödemeler sayılır; iptal edilen sipariş hakkı geri verir.
+  - **Doğum tarihi:** üye olurken isteğe bağlı girilir ya da sonradan **Hesabım** (`/hesabim`) sayfasından eklenir. Üye bir kez girer, sonra değiştiremez; düzeltme ve silme yönetimdeki müşteri detayından yapılır.
 
 ### MektupPuan (sadakat puanı)
 

@@ -52,7 +52,7 @@ public class AccountController(AccountService accounts) : Controller
         {
             var customer = await accounts.RegisterAsync(
                 new RegisterCommand(model.FullName, model.Email, model.Phone, model.Password,
-                    model.Channel, model.Channel == AcquisitionChannel.Friend ? model.ReferralCode : null), ct);
+                    model.Channel, model.Channel == AcquisitionChannel.Friend ? model.ReferralCode : null, model.BirthDate), ct);
             await SignInAsync(customer);
             TempData["Success"] = "Hoş geldiniz! İlk mektubunuzu yazmaya başlayabilirsiniz.";
             return RedirectToAction("Write", "Letters");
@@ -63,6 +63,21 @@ public class AccountController(AccountService accounts) : Controller
             return View(model);
         }
     }
+
+    [Authorize, HttpGet("hesabim")]
+    public async Task<IActionResult> Profile(CancellationToken ct) =>
+        View(await accounts.GetAccountAsync(CurrentUserId, ct) ?? throw new AppException("Üyelik bulunamadı."));
+
+    [Authorize, HttpPost("hesabim/dogum-tarihi")]
+    public async Task<IActionResult> BirthDate(DateOnly? birthDate, CancellationToken ct)
+    {
+        if (birthDate is null) throw new AppException("Lütfen doğum tarihinizi seçin.");
+        await accounts.SetBirthDateAsync(CurrentUserId, birthDate.Value, ct);
+        TempData["Success"] = "Doğum tarihiniz kaydedildi. 🎂 Doğum günü kampanyalarından yararlanabilirsiniz.";
+        return RedirectToAction(nameof(Profile));
+    }
+
+    private Guid CurrentUserId => Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
 
     [Authorize, HttpPost("cikis")]
     public async Task<IActionResult> Logout()

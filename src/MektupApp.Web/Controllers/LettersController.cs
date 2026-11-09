@@ -96,7 +96,8 @@ public class LettersController(LetterService letters, AccountService accounts, P
     }
 
     [HttpGet("mektup/{id:guid}/odeme")]
-    public async Task<IActionResult> Checkout(Guid id, PaymentMethod method, bool usePoints, CancellationToken ct)
+    public async Task<IActionResult> Checkout(Guid id, PaymentMethod method, bool usePoints,
+        [FromQuery(Name = "kupon")] string? coupon, CancellationToken ct)
     {
         var letter = await letters.GetAsync(id, CustomerId, ct);
 
@@ -111,9 +112,9 @@ public class LettersController(LetterService letters, AccountService accounts, P
         if (!letter.IsEditable) return RedirectToAction(nameof(Details), new { id });
         try
         {
-            var quote = await letters.GetQuoteAsync(id, CustomerId, method, usePoints, ct);
+            var quote = await letters.GetQuoteAsync(id, CustomerId, method, usePoints, ct, coupon);
             if (quote.Method == PaymentMethod.Mobile && !quote.MobilePaymentAvailable)
-                return RedirectToAction(nameof(Checkout), new { id, method = PaymentMethod.Card, usePoints });
+                return RedirectToAction(nameof(Checkout), new { id, method = PaymentMethod.Card, usePoints, kupon = quote.CouponCode });
             return View(new CheckoutViewModel { Letter = letter, Quote = quote });
         }
         catch (DomainException ex)
@@ -128,16 +129,19 @@ public class LettersController(LetterService letters, AccountService accounts, P
     /// (PayTR iFrame) yönlendirilir ve kesin sonuç PayTR bildirimiyle gelir.
     /// </summary>
     [HttpPost("mektup/{id:guid}/odeme")]
-    public async Task<IActionResult> Pay(Guid id, PaymentMethod method, bool usePoints, CancellationToken ct)
+    public async Task<IActionResult> Pay(Guid id, PaymentMethod method, bool usePoints, string? coupon, CancellationToken ct)
     {
         var result = await payments.StartAsync(new StartPaymentCommand(
             id, CustomerId, method, usePoints,
             HttpContext.Connection.RemoteIpAddress?.ToString() ?? "127.0.0.1",
-            oid => Url.Action(nameof(PaymentResult), "Letters", new { id, oid }, Request.Scheme)!), ct);
+            oid => Url.Action(nameof(PaymentResult), "Letters", new { id, oid }, Request.Scheme)!,
+            coupon), ct);
 
         if (result.Completed)
         {
-            TempData["Success"] = "Ödemeniz MektupPuan ile alındı! Mektubunuz ilk iş gününde basılıp postaya verilecek.";
+            TempData["Success"] = usePoints
+                ? "Ödemeniz MektupPuan ile alındı! Mektubunuz ilk iş gününde basılıp postaya verilecek."
+                : "Siparişiniz kampanya indirimiyle ücretsiz tamamlandı! Mektubunuz ilk iş gününde basılıp postaya verilecek.";
             return RedirectToAction(nameof(Details), new { id });
         }
 

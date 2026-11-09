@@ -38,6 +38,7 @@ public sealed class CustomerDetailsViewModel
     public required PagedResult<AdminLetterRowDto> Letters { get; init; }
     public required MektupApp.Application.Loyalty.LoyaltyAccountDto Points { get; init; }
     public bool IsSelf { get; init; }
+    public DateOnly? BirthDate { get; init; }
 }
 
 public sealed class PricingFormViewModel

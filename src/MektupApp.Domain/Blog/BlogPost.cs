@@ -96,30 +96,12 @@ public sealed class BlogPost : AggregateRoot
     private void Touch() => UpdatedAt = DateTime.UtcNow;
 }
 
-/// <summary>URL'de kullanılacak yazı adresi: küçük harf, Türkçe karakterler sadeleşmiş, kelimeler tireyle ayrılmış.</summary>
-public static partial class BlogSlug
+/// <summary>Blog yazısı adresi; kural ortak <see cref="Common.Slug"/> ile aynıdır.</summary>
+public static class BlogSlug
 {
-    public const int MaxLength = 120;
+    public const int MaxLength = Common.Slug.MaxLength;
 
-    public static string From(string? text)
-    {
-        var sb = new StringBuilder();
-        foreach (var ch in (text ?? string.Empty).Trim())
-        {
-            sb.Append(ch switch
-            {
-                'ç' or 'Ç' => 'c', 'ğ' or 'Ğ' => 'g', 'ı' or 'I' or 'İ' or 'i' => 'i',
-                'ö' or 'Ö' => 'o', 'ş' or 'Ş' => 's', 'ü' or 'Ü' => 'u',
-                _ => char.ToLowerInvariant(ch)
-            });
-        }
-        var slug = NonAlnum().Replace(sb.ToString(), "-").Trim('-');
-        if (slug.Length > MaxLength) slug = slug[..MaxLength].TrimEnd('-');
-        return slug;
-    }
-
-    [GeneratedRegex("[^a-z0-9]+")]
-    private static partial Regex NonAlnum();
+    public static string From(string? text) => Common.Slug.From(text);
 }
 
 public interface IBlogPostRepository

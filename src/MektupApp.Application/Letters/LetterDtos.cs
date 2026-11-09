@@ -74,6 +74,9 @@ public sealed record LetterDetailsDto(
     DateTime? CarrierLastMovementAt,
     DateTime? CarrierCheckedAt)
 {
+    public string? CampaignTitle { get; init; }
+    public decimal CampaignDiscount { get; init; }
+
     public static LetterDetailsDto From(Letter l) => new(
         l.Id, l.CustomerId, l.SenderName, AddressDto.From(l.SenderAddress),
         l.Recipient.FullName, l.Recipient.Type, l.Recipient.Detail, AddressDto.From(l.Recipient.Address),
@@ -82,7 +85,11 @@ public sealed record LetterDetailsDto(
         l.History.Select(h => new StatusChangeDto(h.Status, h.Note, h.At)).ToList(),
         l.IsEditable, l.CanCancel, l.CanDelete, l.CanChangeAddress, l.CreatedAt,
         l.PointsUsed, l.PointsToEarn, l.ReferrerCustomerId, l.ReferralPointsToEarn, l.PointsDiscount,
-        l.Carrier, l.CarrierLastMovement, l.CarrierLastMovementAt, l.CarrierCheckedAt);
+        l.Carrier, l.CarrierLastMovement, l.CarrierLastMovementAt, l.CarrierCheckedAt)
+    {
+        CampaignTitle = l.CampaignTitle,
+        CampaignDiscount = l.CampaignDiscount
+    };
 }
 
 /// <param name="Total">Puan indirimi öncesi toplam.</param>
@@ -107,6 +114,19 @@ public sealed record QuoteDto(
     decimal BalanceValue,
     bool MobilePaymentAvailable = true,
     string ProviderLabel = "",
-    bool ProviderIsSimulation = false);
+    bool ProviderIsSimulation = false)
+{
+    /// <summary>Uygulanan kampanya (yoksa null). İndirim puan kullanımından önce düşülür.</summary>
+    public MektupApp.Domain.Campaigns.AppliedCampaign? Campaign { get; init; }
+    /// <summary>Müşterinin girdiği kupon kodu (büyük harfe çevrilmiş).</summary>
+    public string? CouponCode { get; init; }
+    /// <summary>Girilen kupon, uygulanan kampanyanın kodu mu.</summary>
+    public bool CouponApplied { get; init; }
+    /// <summary>Girilen kod aktif, indirimli bir kampanyaya ait mi (uygulanmasa bile).</summary>
+    public bool CouponRecognized { get; init; }
+    /// <summary>Kod geçerli ama müşteri bu kampanyanın hedef kitlesinde değil ya da kullanım hakkı doldu.</summary>
+    public bool CouponNotEligible { get; init; }
+    public decimal CampaignDiscount => Campaign?.Discount ?? 0;
+}
 
 public sealed record TrackingResultDto(string TrackingCode, string RecipientInitials, string City, LetterStatus Status, IReadOnlyList<StatusChangeDto> History);

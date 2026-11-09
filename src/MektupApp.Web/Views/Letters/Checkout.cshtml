@@ -4,6 +4,9 @@
     ViewData["Title"] = "Ödeme";
     var l = Model.Letter;
     var q = Model.Quote;
+    // Sadece uygulanan kupon sonraki adımlara taşınır; geçersiz kod ödemeyi engellemesin.
+    var coupon = q.CouponApplied ? q.CouponCode : null;
+    var couponRejected = q.CouponCode is not null && !q.CouponApplied;
 }
 <div class="container py-4" style="max-width: 760px">
     <a asp-action="Edit" asp-route-id="@l.Id" class="small">← Mektuba geri dön</a>
@@ -22,7 +25,7 @@
             @foreach (var m in Enum.GetValues<PaymentMethod>())
             {
                 <a class="btn @(q.Method == m ? "btn-primary" : "btn-outline-primary")"
-                   asp-action="Checkout" asp-route-id="@l.Id" asp-route-method="@m" asp-route-usePoints="@q.UsePoints">@m.DisplayName()</a>
+                   asp-action="Checkout" asp-route-id="@l.Id" asp-route-method="@m" asp-route-usePoints="@q.UsePoints" asp-route-kupon="@coupon">@m.DisplayName()</a>
             }
         </div>
     }
@@ -33,15 +36,73 @@
             {
                 <tr><td>@line.Description</td><td class="text-end">@(new Money(line.Amount))</td></tr>
             }
+            @if (q.Campaign is not null)
+            {
+                <tr class="text-success checkout-campaign-line">
+                    <td>🎉 Kampanya: <strong>@q.Campaign.Title</strong>@if (q.CouponApplied) { <span class="small"> (kupon @q.CouponCode)</span> }</td>
+                    <td class="text-end">−@(new Money(q.CampaignDiscount))</td>
+                </tr>
+            }
             @if (q.PointsUsed > 0)
             {
                 <tr class="text-success"><td>MektupPuan kullanımı <span class="small">(@q.PointsUsed.ToString("N2") puan)</span></td><td class="text-end">−@(new Money(q.PointsDiscount))</td></tr>
             }
         </tbody>
         <tfoot>
+            @if (q.Campaign is not null || q.PointsUsed > 0)
+            {
+                <tr class="text-muted small"><td>Ara toplam</td><td class="text-end text-decoration-line-through">@(new Money(q.Total))</td></tr>
+            }
             <tr class="fw-bold fs-5"><td>Ödenecek tutar</td><td class="text-end">@(new Money(q.AmountToPay))</td></tr>
         </tfoot>
     </table>
+
+    <form method="get" asp-action="Checkout" asp-route-id="@l.Id" class="card mb-3">
+        <div class="card-body">
+            <label for="kupon" class="form-label fw-semibold mb-1">Kupon kodu</label>
+            <input type="hidden" name="method" value="@q.Method" />
+            <input type="hidden" name="usePoints" value="@(q.UsePoints ? "true" : "false")" />
+            <div class="input-group">
+                <input type="text" id="kupon" name="kupon" value="@q.CouponCode" maxlength="30" autocomplete="off"
+                       class="form-control font-monospace text-uppercase @(couponRejected ? "is-invalid" : q.CouponApplied ? "is-valid" : "")"
+                       placeholder="Varsa kampanya kodunuz" />
+                <button type="submit" class="btn btn-outline-primary">Uygula</button>
+                @if (q.CouponCode is not null)
+                {
+                    <a class="btn btn-outline-secondary" asp-action="Checkout" asp-route-id="@l.Id" asp-route-method="@q.Method" asp-route-usePoints="@q.UsePoints">Kaldır</a>
+                }
+            </div>
+            @if (couponRejected)
+            {
+                <div class="small text-danger mt-1">
+                    @if (!q.CouponRecognized)
+                    {
+                        @:Kod geçerli değil ya da süresi dolmuş.
+                    }
+                    else if (q.CouponNotEligible)
+                    {
+                        @:Bu kod size özel koşullara bağlı (yeni üye / doğum günü) ya da kullanım hakkınız doldu.
+                    }
+                    else if (q.Campaign is not null)
+                    {
+                        @:Bu kod siparişinize daha az indirim sağlıyor; daha avantajlı olan "@q.Campaign.Title" kampanyası uygulandı.
+                    }
+                    else
+                    {
+                        @:Kod geçerli ancak siparişiniz kampanya koşullarını sağlamıyor (ör. en düşük sepet tutarı).
+                    }
+                </div>
+            }
+            else if (q.CouponApplied)
+            {
+                <div class="small text-success mt-1">Kupon uygulandı.</div>
+            }
+            else
+            {
+                <div class="form-text">Kodsuz kampanyalar otomatik uygulanır. Siparişe tek kampanya, en avantajlı olanı uygulanır.</div>
+            }
+        </div>
+    </form>
 
     @if (q.PointsBalance > 0)
     {
@@ -52,7 +113,7 @@
                     <div class="small text-muted">1 puan = @(new Money(q.PointValue)). Puanınız tutarın tamamını karşılıyorsa ayrıca ödeme alınmaz.</div>
                 </div>
                 <a class="btn btn-sm @(q.UsePoints ? "btn-outline-secondary" : "btn-success") flex-shrink-0"
-                   asp-action="Checkout" asp-route-id="@l.Id" asp-route-method="@q.Method" asp-route-usePoints="@(!q.UsePoints)">
+                   asp-action="Checkout" asp-route-id="@l.Id" asp-route-method="@q.Method" asp-route-usePoints="@(!q.UsePoints)" asp-route-kupon="@coupon">
                     @(q.UsePoints ? "Puan kullanma" : "Puanımı kullan")
                 </a>
             </div>
@@ -87,8 +148,10 @@
     <form asp-action="Pay" asp-route-id="@l.Id" method="post">
         <input type="hidden" name="method" value="@q.Method" />
         <input type="hidden" name="usePoints" value="@(q.UsePoints ? "true" : "false")" />
+        @if (coupon is not null) { <input type="hidden" name="coupon" value="@coupon" /> }
         <button type="submit" class="btn btn-primary btn-lg w-100">
-            @(q.AmountToPay > 0 ? $"{new Money(q.AmountToPay)} Ödemeye Geç" : "Puanla Öde ve Gönder")
+            @(q.AmountToPay > 0 ? $"{new Money(q.AmountToPay)} Ödemeye Geç"
+              : q.PointsUsed > 0 ? "Puanla Öde ve Gönder" : "Ücretsiz Gönder")
         </button>
     </form>
 </div>

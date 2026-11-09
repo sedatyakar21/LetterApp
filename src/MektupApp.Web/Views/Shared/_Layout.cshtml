@@ -42,6 +42,7 @@
                             <li class="nav-item"><a class="nav-link" asp-area="" asp-controller="Letters" asp-action="Write">Mektup Yaz</a></li>
                         }
                         <li class="nav-item"><a class="nav-link" asp-area="" asp-controller="Tracking" asp-action="Index">Gönderi Takibi</a></li>
+                        <li class="nav-item"><a class="nav-link" asp-area="" asp-controller="Campaigns" asp-action="Index">Kampanyalar</a></li>
                         <li class="nav-item"><a class="nav-link" asp-area="" asp-controller="Blog" asp-action="Index">Blog</a></li>
                         <li class="nav-item"><a class="nav-link" asp-area="" asp-controller="Home" asp-action="Faq">S.S.S.</a></li>
                     </ul>
@@ -54,6 +55,7 @@
                                     @User.Identity.Name
                                 </a>
                                 <ul class="dropdown-menu dropdown-menu-end">
+                                    <li><a class="dropdown-item" asp-area="" asp-controller="Account" asp-action="Profile">👤 Hesabım</a></li>
                                     <li><a class="dropdown-item" asp-area="" asp-controller="Points" asp-action="Index">🎁 Puanlarım</a></li>
                                     <li><a class="dropdown-item" asp-area="" asp-controller="Letters" asp-action="Index">✉️ Mektuplarım</a></li>
                                     @if (User.IsInRole("Admin"))
@@ -98,6 +100,7 @@
                 <nav class="d-flex flex-wrap gap-3" aria-label="Alt menü">
                     <a asp-area="" asp-controller="Letters" asp-action="Write">Mektup Yaz</a>
                     <a asp-area="" asp-controller="Tracking" asp-action="Index">Gönderi Takibi</a>
+                    <a asp-area="" asp-controller="Campaigns" asp-action="Index">Kampanyalar</a>
                     <a asp-area="" asp-controller="Blog" asp-action="Index">Blog</a>
                     <a asp-area="" asp-controller="Home" asp-action="Faq">Sıkça Sorulan Sorular</a>
                     <a asp-area="" asp-controller="Home" asp-action="Terms">Üyelik Sözleşmesi</a>

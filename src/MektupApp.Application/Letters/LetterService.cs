@@ -103,11 +103,12 @@ public sealed class LetterService(
         return stream is null ? null : (stream, photo.OriginalFileName);
     }
 
-    public async Task<QuoteDto> GetQuoteAsync(Guid letterId, Guid customerId, PaymentMethod method, bool usePoints, CancellationToken ct = default)
+    public async Task<QuoteDto> GetQuoteAsync(Guid letterId, Guid customerId, PaymentMethod method, bool usePoints,
+        CancellationToken ct = default, string? couponCode = null)
     {
         var letter = await LoadOwnedAsync(letterId, customerId, ct);
         letter.EnsureReadyForCheckout();
-        return (await checkout.CalculateAsync(letter, method, usePoints, ct)).Quote;
+        return (await checkout.CalculateAsync(letter, method, usePoints, ct, couponCode)).Quote;
     }
 
     public async Task CancelAsync(Guid letterId, Guid customerId, CancellationToken ct = default)

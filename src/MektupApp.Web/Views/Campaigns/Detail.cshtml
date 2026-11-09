@@ -1,0 +1,129 @@
+@model MektupApp.Application.Campaigns.CampaignDto
+@using MektupApp.Domain.Campaigns
+@{
+    ViewData["Title"] = Model.Title;
+    ViewData["Description"] = Model.Summary;
+    if (Model.HasCover) { ViewData["OgImage"] = Url.Action("Cover", "Campaigns", new { id = Model.Id }, Context.Request.Scheme); }
+    var others = ViewBag.Others as IReadOnlyList<MektupApp.Application.Campaigns.CampaignCardDto> ?? [];
+    var isOver = Model.Phase == CampaignPhase.Ended;
+}
+
+@if (!Model.IsPublished)
+{
+    <div class="container mt-3">
+        <div class="alert alert-warning mb-0">
+            <strong>Önizleme:</strong> bu kampanya henüz yayında değil, sadece yöneticiler görebilir.
+            <a asp-area="Admin" asp-controller="Campaigns" asp-action="Edit" asp-route-id="@Model.Id">Düzenle</a>
+        </div>
+    </div>
+}
+
+<article class="container py-5" style="max-width: 900px">
+    <a asp-action="Index" class="small">← Kampanyalar</a>
+
+    <div class="campaign-hero mt-2 @(isOver ? "is-ended" : "")">
+        @if (Model.HasCover)
+        {
+            <img src="@Url.Action("Cover", "Campaigns", new { id = Model.Id })" alt="" class="campaign-hero-img" />
+        }
+        <div class="campaign-hero-body">
+            <div class="d-flex flex-wrap gap-2 mb-2">
+                @if (Model.BadgeText is not null) { <span class="campaign-badge position-static">@Model.BadgeText</span> }
+                <span class="campaign-status position-static @CampaignText.StatusCss(Model.Phase, Model.DaysLeft)">
+                    @CampaignText.Status(Model.Phase, Model.DaysLeft, Model.StartDate)
+                </span>
+            </div>
+            <h1 class="blog-post-title mb-2">@Model.Title</h1>
+            <div class="blog-meta mb-3">📅 @CampaignText.DateRange(Model.StartDate, Model.EndDate)
+                @if (Model.DiscountType != MektupApp.Domain.Campaigns.CampaignDiscountType.None
+                     && (Model.Audience != MektupApp.Domain.Campaigns.CampaignAudience.Everyone || Model.UsageLimitPerCustomer is not null))
+                {
+                    <span class="ms-2">👤 @CampaignText.Audience(Model.Audience, Model.AudienceDays, Model.UsageLimitPerCustomer)</span>
+                }
+            </div>
+            <p class="lead blog-lead mb-0">@Model.Summary</p>
+        </div>
+    </div>
+
+    @if (Model.CouponCode is null && Model.DiscountType != MektupApp.Domain.Campaigns.CampaignDiscountType.None && !isOver)
+    {
+        <div class="alert alert-success mt-4 mb-0" data-reveal>
+            ✨ Kod gerekmez: kampanya süresince indirim ödeme ekranında <strong>otomatik</strong> uygulanır@(Model.Audience == MektupApp.Domain.Campaigns.CampaignAudience.Everyone ? "." : " (koşulları sağlayan üyelere).")
+        </div>
+    }
+    @if (Model.Audience == MektupApp.Domain.Campaigns.CampaignAudience.Birthday && Model.DiscountType != MektupApp.Domain.Campaigns.CampaignDiscountType.None && !isOver)
+    {
+        <div class="alert alert-light border mt-3 mb-0 small" data-reveal>
+            🎂 Bu kampanya için doğum tarihinizin hesabınızda kayıtlı olması gerekir.
+            @if (User.Identity?.IsAuthenticated == true)
+            {
+                <a asp-controller="Account" asp-action="Profile">Hesabım sayfasından ekleyin →</a>
+            }
+            else
+            {
+                <a asp-controller="Account" asp-action="Register">Üye olurken ekleyebilirsiniz →</a>
+            }
+        </div>
+    }
+
+    @if (Model.CouponCode is not null && !isOver)
+    {
+        <div class="campaign-coupon mt-4" data-reveal>
+            <div>
+                <div class="small text-muted">Kampanya kodu</div>
+                <div class="campaign-coupon-code font-monospace" id="couponCode">@Model.CouponCode</div>
+                <div class="small text-muted">
+                    @(Model.DiscountType == MektupApp.Domain.Campaigns.CampaignDiscountType.None
+                        ? "Ödeme sırasında destek ekibimize bu kodu iletmeniz yeterli."
+                        : "Ödeme ekranındaki \"Kupon kodu\" alanına girin, indirim hemen uygulansın.")
+                </div>
+            </div>
+            <button type="button" class="btn btn-outline-primary" id="copyCoupon">Kodu Kopyala</button>
+        </div>
+    }
+
+    @if (!string.IsNullOrWhiteSpace(Model.DescriptionMarkdown))
+    {
+        <div class="blog-content mt-4">@MarkdownRenderer.ToHtml(Model.DescriptionMarkdown)</div>
+    }
+
+    @if (isOver)
+    {
+        <div class="alert alert-light border mt-4 mb-0">Bu kampanya sona erdi. <a asp-action="Index">Güncel kampanyalara göz atın</a>.</div>
+    }
+    else
+    {
+        <aside class="blog-cta mt-5" data-reveal>
+            <div>
+                <div class="fw-semibold">Fırsat kaçmadan mektubunuzu yazın 💌</div>
+                <div class="small text-muted">Klavyeden yazın, biz basıp zarflayalım ve kayıtlı posta ile gönderelim.</div>
+            </div>
+            <a class="btn btn-primary" asp-controller="Letters" asp-action="Write">Mektup Yaz</a>
+        </aside>
+    }
+</article>
+
+@if (others.Count > 0)
+{
+    <section class="features-band">
+        <div class="container py-5">
+            <h2 class="h4 section-title mb-4" data-reveal>Diğer kampanyalar</h2>
+            <div class="row g-4" data-reveal-group="90">
+                @foreach (var c in others)
+                {
+                    <div class="col-md-4" data-reveal><partial name="_CampaignCard" model="c" /></div>
+                }
+            </div>
+        </div>
+    </section>
+}
+
+@section Scripts {
+    <script>
+        document.getElementById("copyCoupon")?.addEventListener("click", async e => {
+            const code = document.getElementById("couponCode").textContent.trim();
+            try { await navigator.clipboard.writeText(code); e.currentTarget.textContent = "Kopyalandı ✓"; }
+            catch { prompt("Kampanya kodu:", code); }
+        });
+    </script>
+}

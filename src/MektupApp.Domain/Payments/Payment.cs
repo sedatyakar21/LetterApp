@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.Security.Cryptography;
+using MektupApp.Domain.Campaigns;
 using MektupApp.Domain.Common;
 using MektupApp.Domain.Letters;
 
@@ -43,6 +44,10 @@ public sealed class Payment : AggregateRoot
     public decimal PointsToEarn { get; private set; }
     public Guid? ReferrerCustomerId { get; private set; }
     public decimal ReferralPointsToEarn { get; private set; }
+    /// <summary>Uygulanan kampanya (ödeme anında sabitlenir; kampanya sonradan değişse de etkilenmez).</summary>
+    public Guid? CampaignId { get; private set; }
+    public string? CampaignTitle { get; private set; }
+    public decimal CampaignDiscount { get; private set; }
 
     public PaymentStatus Status { get; private set; }
     /// <summary>Ödeme formunun adresi (PayTR iFrame). Müşteri sayfayı kapatırsa geri dönebilsin diye saklanır.</summary>
@@ -61,9 +66,10 @@ public sealed class Payment : AggregateRoot
 
     public static Payment Start(Guid letterId, Guid customerId, string provider, PaymentMethod method,
         decimal amount, decimal pointsUsed, decimal pointsDiscount, decimal pointsToEarn,
-        Guid? referrerCustomerId, decimal referralPointsToEarn)
+        Guid? referrerCustomerId, decimal referralPointsToEarn, AppliedCampaign? campaign = null)
     {
-        if (amount < 0 || pointsUsed < 0 || pointsDiscount < 0 || pointsToEarn < 0 || referralPointsToEarn < 0)
+        if (amount < 0 || pointsUsed < 0 || pointsDiscount < 0 || pointsToEarn < 0 || referralPointsToEarn < 0
+            || campaign?.Discount < 0)
             throw new DomainException("Ödeme tutarları negatif olamaz.");
 
         return new Payment
@@ -79,6 +85,9 @@ public sealed class Payment : AggregateRoot
             PointsToEarn = pointsToEarn,
             ReferrerCustomerId = referrerCustomerId,
             ReferralPointsToEarn = referrerCustomerId is null ? 0 : referralPointsToEarn,
+            CampaignId = campaign?.CampaignId,
+            CampaignTitle = campaign is null ? null : Guard.Required(campaign.Title, "Kampanya", 120),
+            CampaignDiscount = campaign is null ? 0 : decimal.Round(campaign.Discount, 2),
             Status = PaymentStatus.Pending,
             CreatedAt = DateTime.UtcNow
         };

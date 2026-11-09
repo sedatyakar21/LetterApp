@@ -38,6 +38,7 @@ public static class DependencyInjection
         services.AddScoped<IPricingSettingsRepository, PricingSettingsRepository>();
         services.AddScoped<IAdminQueries, AdminQueries>();
         services.AddScoped<MektupApp.Domain.Blog.IBlogPostRepository, BlogPostRepository>();
+        services.AddScoped<MektupApp.Domain.Campaigns.ICampaignRepository, CampaignRepository>();
         services.AddScoped<ILoyaltyAccountRepository, LoyaltyAccountRepository>();
         services.AddScoped<ILoyaltySettingsRepository, LoyaltySettingsRepository>();
 

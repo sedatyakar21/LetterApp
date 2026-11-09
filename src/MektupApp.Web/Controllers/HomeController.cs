@@ -5,11 +5,13 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace MektupApp.Web.Controllers;
 
-public class HomeController(PricingService pricing, MektupApp.Application.Blog.BlogService blog) : Controller
+public class HomeController(PricingService pricing, MektupApp.Application.Blog.BlogService blog,
+    MektupApp.Application.Campaigns.CampaignService campaigns) : Controller
 {
     public async Task<IActionResult> Index(CancellationToken ct)
     {
         ViewBag.LatestPosts = await blog.LatestAsync(3, ct);
+        ViewBag.ActiveCampaigns = (await campaigns.ListActiveAsync(ct)).Take(3).ToList();
         return View(await pricing.GetCurrentAsync(ct));
     }
 

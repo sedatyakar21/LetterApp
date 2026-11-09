@@ -17,6 +17,12 @@ public sealed class Customer : AggregateRoot
     public bool IsActive { get; private set; } = true;
     public DateTime CreatedAt { get; private set; }
 
+    /// <summary>İsteğe bağlı; doğum günü kampanyaları için. Üye bir kez girer, sonra yalnızca yönetici değiştirebilir.</summary>
+    public DateOnly? BirthDate { get; private set; }
+
+    /// <summary>Üyelik günü (yeni üye kampanyaları için).</summary>
+    public DateOnly MemberSince => DateOnly.FromDateTime(CreatedAt);
+
     /// <summary>Üyenin bizi nereden duyduğu (eski / sistem hesaplarında boş olabilir).</summary>
     public AcquisitionChannel? AcquisitionChannel { get; private set; }
 
@@ -58,6 +64,23 @@ public sealed class Customer : AggregateRoot
 
     /// <summary>Üretilen kod başka bir üyede varsa (aynı baş harfler + aynı sayı) yenisi atanır.</summary>
     public void RegenerateReferralCode() => ReferralCode = Customers.ReferralCode.Generate(FullName);
+
+    /// <param name="byAdmin">Yönetici düzeltmesi: kayıtlı tarihi değiştirebilir.</param>
+    public void SetBirthDate(DateOnly birthDate, bool byAdmin = false)
+    {
+        if (BirthDate is not null && !byAdmin)
+        {
+            if (BirthDate == birthDate) return;
+            throw new DomainException("Doğum tarihi bir kez girildikten sonra değiştirilemez. Hatalıysa destek ekibimize yazın.");
+        }
+        var today = DateOnly.FromDateTime(DateTime.UtcNow);
+        if (birthDate > today) throw new DomainException("Doğum tarihi bugünden sonra olamaz.");
+        if (birthDate < today.AddYears(-120)) throw new DomainException("Geçerli bir doğum tarihi girin.");
+        BirthDate = birthDate;
+    }
+
+    /// <summary>Yönetici, hatalı girilen doğum tarihini silebilir.</summary>
+    public void ClearBirthDate() => BirthDate = null;
 
     public void ChangePasswordHash(string passwordHash) =>
         PasswordHash = Guard.Required(passwordHash, "Şifre", 500);

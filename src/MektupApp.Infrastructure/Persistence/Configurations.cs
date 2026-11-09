@@ -24,6 +24,9 @@ internal sealed class LetterConfiguration : IEntityTypeConfiguration<Letter>
         b.HasIndex(l => l.PaidAt);
         b.Property(l => l.PointsUsed).HasPrecision(10, 2);
         b.Property(l => l.PointsDiscount).HasPrecision(10, 2);
+        b.Property(l => l.CampaignDiscount).HasPrecision(10, 2);
+        b.Property(l => l.CampaignTitle).HasMaxLength(120);
+        b.HasIndex(l => new { l.CustomerId, l.CampaignId });
 
         b.Property(l => l.Carrier).HasMaxLength(20);
         b.Property(l => l.CarrierReference).HasMaxLength(100);

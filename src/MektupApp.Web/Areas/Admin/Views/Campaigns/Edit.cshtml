@@ -1,0 +1,238 @@
+@model MektupApp.Web.Areas.Admin.Controllers.CampaignForm
+@using MektupApp.Domain.Campaigns
+@{
+    var isNew = Model.Id is null;
+    ViewData["Title"] = isNew ? "Yeni Kampanya" : "Kampanyayı Düzenle";
+    string D(DateOnly? d) => d?.ToString("yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture) ?? "";
+}
+
+<a asp-action="Index" class="small">← Kampanyalar</a>
+<div class="d-flex flex-wrap align-items-center gap-2 mt-1 mb-3">
+    <h1 class="h4 mb-0">@ViewData["Title"]</h1>
+    @if (!isNew) { <span class="badge @(Model.IsPublished ? "bg-success" : "bg-secondary")">@Model.Phase.DisplayName()</span> }
+</div>
+
+<div class="row g-3">
+    <div class="col-xl-8">
+        <form asp-action="@(isNew ? "Create" : "Edit")" asp-route-id="@Model.Id" method="post" class="admin-card p-3" id="campaignForm">
+            <div asp-validation-summary="All" class="text-danger small"></div>
+
+            <div class="mb-3">
+                <label asp-for="Title" class="form-label"></label>
+                <input asp-for="Title" class="form-control form-control-lg" placeholder="ör. Öğretmenler Günü'ne özel" />
+            </div>
+            <div class="mb-3">
+                <label asp-for="Slug" class="form-label"></label>
+                <div class="input-group">
+                    <span class="input-group-text small">/kampanyalar/</span>
+                    <input asp-for="Slug" class="form-control font-monospace" placeholder="boş bırakılırsa başlıktan üretilir" />
+                </div>
+            </div>
+            <div class="mb-3">
+                <label asp-for="Summary" class="form-label"></label>
+                <textarea asp-for="Summary" class="form-control" rows="2" maxlength="@Campaign.SummaryMax"></textarea>
+                <div class="form-text">Kartta, ana sayfa şeridinde ve Google açıklamasında görünür.</div>
+            </div>
+
+            <div class="row g-2 mb-3">
+                <div class="col-sm-6">
+                    <label asp-for="BadgeText" class="form-label"></label>
+                    <input asp-for="BadgeText" class="form-control" placeholder="ör. %20 İndirim, Ücretsiz Koku" />
+                </div>
+                <div class="col-sm-6">
+                    <label asp-for="CouponCode" class="form-label"></label>
+                    <input asp-for="CouponCode" class="form-control font-monospace text-uppercase" placeholder="isteğe bağlı, ör. OGRETMEN15" />
+                    <div class="form-text">Doluysa indirim yalnızca bu kod ödeme ekranında girilince uygulanır. Boşsa herkese otomatik uygulanır.</div>
+                </div>
+            </div>
+
+            <fieldset class="border rounded p-3 mb-3">
+                <legend class="float-none w-auto px-2 fs-6 fw-semibold mb-0">Ödeme ekranında indirim</legend>
+                <div class="row g-2">
+                    <div class="col-md-5">
+                        <label asp-for="DiscountType" class="form-label"></label>
+                        <select asp-for="DiscountType" class="form-select" id="DiscountType"
+                                asp-items="Html.GetEnumSelectList<CampaignDiscountType>()"></select>
+                    </div>
+                    <div class="col-md-3" data-discount-value>
+                        <label asp-for="DiscountValue" class="form-label"><span data-value-label>İndirim değeri</span></label>
+                        <input asp-for="DiscountValue" type="number" step="0.01" min="0" class="form-control" />
+                    </div>
+                    <div class="col-md-4" data-discount-min>
+                        <label asp-for="MinOrderAmount" class="form-label"></label>
+                        <input asp-for="MinOrderAmount" type="number" step="0.01" min="0" class="form-control" placeholder="yok" />
+                    </div>
+                </div>
+                <div class="row g-2 mt-1" data-audience-box>
+                    <div class="col-md-5">
+                        <label asp-for="Audience" class="form-label"></label>
+                        <select asp-for="Audience" class="form-select" id="Audience"
+                                asp-items="Html.GetEnumSelectList<CampaignAudience>()"></select>
+                    </div>
+                    <div class="col-md-3" data-audience-days>
+                        <label asp-for="AudienceDays" class="form-label"><span data-days-label>Gün</span></label>
+                        <input asp-for="AudienceDays" type="number" min="0" max="365" class="form-control" />
+                    </div>
+                    <div class="col-md-4">
+                        <label asp-for="UsageLimitPerCustomer" class="form-label"></label>
+                        <input asp-for="UsageLimitPerCustomer" type="number" min="1" max="100" class="form-control" placeholder="sınırsız" />
+                    </div>
+                    <div class="col-12 form-text mt-0" data-audience-help></div>
+                </div>
+                <div class="form-text">
+                    Siparişe tek kampanya uygulanır: koşulları sağlayanlar arasından müşteriye en çok indirim sağlayan.
+                    İndirim, MektupPuan kullanımından önce düşülür; kazanılacak puan indirimli tutardan hesaplanır.
+                </div>
+            </fieldset>
+
+            <div class="row g-2 mb-3">
+                <div class="col-sm-6">
+                    <label asp-for="StartDate" class="form-label"></label>
+                    <input type="date" name="StartDate" id="StartDate" value="@D(Model.StartDate)" class="form-control" required />
+                </div>
+                <div class="col-sm-6">
+                    <label asp-for="EndDate" class="form-label"></label>
+                    <input type="date" name="EndDate" id="EndDate" value="@D(Model.EndDate)" class="form-control" />
+                    <div class="form-text">Boş bırakılırsa süresiz. Bitiş günü dahildir (Türkiye saatiyle gece yarısına kadar).</div>
+                </div>
+            </div>
+
+            <div class="mb-2 d-flex justify-content-between align-items-end">
+                <label asp-for="DescriptionMarkdown" class="form-label mb-0"></label>
+                <ul class="nav nav-pills small">
+                    <li class="nav-item"><button type="button" class="nav-link py-1 active" data-tab="write">Yaz</button></li>
+                    <li class="nav-item"><button type="button" class="nav-link py-1" data-tab="preview">Önizleme</button></li>
+                </ul>
+            </div>
+            <textarea asp-for="DescriptionMarkdown" class="form-control font-monospace" rows="10" id="contentInput"
+                      placeholder="Kampanya detayı ve koşulları.&#10;&#10;- Kampanya X tarihine kadar geçerlidir.&#10;- Diğer kampanyalarla birleştirilemez."></textarea>
+            <div class="blog-content admin-card p-3 bg-white" id="contentPreview" hidden style="min-height: 200px"></div>
+
+            <div class="d-flex flex-wrap gap-2 mt-3">
+                <button type="submit" class="btn btn-outline-secondary">@(Model.IsPublished ? "Kaydet" : "Taslak Olarak Kaydet")</button>
+                @if (!Model.IsPublished)
+                {
+                    <button type="submit" name="publish" value="true" class="btn btn-primary">Kaydet ve Yayınla</button>
+                }
+            </div>
+        </form>
+    </div>
+
+    @if (!isNew)
+    {
+        <div class="col-xl-4">
+            <div class="admin-card p-3 mb-3">
+                <div class="fw-semibold mb-2">Yayın</div>
+                <div class="small text-muted mb-2">
+                    @CampaignText.DateRange(Model.StartDate, Model.EndDate)
+                </div>
+                <div class="d-flex flex-wrap gap-2">
+                    <a class="btn btn-sm btn-outline-secondary" target="_blank"
+                       href="@Url.Action("Detail", "Campaigns", new { area = "", slug = Model.Slug, onizleme = Model.IsPublished ? (bool?)null : true })">
+                        @(Model.IsPublished ? "Görüntüle ↗" : "Önizle ↗")
+                    </a>
+                    @if (Model.IsPublished)
+                    {
+                        <form asp-action="Unpublish" asp-route-id="@Model.Id" method="post"><button class="btn btn-sm btn-outline-warning">Yayından Kaldır</button></form>
+                    }
+                    else
+                    {
+                        <form asp-action="Publish" asp-route-id="@Model.Id" method="post"><button class="btn btn-sm btn-success">Yayınla</button></form>
+                    }
+                </div>
+            </div>
+
+            <div class="admin-card p-3 mb-3">
+                <div class="fw-semibold mb-2">Kapak görseli</div>
+                @if (Model.HasCover)
+                {
+                    <img src="@Url.Action("Cover", "Campaigns", new { area = "", id = Model.Id })" alt="Kapak" class="img-fluid rounded mb-2" />
+                    <form asp-action="RemoveCover" asp-route-id="@Model.Id" method="post" class="mb-2">
+                        <button class="btn btn-sm btn-link text-danger p-0">Kapağı kaldır</button>
+                    </form>
+                }
+                else
+                {
+                    <div class="small text-muted mb-2">Kapak yoksa kartta rozet metni marka renkleriyle gösterilir.</div>
+                }
+                <form asp-action="Cover" asp-route-id="@Model.Id" method="post" enctype="multipart/form-data" class="d-flex gap-2">
+                    <input type="file" name="cover" accept=".jpg,.jpeg,.png,.webp" class="form-control form-control-sm" required />
+                    <button class="btn btn-sm btn-outline-primary">Yükle</button>
+                </form>
+                <div class="form-text">JPG, PNG, WEBP · en fazla 4 MB · önerilen 1600×900</div>
+            </div>
+
+            <div class="admin-card p-3">
+                <form asp-action="Delete" asp-route-id="@Model.Id" method="post"
+                      onsubmit="return confirm('Bu kampanya kalıcı olarak silinecek. Emin misiniz?')">
+                    <button class="btn btn-sm btn-outline-danger">Kampanyayı Sil</button>
+                </form>
+            </div>
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <script>
+        // İndirim türüne göre değer / en düşük tutar alanlarını göster.
+        (function () {
+            const type = document.getElementById("DiscountType");
+            const valueBox = document.querySelector("[data-discount-value]");
+            const minBox = document.querySelector("[data-discount-min]");
+            const label = document.querySelector("[data-value-label]");
+            const sync = () => {
+                const t = type.value; // 0 duyuru, 1 yüzde, 2 tutar, 3 koku, 4 kartpostal
+                valueBox.hidden = !(t === "1" || t === "2");
+                minBox.hidden = t === "0";
+                label.textContent = t === "1" ? "Yüzde (%)" : "Tutar (₺)";
+            };
+            type.addEventListener("change", sync); sync();
+
+            // Hedef kitle: 0 herkes, 1 yeni üyeler, 2 doğum günü
+            const audience = document.getElementById("Audience");
+            const daysBox = document.querySelector("[data-audience-days]");
+            const days = document.getElementById("AudienceDays");
+            const daysLabel = document.querySelector("[data-days-label]");
+            const help = document.querySelector("[data-audience-help]");
+            const audienceBox = document.querySelector("[data-audience-box]");
+            const syncAudience = () => {
+                const a = audience.value;
+                audienceBox.hidden = type.value === "0";
+                daysBox.hidden = a === "0";
+                if (a === "1") {
+                    daysLabel.textContent = "Üyelikten sonra (gün)";
+                    if (!days.value) days.value = 30;
+                    help.textContent = "Üyeliğinin ilk N günündeki üyelere uygulanır. Sadece ilk sipariş için üye başına kullanımı 1 yapın.";
+                } else if (a === "2") {
+                    daysLabel.textContent = "Doğum günü ± gün";
+                    if (!days.value) days.value = 7;
+                    help.textContent = "Doğum tarihi kayıtlı üyelere, doğum gününden N gün önce ve sonra uygulanır (0 = sadece o gün). Kullanım sınırı her doğum günü için yenilenir.";
+                } else {
+                    help.textContent = "Kullanım sınırı verilirse yalnızca giriş yapmış üyeler için sayılır. İptal edilen siparişler sınırdan düşer.";
+                }
+            };
+            audience.addEventListener("change", syncAudience);
+            type.addEventListener("change", syncAudience);
+            syncAudience();
+        })();
+
+        // Önizleme blog ile aynı güvenli Markdown dönüştürücüsünü kullanır.
+        (function () {
+            const input = document.getElementById("contentInput");
+            const preview = document.getElementById("contentPreview");
+            const token = document.querySelector("#campaignForm input[name=__RequestVerificationToken]").value;
+            document.querySelectorAll("[data-tab]").forEach(btn => btn.addEventListener("click", async () => {
+                document.querySelectorAll("[data-tab]").forEach(b => b.classList.toggle("active", b === btn));
+                const show = btn.dataset.tab === "preview";
+                input.hidden = show; preview.hidden = !show;
+                if (!show) return;
+                preview.innerHTML = "<p class='text-muted'>Önizleme hazırlanıyor…</p>";
+                const body = new FormData();
+                body.append("markdown", input.value);
+                body.append("__RequestVerificationToken", token);
+                const res = await fetch("@Url.Action("Preview", "Blog")", { method: "POST", body });
+                preview.innerHTML = res.ok ? await res.text() : "<p class='text-danger'>Önizleme alınamadı.</p>";
+            }));
+        })();
+    </script>
+}

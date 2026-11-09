@@ -34,6 +34,16 @@
                     <a asp-action="Index" asp-route-referredBy="@c.Id">(listele)</a>
                 }
             </div>
+            <hr class="my-2" />
+            <form asp-action="BirthDate" asp-route-id="@c.Id" method="post" class="small">
+                <label for="birthDate" class="form-label mb-1">Doğum tarihi <span class="text-muted">(doğum günü kampanyaları)</span></label>
+                <div class="input-group input-group-sm">
+                    <input type="date" id="birthDate" name="birthDate" class="form-control"
+                           value="@(Model.BirthDate?.ToString("yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture))" />
+                    <button class="btn btn-outline-primary">Kaydet</button>
+                </div>
+                <div class="form-text">Üye bir kez girer; düzeltme yalnızca buradan yapılır. Boş kaydederseniz silinir.</div>
+            </form>
         </div>
     </div>
     <div class="col-6 col-md-2">

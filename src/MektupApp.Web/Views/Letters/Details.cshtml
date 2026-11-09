@@ -56,9 +56,17 @@
                                 @(new MektupApp.Domain.Common.Money(Model.PaidAmount.Value)) @:(@Model.PaymentMethod?.DisplayName())
                                 @if (Model.PointsUsed > 0) { <span class="text-muted">+ @Model.PointsUsed.ToString("N2") puan (@(new MektupApp.Domain.Common.Money(Model.PointsDiscount)) indirim)</span> }
                             }
-                            else
+                            else if (Model.PointsUsed > 0)
                             {
                                 @:Tamamı puanla ödendi (@Model.PointsUsed.ToString("N2") puan = @(new MektupApp.Domain.Common.Money(Model.PointsDiscount)))
+                            }
+                            else
+                            {
+                                @:Ücretsiz (kampanya)
+                            }
+                            @if (Model.CampaignTitle is not null)
+                            {
+                                <div class="small text-success">🎉 @Model.CampaignTitle kampanyası: −@(new MektupApp.Domain.Common.Money(Model.CampaignDiscount))</div>
                             }
                         </li>
                     }

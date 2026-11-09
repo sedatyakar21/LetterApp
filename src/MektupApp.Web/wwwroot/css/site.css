@@ -225,6 +225,62 @@ a:hover { color: var(--burgundy); }
 .blog-content code { background: var(--paper-2); padding: .1rem .35rem; border-radius: .3rem; color: var(--navy); }
 .blog-cta { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 1rem; padding: 1.25rem 1.4rem; border-radius: 1rem; background: #fff; border: 1px solid var(--line); border-left: 4px solid var(--burgundy); }
 
+/* ---------- Kampanyalar ---------- */
+.campaign-card { position: relative; background: #fff; border: 1px solid var(--line); border-radius: .9rem; overflow: hidden; transition: transform .2s ease, box-shadow .2s ease; }
+.campaign-card:hover { transform: translateY(-3px); box-shadow: 0 12px 26px rgba(27, 34, 56, .1); }
+.campaign-card.is-ended { filter: grayscale(.7); opacity: .8; }
+.campaign-card-link { display: block; height: 100%; color: inherit; text-decoration: none; }
+.campaign-card-cover { position: relative; aspect-ratio: 16 / 9; overflow: hidden; }
+.campaign-card-cover img { width: 100%; height: 100%; object-fit: cover; }
+/* Kapak yoksa: marka geçişli zemin üzerinde rozet metni */
+.campaign-card-art {
+    width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; padding: 1rem;
+    background:
+        radial-gradient(circle at 85% 15%, rgba(255, 255, 255, .18) 0 18%, transparent 19%),
+        radial-gradient(circle at 10% 90%, rgba(255, 255, 255, .12) 0 22%, transparent 23%),
+        var(--brand-gradient);
+    color: #fff; text-align: center;
+}
+.campaign-card-art span { font-family: var(--font-serif); font-weight: 700; font-size: clamp(1.4rem, 3vw, 2rem); line-height: 1.15; text-shadow: 0 2px 8px rgba(0, 0, 0, .15); }
+.campaign-badge {
+    position: absolute; left: .75rem; top: .75rem; background: var(--heart); color: #fff; font-weight: 700; font-size: .8rem;
+    padding: .25rem .6rem; border-radius: 999px; box-shadow: 0 4px 10px rgba(168, 38, 58, .3);
+}
+.campaign-status { position: absolute; right: .75rem; bottom: .75rem; font-size: .75rem; font-weight: 600; padding: .2rem .55rem; border-radius: 999px; }
+.campaign-status-active { background: #e7f4ea; color: #1e6b35; }
+.campaign-status-urgent { background: #fff3cd; color: #7a4b00; }
+.campaign-status-upcoming { background: #E3E6EF; color: var(--navy); }
+.campaign-status-ended { background: #ececec; color: #555; }
+.campaign-card-body { padding: 1rem 1.1rem 1.2rem; }
+.campaign-card-title { font-family: var(--font-serif); color: var(--navy); margin: .35rem 0 .4rem; line-height: 1.3; }
+.campaign-card:hover .campaign-card-title { color: var(--burgundy); }
+.campaign-coupon-mini { font-size: .8rem; color: var(--burgundy); }
+.campaign-coupon-mini span { background: #f6eef0; padding: .1rem .4rem; border-radius: .3rem; border: 1px dashed rgba(142, 34, 53, .4); }
+
+.campaign-hero { background: #fff; border: 1px solid var(--line); border-radius: 1rem; overflow: hidden; }
+.campaign-hero.is-ended { filter: grayscale(.6); }
+.campaign-hero-img { width: 100%; max-height: 420px; object-fit: cover; display: block; }
+.campaign-hero-body { padding: 1.5rem 1.6rem 1.7rem; }
+.campaign-coupon {
+    display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 1rem;
+    padding: 1.1rem 1.4rem; border-radius: 1rem; background: #fff; border: 2px dashed rgba(142, 34, 53, .45);
+}
+.campaign-coupon-code { font-size: 1.6rem; font-weight: 700; color: var(--burgundy); letter-spacing: .08em; }
+.ended-campaigns summary { cursor: pointer; }
+
+/* Ana sayfa kampanya şeridi */
+.campaign-strip { background: var(--brand-gradient); color: #fff; }
+.campaign-strip-label { font-weight: 700; font-size: .85rem; letter-spacing: .02em; }
+.campaign-strip-item {
+    display: inline-flex; flex-wrap: wrap; align-items: center; gap: .45rem; color: #fff; text-decoration: none;
+    background: rgba(255, 255, 255, .12); border: 1px solid rgba(255, 255, 255, .22); border-radius: 999px; padding: .3rem .8rem; font-size: .9rem;
+}
+.campaign-strip-item:hover { background: rgba(255, 255, 255, .22); color: #fff; }
+.campaign-strip-badge { background: #fff; color: var(--burgundy); font-weight: 700; font-size: .75rem; border-radius: 999px; padding: .05rem .5rem; }
+.campaign-strip-time { font-size: .78rem; opacity: .85; }
+.campaign-strip-all { color: #fff; }
+.campaign-strip-all:hover { color: #f3c6cd; }
+
 /* ---------- WhatsApp yardım menüsü ---------- */
 .wa-help { position: fixed; right: 1.1rem; bottom: 1.1rem; z-index: 1045; display: flex; flex-direction: column; align-items: flex-end; gap: .75rem; }
 /* Yardım butonu varken "başa dön" onun üstünde dursun */

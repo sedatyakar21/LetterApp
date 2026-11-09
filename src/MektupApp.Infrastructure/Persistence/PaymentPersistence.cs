@@ -26,8 +26,10 @@ internal sealed class PaymentConfiguration : IEntityTypeConfiguration<Payment>
         b.Property(p => p.RefundError).HasMaxLength(300);
 
         foreach (var money in new[] { nameof(Payment.Amount), nameof(Payment.PointsUsed), nameof(Payment.PointsDiscount),
-                     nameof(Payment.PointsToEarn), nameof(Payment.ReferralPointsToEarn), nameof(Payment.PaidTotal), nameof(Payment.RefundedAmount) })
+                     nameof(Payment.PointsToEarn), nameof(Payment.ReferralPointsToEarn), nameof(Payment.PaidTotal), nameof(Payment.RefundedAmount),
+                     nameof(Payment.CampaignDiscount) })
             b.Property(money).HasPrecision(10, 2);
+        b.Property(p => p.CampaignTitle).HasMaxLength(120);
 
         // Sağlayıcı bildirimi ile arka plan süre dolumu aynı anda aynı kaydı değiştirmesin.
         b.Property<byte[]>("RowVersion").IsRowVersion();

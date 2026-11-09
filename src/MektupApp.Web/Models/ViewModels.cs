@@ -46,6 +46,9 @@ public sealed class RegisterViewModel
 
     [StringLength(20), Display(Name = "Arkadaşınızın referans no'su")]
     public string? ReferralCode { get; set; }
+
+    [Display(Name = "Doğum tarihi")]
+    public DateOnly? BirthDate { get; set; }
 }
 
 public sealed class AddressInput

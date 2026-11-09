@@ -1,5 +1,6 @@
 using MektupApp.Application.Abstractions;
 using MektupApp.Application.Loyalty;
+using MektupApp.Domain.Campaigns;
 using MektupApp.Domain.Common;
 using MektupApp.Domain.Customers;
 using MektupApp.Domain.Letters;
@@ -15,7 +16,8 @@ public sealed record StartPaymentCommand(
     PaymentMethod Method,
     bool UsePoints,
     string CustomerIp,
-    Func<string, string> ResultUrlFor);
+    Func<string, string> ResultUrlFor,
+    string? CouponCode = null);
 
 /// <param name="Completed">true: ödeme tamamlandı (tamamı puanla ödendi), forma yönlendirme yok.</param>
 public sealed record StartPaymentResult(bool Completed, string MerchantOid, string? FormUrl);
@@ -76,12 +78,17 @@ public sealed class PaymentService(
             throw new AppException("Mobil ödeme şu an kullanılamıyor. Lütfen kart ile ödeyin.");
 
         var customer = await customers.GetAsync(cmd.CustomerId, ct) ?? throw new AppException("Müşteri bulunamadı.");
-        var (quote, account) = await checkout.CalculateAsync(letter, cmd.Method, cmd.UsePoints, ct);
+        var (quote, account) = await checkout.CalculateAsync(letter, cmd.Method, cmd.UsePoints, ct, cmd.CouponCode);
+        // Kupon girilmiş ama artık geçerli değilse (süresi doldu vb.) müşteri farklı tutarla karşılaşmasın.
+        if (quote.CouponCode is not null && !quote.CouponApplied)
+            throw new AppException($"\"{quote.CouponCode}\" kupon kodu geçerli değil veya bu sipariş için kullanılamıyor.");
         var (referrerId, referralPoints) = await ReferralRewardAsync(customer, quote.AmountToPay, ct);
 
+        // Kampanya indirimiyle tutar 0'a inerse de ödeme formu açılmaz.
         var pointsOnly = quote.AmountToPay == 0;
         var payment = Payment.Start(letter.Id, customer.Id, pointsOnly ? PointsOnlyProvider : provider.Name, cmd.Method,
-            quote.AmountToPay, quote.PointsUsed, quote.PointsDiscount, quote.PointsToEarn, referrerId, referralPoints);
+            quote.AmountToPay, quote.PointsUsed, quote.PointsDiscount, quote.PointsToEarn, referrerId, referralPoints,
+            quote.Campaign);
         payments.Add(payment);
 
         // Puan, ödeme başlarken ayrılır: aynı puan iki ayrı ödemede kullanılamaz.
@@ -210,7 +217,8 @@ public sealed class PaymentService(
 
     private static void ApplyToLetter(Letter letter, Payment p) =>
         letter.MarkPaid(new Money(p.Amount), p.Method, p.MerchantOid, p.PointsUsed, p.PointsToEarn,
-            p.ReferrerCustomerId, p.ReferralPointsToEarn, pointsDiscount: p.PointsDiscount);
+            p.ReferrerCustomerId, p.ReferralPointsToEarn, pointsDiscount: p.PointsDiscount,
+            campaign: p.CampaignId is { } id ? new AppliedCampaign(id, p.CampaignTitle!, p.CampaignDiscount) : null);
 
     /// <summary>Ödenmeden kapanan deneme: durumu işaretle, mektubu taslağa döndür, ayrılan puanı iade et.</summary>
     private async Task CloseUnpaidAsync(Payment payment, Letter? letter, Action<Payment> close, string letterNote, CancellationToken ct)

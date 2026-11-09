@@ -25,7 +25,18 @@ public class CustomersController(IAdminQueries queries, CustomerAdminService cus
         var customer = await queries.GetCustomerAsync(id, ct) ?? throw new AppException("Müşteri bulunamadı.");
         var letters = await queries.SearchLettersAsync(new LetterSearchCriteria(CustomerId: id, Page: page, PageSize: 10), ct);
         var points = await loyalty.GetAccountAsync(id, ct);
-        return View(new CustomerDetailsViewModel { Customer = customer, Letters = letters, Points = points, IsSelf = id == CurrentUserId });
+        return View(new CustomerDetailsViewModel
+        {
+            Customer = customer, Letters = letters, Points = points, IsSelf = id == CurrentUserId,
+            BirthDate = await customers.GetBirthDateAsync(id, ct)
+        });
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> BirthDate(Guid id, DateOnly? birthDate, CancellationToken ct)
+    {
+        await customers.SetBirthDateAsync(id, birthDate, ct);
+        return BackWith(birthDate is null ? "Doğum tarihi silindi." : "Doğum tarihi güncellendi.", DetailsUrl(id));
     }
 
     [HttpPost]
