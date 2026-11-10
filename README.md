@@ -58,6 +58,33 @@ Sadece `Admin` rolündeki kullanıcılar erişebilir (MVC Area: `src/MektupApp.W
 
 Listeleme ekranları aggregate yüklemeden doğrudan okuma modeline projekte eden `IAdminQueries` ile çalışır (CQRS-lite); durum değiştiren her işlem ise aggregate metotlarından geçer.
 
+### SMS ve e-posta bildirimleri
+
+**Gönderilen bildirimler:** hoş geldiniz, sipariş alındı, postaya verildi (takip kodu ve bağlantısıyla), teslim edildi (değerlendirme davetiyle), iptal ve iade, MektupPuan kazanımı, referans puanı.
+
+- **Hangi kanaldan:** her olay için SMS ve/veya e-posta, **Yönetim → 🔔 Bildirimler** ekranından seçilir. Varsayılan: hoş geldin yalnızca e-posta, diğerleri ikisi.
+- **Kuyruk:** olaylar mesajı hemen göndermez, `Notifications` tablosuna (outbox) yazar. Arka plan servisi 10 saniyede bir gönderir.
+- **Hata olursa:** sağlayıcı geçici hata verirse mesaj 1 dk, 5 dk, 30 dk ve 2 saat sonra yeniden denenir; 5 denemeden sonra "Başarısız" olur. Geçersiz numara veya hatalı hesap bilgisi gibi kalıcı hatalarda hemen "Başarısız" olur.
+- **Ana işleme etkisi:** bildirim hatası ödeme veya kargo işlemini bozmaz.
+- **Yönetim ekranı:** gönderim geçmişi (kanal ve durum filtresi), e-posta önizleme, başarısız mesajı tekrar deneme ve test SMS'i / test e-postası gönderme.
+- **İçerik ve güvenlik:** e-postalar markalı HTML ve düz metin olarak gider; kullanıcıdan gelen metinler (ör. alıcı adı) HTML'e kaçışlanır. SMS'lerde Türkçe karakter kullanılır; tutarlar "TL" ile yazılır.
+- **Ticari ileti değildir:** bunlar işlem bilgilendirmeleridir. Netgsm'de İYS filtresi `0` (bilgilendirme) ile gönderilir. Kampanya duyurusu gibi ticari SMS / e-posta gönderilecekse İYS onayı gerekir; bu özellik bunu kapsamaz.
+
+**Kurulum (şifreleri `appsettings.json` dosyasına yazmayın):**
+- **SMS (Netgsm):** `Notifications:Sms:Netgsm:UserCode`, `Header` (Netgsm'de onaylı gönderici adı) ve `Password`. Üçü de tanımlıysa Netgsm kullanılır, eksikse SMS simülasyonda (log) kalır.
+- **E-posta (SMTP):** `Notifications:Email:Smtp:Host`, `Port` (587 / 465), `Security` (`StartTls` / `SslOnConnect`), `UserName`, `Password`, `FromAddress`, `FromName`. `Host` ve `FromAddress` tanımlıysa SMTP kullanılır.
+- **Bağlantılar:** `Notifications:SiteUrl` e-posta ve SMS'teki bağlantıların adresidir (canlı: `https://bimektup.net`).
+
+```bash
+dotnet user-secrets set "Notifications:Sms:Netgsm:Password" "xxxx" --project src/MektupApp.Web
+```
+
+```bash
+dotnet user-secrets set "Notifications:Email:Smtp:Password" "xxxx" --project src/MektupApp.Web
+```
+
+Canlıda ortam değişkeni adları `Notifications__Sms__Netgsm__Password` ve `Notifications__Email__Smtp__Password` şeklindedir. Netgsm entegrasyonu, Netgsm'in XML POST API'sine (`https://api.netgsm.com.tr/sms/send/xml`) göre yazıldı ve birim testleriyle doğrulandı; gerçek hesapla ilk gönderimde **Test SMS'i gönder** ile denenmelidir.
+
 ### Google ile giriş
 
 Giriş ve kayıt sayfalarında "Google ile devam et" butonu vardır.

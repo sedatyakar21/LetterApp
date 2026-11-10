@@ -55,6 +55,7 @@ public sealed class AccountService(ICustomerRepository customers, IPasswordHashe
         var customer = Customer.Register(cmd.FullName, email, new PhoneNumber(cmd.Phone), hasher.Hash(cmd.Password),
             channel: cmd.Channel, referrer: referrer);
         if (cmd.BirthDate is { } birth) customer.SetBirthDate(birth);
+        customer.AnnounceRegistered();
 
         // Referans no rastgele üretilir; çakışma ihtimali çok düşük olsa da kontrol edilir.
         while (await customers.ReferralCodeExistsAsync(customer.ReferralCode, ct))
@@ -150,6 +151,7 @@ public sealed class AccountService(ICustomerRepository customers, IPasswordHashe
         var customer = Customer.RegisterWithGoogle(cmd.FullName, email, new PhoneNumber(cmd.Phone), cmd.Identity.Subject,
             cmd.Channel, referrer);
         if (cmd.BirthDate is { } birth) customer.SetBirthDate(birth);
+        customer.AnnounceRegistered();
         while (await customers.ReferralCodeExistsAsync(customer.ReferralCode, ct))
             customer.RegenerateReferralCode();
 

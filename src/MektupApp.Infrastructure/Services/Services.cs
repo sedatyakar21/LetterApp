@@ -5,16 +5,6 @@ using Microsoft.Extensions.Logging;
 
 namespace MektupApp.Infrastructure.Services;
 
-/// <summary>Geliştirme için sahte SMS servisi: mesajı log'a yazar. Gerçek sağlayıcı (Netgsm vb.) ile değiştirilir.</summary>
-internal sealed class LoggingSmsSender(ILogger<LoggingSmsSender> logger) : ISmsSender
-{
-    public Task SendAsync(string phoneNumber, string message, CancellationToken ct = default)
-    {
-        logger.LogInformation("SMS -> {Phone}: {Message}", phoneNumber, message);
-        return Task.CompletedTask;
-    }
-}
-
 /// <summary>Dosyaları web kökü dışında, yerel diskte saklar (fotoğraflar herkese açık olmaz).</summary>
 internal sealed class LocalFileStorage(string rootPath) : IFileStorage
 {

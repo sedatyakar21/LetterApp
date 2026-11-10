@@ -32,10 +32,16 @@ public static class DependencyInjection
         services.AddScoped<Reviews.ReviewService>();
         services.AddScoped<Reviews.BlogCommentService>();
 
-        services.AddScoped<IDomainEventHandler<LetterPaid>, LetterNotificationHandlers>();
-        services.AddScoped<IDomainEventHandler<LetterShipped>, LetterNotificationHandlers>();
-        services.AddScoped<IDomainEventHandler<LetterDelivered>, LetterNotificationHandlers>();
-        services.AddScoped<IDomainEventHandler<LetterCancelledAfterPayment>, LetterNotificationHandlers>();
+        // Bildirimler: olaylar kuyruğa SMS / e-posta ekler, arka plan servisi gönderir.
+        services.AddScoped<Notifications.NotificationTemplates>();
+        services.AddScoped<Notifications.NotificationService>();
+        services.AddScoped<Notifications.NotificationDispatcher>();
+        services.AddScoped<Notifications.NotificationAdminService>();
+        services.AddScoped<IDomainEventHandler<MektupApp.Domain.Customers.CustomerRegistered>, Notifications.NotificationEventHandlers>();
+        services.AddScoped<IDomainEventHandler<LetterPaid>, Notifications.NotificationEventHandlers>();
+        services.AddScoped<IDomainEventHandler<LetterShipped>, Notifications.NotificationEventHandlers>();
+        services.AddScoped<IDomainEventHandler<LetterDelivered>, Notifications.NotificationEventHandlers>();
+        services.AddScoped<IDomainEventHandler<LetterCancelledAfterPayment>, Notifications.NotificationEventHandlers>();
 
         // MektupPuan: postaya verilen mektupta puan kazanımı, iptalde kullanılan puanın iadesi.
         services.AddScoped<IDomainEventHandler<LetterShipped>, LoyaltyEventHandlers>();

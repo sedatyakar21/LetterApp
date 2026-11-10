@@ -94,7 +94,8 @@ public sealed class LoyaltyService(
 public sealed class LoyaltyEventHandlers(
     LoyaltyService loyalty,
     ICustomerRepository customers,
-    ISmsSender sms,
+    Notifications.NotificationService notifications,
+    Notifications.NotificationTemplates templates,
     IUnitOfWork unitOfWork) :
     IDomainEventHandler<LetterShipped>,
     IDomainEventHandler<LetterCancelledAfterPayment>
@@ -116,8 +117,7 @@ public sealed class LoyaltyEventHandlers(
 
         var customer = await customers.GetAsync(e.CustomerId, ct);
         if (customer is not null)
-            await sms.SendAsync(customer.Phone.Value,
-                $"Tebrikler! Mektubunuz icin {e.PointsToEarn:0.00} MektupPuan kazandiniz. Bakiye: {account.Balance:0.00}", ct);
+            await notifications.EnqueueAsync(customer.Id, templates.PointsEarned(customer.FullName, e.PointsToEarn, account.Balance), ct);
     }
 
     /// <summary>Gönderen üyeyi davet eden üyenin referans kazancı.</summary>
@@ -129,12 +129,13 @@ public sealed class LoyaltyEventHandlers(
         if (referrer is null || !referrer.IsActive) return;
 
         var sender = await customers.GetAsync(e.CustomerId, ct);
+        var friend = MaskName(sender?.FullName);
         var account = await loyalty.GetOrOpenAccountAsync(referrerId, ct);
-        if (account.EarnReferral(e.LetterId, e.ReferralPointsToEarn, MaskName(sender?.FullName)) is null) return;
+        if (account.EarnReferral(e.LetterId, e.ReferralPointsToEarn, friend) is null) return;
         await unitOfWork.SaveChangesAsync(ct);
 
-        await sms.SendAsync(referrer.Phone.Value,
-            $"Davet ettiginiz arkadasiniz mektup gonderdi; {e.ReferralPointsToEarn:0.00} MektupPuan kazandiniz. Bakiye: {account.Balance:0.00}", ct);
+        await notifications.EnqueueAsync(referrer.Id,
+            templates.ReferralPointsEarned(referrer.FullName, friend, e.ReferralPointsToEarn, account.Balance), ct);
     }
 
     /// <summary>"Ayşe Yılmaz" → "Ayşe Y." (davet eden üyeye tam ad gösterilmez).</summary>

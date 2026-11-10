@@ -1,0 +1,151 @@
+@model MektupApp.Web.Areas.Admin.Controllers.NotificationsIndexViewModel
+@using MektupApp.Domain.Notifications
+@using MektupApp.Web.Areas.Admin.Controllers
+@{
+    ViewData["Title"] = "Bildirimler";
+    var s = Model.Settings;
+    var h = Model.History;
+    string StatusCss(NotificationStatus st) => st switch
+    {
+        NotificationStatus.Sent => "bg-success",
+        NotificationStatus.Failed => "bg-danger",
+        _ => "bg-warning text-dark"
+    };
+}
+
+<h1 class="h4 mb-3">Bildirimler</h1>
+
+<div class="row g-3 mb-3">
+    <div class="col-md-6">
+        <div class="admin-card p-3 h-100">
+            <div class="fw-semibold mb-1">📱 SMS sağlayıcısı</div>
+            <div>@s.SmsProvider @if (s.SmsSimulation) { <span class="badge bg-warning text-dark ms-1">Simülasyon</span> } else { <span class="badge bg-success ms-1">Aktif</span> }</div>
+            @if (s.SmsSimulation)
+            {
+                <div class="small text-muted mt-1">Gerçek SMS gönderilmez, mesajlar log'a ve aşağıdaki geçmişe yazılır. Netgsm bilgilerini (<code>Notifications:Sms:Netgsm</code>) tanımlayınca etkinleşir.</div>
+            }
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="admin-card p-3 h-100">
+            <div class="fw-semibold mb-1">✉️ E-posta sağlayıcısı</div>
+            <div>@s.EmailProvider @if (s.EmailSimulation) { <span class="badge bg-warning text-dark ms-1">Simülasyon</span> } else { <span class="badge bg-success ms-1">Aktif</span> }</div>
+            @if (s.EmailSimulation)
+            {
+                <div class="small text-muted mt-1">Gerçek e-posta gönderilmez. SMTP bilgilerini (<code>Notifications:Email:Smtp</code>) tanımlayınca etkinleşir.</div>
+            }
+        </div>
+    </div>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-lg-7">
+        <form asp-action="Settings" method="post" class="admin-card p-3">
+            <div class="fw-semibold mb-2">Hangi olayda bildirim gitsin?</div>
+            <table class="table table-sm align-middle mb-2">
+                <thead><tr><th>Olay</th><th class="text-center">SMS</th><th class="text-center">E-posta</th></tr></thead>
+                <tbody>
+                    @foreach (var t in NotificationsController.Types)
+                    {
+                        <tr>
+                            <td>@t.DisplayName()</td>
+                            <td class="text-center"><input class="form-check-input" type="checkbox" name="sms" value="@((int)t)" aria-label="@t.DisplayName() SMS" @(s.SmsTypes.HasFlag(t) ? "checked" : "") /></td>
+                            <td class="text-center"><input class="form-check-input" type="checkbox" name="email" value="@((int)t)" aria-label="@t.DisplayName() e-posta" @(s.EmailTypes.HasFlag(t) ? "checked" : "") /></td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+            <div class="form-text mb-2">Bunlar sipariş ve hesap bilgilendirmeleridir (ticari ileti değildir). Her SMS ücretlidir; Türkçe karakterli SMS 155 karakteri aşınca iki mesaj sayılır.</div>
+            <button class="btn btn-primary btn-sm">Kaydet</button>
+        </form>
+    </div>
+    <div class="col-lg-5">
+        <div class="admin-card p-3 mb-3">
+            <div class="fw-semibold mb-2">Test SMS'i gönder</div>
+            <form asp-action="Test" method="post" class="d-flex gap-2">
+                <input type="hidden" name="channel" value="@NotificationChannel.Sms" />
+                <input type="tel" name="recipient" class="form-control form-control-sm" placeholder="05XX XXX XX XX" required />
+                <button class="btn btn-sm btn-outline-primary flex-shrink-0">Gönder</button>
+            </form>
+        </div>
+        <div class="admin-card p-3">
+            <div class="fw-semibold mb-2">Test e-postası gönder</div>
+            <form asp-action="Test" method="post" class="d-flex gap-2">
+                <input type="hidden" name="channel" value="@NotificationChannel.Email" />
+                <input type="email" name="recipient" class="form-control form-control-sm" placeholder="ornek@alanadi.com" required />
+                <button class="btn btn-sm btn-outline-primary flex-shrink-0">Gönder</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-2">
+    <h2 class="h5 mb-0">Gönderim geçmişi</h2>
+    <form method="get" class="d-flex gap-2">
+        <select name="kanal" class="form-select form-select-sm" onchange="this.form.submit()" aria-label="Kanal">
+            <option value="">Tüm kanallar</option>
+            @foreach (var c in Enum.GetValues<NotificationChannel>())
+            {
+                <option value="@c" selected="@(Model.Channel == c)">@c.DisplayName()</option>
+            }
+        </select>
+        <select name="durum" class="form-select form-select-sm" onchange="this.form.submit()" aria-label="Durum">
+            <option value="">Tüm durumlar</option>
+            @foreach (var st in Enum.GetValues<NotificationStatus>())
+            {
+                <option value="@st" selected="@(Model.Status == st)">@st.DisplayName()</option>
+            }
+        </select>
+    </form>
+</div>
+
+<div class="admin-card overflow-hidden">
+    <div class="table-responsive">
+        <table class="table table-admin table-hover mb-0">
+            <thead><tr><th>Zaman</th><th>Kanal</th><th>Olay</th><th>Alıcı</th><th>İçerik</th><th>Durum</th><th></th></tr></thead>
+            <tbody>
+                @foreach (var n in h.Items)
+                {
+                    <tr>
+                        <td class="small text-nowrap">@n.CreatedAt.ToLocalTime().ToString("dd.MM.yyyy HH:mm")</td>
+                        <td>@(n.Channel == NotificationChannel.Sms ? "📱" : "✉️")</td>
+                        <td class="small">@(n.Type == NotificationType.None ? "Test" : n.Type.DisplayName())</td>
+                        <td class="small font-monospace">
+                            @if (n.CustomerId is { } cid) { <a asp-controller="Customers" asp-action="Details" asp-route-id="@cid">@n.Recipient</a> }
+                            else { @n.Recipient }
+                        </td>
+                        <td class="small" style="max-width: 380px">
+                            @if (n.Subject is not null)
+                            {
+                                <div class="fw-semibold">@n.Subject <a asp-action="Preview" asp-route-id="@n.Id" target="_blank" class="fw-normal small">önizle ↗</a></div>
+                            }
+                            <details><summary class="text-muted">@(n.Body.Length > 70 ? n.Body[..70] + "…" : n.Body)</summary><div style="white-space: pre-line">@n.Body</div></details>
+                            @if (n.LastError is not null) { <div class="text-danger">@n.LastError</div> }
+                        </td>
+                        <td><span class="badge @StatusCss(n.Status)">@n.Status.DisplayName()</span>
+                            @if (n.Attempts > 1) { <div class="small text-muted">@n.Attempts deneme</div> }</td>
+                        <td>
+                            @if (n.Status == NotificationStatus.Failed)
+                            {
+                                <form asp-action="Retry" asp-route-id="@n.Id" method="post"><button class="btn btn-sm btn-outline-secondary">Tekrar dene</button></form>
+                            }
+                        </td>
+                    </tr>
+                }
+                @if (h.Items.Count == 0)
+                {
+                    <tr><td colspan="7" class="text-center text-muted py-4">Kayıt yok.</td></tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@if (h.TotalPages > 1)
+{
+    <nav class="d-flex justify-content-center gap-2 mt-3">
+        @if (h.HasPrevious) { <a class="btn btn-sm btn-outline-secondary" asp-action="Index" asp-route-kanal="@Model.Channel" asp-route-durum="@Model.Status" asp-route-page="@(h.Page - 1)">‹ Önceki</a> }
+        <span class="align-self-center small text-muted">Sayfa @h.Page / @h.TotalPages</span>
+        @if (h.HasNext) { <a class="btn btn-sm btn-outline-secondary" asp-action="Index" asp-route-kanal="@Model.Channel" asp-route-durum="@Model.Status" asp-route-page="@(h.Page + 1)">Sonraki ›</a> }
+    </nav>
+}

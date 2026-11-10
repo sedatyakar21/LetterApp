@@ -83,6 +83,9 @@ public sealed class Customer : AggregateRoot
         };
     }
 
+    /// <summary>Üyelik oluşturulduktan sonra (kayıt kaydedildiğinde) yayınlanır: hoş geldin bildirimi vb.</summary>
+    public void AnnounceRegistered() => Raise(new CustomerRegistered(Id));
+
     /// <summary>Üretilen kod başka bir üyede varsa (aynı baş harfler + aynı sayı) yenisi atanır.</summary>
     public void RegenerateReferralCode() => ReferralCode = Customers.ReferralCode.Generate(FullName);
 
@@ -139,6 +142,8 @@ public sealed class Customer : AggregateRoot
 
     public void RevokeAdmin() => IsAdmin = false;
 }
+
+public sealed record CustomerRegistered(Guid CustomerId) : DomainEvent;
 
 public sealed record Email
 {

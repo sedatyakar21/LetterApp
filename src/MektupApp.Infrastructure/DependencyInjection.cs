@@ -44,8 +44,8 @@ public static class DependencyInjection
         services.AddScoped<ILoyaltyAccountRepository, LoyaltyAccountRepository>();
         services.AddScoped<ILoyaltySettingsRepository, LoyaltySettingsRepository>();
 
-        services.AddSingleton<ISmsSender, LoggingSmsSender>();
         services.AddSingleton<IPasswordHasher, IdentityPasswordHasher>();
+        AddNotifications(services, config);
 
         var uploads = Path.Combine(contentRoot, config["Storage:UploadsPath"] ?? "App_Data/uploads");
         services.AddSingleton<IFileStorage>(new LocalFileStorage(uploads));
@@ -53,6 +53,34 @@ public static class DependencyInjection
         AddPostalCarrier(services, config);
         AddPaymentProvider(services, config);
         return services;
+    }
+
+    /// <summary>
+    /// SMS: Netgsm bilgileri tanımlıysa Netgsm, değilse log'a yazan simülasyon.
+    /// E-posta: SMTP sunucusu tanımlıysa SMTP, değilse simülasyon. Kuyruk her durumda arka planda işlenir.
+    /// </summary>
+    private static void AddNotifications(IServiceCollection services, IConfiguration config)
+    {
+        services.AddSingleton(config.GetSection(MektupApp.Application.Notifications.NotificationOptions.Section)
+            .Get<MektupApp.Application.Notifications.NotificationOptions>() ?? new());
+        services.AddScoped<MektupApp.Domain.Notifications.INotificationRepository, NotificationRepository>();
+
+        var netgsmSection = config.GetSection(Notifications.NetgsmOptions.Section);
+        services.Configure<Notifications.NetgsmOptions>(netgsmSection);
+        var netgsm = netgsmSection.Get<Notifications.NetgsmOptions>() ?? new();
+        if (netgsm.IsConfigured)
+            services.AddHttpClient<ISmsSender, Notifications.NetgsmSmsSender>(c => c.Timeout = TimeSpan.FromSeconds(Math.Max(5, netgsm.TimeoutSeconds)));
+        else
+            services.AddSingleton<ISmsSender, Notifications.LoggingSmsSender>();
+
+        var smtpSection = config.GetSection(Notifications.SmtpOptions.Section);
+        services.Configure<Notifications.SmtpOptions>(smtpSection);
+        if ((smtpSection.Get<Notifications.SmtpOptions>() ?? new()).IsConfigured)
+            services.AddSingleton<IEmailSender, Notifications.SmtpEmailSender>();
+        else
+            services.AddSingleton<IEmailSender, Notifications.LoggingEmailSender>();
+
+        services.AddHostedService<Notifications.NotificationSenderService>();
     }
 
     /// <summary>

@@ -40,6 +40,7 @@
                 <a class="admin-link @Active("Comments")" asp-area="Admin" asp-controller="Comments" asp-action="Index">
                     💬 Yorumlar @if (pendingComments > 0) { <span class="badge rounded-pill bg-warning text-dark ms-1" title="Onay bekleyen">@pendingComments</span> }
                 </a>
+                <a class="admin-link @Active("Notifications")" asp-area="Admin" asp-controller="Notifications" asp-action="Index">🔔 Bildirimler</a>
                 <hr class="border-secondary" />
                 <a class="admin-link" asp-area="" asp-controller="Home" asp-action="Index">↩ Siteye dön</a>
                 <form asp-area="" asp-controller="Account" asp-action="Logout" method="post">

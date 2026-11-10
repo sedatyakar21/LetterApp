@@ -14,9 +14,27 @@ public interface IDomainEventHandler<in TEvent> where TEvent : IDomainEvent
     Task HandleAsync(TEvent domainEvent, CancellationToken ct);
 }
 
+/// <param name="Permanent">Tekrar denemenin anlamı olmayan hata (geçersiz numara / adres, hatalı hesap bilgisi).</param>
+public sealed record SendResult(bool Success, string? MessageId = null, string? Error = null, bool Permanent = false)
+{
+    public static SendResult Ok(string? messageId = null) => new(true, messageId);
+    public static SendResult Fail(string error, bool permanent = false) => new(false, null, error, permanent);
+}
+
 public interface ISmsSender
 {
-    Task SendAsync(string phoneNumber, string message, CancellationToken ct = default);
+    /// <summary>Gerçek sağlayıcı tanımlı değilse mesaj yalnızca log'a yazılır.</summary>
+    bool IsSimulation { get; }
+    string ProviderName { get; }
+    /// <param name="phoneNumber">5XXXXXXXXX biçiminde cep telefonu.</param>
+    Task<SendResult> SendAsync(string phoneNumber, string message, CancellationToken ct = default);
+}
+
+public interface IEmailSender
+{
+    bool IsSimulation { get; }
+    string ProviderName { get; }
+    Task<SendResult> SendAsync(string to, string subject, string textBody, string htmlBody, CancellationToken ct = default);
 }
 
 public interface IPasswordHasher
