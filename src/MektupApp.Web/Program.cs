@@ -2,6 +2,7 @@ using System.Globalization;
 using MektupApp.Application;
 using MektupApp.Domain.Letters;
 using MektupApp.Infrastructure;
+using MektupApp.Web.Api;
 using MektupApp.Web.Infrastructure;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -31,7 +32,21 @@ var auth = builder.Services
     {
         o.Cookie.Name = "BiMektup.External";
         o.ExpireTimeSpan = TimeSpan.FromMinutes(15);
+    })
+    // Mobil uygulama: kısa ömürlü erişim token'ı + yenileme token'ı (/api/mobile/auth/refresh).
+    .AddBearerToken(MobileApi.Scheme, o =>
+    {
+        o.BearerTokenExpiration = TimeSpan.FromHours(1);
+        o.RefreshTokenExpiration = TimeSpan.FromDays(30);
     });
+
+// Mobil uygulamanın web önizlemesi (flutter run -d web-server) yalnızca geliştirmede, localhost'tan API'yi çağırabilsin.
+// Telefon uygulamaları tarayıcı olmadığı için CORS'a takılmaz; canlıda hiçbir kökene izin verilmez.
+var isDevelopment = builder.Environment.IsDevelopment();
+builder.Services.AddCors(o => o.AddPolicy(MobileApi.CorsPolicy, p => p
+    .SetIsOriginAllowed(origin => isDevelopment && Uri.TryCreate(origin, UriKind.Absolute, out var u) && u.IsLoopback)
+    .AllowAnyHeader()
+    .AllowAnyMethod()));
 
 // Google ile giriş: kimlik bilgileri user-secrets / ortam değişkeninden okunur (appsettings.json'a yazmayın).
 var googleSection = builder.Configuration.GetSection("Authentication:Google");
@@ -63,7 +78,9 @@ builder.Services.AddControllersWithViews(o =>
     var formFactory = o.ValueProviderFactories.OfType<Microsoft.AspNetCore.Mvc.ModelBinding.FormValueProviderFactory>().Single();
     o.ValueProviderFactories[o.ValueProviderFactories.IndexOf(formFactory)] = new InvariantFormValueProviderFactory();
     o.Filters.Add(new Microsoft.AspNetCore.Mvc.AutoValidateAntiforgeryTokenAttribute());
-});
+})
+// Mobil API'de enum'lar metin olarak gider / gelir ("Card", "Delivered" ...).
+.AddJsonOptions(o => o.JsonSerializerOptions.Converters.Add(new System.Text.Json.Serialization.JsonStringEnumConverter()));
 
 var app = builder.Build();
 
@@ -87,6 +104,7 @@ app.UseRequestLocalization(new RequestLocalizationOptions
 
 app.UseHttpsRedirection();
 app.UseRouting();
+app.UseCors();
 app.UseAuthentication();
 app.UseAuthorization();
 

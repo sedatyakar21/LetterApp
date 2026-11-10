@@ -33,7 +33,13 @@ public sealed record GoogleSignIn(bool Enabled, bool Simulation)
 public static class CustomerSignIn
 {
     /// <summary>Üyeyi site çerezine giriş yaptırır (e-posta/şifre ve Google girişinde ortak).</summary>
-    public static Task SignInCustomerAsync(this HttpContext http, AuthenticatedCustomer customer)
+    public static Task SignInCustomerAsync(this HttpContext http, AuthenticatedCustomer customer) =>
+        http.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme,
+            CreatePrincipal(customer, CookieAuthenticationDefaults.AuthenticationScheme),
+            new AuthenticationProperties { IsPersistent = true });
+
+    /// <summary>Üyenin kimlik bilgileri (site çerezi ve mobil uygulama token'ı aynı claim'leri taşır).</summary>
+    public static ClaimsPrincipal CreatePrincipal(AuthenticatedCustomer customer, string authenticationType)
     {
         var claims = new List<Claim>
         {
@@ -42,9 +48,6 @@ public static class CustomerSignIn
             new(ClaimTypes.Email, customer.Email)
         };
         if (customer.IsAdmin) claims.Add(new Claim(ClaimTypes.Role, "Admin"));
-
-        var principal = new ClaimsPrincipal(new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme));
-        return http.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal,
-            new AuthenticationProperties { IsPersistent = true });
+        return new ClaimsPrincipal(new ClaimsIdentity(claims, authenticationType));
     }
 }

@@ -383,7 +383,7 @@ public sealed class LetterStatusChange : Entity
 public static class LetterPages
 {
     public const int CharsPerPage = 2200;
-    private const int CharsPerLineBreak = 60;
+    public const int CharsPerLineBreak = 60;
 
     public static int Count(string? content)
     {

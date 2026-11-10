@@ -32,6 +32,8 @@ public sealed class UserFacingExceptionFilter(ITempDataDictionaryFactory tempDat
     public void OnException(ExceptionContext context)
     {
         if (context.Exception is not (DomainException or AppException)) return;
+        // Mobil API JSON hata döner (ApiExceptionFilter); sayfaya yönlendirme yapılmaz.
+        if (context.ActionDescriptor.EndpointMetadata.OfType<ApiControllerAttribute>().Any()) return;
 
         var tempData = tempDataFactory.GetTempData(context.HttpContext);
         tempData["Error"] = context.Exception.Message;

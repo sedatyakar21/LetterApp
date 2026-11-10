@@ -111,6 +111,66 @@ Canlı ortamda ortam değişkeni adları `Authentication__Google__ClientId` ve `
 
 **Anahtar yoksa:** geliştirme ortamında Google yerine simülasyon sayfası (`/giris/google/simulasyon`) açılır; buradan ad, e-posta ve "e-posta doğrulandı" bilgisi seçilerek akış denenebilir. Canlı ortamda anahtar yoksa buton hiç gösterilmez ve simülasyon sayfası kapalıdır.
 
+### Mobil uygulama (Flutter · iOS ve Android)
+
+`mobile/` klasöründeki Flutter uygulaması, sitenin üye tarafındaki işlevlerini telefona taşır.
+
+- **Ekranlar:**
+  - Giriş ve kayıt.
+  - **Mektuplarım:** liste, detay, durum geçmişi, takip no, iptal, adres değişikliği ve taslak silme.
+  - **Mektup Yaz:** 5 adım. Alıcı, kâğıt renginde canlı önizlemeli mektup, görünüm ve ekstralar, gönderen, tahmini tutarlı özet.
+  - **Fotoğraf:** galeriden veya kameradan eklenir.
+  - **Ödeme:** kart veya mobil ödeme, MektupPuan, kupon kodu, kampanya indirimi.
+  - **Kampanyalar**, **Gönderi takibi**, teslim edilen mektuba **yorum**.
+  - **Hesabım:** MektupPuan hareketleri, referans no, doğum tarihi, WhatsApp destek.
+- **API:** `src/MektupApp.Web/Api` altında `/api/mobile/...` uç noktaları bulunur ve JSON döner. Site ve mobil aynı servisleri ve iş kurallarını kullanır.
+- **Kimlik doğrulama:**
+  - Giriş ve kayıt; 1 saatlik erişim token'ı ve 30 günlük yenileme token'ı verir (ASP.NET Core BearerToken).
+  - Uygulama token'ları cihazın güvenli deposunda (Keychain / Keystore) saklar ve süresi dolunca kendisi yeniler.
+  - Engellenen hesabın token'ı her istekte reddedilir.
+  - API çerez kullanmaz, bu yüzden CSRF riski yoktur.
+- **Ödeme:**
+  - PayTR formu uygulama içi tarayıcıda açılır. Form bitince `/mobil/odeme-sonuc` adresine dönülür; uygulama bu adresi yakalayıp tarayıcıyı kapatır ve kesin sonucu sunucudan sorgular.
+  - Simülasyon modunda uygulama kendi "Test ödemesi" ekranını gösterir.
+- **Google ile giriş:** mobilde henüz yok. Google hesabıyla üye olanlar şimdilik siteyi kullanır.
+
+**Çalıştırma:**
+
+```bash
+cd mobile
+flutter run
+```
+
+API adresi varsayılan olarak geliştirme sunucusudur:
+- Android emülatörü: `http://10.0.2.2:5213`
+- iOS simülatörü / web: `http://localhost:5213`
+
+Canlı sunucu için derlerken adres verilir:
+
+```bash
+flutter build apk --release --dart-define=API_BASE_URL=https://bimektup.net
+```
+
+```bash
+flutter build ipa --release --dart-define=API_BASE_URL=https://bimektup.net
+```
+
+**Notlar:**
+- iOS derlemesi için macOS ve Xcode gerekir.
+- Mağazaya göndermeden önce şunlar ayarlanmalıdır:
+  - Uygulama kimliği `net.bimektup.bimektup` (Android `build.gradle.kts`, iOS Xcode projesi).
+  - Uygulama simgesi.
+  - Android imza anahtarı.
+- Şifresiz HTTP yalnızca Android debug sürümünde ve iOS'ta yerel ağ için açıktır. Canlı API HTTPS olmalıdır.
+- Web önizlemesinde (`flutter run -d web-server`) API çağrıları için CORS yalnızca geliştirme ortamında ve localhost kökenlerine açıktır.
+
+Testler:
+
+```bash
+cd mobile
+flutter test
+```
+
 ### PayTR ödeme entegrasyonu
 
 [PayTR iFrame API](https://dev.paytr.com/iframe-api) kullanılır. Ödeme asenkrondur: kesin sonuç, müşterinin döndüğü sayfadan değil PayTR'nin sunucuya gönderdiği bildirimden gelir.
@@ -177,7 +237,8 @@ src/
                             port'lar (IPaymentGateway, ISmsSender, IFileStorage, IUnitOfWork), event handler'lar
   MektupApp.Infrastructure  EF Core DbContext + mapping + migration'lar (SQL Server), repository'ler, domain event dispatcher,
                             sahte ödeme / SMS, yerel dosya deposu
-  MektupApp.Web             MVC: Controller'lar, ViewModel'ler, Razor View'lar
+  MektupApp.Web             MVC: Controller'lar, ViewModel'ler, Razor View'lar; Api/ altında mobil JSON API
+mobile/                     Flutter mobil uygulaması (iOS + Android)
 tests/
   MektupApp.Domain.Tests    Aggregate ve fiyatlandırma kuralları için birim testleri
 ```

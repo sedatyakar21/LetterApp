@@ -95,6 +95,13 @@ public sealed class AccountService(ICustomerRepository customers, IPasswordHashe
         return c is null ? null : (c.IsActive, c.IsAdmin);
     }
 
+    /// <summary>Aktif üyenin güncel kimlik bilgileri (mobil oturum yenilenirken); engellenmiş veya silinmişse null.</summary>
+    public async Task<AuthenticatedCustomer?> GetAuthenticatedAsync(Guid customerId, CancellationToken ct = default)
+    {
+        var c = await customers.GetAsync(customerId, ct);
+        return c is { IsActive: true } ? ToAuth(c) : null;
+    }
+
     public async Task<(string FullName, string Phone)?> GetProfileAsync(Guid customerId, CancellationToken ct = default)
     {
         var c = await customers.GetAsync(customerId, ct);
