@@ -109,13 +109,15 @@
 
 /* Mektubun üstü: solda gönderen, sağda alıcı (sağa yaslı). */
 .letter-head {
-    display: flex; justify-content: space-between; align-items: flex-start; gap: 10mm;
+    display: flex; justify-content: space-between; align-items: stretch; gap: 10mm;
     font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
     font-size: 10pt; line-height: 1.35; color: #000;
     margin-bottom: 10mm;
     break-inside: avoid; page-break-inside: avoid;
 }
-.letter-head-from, .letter-head-to { max-width: 48%; overflow-wrap: anywhere; }
+/* İki kutu her mektupta aynı boyutta: sabit genişlik ve en az aynı yükseklik. Adres çok uzunsa
+   ikisi birlikte uzar (align-items: stretch), metin kesilmez. */
+.letter-head-from, .letter-head-to { flex: 0 0 82mm; width: 82mm; min-height: 34mm; overflow-wrap: anywhere; }
 .letter-head-to { text-align: right; }
 .letter-head .label-caption { font-size: 7.5pt; }
 
