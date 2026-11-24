@@ -25,9 +25,8 @@ public sealed record LetterSaveRequest(
     EnvelopeColor Envelope,
     LetterFont Font,
     InkColor Ink,
-    Scent Scent,
-    PostcardCategory? PostcardCategory,
-    int? PostcardDesign,
+    Guid? ScentId,
+    IReadOnlyList<Guid>? PostcardIds,
     string? RecipientFatherName = null,
     string? RecipientWard = null);
 
@@ -37,6 +36,13 @@ public sealed record LetterPrefillApiDto(
 
 public sealed record LetterSummaryApiDto(Guid Id, string RecipientName, string RecipientType, string Status, string StatusLabel,
     string Preview, DateTime UpdatedAt, string? TrackingCode);
+
+/// <param name="Id">Yönetim panelindeki koku (koku listeden silinmişse boş olabilir).</param>
+public sealed record ScentApiDto(Guid? Id, string Name);
+
+/// <param name="Id">Katalogdaki kartpostal; eski (hazır tasarımlı) siparişlerde boş.</param>
+/// <param name="ImageUrl">Sitenin köküne göre adres (giriş gerektirmez).</param>
+public sealed record PostcardApiDto(Guid? Id, string Title, string Category, string? ImageUrl);
 
 public sealed record PhotoApiDto(Guid Id, string FileName, string Url);
 
@@ -57,9 +63,8 @@ public sealed record LetterApiDto(
     string Envelope,
     string Font,
     string Ink,
-    string Scent,
-    string? PostcardCategory,
-    int? PostcardDesign,
+    ScentApiDto? Scent,
+    IReadOnlyList<PostcardApiDto> Postcards,
     string Status,
     string StatusLabel,
     int PageCount,
@@ -333,7 +338,9 @@ public sealed class MobileLettersController(
         return new LetterApiDto(
             l.Id, l.SenderName, l.SenderAddress, l.RecipientName, l.RecipientType.ToString(), l.RecipientDetail, l.RecipientAddress,
             l.Content, l.Style.Paper.ToString(), l.Style.Envelope.ToString(), l.Style.Font.ToString(), l.Style.Ink.ToString(),
-            l.Scent.ToString(), l.Postcard?.Category.ToString(), l.Postcard?.Design,
+            l.Scent is { } sc ? new ScentApiDto(sc.ScentId, sc.Name) : null,
+            l.Postcards.Select(pc => new PostcardApiDto(pc.DesignId, pc.Title, pc.Category,
+                pc.DesignId is { } pcId ? MektupApp.Web.Controllers.PostcardsController.ImageUrl(Url, pcId) : null)).ToList(),
             l.Status.ToString(), l.Status.DisplayName(), l.PageCount, l.PaidAmount, l.PaymentMethod?.ToString(), l.TrackingCode,
             l.Carrier, l.CarrierLastMovement, l.CarrierLastMovementAt,
             l.Photos.Select(ph => new PhotoApiDto(ph.Id, ph.OriginalFileName, $"/api/mobile/letters/{l.Id}/photos/{ph.Id}")).ToList(),
@@ -355,8 +362,8 @@ public sealed class MobileLettersController(
         if (string.IsNullOrWhiteSpace(r.RecipientName)) throw new AppException("Alıcı adı zorunludur.");
         return new SaveLetterCommand(id, CustomerId, r.SenderName.Trim(), Clean(r.SenderAddress, "Gönderen"),
             r.RecipientName.Trim(), r.RecipientType, string.IsNullOrWhiteSpace(r.RecipientDetail) ? null : r.RecipientDetail.Trim(),
-            Clean(r.RecipientAddress, "Alıcı"), r.Content, r.Paper, r.Envelope, r.Font, r.Ink, r.Scent,
-            r.PostcardCategory, r.PostcardCategory is null ? null : r.PostcardDesign,
+            Clean(r.RecipientAddress, "Alıcı"), r.Content, r.Paper, r.Envelope, r.Font, r.Ink, r.ScentId,
+            r.PostcardIds,
             r.RecipientFatherName, r.RecipientWard);
     }
 

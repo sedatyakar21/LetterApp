@@ -49,6 +49,29 @@ class PasswordResetOptions {
   bool get anyEnabled => emailEnabled || smsEnabled;
 }
 
+/// Bir koku (yönetim panelindeki liste). Siparişte koku listeden silinmişse [id] boş olabilir.
+class ScentInfo {
+  ScentInfo(this.id, this.name);
+  ScentInfo.fromJson(Map<String, dynamic> j)
+      : id = j['id'] as String?,
+        name = j['name'] as String;
+  final String? id;
+  final String name;
+}
+
+/// Katalogdaki bir kartpostal. [imageUrl] sitenin köküne göredir (giriş gerektirmez); eski siparişlerde [id] ve görsel yoktur.
+class PostcardInfo {
+  PostcardInfo(this.id, this.title, this.category, this.imageUrl);
+  PostcardInfo.fromJson(Map<String, dynamic> j)
+      : id = j['id'] as String?,
+        title = j['title'] as String,
+        category = j['category'] as String,
+        imageUrl = j['imageUrl'] as String?;
+  final String? id;
+  final String title, category;
+  final String? imageUrl;
+}
+
 /// Formdaki seçenekler, fiyatlar ve sınırlar (/api/mobile/config).
 class AppSettings {
   AppSettings.fromJson(Map<String, dynamic> j)
@@ -58,10 +81,10 @@ class AppSettings {
         envelopeColors = _list(j['envelopeColors'], Option.fromJson),
         fonts = _list(j['fonts'], Option.fromJson),
         inks = _list(j['inks'], Option.fromJson),
-        scents = _list(j['scents'], Option.fromJson),
-        postcardCategories = _list(j['postcardCategories'], Option.fromJson),
+        scents = j['scents'] == null ? const [] : _list(j['scents'], ScentInfo.fromJson),
+        postcards = j['postcards'] == null ? const [] : _list(j['postcards'], PostcardInfo.fromJson),
+        maxPostcards = j['maxPostcards'] as int? ?? 5,
         acquisitionChannels = _list(j['acquisitionChannels'], Option.fromJson),
-        postcardDesigns = j['postcardDesignsPerCategory'] as int,
         maxPhotos = j['maxPhotos'] as int,
         maxPhotoBytes = j['maxPhotoBytes'] as int,
         maxDocuments = j['maxDocuments'] as int? ?? 5,
@@ -77,8 +100,17 @@ class AppSettings {
             j['support']['email'] as String?, j['support']['hours'] as String?);
 
   final Prices prices;
-  final List<Option> recipientTypes, paperColors, envelopeColors, fonts, inks, scents, postcardCategories, acquisitionChannels;
-  final int postcardDesigns, maxPhotos, maxPhotoBytes, maxDocuments, maxDocumentBytes, maxContentLength, charsPerPage, charsPerLineBreak, minPasswordLength;
+  final List<Option> recipientTypes, paperColors, envelopeColors, fonts, inks, acquisitionChannels;
+
+  /// Yönetim panelinden girilen aktif kokular (sırasıyla); "Kokusuz" listede yoktur, uygulama ekler.
+  final List<ScentInfo> scents;
+
+  /// Yönetim panelinden eklenen aktif kartpostallar (sırasıyla).
+  final List<PostcardInfo> postcards;
+
+  /// Bir mektuba en çok kaç kartpostal eklenebilir.
+  final int maxPostcards;
+  final int maxPhotos, maxPhotoBytes, maxDocuments, maxDocumentBytes, maxContentLength, charsPerPage, charsPerLineBreak, minPasswordLength;
   final bool loyaltyEnabled, mobilePaymentAvailable, paymentSimulation;
   final Support support;
 
@@ -278,9 +310,8 @@ class Letter {
         envelope = j['envelope'] as String,
         font = j['font'] as String,
         ink = j['ink'] as String,
-        scent = j['scent'] as String,
-        postcardCategory = j['postcardCategory'] as String?,
-        postcardDesign = j['postcardDesign'] as int?,
+        scent = j['scent'] == null ? null : ScentInfo.fromJson(j['scent'] as Map<String, dynamic>),
+        postcards = j['postcards'] == null ? const [] : _list(j['postcards'], PostcardInfo.fromJson),
         status = j['status'] as String,
         statusLabel = j['statusLabel'] as String,
         pageCount = j['pageCount'] as int,
@@ -317,10 +348,15 @@ class Letter {
   /// Cezaevi alıcısının baba adı / koğuşu; [recipientNote] zarfta yazan hali ("Baba adı: Ali · Koğuş: B-12").
   final String? recipientFatherName, recipientWard, recipientNote;
 
-  final String id, senderName, recipientName, recipientType, content, paper, envelope, font, ink, scent, status, statusLabel;
+  final String id, senderName, recipientName, recipientType, content, paper, envelope, font, ink, status, statusLabel;
+
+  /// Seçilen koku (yoksa kokusuz).
+  final ScentInfo? scent;
   final Address senderAddress, recipientAddress;
-  final String? recipientDetail, postcardCategory, paymentMethod, trackingCode, carrier, carrierLastMovement, campaignTitle;
-  final int? postcardDesign;
+  final String? recipientDetail, paymentMethod, trackingCode, carrier, carrierLastMovement, campaignTitle;
+
+  /// Seçilen kartpostallar (yoksa boş).
+  final List<PostcardInfo> postcards;
   final int pageCount;
   final double? paidAmount;
   final DateTime? carrierLastMovementAt;
@@ -349,12 +385,11 @@ class LetterDraft {
     this.envelope = 'White',
     this.font = 'Serif',
     this.ink = 'Black',
-    this.scent = 'None',
-    this.postcardCategory,
-    this.postcardDesign,
+    this.scentId,
+    List<String>? postcardIds,
     this.recipientFatherName,
     this.recipientWard,
-  });
+  }) : postcardIds = postcardIds ?? [];
 
   /// Aynı türdeki son mektubun alıcı ve gönderen bilgileri (/api/mobile/letters/prefill).
   factory LetterDraft.fromPrefill(Map<String, dynamic> j) => LetterDraft(
@@ -380,17 +415,21 @@ class LetterDraft {
         envelope: l.envelope,
         font: l.font,
         ink: l.ink,
-        scent: l.scent,
-        postcardCategory: l.postcardCategory,
-        postcardDesign: l.postcardDesign,
+        scentId: l.scent?.id,
+        postcardIds: [for (final p in l.postcards) if (p.id != null) p.id!],
         recipientFatherName: l.recipientFatherName,
         recipientWard: l.recipientWard,
       );
 
-  String senderName, recipientName, recipientType, content, paper, envelope, font, ink, scent;
+  String senderName, recipientName, recipientType, content, paper, envelope, font, ink;
+
+  /// Seçilen koku (null: kokusuz).
+  String? scentId;
   Address senderAddress, recipientAddress;
-  String? recipientDetail, postcardCategory, recipientFatherName, recipientWard;
-  int? postcardDesign;
+  String? recipientDetail, recipientFatherName, recipientWard;
+
+  /// Katalogdan seçilen kartpostallar (seçim sırasıyla; boş: kartpostal istemiyorum).
+  List<String> postcardIds;
 
   Map<String, dynamic> toJson() => {
         'senderName': senderName,
@@ -404,9 +443,8 @@ class LetterDraft {
         'envelope': envelope,
         'font': font,
         'ink': ink,
-        'scent': scent,
-        'postcardCategory': postcardCategory,
-        'postcardDesign': postcardCategory == null ? null : (postcardDesign ?? 1),
+        'scentId': scentId,
+        'postcardIds': postcardIds,
         'recipientFatherName': recipientType == 'Inmate' ? recipientFatherName : null,
         'recipientWard': recipientType == 'Inmate' ? recipientWard : null,
       };

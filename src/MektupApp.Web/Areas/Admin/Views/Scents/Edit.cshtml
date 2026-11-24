@@ -1,0 +1,39 @@
+@model MektupApp.Web.Areas.Admin.Controllers.ScentForm
+@{
+    ViewData["Title"] = "Kokuyu Düzenle";
+}
+
+<div class="mb-3">
+    <a asp-action="Index" class="small">← Kokular</a>
+    <h1 class="h4 mt-1 mb-0">Kokuyu Düzenle</h1>
+</div>
+
+<div class="row">
+    <div class="col-lg-6">
+        <form asp-action="Edit" asp-route-id="@Model.Id" method="post" class="admin-card p-3">
+            <div asp-validation-summary="ModelOnly" class="text-danger small"></div>
+            <div class="mb-3">
+                <label asp-for="Name" class="form-label"></label>
+                <input asp-for="Name" class="form-control" />
+                <div class="form-text">Adı değiştirmek önceki siparişlerde yazan adı değiştirmez.</div>
+                <span asp-validation-for="Name" class="text-danger small"></span>
+            </div>
+            <div class="mb-3" style="max-width: 10rem">
+                <label asp-for="SortOrder" class="form-label"></label>
+                <input asp-for="SortOrder" type="number" min="0" max="9999" class="form-control" />
+                <span asp-validation-for="SortOrder" class="text-danger small"></span>
+            </div>
+            <div class="form-check form-switch mb-3">
+                <input asp-for="IsActive" class="form-check-input" role="switch" />
+                <label asp-for="IsActive" class="form-check-label"></label>
+            </div>
+            <button class="btn btn-primary">Kaydet</button>
+        </form>
+        @if (Model.IsUsed)
+        {
+            <div class="small text-muted mt-2">📬 Bu koku mektuplarda seçildiği için silinemez; müşterilere gösterilmesin istiyorsanız <strong>Aktif</strong> anahtarını kapatın.</div>
+        }
+    </div>
+</div>
+
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }

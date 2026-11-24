@@ -1,4 +1,4 @@
-using MektupApp.Domain.Common;
+﻿using MektupApp.Domain.Common;
 using MektupApp.Domain.Letters;
 
 namespace MektupApp.Domain.Tests;
@@ -131,8 +131,8 @@ public class LetterTests
     {
         var letter = NewDraft(new string('a', LetterPages.CharsPerPage * 2 + 1)); // 3 sayfa
         letter.ChangeStyle(LetterStyle.Default with { Paper = PaperColor.Pink });
-        letter.ChooseScent(Scent.Lavender);
-        letter.AttachPostcard(new Postcard(PostcardCategory.Love, 2));
+        letter.ChooseScent(new LetterScent(Guid.NewGuid(), "Lavanta"));
+        letter.SetPostcards([new Postcard(Guid.NewGuid(), "Gül Bahçesi", "Aşk")]);
         letter.AddPhoto("k.jpg", "a.jpg");
 
         var policy = new LetterPricingPolicy();

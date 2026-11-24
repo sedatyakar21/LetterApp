@@ -24,28 +24,6 @@ class LetterLook {
     'Burgundy': Color(0xFF7A1F33),
   };
 
-  static const postcardGradients = {
-    1: [Color(0xFFFFD1DC), Color(0xFFFF9AA2)],
-    2: [Color(0xFFB5EAD7), Color(0xFF74C69D)],
-    3: [Color(0xFFC7CEEA), Color(0xFF8E9AAF)],
-    4: [Color(0xFFFFDAC1), Color(0xFFF9C74F)],
-  };
-
-  static const postcardIcons = {
-    'Love': '❤️',
-    'Nature': '🌲',
-    'Cities': '🏙️',
-    'Celebration': '🎉',
-    'Motivation': '⭐',
-  };
-
-  static const scentIcons = {
-    'None': '—',
-    'Magnolia': '🌸',
-    'Lavender': '💜',
-    'SpringFlowers': '🌼',
-  };
-
   static Color paperColor(String v) => paper[v] ?? Colors.white;
   static Color inkColor(String v) => ink[v] ?? const Color(0xFF222222);
 
@@ -80,30 +58,35 @@ class Swatch extends StatelessWidget {
       );
 }
 
-/// Kartpostal tasarımı küçük resmi.
+/// Kartpostal görseli (yönetim panelinden yüklenen ön yüz, 3:2). [imageUrl] tam adres olmalı; yoksa (eski siparişler) simge gösterilir.
 class PostcardTile extends StatelessWidget {
-  const PostcardTile({super.key, required this.category, required this.design, this.selected = false, this.size = 64});
-  final String category;
-  final int design;
+  const PostcardTile({super.key, required this.imageUrl, this.selected = false, this.width = 96});
+  final String? imageUrl;
   final bool selected;
-  final double size;
+  final double width;
 
   @override
   Widget build(BuildContext context) {
-    final colors = LetterLook.postcardGradients[design] ?? LetterLook.postcardGradients[1]!;
+    final placeholder = Container(
+      color: const Color(0xFFF3F1EA),
+      alignment: Alignment.center,
+      child: Icon(Icons.image_outlined, color: Colors.black.withValues(alpha: 0.3), size: width * 0.3),
+    );
     return AnimatedContainer(
       duration: const Duration(milliseconds: 150),
-      width: size * 1.4,
-      height: size,
+      width: width,
+      height: width * 2 / 3,
       decoration: BoxDecoration(
-        gradient: LinearGradient(colors: colors, begin: Alignment.topLeft, end: Alignment.bottomRight),
         borderRadius: BorderRadius.circular(10),
         border: Border.all(
-            color: selected ? Theme.of(context).colorScheme.primary : Colors.white, width: selected ? 3 : 2),
+            color: selected ? Theme.of(context).colorScheme.primary : Colors.black.withValues(alpha: 0.1),
+            width: selected ? 3 : 1),
         boxShadow: const [BoxShadow(color: Color(0x1A000000), blurRadius: 4, offset: Offset(0, 2))],
       ),
-      alignment: Alignment.center,
-      child: Text(LetterLook.postcardIcons[category] ?? '', style: TextStyle(fontSize: size * 0.4)),
+      clipBehavior: Clip.antiAlias,
+      child: imageUrl == null
+          ? placeholder
+          : Image.network(imageUrl!, fit: BoxFit.cover, errorBuilder: (_, _, _) => placeholder),
     );
   }
 }

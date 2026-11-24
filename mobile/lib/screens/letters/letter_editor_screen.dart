@@ -432,51 +432,139 @@ class _LetterEditorScreenState extends State<LetterEditorScreen> {
       SectionCard(
         title: 'Koku',
         trailing: Text('+${money(p.scent)}', style: const TextStyle(color: Brand.muted, fontSize: 12)),
-        child: _chips(s.scents, _draft.scent, (v) => _draft.scent = v,
-            avatar: (v) => Text(LetterLook.scentIcons[v] ?? '')),
-      ),
-      const SizedBox(height: 12),
-      SectionCard(
-        title: 'Kartpostal',
-        trailing: Text('+${money(p.postcard)}', style: const TextStyle(color: Brand.muted, fontSize: 12)),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-          Wrap(spacing: 8, runSpacing: 8, children: [
+        child: Wrap(spacing: 8, runSpacing: 8, children: [
+          ChoiceChip(
+            label: const Text('Kokusuz'),
+            selected: _draft.scentId == null,
+            onSelected: (_) => _change(() => _draft.scentId = null),
+          ),
+          for (final sc in _scentOptions(s))
             ChoiceChip(
-              label: const Text('İstemiyorum'),
-              selected: _draft.postcardCategory == null,
-              onSelected: (_) => _change(() => _draft.postcardCategory = null),
+              avatar: const Text('🌸'),
+              label: Text(sc.name),
+              selected: _draft.scentId == sc.id,
+              onSelected: (_) => _change(() => _draft.scentId = sc.id),
             ),
-            for (final o in s.postcardCategories)
-              ChoiceChip(
-                avatar: Text(LetterLook.postcardIcons[o.value] ?? ''),
-                label: Text(o.label),
-                selected: _draft.postcardCategory == o.value,
-                onSelected: (_) => _change(() {
-                  _draft.postcardCategory = o.value;
-                  _draft.postcardDesign ??= 1;
-                }),
-              ),
-          ]),
-          if (_draft.postcardCategory != null) ...[
-            const SizedBox(height: 14),
-            const Text('Tasarım', style: TextStyle(color: Brand.muted)),
-            const SizedBox(height: 8),
-            Wrap(spacing: 10, runSpacing: 10, children: [
-              for (var d = 1; d <= s.postcardDesigns; d++)
-                Semantics(
-                  button: true,
-                  selected: _draft.postcardDesign == d,
-                  label: 'Tasarım $d',
-                  child: GestureDetector(
-                    onTap: () => _change(() => _draft.postcardDesign = d),
-                    child: PostcardTile(
-                        category: _draft.postcardCategory!, design: d, selected: _draft.postcardDesign == d, size: 52),
-                  ),
-                ),
-            ]),
-          ],
         ]),
       ),
+      const SizedBox(height: 12),
+      if (_postcardOptions(s).isNotEmpty) ...[
+        SectionCard(
+          title: 'Kartpostal',
+          trailing: Text('her biri +${money(p.postcard)}', style: const TextStyle(color: Brand.muted, fontSize: 12)),
+          child: _postcardPicker(s),
+        ),
+      ],
+    ]);
+  }
+
+  /// Yönetim panelindeki aktif kokular; düzenlenen mektuptaki koku sonradan pasife alındıysa o da listede kalır.
+  List<ScentInfo> _scentOptions(AppSettings s) {
+    final current = widget.letter?.scent;
+    return [
+      ...s.scents,
+      if (current?.id != null && s.scents.every((x) => x.id != current!.id)) current!,
+    ];
+  }
+
+  String _scentName(AppSettings s, String? id) {
+    if (id == null) return 'Kokusuz';
+    for (final x in _scentOptions(s)) {
+      if (x.id == id) return x.name;
+    }
+    return '—';
+  }
+
+  /// Aktif kartpostallar; düzenlenen mektuptaki kartpostallar sonradan pasife alındıysa onlar da listede kalır (seçim kaybolmasın).
+  List<PostcardInfo> _postcardOptions(AppSettings s) {
+    final list = [...s.postcards];
+    for (final current in widget.letter?.postcards ?? const <PostcardInfo>[]) {
+      if (current.id != null && list.every((p) => p.id != current.id)) list.add(current);
+    }
+    return list;
+  }
+
+  List<PostcardInfo> _selectedPostcards(AppSettings s) {
+    final options = _postcardOptions(s);
+    return [
+      for (final id in _draft.postcardIds)
+        for (final p in options)
+          if (p.id == id) p
+    ];
+  }
+
+  /// Dokununca seçilir / seçim kalkar; sınıra ulaşınca yeni seçim yapılamaz.
+  void _togglePostcard(AppSettings s, String id) {
+    final ids = _draft.postcardIds;
+    if (ids.contains(id)) {
+      _change(() => ids.remove(id));
+    } else if (ids.length >= s.maxPostcards) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text('En fazla ${s.maxPostcards} kartpostal seçebilirsiniz.')));
+    } else {
+      _change(() => ids.add(id));
+    }
+  }
+
+  Widget _postcardPicker(AppSettings s) {
+    final client = AppScope.read(context).api.client;
+    final groups = <String, List<PostcardInfo>>{};
+    for (final p in _postcardOptions(s)) {
+      groups.putIfAbsent(p.category, () => []).add(p);
+    }
+    final count = _draft.postcardIds.length;
+    return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+      Text(
+        count == 0
+            ? 'Birden fazla seçebilirsiniz (en fazla ${s.maxPostcards}). İstemiyorsanız hiçbirini seçmeyin.'
+            : '$count kartpostal seçildi · ${money(s.prices.postcard * count)}',
+        style: TextStyle(color: count == 0 ? Brand.muted : Brand.navy, fontSize: 13, fontWeight: count == 0 ? null : FontWeight.w600),
+      ),
+      if (count > 0)
+        Align(
+          alignment: Alignment.centerLeft,
+          child: TextButton.icon(
+            onPressed: () => _change(() => _draft.postcardIds.clear()),
+            icon: const Icon(Icons.clear, size: 18),
+            label: const Text('Seçimi temizle'),
+          ),
+        ),
+      for (final g in groups.entries) ...[
+        const SizedBox(height: 10),
+        Text(g.key, style: const TextStyle(color: Brand.muted, fontSize: 13)),
+        const SizedBox(height: 6),
+        Wrap(spacing: 10, runSpacing: 10, children: [
+          for (final p in g.value)
+            Semantics(
+              button: true,
+              selected: _draft.postcardIds.contains(p.id),
+              label: '${p.title} kartpostalı',
+              child: GestureDetector(
+                onTap: () => _togglePostcard(s, p.id!),
+                child: SizedBox(
+                  width: 104,
+                  child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                    Stack(children: [
+                      PostcardTile(
+                          imageUrl: p.imageUrl == null ? null : client.absolute(p.imageUrl!),
+                          selected: _draft.postcardIds.contains(p.id),
+                          width: 104),
+                      if (_draft.postcardIds.contains(p.id))
+                        const Positioned(
+                          top: 4,
+                          right: 4,
+                          child: CircleAvatar(
+                              radius: 10, backgroundColor: Brand.burgundy, child: Icon(Icons.check, size: 14, color: Colors.white)),
+                        ),
+                    ]),
+                    const SizedBox(height: 4),
+                    Text(p.title, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(fontSize: 12)),
+                  ]),
+                ),
+              ),
+            ),
+        ]),
+      ],
     ]);
   }
 
@@ -530,10 +618,11 @@ class _LetterEditorScreenState extends State<LetterEditorScreen> {
       if (pages > 1) ('Ek sayfa × ${pages - 1}', p.extraPage * (pages - 1)),
       if (photos > 0) ('Fotoğraf × $photos', p.photo * photos),
       if (documents > 0) ('Belge × $documents', p.document * documents),
-      if (d.postcardCategory != null) ('Kartpostal', p.postcard),
+      if (d.postcardIds.isNotEmpty)
+        (d.postcardIds.length == 1 ? 'Kartpostal' : 'Kartpostal × ${d.postcardIds.length}', p.postcard * d.postcardIds.length),
       if (d.paper != 'White') ('Renkli kâğıt', p.coloredPaper),
       if (d.envelope != 'White') ('Renkli zarf', p.coloredEnvelope),
-      if (d.scent != 'None') ('Koku', p.scent),
+      if (d.scentId != null) ('Koku', p.scent),
     ];
     final total = lines.fold<double>(0, (sum, l) => sum + l.$2);
     return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
@@ -557,9 +646,11 @@ class _LetterEditorScreenState extends State<LetterEditorScreen> {
           InfoRow('Kâğıt', s.label(s.paperColors, d.paper)),
           InfoRow('Zarf', s.label(s.envelopeColors, d.envelope)),
           InfoRow('Yazı', '${s.label(s.fonts, d.font)} · ${s.label(s.inks, d.ink)}'),
-          InfoRow('Koku', s.label(s.scents, d.scent)),
-          InfoRow('Kartpostal',
-              d.postcardCategory == null ? 'Yok' : '${s.label(s.postcardCategories, d.postcardCategory)} · tasarım ${d.postcardDesign ?? 1}'),
+          InfoRow('Koku', _scentName(s, d.scentId)),
+          InfoRow('Kartpostal', switch (_selectedPostcards(s)) {
+            [] => 'Yok',
+            final list => list.map((pc) => pc.title).join(', '),
+          }),
           InfoRow('Sayfa', '$pages'),
         ]),
       ),

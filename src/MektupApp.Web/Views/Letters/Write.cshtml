@@ -1,12 +1,15 @@
 @model LetterFormViewModel
+@using MektupApp.Web.Controllers
 @{
     ViewData["Title"] = Model.Id is null ? "Mektup Yaz" : "Mektubu Düzenle";
     var prices = (PriceList)ViewBag.Prices;
-    var postcardIcons = new Dictionary<PostcardCategory, string>
-    {
-        [PostcardCategory.Love] = "❤️", [PostcardCategory.Nature] = "🌲", [PostcardCategory.Cities] = "🏙️",
-        [PostcardCategory.Celebration] = "🎉", [PostcardCategory.Motivation] = "⭐"
-    };
+    // Aktif kartpostallar; mektupta seçili olup sonradan pasife alınanlar da gösterilir (seçim kaybolmasın).
+    var postcards = ((IReadOnlyList<MektupApp.Application.Postcards.PostcardDto>?)ViewBag.Postcards ?? []).ToList();
+    foreach (var kept in Model.CurrentPostcards.Where(c => postcards.All(p => p.Id != c.Id)))
+        postcards.Add(new(kept.Id, kept.Title, kept.Category, false, int.MaxValue, DateTime.MinValue));
+    var scents = ((IReadOnlyList<MektupApp.Application.Scents.ScentDto>?)ViewBag.Scents ?? []).ToList();
+    if (Model.ScentId is { } scentId && Model.ScentName is not null && scents.All(s => s.Id != scentId))
+        scents.Add(new(scentId, Model.ScentName, false, int.MaxValue));
 }
 
 <div class="container py-4">
@@ -107,28 +110,59 @@
                                 <select asp-for="Ink" asp-items="Html.GetEnumSelectList<InkColor>()" class="form-select"></select>
                             </div>
                             <div class="col-12">
-                                <label asp-for="Scent" class="form-label small"></label>
-                                <select asp-for="Scent" asp-items="Html.GetEnumSelectList<Scent>()" class="form-select"></select>
+                                <label asp-for="ScentId" class="form-label small"></label>
+                                @* Yönetim → Kokular'dan gelen aktif kokular; mektuptaki koku pasife alındıysa yine listelenir. *@
+                                <select asp-for="ScentId" class="form-select">
+                                    <option value="">Kokusuz</option>
+                                    @foreach (var s in scents)
+                                    {
+                                        <option value="@s.Id" selected="@(Model.ScentId == s.Id)">@s.Name</option>
+                                    }
+                                </select>
+                                @if (Model.ScentName is not null) { <input type="hidden" asp-for="ScentName" /> }
                             </div>
                         </div>
 
-                        <label class="form-label small mt-3">Kartpostal</label>
-                        <select asp-for="PostcardCategory" class="form-select mb-2">
-                            <option value="">Kartpostal istemiyorum</option>
-                            @foreach (var c in Enum.GetValues<PostcardCategory>())
-                            {
-                                <option value="@((int)c)" selected="@(Model.PostcardCategory == c)">@c.DisplayName()</option>
-                            }
-                        </select>
-                        <div id="postcardDesigns" class="d-flex gap-2 flex-wrap">
-                            @for (var d = 1; d <= Postcard.DesignsPerCategory; d++)
-                            {
-                                <label class="postcard-option">
-                                    <input type="radio" name="PostcardDesign" value="@d" checked="@((Model.PostcardDesign ?? 1) == d)" />
-                                    <span class="postcard-tile design-@d"><span class="postcard-icon"></span></span>
-                                </label>
-                            }
-                        </div>
+                        @* Yönetim panelinden eklenen aktif kartpostallar, kategoriye göre; birden fazla seçilebilir (her biri ayrı ücretli). *@
+                        @for (var i = 0; i < Model.CurrentPostcards.Count; i++)
+                        {
+                            <input type="hidden" name="CurrentPostcards[@i].Id" value="@Model.CurrentPostcards[i].Id" />
+                            <input type="hidden" name="CurrentPostcards[@i].Title" value="@Model.CurrentPostcards[i].Title" />
+                            <input type="hidden" name="CurrentPostcards[@i].Category" value="@Model.CurrentPostcards[i].Category" />
+                        }
+                        @if (postcards.Count > 0)
+                        {
+                            <fieldset class="mt-3" id="postcardPicker" data-max="@Letter.MaxPostcards">
+                                <legend class="form-label small mb-0">Kartpostal <span class="text-muted">(her biri +@prices.Postcard.ToString("N2") ₺)</span></legend>
+                                <div class="form-text mt-0 mb-1">
+                                    Birden fazla seçebilirsiniz (en fazla @Letter.MaxPostcards). İstemiyorsanız hiçbirini seçmeyin.
+                                    <span id="postcardCount" class="fw-semibold"></span>
+                                </div>
+                                <div class="postcard-picker">
+                                    @foreach (var group in postcards.GroupBy(p => p.Category))
+                                    {
+                                        <div class="postcard-group-title">@group.Key</div>
+                                        <div class="d-flex gap-2 flex-wrap">
+                                            @foreach (var p in group)
+                                            {
+                                                <label class="postcard-option" title="@p.Title">
+                                                    <input type="checkbox" name="PostcardIds" value="@p.Id" checked="@Model.PostcardIds.Contains(p.Id)" />
+                                                    <span class="postcard-tile">
+                                                        <img src="@PostcardsController.ImageUrl(Url, p.Id, p.UpdatedAt)" alt="" loading="lazy" />
+                                                        <span class="postcard-name">@p.Title</span>
+                                                        <span class="postcard-check" aria-hidden="true">✓</span>
+                                                    </span>
+                                                </label>
+                                            }
+                                        </div>
+                                    }
+                                </div>
+                            </fieldset>
+                        }
+                        else
+                        {
+                            @foreach (var id in Model.PostcardIds) { <input type="hidden" name="PostcardIds" value="@id" /> }
+                        }
                     </div>
                 </div>
             </div>
@@ -176,7 +210,6 @@
             charsPerPage: @LetterPages.CharsPerPage,
             photoCount: @Model.PhotoCount,
             documentCount: @Model.DocumentCount,
-            postcardIcons: @Json.Serialize(postcardIcons.ToDictionary(k => ((int)k.Key).ToString(), v => v.Value)),
             // Yeni mektupta, alıcı türüne göre (cezaevi / asker) o türdeki son mektubun alıcı ve gönderen bilgileri.
             isNew: @(Model.Id is null ? "true" : "false"),
             prefills: @Json.Serialize(ViewBag.Prefills ?? new Dictionary<string, LetterPrefillDto>())

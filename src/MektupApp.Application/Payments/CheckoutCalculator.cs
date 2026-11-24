@@ -36,8 +36,9 @@ public sealed class CheckoutCalculator(
         var surcharge = method == PaymentMethod.Mobile ? 1 + prices.MobilePaymentSurchargeRate : 1;
         var cart = new CampaignCart(
             price.Total.Amount,
-            letter.Scent != Scent.None ? prices.Scent * surcharge : 0,
-            letter.Postcard is not null ? prices.Postcard * surcharge : 0);
+            letter.Scent is not null ? prices.Scent * surcharge : 0,
+            // "Ücretsiz kartpostal" kampanyası bir kartpostalın ücretini düşer (birden fazla seçilse de).
+            letter.Postcards.Count > 0 ? prices.Postcard * surcharge : 0);
         var today = TurkeyCalendar.Today;
         var current = await campaigns.ListCurrentAsync(today, ct);
         // Müşteri bilgisi yalnızca hedef kitlesi / kullanım sınırı olan kampanyalar varsa okunur.

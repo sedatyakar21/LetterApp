@@ -601,8 +601,9 @@ class _LetterPreview extends StatelessWidget {
       '${settings.label(settings.paperColors, l.paper)} kâğıt',
       '${settings.label(settings.envelopeColors, l.envelope)} zarf',
       settings.label(settings.fonts, l.font),
-      if (l.scent != 'None') settings.label(settings.scents, l.scent),
-      if (l.postcardCategory != null) '${settings.label(settings.postcardCategories, l.postcardCategory)} kartpostal',
+      if (l.scent != null) '${l.scent!.name} kokulu',
+      if (l.postcards.isNotEmpty)
+        '${l.postcards.length > 1 ? 'Kartpostallar' : 'Kartpostal'}: ${l.postcards.map((p) => p.title).join(', ')}',
       '${l.pageCount} sayfa',
     ];
     return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
@@ -630,7 +631,8 @@ class _LetterPreview extends StatelessWidget {
             decoration: BoxDecoration(color: Brand.paper2, borderRadius: BorderRadius.circular(8)),
             child: Text(e, style: const TextStyle(fontSize: 12, color: Brand.muted)),
           ),
-        if (l.postcardCategory != null) PostcardTile(category: l.postcardCategory!, design: l.postcardDesign ?? 1, size: 22),
+        for (final p in l.postcards)
+          if (p.imageUrl != null) PostcardTile(imageUrl: AppScope.read(context).api.client.absolute(p.imageUrl!), width: 42),
       ]),
     ]);
   }

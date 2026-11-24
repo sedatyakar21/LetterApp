@@ -1,5 +1,6 @@
 using MektupApp.Domain.Customers;
 using MektupApp.Domain.Letters;
+using MektupApp.Domain.Postcards;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -16,7 +17,12 @@ internal sealed class LetterConfiguration : IEntityTypeConfiguration<Letter>
         b.Property(l => l.SenderName).HasMaxLength(100).IsRequired();
         b.Property(l => l.Content).HasMaxLength(Letter.MaxContentLength);
         b.Property(l => l.Status).HasConversion<string>().HasMaxLength(20);
-        b.Property(l => l.Scent).HasConversion<string>().HasMaxLength(20);
+        // Seçilen koku: katalogdaki kimlik + anlık kopya ad (FK yok; koku silinse de sipariş bilgisi kalır).
+        b.ComplexProperty(l => l.Scent, s =>
+        {
+            s.Property(x => x.ScentId).HasColumnName("ScentId");
+            s.Property(x => x.Name).HasColumnName("ScentName").HasMaxLength(MektupApp.Domain.Scents.ScentOption.NameMax);
+        });
         b.Property(l => l.PaymentMethod).HasConversion<string>().HasMaxLength(20);
         b.Property(l => l.PaidAmount).HasPrecision(10, 2);
         b.Property(l => l.TrackingCode).HasMaxLength(13);
@@ -57,11 +63,21 @@ internal sealed class LetterConfiguration : IEntityTypeConfiguration<Letter>
             s.Property(x => x.Font).HasColumnName("Font").HasConversion<string>().HasMaxLength(20);
             s.Property(x => x.Ink).HasColumnName("InkColor").HasConversion<string>().HasMaxLength(20);
         });
-        b.ComplexProperty(l => l.Postcard, p =>
+        // Seçilen kartpostallar: katalogdaki kimlik + anlık kopya (ad, kategori). Katalogdan silinse de sipariş bilgisi kalır (FK yok).
+        // Sıra, eklenme sırasıdır (Id artan).
+        b.OwnsMany(l => l.Postcards, p =>
         {
-            p.Property(x => x.Category).HasColumnName("PostcardCategory").HasConversion<string>().HasMaxLength(20);
-            p.Property(x => x.Design).HasColumnName("PostcardDesign");
+            p.ToTable("LetterPostcards");
+            p.WithOwner().HasForeignKey("LetterId");
+            p.Property<int>("Id").ValueGeneratedOnAdd();
+            p.HasKey("Id");
+            p.Property(x => x.DesignId).HasColumnName("PostcardId");
+            p.HasIndex(x => x.DesignId);
+            p.Property(x => x.Title).HasMaxLength(PostcardDesign.TitleMax).IsRequired();
+            p.Property(x => x.Category).HasMaxLength(PostcardDesign.CategoryMax).IsRequired();
+            p.Ignore(x => x.DisplayText);
         });
+        b.Navigation(l => l.Postcards).UsePropertyAccessMode(PropertyAccessMode.Field);
 
         b.HasMany(l => l.Photos).WithOne().HasForeignKey(p => p.LetterId).OnDelete(DeleteBehavior.Cascade);
         b.Navigation(l => l.Photos).UsePropertyAccessMode(PropertyAccessMode.Field).AutoInclude();
@@ -71,6 +87,34 @@ internal sealed class LetterConfiguration : IEntityTypeConfiguration<Letter>
 
         b.HasMany(l => l.History).WithOne().HasForeignKey(h => h.LetterId).OnDelete(DeleteBehavior.Cascade);
         b.Navigation(l => l.History).UsePropertyAccessMode(PropertyAccessMode.Field).AutoInclude();
+    }
+}
+
+internal sealed class ScentOptionConfiguration : IEntityTypeConfiguration<MektupApp.Domain.Scents.ScentOption>
+{
+    public void Configure(EntityTypeBuilder<MektupApp.Domain.Scents.ScentOption> b)
+    {
+        b.ToTable("Scents");
+        b.HasKey(s => s.Id);
+        b.Property(s => s.Id).ValueGeneratedNever();
+        b.Ignore(s => s.DomainEvents);
+        b.Property(s => s.Name).HasMaxLength(MektupApp.Domain.Scents.ScentOption.NameMax).IsRequired();
+        b.HasIndex(s => s.Name).IsUnique();
+        b.HasIndex(s => new { s.IsActive, s.SortOrder });
+    }
+}
+
+internal sealed class PostcardDesignConfiguration : IEntityTypeConfiguration<PostcardDesign>
+{
+    public void Configure(EntityTypeBuilder<PostcardDesign> b)
+    {
+        b.ToTable("Postcards");
+        b.HasKey(p => p.Id);
+        b.Ignore(p => p.DomainEvents);
+        b.Property(p => p.Title).HasMaxLength(PostcardDesign.TitleMax).IsRequired();
+        b.Property(p => p.Category).HasMaxLength(PostcardDesign.CategoryMax).IsRequired();
+        b.Property(p => p.ImageKey).HasMaxLength(300).IsRequired();
+        b.HasIndex(p => new { p.IsActive, p.SortOrder });
     }
 }
 

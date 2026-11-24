@@ -51,6 +51,46 @@ internal sealed class WeightSettingsRepository(AppDbContext db) : IWeightSetting
     public void Add(WeightSettings settings) => db.Set<WeightSettings>().Add(settings);
 }
 
+internal sealed class ScentRepository(AppDbContext db) : MektupApp.Domain.Scents.IScentRepository
+{
+    private DbSet<MektupApp.Domain.Scents.ScentOption> Set => db.Set<MektupApp.Domain.Scents.ScentOption>();
+
+    public Task<MektupApp.Domain.Scents.ScentOption?> GetAsync(Guid id, CancellationToken ct = default) =>
+        Set.FirstOrDefaultAsync(s => s.Id == id, ct);
+
+    public async Task<IReadOnlyList<MektupApp.Domain.Scents.ScentOption>> ListAsync(bool activeOnly, CancellationToken ct = default) =>
+        await Set.Where(s => !activeOnly || s.IsActive).OrderBy(s => s.SortOrder).ThenBy(s => s.Name).ToListAsync(ct);
+
+    public Task<bool> IsUsedAsync(Guid id, CancellationToken ct = default) =>
+        db.Letters.AnyAsync(l => !l.IsDeleted && l.Scent != null && l.Scent.ScentId == id, ct);
+
+    // SQL Server varsayılan harmanlaması büyük/küçük harf duyarsızdır.
+    public Task<bool> NameExistsAsync(string name, Guid? exceptId, CancellationToken ct = default) =>
+        Set.AnyAsync(s => s.Name == name && s.Id != exceptId, ct);
+
+    public void Add(MektupApp.Domain.Scents.ScentOption scent) => Set.Add(scent);
+    public void Remove(MektupApp.Domain.Scents.ScentOption scent) => Set.Remove(scent);
+}
+
+internal sealed class PostcardRepository(AppDbContext db) : MektupApp.Domain.Postcards.IPostcardRepository
+{
+    private DbSet<MektupApp.Domain.Postcards.PostcardDesign> Set => db.Set<MektupApp.Domain.Postcards.PostcardDesign>();
+
+    public Task<MektupApp.Domain.Postcards.PostcardDesign?> GetAsync(Guid id, CancellationToken ct = default) =>
+        Set.FirstOrDefaultAsync(p => p.Id == id, ct);
+
+    public async Task<IReadOnlyList<MektupApp.Domain.Postcards.PostcardDesign>> ListAsync(bool activeOnly, CancellationToken ct = default) =>
+        await Set.Where(p => !activeOnly || p.IsActive)
+            .OrderBy(p => p.SortOrder).ThenBy(p => p.Category).ThenBy(p => p.Title)
+            .ToListAsync(ct);
+
+    public Task<bool> IsUsedAsync(Guid id, CancellationToken ct = default) =>
+        db.Letters.AnyAsync(l => !l.IsDeleted && l.Postcards.Any(p => p.DesignId == id), ct);
+
+    public void Add(MektupApp.Domain.Postcards.PostcardDesign postcard) => Set.Add(postcard);
+    public void Remove(MektupApp.Domain.Postcards.PostcardDesign postcard) => Set.Remove(postcard);
+}
+
 internal sealed class PasswordResetRepository(AppDbContext db) : IPasswordResetRepository
 {
     // Varsayılan ayar aynı istekte eklenmiş ama henüz kaydedilmemiş olabilir: önce bellekteki kayda bakılır.

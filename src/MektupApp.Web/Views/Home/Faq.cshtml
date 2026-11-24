@@ -1,7 +1,10 @@
 ﻿@model PriceList
 @using MektupApp.Domain.Common
+@inject MektupApp.Application.Scents.ScentService ScentCatalog
 @{
     ViewData["Title"] = "Sıkça Sorulan Sorular";
+    // Fiyat satırında yönetim panelinden girilen aktif kokular listelenir.
+    var scentNames = string.Join(", ", (await ScentCatalog.ListActiveAsync()).Select(s => s.Name.ToLower(new System.Globalization.CultureInfo("tr-TR"))));
     Money M(decimal v) => new(v);
     var faqs = new (string Q, string A)[]
     {
@@ -45,7 +48,7 @@
             <tr><td>Kartpostal</td><td class="text-end">@M(Model.Postcard)</td></tr>
             <tr><td>Renkli kağıt</td><td class="text-end">@M(Model.ColoredPaper)</td></tr>
             <tr><td>Renkli zarf</td><td class="text-end">@M(Model.ColoredEnvelope)</td></tr>
-            <tr><td>Koku (manolya, lavanta, bahar çiçekleri)</td><td class="text-end">@M(Model.Scent)</td></tr>
+            <tr><td>Koku@(scentNames.Length > 0 ? $" ({scentNames})" : "")</td><td class="text-end">@M(Model.Scent)</td></tr>
             <tr><td>Mobil ödeme operatör farkı</td><td class="text-end">%@((Model.MobilePaymentSurchargeRate * 100).ToString("0"))</td></tr>
         </tbody>
     </table>

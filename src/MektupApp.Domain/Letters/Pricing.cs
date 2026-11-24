@@ -85,8 +85,9 @@ public sealed class LetterPricingPolicy
         if (letter.Documents.Count > 0)
             lines.Add(new($"Belge × {letter.Documents.Count}", new Money(prices.Document) * letter.Documents.Count));
 
-        if (letter.Postcard is not null)
-            lines.Add(new("Kartpostal", new Money(prices.Postcard)));
+        if (letter.Postcards.Count > 0)
+            lines.Add(new(letter.Postcards.Count == 1 ? "Kartpostal" : $"Kartpostal × {letter.Postcards.Count}",
+                new Money(prices.Postcard) * letter.Postcards.Count));
 
         if (letter.Style.HasColoredPaper)
             lines.Add(new("Renkli kağıt", new Money(prices.ColoredPaper)));
@@ -94,7 +95,7 @@ public sealed class LetterPricingPolicy
         if (letter.Style.HasColoredEnvelope)
             lines.Add(new("Renkli zarf", new Money(prices.ColoredEnvelope)));
 
-        if (letter.Scent != Scent.None)
+        if (letter.Scent is not null)
             lines.Add(new("Koku", new Money(prices.Scent)));
 
         var subtotal = lines.Aggregate(Money.Zero, (sum, l) => sum + l.Amount);

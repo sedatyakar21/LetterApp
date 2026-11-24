@@ -25,15 +25,27 @@
         return Math.max(1, Math.ceil((text.length + breaks * 60) / cfg.charsPerPage));
     }
 
+    const selectedPostcards = () => [...form.querySelectorAll('input[type="checkbox"][name="PostcardIds"]:checked')];
+
+    // Çoklu kartpostal: seçilen sayıyı göster; sınıra ulaşınca seçilmemiş olanlar kapanır.
+    function updatePostcards() {
+        const picker = $("postcardPicker");
+        if (!picker) return;
+        const max = Number(picker.dataset.max) || 5;
+        const count = selectedPostcards().length;
+        picker.querySelectorAll('input[name="PostcardIds"]').forEach(i => i.disabled = !i.checked && count >= max);
+        $("postcardCount").textContent = count === 0 ? "" : `${count} kartpostal seçildi${count >= max ? " (sınır)" : ""}.`;
+    }
+
     const money = (v) => v.toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " ₺";
 
     function estimate(pages) {
         const p = cfg.prices;
         let total = p.basePrice + (pages - 1) * p.extraPage + cfg.photoCount * p.photo + (cfg.documentCount || 0) * p.document;
-        if (field("PostcardCategory").value) total += p.postcard;
+        total += selectedPostcards().length * p.postcard;
         if (field("Paper").value !== "0") total += p.coloredPaper;
         if (field("Envelope").value !== "0") total += p.coloredEnvelope;
-        if (field("Scent").value !== "0") total += p.scent;
+        if (field("ScentId").value) total += p.scent;
         return total;
     }
 
@@ -76,13 +88,6 @@
 
     field("RecipientType").addEventListener("change", applyPrefill);
 
-    function updatePostcard() {
-        const cat = field("PostcardCategory").value;
-        const designs = $("postcardDesigns");
-        designs.style.display = cat ? "" : "none";
-        designs.querySelectorAll(".postcard-icon").forEach(i => i.textContent = cfg.postcardIcons[cat] || "");
-    }
-
     function render() {
         const content = field("Content").value;
         const pages = pageCount(content);
@@ -101,7 +106,7 @@
         swapClass($("envelopePreview"), "envelope-", enumNames.Envelope[field("Envelope").value]);
 
         updateRecipientDetail();
-        updatePostcard();
+        updatePostcards();
     }
 
     form.addEventListener("input", render);

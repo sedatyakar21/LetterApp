@@ -14,7 +14,8 @@ using Microsoft.AspNetCore.StaticFiles;
 namespace MektupApp.Web.Controllers;
 
 [Authorize]
-public class LettersController(LetterService letters, AccountService accounts, PricingService pricing, PaymentService payments)
+public class LettersController(LetterService letters, AccountService accounts, PricingService pricing, PaymentService payments,
+    MektupApp.Application.Postcards.PostcardService postcards, MektupApp.Application.Scents.ScentService scents)
     : Controller
 {
     private Guid CustomerId => User.GetCustomerId();
@@ -275,6 +276,8 @@ public class LettersController(LetterService letters, AccountService accounts, P
     private async Task<ViewResult> FormViewAsync(LetterFormViewModel model)
     {
         ViewBag.Prices = await pricing.GetCurrentAsync(HttpContext.RequestAborted);
+        ViewBag.Postcards = await postcards.ListActiveAsync(HttpContext.RequestAborted);
+        ViewBag.Scents = await scents.ListActiveAsync(HttpContext.RequestAborted);
         return View("Write", model);
     }
 }

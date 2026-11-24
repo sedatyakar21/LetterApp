@@ -98,23 +98,43 @@ public sealed record LetterStyle(PaperColor Paper, EnvelopeColor Envelope, Lette
     public bool HasColoredEnvelope => Envelope != EnvelopeColor.White;
 }
 
-/// <summary>Mektuba eklenen kartpostal. Her kategoride 1..DesignsPerCategory arası tasarım vardır.</summary>
+/// <summary>Mektuba sürülen koku: katalogdaki kimliği ve o anki adı (anlık kopya).</summary>
+public sealed record LetterScent
+{
+    public Guid? ScentId { get; }
+    public string Name { get; }
+
+    public LetterScent(Guid? scentId, string name)
+    {
+        ScentId = scentId;
+        Name = Guard.Required(name, "Koku adı", Scents.ScentOption.NameMax);
+    }
+
+    public static LetterScent From(Scents.ScentOption scent) => new(scent.Id, scent.Name);
+}
+
+/// <summary>
+/// Mektuba eklenen kartpostal: katalogdaki kartpostalın kimliği ile o anki adı ve kategorisi (anlık kopya).
+/// Katalogdan çıkarılsa da sipariş ekranında / baskıda hangi kartpostalın konacağı bilinir.
+/// </summary>
+/// <param name="DesignId">Katalogdaki kartpostal; eski (hazır tasarımlı) siparişlerde boştur.</param>
 public sealed record Postcard
 {
-    public const int DesignsPerCategory = 4;
+    public Guid? DesignId { get; }
+    public string Title { get; }
+    public string Category { get; }
 
-    public PostcardCategory Category { get; }
-    public int Design { get; }
-
-    public Postcard(PostcardCategory category, int design)
+    public Postcard(Guid? designId, string title, string category)
     {
-        if (!Enum.IsDefined(category))
-            throw new DomainException("Geçersiz kartpostal kategorisi.");
-        if (design is < 1 or > DesignsPerCategory)
-            throw new DomainException("Geçersiz kartpostal tasarımı.");
-        Category = category;
-        Design = design;
+        DesignId = designId;
+        Title = Guard.Required(title, "Kartpostal adı", Postcards.PostcardDesign.TitleMax);
+        Category = Guard.Required(category, "Kartpostal kategorisi", Postcards.PostcardDesign.CategoryMax);
     }
+
+    public static Postcard From(Postcards.PostcardDesign design) => new(design.Id, design.Title, design.Category);
+
+    /// <summary>"Gül Bahçesi (Aşk)" biçiminde.</summary>
+    public string DisplayText => $"{Title} ({Category})";
 }
 
 /// <summary>

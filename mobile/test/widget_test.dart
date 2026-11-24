@@ -23,14 +23,15 @@ Map<String, dynamic> _config() => {
         'envelopeColors',
         'fonts',
         'inks',
-        'scents',
-        'postcardCategories',
         'acquisitionChannels'
       ])
         k: [
           {'value': 'White', 'label': 'Beyaz'}
         ],
-      'postcardDesignsPerCategory': 4,
+      'scents': [
+        {'id': 's1', 'name': 'Manolya'},
+        {'id': 's2', 'name': 'Lavanta'}
+      ],
       'maxPhotos': 10,
       'maxPhotoBytes': 5242880,
       'maxContentLength': 25000,
@@ -57,6 +58,10 @@ void main() {
       expect(s.pageCount('${'a' * 1050}\n\n${'a' * 1048}'), 2);
     });
     test('etiket bulunamazsa değerin kendisi döner', () => expect(s.label(s.paperColors, 'Pink'), 'Pink'));
+    test('kokular yönetim panelindeki listeden gelir', () {
+      expect(s.scents.map((x) => x.name), ['Manolya', 'Lavanta']);
+      expect(s.scents.first.id, 's1');
+    });
     test('eski sunucu belge sınırı göndermezse varsayılanlar kullanılır', () {
       expect(s.maxDocuments, 5);
       expect(s.maxDocumentBytes, 10 * 1024 * 1024);
@@ -84,10 +89,10 @@ void main() {
   });
 
   group('LetterDraft.toJson', () {
-    test('standart alıcıda ek bilgi gönderilmez; kartpostal yoksa tasarım null', () {
-      final j = LetterDraft(recipientType: 'Standard', recipientDetail: 'x', postcardDesign: 3).toJson();
+    test('standart alıcıda ek bilgi gönderilmez; kartpostal seçilmediyse null', () {
+      final j = LetterDraft(recipientType: 'Standard', recipientDetail: 'x').toJson();
       expect(j['recipientDetail'], isNull);
-      expect(j['postcardDesign'], isNull);
+      expect(j['postcardIds'], isEmpty);
     });
     test('yeni mektupta varsayılan alıcı türü cezaevi', () => expect(LetterDraft().recipientType, 'Inmate'));
     test('baba adı ve koğuş yalnızca cezaevi alıcısında gönderilir', () {
@@ -98,9 +103,26 @@ void main() {
       expect(soldier['recipientFatherName'], isNull);
       expect(soldier['recipientWard'], isNull);
     });
-    test('kartpostal seçiliyse tasarım varsayılan 1', () {
-      final j = LetterDraft(postcardCategory: 'Love').toJson();
-      expect(j['postcardDesign'], 1);
+    test('seçilen kartpostalların kimlikleri sırasıyla gönderilir', () {
+      final j = LetterDraft(postcardIds: ['a', 'b']).toJson();
+      expect(j['postcardIds'], ['a', 'b']);
+      expect(j.containsKey('postcardId'), isFalse);
+    });
+    test('her taslağın kendi kartpostal listesi vardır', () {
+      final a = LetterDraft()..postcardIds.add('x');
+      expect(LetterDraft().postcardIds, isEmpty);
+      expect(a.postcardIds, ['x']);
+    });
+  });
+
+  group('PostcardInfo', () {
+    test('katalog kaydı ve eski (görselsiz) sipariş okunur', () {
+      final p = PostcardInfo.fromJson({'id': 'x', 'title': 'Gül Bahçesi', 'category': 'Aşk', 'imageUrl': '/kartpostal/x/gorsel'});
+      expect(p.title, 'Gül Bahçesi');
+      expect(p.imageUrl, '/kartpostal/x/gorsel');
+      final legacy = PostcardInfo.fromJson({'id': null, 'title': 'Aşk #2', 'category': 'Aşk', 'imageUrl': null});
+      expect(legacy.id, isNull);
+      expect(legacy.imageUrl, isNull);
     });
   });
 

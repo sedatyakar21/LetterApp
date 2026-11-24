@@ -121,6 +121,14 @@ public sealed record PrisonPickerOptions(bool IsInmate, string? TypeSelector = n
     public string InmateValue => ((int)RecipientType.Inmate).ToString();
 }
 
+/// <summary>Mektuptaki bir kartpostal (formda gizli alanlarla taşınır).</summary>
+public sealed class PostcardChoice
+{
+    public Guid Id { get; set; }
+    public string Title { get; set; } = string.Empty;
+    public string Category { get; set; } = string.Empty;
+}
+
 /// <summary>"Mektup Yaz" formu. Hem yeni taslak hem düzenleme için kullanılır.</summary>
 public sealed class LetterFormViewModel
 {
@@ -157,9 +165,14 @@ public sealed class LetterFormViewModel
     [Display(Name = "Zarf Rengi")] public EnvelopeColor Envelope { get; set; }
     [Display(Name = "Yazı Stili")] public LetterFont Font { get; set; }
     [Display(Name = "Mürekkep")] public InkColor Ink { get; set; }
-    [Display(Name = "Koku")] public Scent Scent { get; set; }
-    [Display(Name = "Kartpostal")] public PostcardCategory? PostcardCategory { get; set; }
-    public int? PostcardDesign { get; set; }
+    /// <summary>Yönetim panelinden girilen kokulardan seçilen (boş: kokusuz).</summary>
+    [Display(Name = "Koku")] public Guid? ScentId { get; set; }
+    /// <summary>Mektuptaki kokunun adı: koku sonradan pasife alındıysa listede yine gösterilir.</summary>
+    public string? ScentName { get; set; }
+    /// <summary>Katalogdan seçilen kartpostallar (boş: kartpostal istenmiyor).</summary>
+    [Display(Name = "Kartpostal")] public List<Guid> PostcardIds { get; set; } = [];
+    /// <summary>Mektupta kayıtlı kartpostallar: katalogda pasife alınmış olsalar da formda gösterilir (seçim kaybolmasın).</summary>
+    public List<PostcardChoice> CurrentPostcards { get; set; } = [];
 
     public int PhotoCount { get; set; }
 
@@ -168,7 +181,7 @@ public sealed class LetterFormViewModel
     public SaveLetterCommand ToCommand(Guid customerId) => new(
         Id, customerId, SenderName, SenderAddress.ToDto(),
         RecipientName, RecipientType, RecipientDetail, RecipientAddress.ToDto(),
-        Content, Paper, Envelope, Font, Ink, Scent, PostcardCategory, PostcardDesign,
+        Content, Paper, Envelope, Font, Ink, ScentId, PostcardIds,
         RecipientFatherName, RecipientWard);
 
     /// <summary>Aynı türdeki son mektubun alıcı / gönderen bilgilerini forma yazar (yeni mektupta).</summary>
@@ -200,9 +213,11 @@ public sealed class LetterFormViewModel
         Envelope = d.Style.Envelope,
         Font = d.Style.Font,
         Ink = d.Style.Ink,
-        Scent = d.Scent,
-        PostcardCategory = d.Postcard?.Category,
-        PostcardDesign = d.Postcard?.Design,
+        ScentId = d.Scent?.ScentId,
+        ScentName = d.Scent?.Name,
+        PostcardIds = d.Postcards.Where(p => p.DesignId is not null).Select(p => p.DesignId!.Value).ToList(),
+        CurrentPostcards = d.Postcards.Where(p => p.DesignId is not null)
+            .Select(p => new PostcardChoice { Id = p.DesignId!.Value, Title = p.Title, Category = p.Category }).ToList(),
         PhotoCount = d.Photos.Count,
         DocumentCount = d.Documents.Count
     };

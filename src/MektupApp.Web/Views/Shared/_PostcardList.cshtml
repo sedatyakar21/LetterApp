@@ -1,0 +1,21 @@
+@model IReadOnlyList<MektupApp.Domain.Letters.Postcard>
+@* Mektuptaki kartpostallar: küçük görsel + "Ad (Kategori)". Müşteri / yönetim sipariş sayfaları ve baskı listesinde ortak. *@
+@if (Model.Count == 0)
+{
+    <text>Yok</text>
+}
+else
+{
+    <span class="d-inline-flex flex-wrap gap-2 align-items-center">
+        @foreach (var p in Model)
+        {
+            <span class="d-inline-flex align-items-center gap-1">
+                @if (p.DesignId is { } id)
+                {
+                    <img src="@MektupApp.Web.Controllers.PostcardsController.ImageUrl(Url, id)" alt="" class="postcard-thumb" loading="lazy" />
+                }
+                <span>@p.DisplayText</span>
+            </span>
+        }
+    </span>
+}

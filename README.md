@@ -181,6 +181,22 @@ Dilekçe, vekaletname, okul belgesi gibi evraklar mektuba eklenir; basılıp mek
 - Belgelerin yaprak sayısı yüklenirken okunur: görsel 1, PDF'in sayfa sayısı (`PdfPageCounter`; sıkıştırılmış nesne akışları da açılır, okunamazsa 1). Bu özellikten önce yüklenen belgeler 1 yaprak sayılır.
 - Zarf çıktısının sağ üstüne basılır; ekrandaki kontrol listesinde kalem kalem dökümü görünür. **PTT kaydına giden ağırlık da aynı hesaptır.**
 - Veritabanı: `WeightSettings` tablosu, `LetterDocuments.PageCount` (migration: `WeightSettings`).
+
+### Kokular (`/yonetim/Scents`)
+
+- Yönetim panelinde **🌸 Kokular**: koku adı, sıra ve aktif / pasif girilir (aynı ad iki kez eklenemez). Mektup formundaki (site ve mobil) "Koku" listesi buradan gelir; "Kokusuz" her zaman ilk seçenektir. SSS'deki fiyat satırı da aktif kokuları listeler.
+- Fiyat tüm kokular için aynıdır: **Fiyatlar → Koku**. "Ücretsiz koku" kampanyası bu ücreti düşer.
+- Mektupta kokunun kimliği ve adı anlık kopya olarak saklanır (`Letters.ScentId`, `ScentName`); ad sonradan değişse de siparişte yazan değişmez. Seçili koku pasife alınırsa o mektup düzenlenirken seçim korunur, yeni mektupta seçilemez. Mektupta seçilmiş koku silinemez, pasife alınır.
+- Önceden koda gömülü Manolya, Lavanta ve Bahar Çiçekleri listeye hazır eklenir ve eski siparişler bunlara bağlanır (migration: `ScentCatalog`).
+
+### Kartpostallar (`/yonetim/Postcards`)
+
+- Yönetim panelinde **🖼️ Kartpostallar**: ön yüz görseli (JPG / PNG / WEBP, en fazla 5 MB; dosya imzası kontrol edilir), ad, kategori, sıra ve aktif / pasif girilir. Kategori serbest metindir (mevcutlar önerilir); müşteri ekranında kartpostallar kategoriye göre gruplanır.
+- Müşteri (site ve mobil uygulama) mektup yazarken **aktif** kartpostallardan **birden fazlasını** seçebilir (en çok 5, her biri bir kez); hiç aktif kartpostal yoksa bölüm gösterilmez. Fiyat kartpostal başınadır: **Fiyatlar → Kartpostal** × adet; ağırlık da adet kadar eklenir. "Ücretsiz kartpostal" kampanyası bir kartpostalın ücretini düşer.
+- Mektupta her kartpostalın kimliği ile adı ve kategorisi **anlık kopya** olarak saklanır (`LetterPostcards` tablosu): katalog değişse de siparişte hangi kartpostalların konacağı bilinir. Seçili kartpostal sonradan pasife alınırsa o mektup düzenlenirken seçim korunur, yeni mektupta seçilemez.
+- Herhangi bir mektupta seçilmiş kartpostal **silinemez** (siparişte görseli gerekir), pasife alınır. Sipariş detayında ve baskı sayfasının zarflama listesinde kartpostalın adı ve küçük görseli görünür.
+- Görseller `/kartpostal/{id}/gorsel` adresinden herkese açık sunulur (mobil uygulama `config` yanıtındaki `postcards` listesini kullanır).
+- Önceki sabit 5 kategori × 4 renkli tasarım kaldırıldı; eski siparişler "Aşk #2" gibi okunur bir adla korunur (migration'lar: `PostcardCatalog`, `MultiplePostcards`).
 - **Veritabanı:** `LetterDocuments` tablosu ve `PricingSettings.Document` sütunu (migration: `LetterDocuments`).
 
 ### Mobil uygulama (Flutter · iOS ve Android)

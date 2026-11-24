@@ -39,7 +39,7 @@ public sealed record CampaignCustomer(DateOnly MemberSince, DateOnly? BirthDate,
 /// <summary>Kampanya indirimi hesaplanırken bakılan sepet bilgisi (puan kullanımı öncesi).</summary>
 /// <param name="Total">Fiyat listesine göre toplam tutar.</param>
 /// <param name="ScentAmount">Sepetteki koku ücreti (koku seçilmediyse 0).</param>
-/// <param name="PostcardAmount">Sepetteki kartpostal ücreti (kartpostal yoksa 0).</param>
+/// <param name="PostcardAmount">Bir kartpostalın ücreti (kartpostal yoksa 0); "ücretsiz kartpostal" bu kadar indirim yapar.</param>
 public sealed record CampaignCart(decimal Total, decimal ScentAmount, decimal PostcardAmount);
 
 /// <summary>

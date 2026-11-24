@@ -26,10 +26,10 @@ public sealed record MobileConfigDto(
     IReadOnlyList<OptionDto> EnvelopeColors,
     IReadOnlyList<OptionDto> Fonts,
     IReadOnlyList<OptionDto> Inks,
-    IReadOnlyList<OptionDto> Scents,
-    IReadOnlyList<OptionDto> PostcardCategories,
+    IReadOnlyList<ScentApiDto> Scents,
+    IReadOnlyList<PostcardApiDto> Postcards,
     IReadOnlyList<OptionDto> AcquisitionChannels,
-    int PostcardDesignsPerCategory,
+    int MaxPostcards,
     int MaxPhotos,
     long MaxPhotoBytes,
     int MaxDocuments,
@@ -71,6 +71,8 @@ public sealed class MobileContentController(
     ReviewService reviews,
     LetterService letters,
     IPaymentProvider paymentProvider,
+    MektupApp.Application.Postcards.PostcardService postcards,
+    MektupApp.Application.Scents.ScentService scents,
     IOptions<SupportOptions> support) : MobileApiController
 {
     /// <summary>Formdaki seçenekler, fiyatlar ve sınırlar. Uygulama açılışta bir kez okur.</summary>
@@ -81,8 +83,14 @@ public sealed class MobileContentController(
         return new MobileConfigDto(
             await pricing.GetCurrentAsync(ct),
             Options<RecipientType>(), Options<PaperColor>(), Options<EnvelopeColor>(), Options<LetterFont>(),
-            Options<InkColor>(), Options<Scent>(), Options<PostcardCategory>(), Options<AcquisitionChannel>(),
-            Postcard.DesignsPerCategory, Letter.MaxPhotos, LetterService.MaxPhotoBytes,
+            Options<InkColor>(),
+            // Yönetim → Kokular'daki aktif kokular (sırasıyla); "Kokusuz" uygulamada ilk seçenektir.
+            (await scents.ListActiveAsync(ct)).Select(s => new ScentApiDto(s.Id, s.Name)).ToList(),
+            // Yönetim panelinden eklenen aktif kartpostallar (sırasıyla); uygulama kategoriye göre gruplar.
+            (await postcards.ListActiveAsync(ct)).Select(p => new PostcardApiDto(p.Id, p.Title, p.Category,
+                MektupApp.Web.Controllers.PostcardsController.ImageUrl(Url, p.Id, p.UpdatedAt))).ToList(),
+            Options<AcquisitionChannel>(),
+            Letter.MaxPostcards, Letter.MaxPhotos, LetterService.MaxPhotoBytes,
             Letter.MaxDocuments, LetterService.MaxDocumentBytes, Letter.MaxContentLength,
             LetterPages.CharsPerPage, LetterPages.CharsPerLineBreak, AccountService.MinPasswordLength,
             (await loyalty.GetSettingsAsync(ct)).IsEnabled,

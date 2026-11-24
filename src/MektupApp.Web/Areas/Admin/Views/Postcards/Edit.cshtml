@@ -1,0 +1,98 @@
+@model MektupApp.Web.Areas.Admin.Controllers.PostcardForm
+@using MektupApp.Application.Postcards
+@using MektupApp.Web.Controllers
+@{
+    var isNew = Model.Id is null;
+    ViewData["Title"] = isNew ? "Kartpostal Ekle" : "Kartpostalı Düzenle";
+    var categories = (IReadOnlyList<string>?)ViewBag.Categories ?? [];
+    var accept = string.Join(",", PostcardService.AllowedImageExtensions);
+}
+
+<div class="mb-3">
+    <a asp-action="Index" class="small">← Kartpostallar</a>
+    <h1 class="h4 mt-1 mb-0">@ViewData["Title"]</h1>
+</div>
+
+<div class="row g-3">
+    <div class="col-lg-7">
+        <form method="post" enctype="multipart/form-data" asp-action="@(isNew ? "Create" : "Edit")" asp-route-id="@Model.Id" class="admin-card p-3">
+            <div asp-validation-summary="ModelOnly" class="text-danger small"></div>
+            <div class="mb-3">
+                <label asp-for="Title" class="form-label"></label>
+                <input asp-for="Title" class="form-control" placeholder="ör. Gül Bahçesi" />
+                <span asp-validation-for="Title" class="text-danger small"></span>
+            </div>
+            <div class="row g-3 mb-3">
+                <div class="col-sm-8">
+                    <label asp-for="Category" class="form-label"></label>
+                    <input asp-for="Category" class="form-control" list="postcardCategories" placeholder="ör. Aşk, Doğa, Bayram" autocomplete="off" />
+                    <datalist id="postcardCategories">
+                        @foreach (var c in categories) { <option value="@c"></option> }
+                    </datalist>
+                    <div class="form-text">Listeden seçin veya yeni bir kategori yazın. Müşteri ekranında kartpostallar kategoriye göre gruplanır.</div>
+                    <span asp-validation-for="Category" class="text-danger small"></span>
+                </div>
+                <div class="col-sm-4">
+                    <label asp-for="SortOrder" class="form-label"></label>
+                    <input asp-for="SortOrder" class="form-control" type="number" min="0" max="9999" />
+                    <div class="form-text">Küçük sayı önce gösterilir.</div>
+                    <span asp-validation-for="SortOrder" class="text-danger small"></span>
+                </div>
+            </div>
+            <div class="mb-3">
+                <label asp-for="Image" class="form-label">@(isNew ? "Görsel (ön yüz)" : "Görseli değiştir")</label>
+                <input asp-for="Image" type="file" class="form-control" accept="@accept" id="postcardImage" />
+                <div class="form-text">JPG, PNG veya WEBP · en fazla 5 MB. Müşterinin göreceği ön yüz; kartpostalın kendisi zarfa konur.@(isNew ? "" : " Boş bırakırsanız mevcut görsel kalır.")</div>
+                <span asp-validation-for="Image" class="text-danger small"></span>
+            </div>
+            <div class="form-check form-switch mb-3">
+                <input asp-for="IsActive" class="form-check-input" role="switch" />
+                <label asp-for="IsActive" class="form-check-label"></label>
+            </div>
+            <button type="submit" class="btn btn-primary">@(isNew ? "Ekle" : "Kaydet")</button>
+        </form>
+
+        @if (!isNew)
+        {
+            <div class="admin-card p-3 mt-3">
+                @if (Model.IsUsed)
+                {
+                    <div class="small text-muted">📬 Bu kartpostal mektuplarda seçildiği için silinemez (siparişlerde görseli gerekir). Müşterilere gösterilmesin istiyorsanız <strong>Aktif</strong> anahtarını kapatın.</div>
+                }
+                else
+                {
+                    <form asp-action="Delete" asp-route-id="@Model.Id" method="post" onsubmit="return confirm('Bu kartpostal ve görseli kalıcı olarak silinecek. Emin misiniz?');">
+                        <button class="btn btn-sm btn-outline-danger">Kartpostalı sil</button>
+                        <span class="small text-muted ms-2">Hiçbir mektupta seçilmediği için silinebilir.</span>
+                    </form>
+                }
+            </div>
+        }
+    </div>
+    <div class="col-lg-5">
+        <div class="admin-card p-3">
+            <div class="fw-semibold mb-2">Önizleme</div>
+            <div class="postcard-admin-preview">
+                <img id="postcardPreview" alt="Kartpostal önizleme"
+                     src="@(isNew ? "" : PostcardsController.ImageUrl(Url, Model.Id!.Value, Model.UpdatedAt))"
+                     class="@(isNew ? "d-none" : "")" />
+                <div id="postcardPreviewEmpty" class="text-muted small @(isNew ? "" : "d-none")">Görsel seçince burada görünür.</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        // Seçilen görseli yüklemeden önce göster.
+        document.getElementById("postcardImage").addEventListener("change", e => {
+            const file = e.target.files[0];
+            if (!file) return;
+            const img = document.getElementById("postcardPreview");
+            img.src = URL.createObjectURL(file);
+            img.classList.remove("d-none");
+            document.getElementById("postcardPreviewEmpty").classList.add("d-none");
+        });
+    </script>
+}

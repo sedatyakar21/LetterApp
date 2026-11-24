@@ -46,8 +46,9 @@
                     <li class="list-group-item"><strong>Sayfa:</strong> @Model.PageCount · <strong>Fotoğraf:</strong> @Model.Photos.Count · <strong>Belge:</strong> @Model.Documents.Count</li>
                     <li class="list-group-item">
                         <strong>Kağıt / Zarf:</strong> @Model.Style.Paper.DisplayName() / @Model.Style.Envelope.DisplayName() ·
-                        <strong>Koku:</strong> @Model.Scent.DisplayName() ·
-                        <strong>Kartpostal:</strong> @(Model.Postcard is null ? "Yok" : $"{Model.Postcard.Category.DisplayName()} #{Model.Postcard.Design}")
+                        <strong>Koku:</strong> @(Model.Scent?.Name ?? "Kokusuz") ·
+                        <strong>Kartpostal@(Model.Postcards.Count > 1 ? $" ({Model.Postcards.Count})" : ""):</strong>
+                        <partial name="_PostcardList" model="Model.Postcards" />
                     </li>
                     @if (Model.PaidAmount is not null)
                     {

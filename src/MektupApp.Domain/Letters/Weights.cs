@@ -71,16 +71,16 @@ public sealed record WeightEstimate(IReadOnlyList<WeightLine> Lines, decimal Tot
 /// <summary>Zarfın tahmini ağırlığı: zarf + mektup yaprakları + fotoğraflar + kartpostal + belge yaprakları.</summary>
 public static class LetterWeightPolicy
 {
-    public static WeightEstimate Estimate(int letterSheets, int photos, int documentSheets, bool hasPostcard, PaperWeights w)
+    public static WeightEstimate Estimate(int letterSheets, int photos, int documentSheets, int postcards, PaperWeights w)
     {
         var lines = new List<WeightLine> { new("Zarf", 1, w.Envelope) };
         if (letterSheets > 0) lines.Add(new("Mektup (A4)", letterSheets, w.LetterSheet * letterSheets));
         if (photos > 0) lines.Add(new("Fotoğraf", photos, w.Photo * photos));
-        if (hasPostcard) lines.Add(new("Kartpostal", 1, w.Postcard));
+        if (postcards > 0) lines.Add(new("Kartpostal", postcards, w.Postcard * postcards));
         if (documentSheets > 0) lines.Add(new("Belge (yaprak)", documentSheets, w.DocumentSheet * documentSheets));
         return new WeightEstimate(lines, lines.Sum(l => l.Grams));
     }
 
     public static WeightEstimate Estimate(Letter letter, PaperWeights w) =>
-        Estimate(letter.PageCount, letter.Photos.Count, letter.Documents.Sum(d => d.PageCount), letter.Postcard is not null, w);
+        Estimate(letter.PageCount, letter.Photos.Count, letter.Documents.Sum(d => d.PageCount), letter.Postcards.Count, w);
 }

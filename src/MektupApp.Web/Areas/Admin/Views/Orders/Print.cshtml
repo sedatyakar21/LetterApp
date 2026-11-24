@@ -70,8 +70,11 @@
                     <li>Mektup — @l.PageCount sayfa · @l.Style.Paper.DisplayName() kâğıt · @l.Style.Font.DisplayName() / @l.Style.Ink.DisplayName()</li>
                     @if (photoCount > 0) { <li>Fotoğraf × @photoCount</li> }
                     @if (docCount > 0) { <li>Belge × @docCount: @string.Join(", ", l.Documents.Select(d => d.OriginalFileName))</li> }
-                    @if (l.Postcard is not null) { <li>Kartpostal: @l.Postcard.Category.DisplayName() #@l.Postcard.Design</li> }
-                    @if (l.Scent != Scent.None) { <li>Koku: @l.Scent.DisplayName()</li> }
+                    @if (l.Postcards.Count > 0)
+                    {
+                        <li>Kartpostal × @l.Postcards.Count: <partial name="_PostcardList" model="l.Postcards" /></li>
+                    }
+                    @if (l.Scent is not null) { <li>Koku: @l.Scent.Name</li> }
                     <li>Zarf: @l.Style.Envelope.DisplayName()</li>
                 </ul>
                 <div class="small mt-1">

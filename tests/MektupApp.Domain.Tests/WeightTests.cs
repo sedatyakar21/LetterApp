@@ -1,4 +1,4 @@
-using MektupApp.Domain.Common;
+﻿using MektupApp.Domain.Common;
 using MektupApp.Domain.Letters;
 
 namespace MektupApp.Domain.Tests;
@@ -11,7 +11,7 @@ public class WeightTests
     [Fact]
     public void Envelope_only_for_empty_counts()
     {
-        var e = LetterWeightPolicy.Estimate(0, 0, 0, false, W);
+        var e = LetterWeightPolicy.Estimate(0, 0, 0, 0, W);
         Assert.Equal(6m, e.TotalGrams);
         Assert.Single(e.Lines);
     }
@@ -20,7 +20,7 @@ public class WeightTests
     public void All_items_are_summed_and_rounded_up()
     {
         // zarf 6 + 3 yaprak × 5 + 2 fotoğraf × 12 + kartpostal 4,5 + 4 belge yaprağı × 5 = 69,5 → 70 g
-        var e = LetterWeightPolicy.Estimate(3, 2, 4, true, W);
+        var e = LetterWeightPolicy.Estimate(3, 2, 4, 1, W);
         Assert.Equal(69.5m, e.TotalGrams);
         Assert.Equal(70, e.RoundedGrams);
         Assert.Equal(["Zarf", "Mektup (A4)", "Fotoğraf", "Kartpostal", "Belge (yaprak)"], e.Lines.Select(l => l.Description));
@@ -32,7 +32,7 @@ public class WeightTests
         var letter = Letter.CreateDraft(Guid.NewGuid(), "Ali", Address, new Recipient("Veli", RecipientType.Standard, null, Address));
         letter.WriteContent(new string('a', LetterPages.CharsPerPage + 1)); // 2 sayfa
         letter.AddPhoto("p.jpg", "p.jpg");
-        letter.AttachPostcard(new Postcard(PostcardCategory.Love, 1));
+        letter.SetPostcards([new Postcard(Guid.NewGuid(), "Gül Bahçesi", "Aşk")]);
         letter.AddDocument("d1.pdf", "d1.pdf", pageCount: 3);
         letter.AddDocument("d2.png", "d2.png");
 

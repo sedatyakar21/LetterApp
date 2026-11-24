@@ -23,9 +23,8 @@ public sealed record SaveLetterCommand(
     EnvelopeColor Envelope,
     LetterFont Font,
     InkColor Ink,
-    Scent Scent,
-    PostcardCategory? PostcardCategory,
-    int? PostcardDesign,
+    Guid? ScentId,
+    IReadOnlyList<Guid>? PostcardIds,
     string? RecipientFatherName = null,
     string? RecipientWard = null);
 
@@ -68,8 +67,8 @@ public sealed record LetterDetailsDto(
     AddressDto RecipientAddress,
     string Content,
     LetterStyle Style,
-    Scent Scent,
-    Postcard? Postcard,
+    LetterScent? Scent,
+    IReadOnlyList<Postcard> Postcards,
     LetterStatus Status,
     int PageCount,
     decimal? PaidAmount,
@@ -104,7 +103,7 @@ public sealed record LetterDetailsDto(
     public static LetterDetailsDto From(Letter l) => new(
         l.Id, l.CustomerId, l.SenderName, AddressDto.From(l.SenderAddress),
         l.Recipient.FullName, l.Recipient.Type, l.Recipient.Detail, AddressDto.From(l.Recipient.Address),
-        l.Content, l.Style, l.Scent, l.Postcard, l.Status, l.PageCount, l.PaidAmount, l.PaymentMethod, l.TrackingCode,
+        l.Content, l.Style, l.Scent, l.Postcards.ToList(), l.Status, l.PageCount, l.PaidAmount, l.PaymentMethod, l.TrackingCode,
         l.Photos.Select(p => new LetterPhotoDto(p.Id, p.OriginalFileName)).ToList(),
         l.History.Select(h => new StatusChangeDto(h.Status, h.Note, h.At)).ToList(),
         l.IsEditable, l.CanCancel, l.CanDelete, l.CanChangeAddress, l.CreatedAt,

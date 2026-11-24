@@ -389,11 +389,6 @@ namespace MektupApp.Infrastructure.Persistence.Migrations
                     b.Property<Guid?>("ReferrerCustomerId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("Scent")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
-
                     b.Property<string>("SenderName")
                         .IsRequired()
                         .HasMaxLength(100)
@@ -410,19 +405,6 @@ namespace MektupApp.Infrastructure.Persistence.Migrations
 
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("datetime2");
-
-                    b.ComplexProperty(typeof(Dictionary<string, object>), "Postcard", "MektupApp.Domain.Letters.Letter.Postcard#Postcard", b1 =>
-                        {
-                            b1.Property<string>("Category")
-                                .IsRequired()
-                                .HasMaxLength(20)
-                                .HasColumnType("nvarchar(20)")
-                                .HasColumnName("PostcardCategory");
-
-                            b1.Property<int>("Design")
-                                .HasColumnType("int")
-                                .HasColumnName("PostcardDesign");
-                        });
 
                     b.ComplexProperty(typeof(Dictionary<string, object>), "Recipient", "MektupApp.Domain.Letters.Letter.Recipient#Recipient", b1 =>
                         {
@@ -483,6 +465,19 @@ namespace MektupApp.Infrastructure.Persistence.Migrations
                                         .HasColumnType("nvarchar(5)")
                                         .HasColumnName("RecipientPostalCode");
                                 });
+                        });
+
+                    b.ComplexProperty(typeof(Dictionary<string, object>), "Scent", "MektupApp.Domain.Letters.Letter.Scent#LetterScent", b1 =>
+                        {
+                            b1.Property<string>("Name")
+                                .IsRequired()
+                                .HasMaxLength(50)
+                                .HasColumnType("nvarchar(50)")
+                                .HasColumnName("ScentName");
+
+                            b1.Property<Guid?>("ScentId")
+                                .HasColumnType("uniqueidentifier")
+                                .HasColumnName("ScentId");
                         });
 
                     b.ComplexProperty(typeof(Dictionary<string, object>), "SenderAddress", "MektupApp.Domain.Letters.Letter.SenderAddress#PostalAddress", b1 =>
@@ -1084,6 +1079,46 @@ namespace MektupApp.Infrastructure.Persistence.Migrations
                     b.ToTable("Payments", (string)null);
                 });
 
+            modelBuilder.Entity("MektupApp.Domain.Postcards.PostcardDesign", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Category")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("ImageKey")
+                        .IsRequired()
+                        .HasMaxLength(300)
+                        .HasColumnType("nvarchar(300)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("SortOrder")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("IsActive", "SortOrder");
+
+                    b.ToTable("Postcards", (string)null);
+                });
+
             modelBuilder.Entity("MektupApp.Domain.Prisons.Prison", b =>
                 {
                     b.Property<Guid>("Id")
@@ -1232,6 +1267,38 @@ namespace MektupApp.Infrastructure.Persistence.Migrations
                     b.ToTable("CustomerReviews", (string)null);
                 });
 
+            modelBuilder.Entity("MektupApp.Domain.Scents.ScentOption", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<int>("SortOrder")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Name")
+                        .IsUnique();
+
+                    b.HasIndex("IsActive", "SortOrder");
+
+                    b.ToTable("Scents", (string)null);
+                });
+
             modelBuilder.Entity("MektupApp.Infrastructure.Carriers.BarcodeCounter", b =>
                 {
                     b.Property<string>("Carrier")
@@ -1267,6 +1334,48 @@ namespace MektupApp.Infrastructure.Persistence.Migrations
                         .HasForeignKey("CustomerId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("MektupApp.Domain.Letters.Letter", b =>
+                {
+                    b.OwnsMany("MektupApp.Domain.Letters.Postcard", "Postcards", b1 =>
+                        {
+                            b1.Property<int>("Id")
+                                .ValueGeneratedOnAdd()
+                                .HasColumnType("int");
+
+                            SqlServerPropertyBuilderExtensions.UseIdentityColumn(b1.Property<int>("Id"));
+
+                            b1.Property<string>("Category")
+                                .IsRequired()
+                                .HasMaxLength(50)
+                                .HasColumnType("nvarchar(50)");
+
+                            b1.Property<Guid?>("DesignId")
+                                .HasColumnType("uniqueidentifier")
+                                .HasColumnName("PostcardId");
+
+                            b1.Property<Guid>("LetterId")
+                                .HasColumnType("uniqueidentifier");
+
+                            b1.Property<string>("Title")
+                                .IsRequired()
+                                .HasMaxLength(100)
+                                .HasColumnType("nvarchar(100)");
+
+                            b1.HasKey("Id");
+
+                            b1.HasIndex("DesignId");
+
+                            b1.HasIndex("LetterId");
+
+                            b1.ToTable("LetterPostcards", (string)null);
+
+                            b1.WithOwner()
+                                .HasForeignKey("LetterId");
+                        });
+
+                    b.Navigation("Postcards");
                 });
 
             modelBuilder.Entity("MektupApp.Domain.Letters.LetterDocument", b =>

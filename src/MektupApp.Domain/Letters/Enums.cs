@@ -53,23 +53,6 @@ public enum InkColor
     [Display(Name = "Bordo")] Burgundy = 2
 }
 
-public enum Scent
-{
-    [Display(Name = "Kokusuz")] None = 0,
-    [Display(Name = "Manolya")] Magnolia = 1,
-    [Display(Name = "Lavanta")] Lavender = 2,
-    [Display(Name = "Bahar Çiçekleri")] SpringFlowers = 3
-}
-
-public enum PostcardCategory
-{
-    [Display(Name = "Aşk")] Love = 1,
-    [Display(Name = "Doğa")] Nature = 2,
-    [Display(Name = "Şehirler")] Cities = 3,
-    [Display(Name = "Özel Gün")] Celebration = 4,
-    [Display(Name = "Motivasyon")] Motivation = 5
-}
-
 public enum PaymentMethod
 {
     [Display(Name = "Kredi / Banka Kartı")] Card = 0,

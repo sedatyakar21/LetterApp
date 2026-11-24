@@ -1,0 +1,57 @@
+@model IReadOnlyList<MektupApp.Application.Postcards.PostcardDto>
+@using MektupApp.Web.Controllers
+@{
+    ViewData["Title"] = "Kartpostallar";
+    var active = Model.Count(p => p.IsActive);
+}
+
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+    <div>
+        <h1 class="h4 mb-0">Kartpostallar</h1>
+        <div class="small text-muted">@Model.Count kartpostal · @active aktif. Müşteriler mektup yazarken aktif kartpostallardan seçer; fiyat <a asp-controller="Pricing" asp-action="Index">Fiyatlar</a> sayfasındaki "Kartpostal" ücretidir.</div>
+    </div>
+    <a asp-action="Create" class="btn btn-primary btn-sm">+ Kartpostal Ekle</a>
+</div>
+
+@if (Model.Count == 0)
+{
+    <div class="admin-card p-4 text-center">
+        <p class="mb-2">Henüz kartpostal eklenmedi; mektup formunda kartpostal bölümü gösterilmiyor.</p>
+        <a asp-action="Create" class="btn btn-primary btn-sm">İlk kartpostalı ekle</a>
+    </div>
+}
+else
+{
+    @foreach (var group in Model.GroupBy(p => p.Category))
+    {
+        <h2 class="h6 text-muted mt-3 mb-2">@group.Key <span class="fw-normal">(@group.Count())</span></h2>
+        <div class="row g-3 mb-2">
+            @foreach (var p in group)
+            {
+                <div class="col-6 col-md-4 col-lg-3 col-xl-2">
+                    <div class="admin-card h-100 d-flex flex-column overflow-hidden @(p.IsActive ? "" : "opacity-75")">
+                        <a asp-action="Edit" asp-route-id="@p.Id" class="postcard-admin-thumb">
+                            <img src="@PostcardsController.ImageUrl(Url, p.Id, p.UpdatedAt)" alt="@p.Title" loading="lazy" />
+                        </a>
+                        <div class="p-2 d-flex flex-column flex-grow-1">
+                            <div class="fw-semibold small text-truncate" title="@p.Title">@p.Title</div>
+                            <div class="small text-muted">
+                                Sıra @p.SortOrder ·
+                                @if (p.IsActive) { <span class="text-success">Aktif</span> } else { <span class="text-secondary">Pasif</span> }
+                                @if (p.IsUsed) { <span title="Mektuplarda seçildi; silinemez"> · 📬</span> }
+                            </div>
+                            <div class="d-flex gap-1 mt-auto pt-2">
+                                <a asp-action="Edit" asp-route-id="@p.Id" class="btn btn-sm btn-outline-secondary flex-fill">Düzenle</a>
+                                <form asp-action="Toggle" asp-route-id="@p.Id" method="post" class="flex-fill">
+                                    <input type="hidden" name="active" value="@(p.IsActive ? "false" : "true")" />
+                                    <button class="btn btn-sm w-100 @(p.IsActive ? "btn-outline-warning" : "btn-outline-success")"
+                                            title="@(p.IsActive ? "Müşterilere gösterme" : "Müşterilere göster")">@(p.IsActive ? "Pasife al" : "Aktif et")</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+}

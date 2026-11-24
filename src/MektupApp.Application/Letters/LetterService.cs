@@ -11,6 +11,8 @@ namespace MektupApp.Application.Letters;
 /// </summary>
 public sealed class LetterService(
     ILetterRepository letters,
+    MektupApp.Domain.Postcards.IPostcardRepository postcards,
+    MektupApp.Domain.Scents.IScentRepository scents,
     CheckoutCalculator checkout,
     IFileStorage fileStorage,
     IUnitOfWork unitOfWork)
@@ -70,13 +72,44 @@ public sealed class LetterService(
 
         letter.WriteContent(cmd.Content);
         letter.ChangeStyle(new LetterStyle(cmd.Paper, cmd.Envelope, cmd.Font, cmd.Ink));
-        letter.ChooseScent(cmd.Scent);
-        letter.AttachPostcard(cmd.PostcardCategory is { } cat
-            ? new Postcard(cat, cmd.PostcardDesign ?? 1)
-            : null);
+        letter.ChooseScent(await ResolveScentAsync(letter.Scent, cmd.ScentId, ct));
+        letter.SetPostcards(await ResolvePostcardsAsync(letter.Postcards, cmd.PostcardIds, ct));
 
         await unitOfWork.SaveChangesAsync(ct);
         return letter.Id;
+    }
+
+    /// <summary>Seçilen koku aktif olmalı; mektupta zaten seçili koku sonradan pasife alındıysa seçim korunur.</summary>
+    private async Task<LetterScent?> ResolveScentAsync(LetterScent? current, Guid? scentId, CancellationToken ct)
+    {
+        if (scentId is not { } id || id == Guid.Empty) return null;
+        if (current?.ScentId == id) return current;
+        var scent = await scents.GetAsync(id, ct);
+        if (scent is not { IsActive: true })
+            throw new AppException("Seçtiğiniz koku artık mevcut değil. Lütfen başka bir koku seçin.");
+        return LetterScent.From(scent);
+    }
+
+    /// <summary>
+    /// Seçilen kartpostallar katalogda olmalı ve aktif olmalı. Mektupta zaten seçili olan bir kartpostal sonradan pasife
+    /// alındıysa müşteri mektubu düzenlerken o seçim kaybolmaz (anlık kopya korunur). Tekrarlanan seçim bir kez sayılır.
+    /// </summary>
+    private async Task<IReadOnlyList<Postcard>> ResolvePostcardsAsync(IReadOnlyList<Postcard> current, IReadOnlyList<Guid>? ids, CancellationToken ct)
+    {
+        var result = new List<Postcard>();
+        foreach (var id in (ids ?? []).Where(i => i != Guid.Empty).Distinct())
+        {
+            if (current.FirstOrDefault(p => p.DesignId == id) is { } kept)
+            {
+                result.Add(kept);
+                continue;
+            }
+            var design = await postcards.GetAsync(id, ct);
+            if (design is not { IsActive: true })
+                throw new AppException("Seçtiğiniz kartpostallardan biri artık mevcut değil. Lütfen seçiminizi kontrol edin.");
+            result.Add(Postcard.From(design));
+        }
+        return result;
     }
 
     public async Task AddPhotoAsync(Guid letterId, Guid customerId, Stream content, string fileName, long length, CancellationToken ct = default)

@@ -1,0 +1,80 @@
+@model MektupApp.Web.Areas.Admin.Controllers.ScentsIndexViewModel
+@{
+    ViewData["Title"] = "Kokular";
+    var active = Model.Items.Count(s => s.IsActive);
+}
+
+<div class="mb-3">
+    <h1 class="h4 mb-0">Kokular</h1>
+    <div class="small text-muted">
+        @Model.Items.Count koku · @active aktif. Mektup formundaki "Koku" listesinde aktif kokular bu sırayla görünür ("Kokusuz" her zaman ilk seçenektir).
+        Fiyat tüm kokular için aynıdır: <a asp-controller="Pricing" asp-action="Index">Fiyatlar</a> → Koku.
+    </div>
+</div>
+
+<form asp-action="Create" method="post" class="admin-card p-3 mb-3">
+    <div asp-validation-summary="ModelOnly" class="text-danger small"></div>
+    <div class="row g-2 align-items-end">
+        <div class="col-sm-6">
+            <label asp-for="NewScent.Name" class="form-label small mb-1">Yeni koku</label>
+            <input asp-for="NewScent.Name" class="form-control" placeholder="ör. Gül, Vanilya, Okyanus" />
+            <span asp-validation-for="NewScent.Name" class="text-danger small"></span>
+        </div>
+        <div class="col-6 col-sm-2">
+            <label asp-for="NewScent.SortOrder" class="form-label small mb-1"></label>
+            <input asp-for="NewScent.SortOrder" type="number" min="0" max="9999" class="form-control" />
+        </div>
+        <div class="col-6 col-sm-2">
+            <div class="form-check form-switch mb-2">
+                <input asp-for="NewScent.IsActive" class="form-check-input" role="switch" />
+                <label asp-for="NewScent.IsActive" class="form-check-label small">Aktif</label>
+            </div>
+        </div>
+        <div class="col-sm-2 d-grid">
+            <button class="btn btn-primary">+ Ekle</button>
+        </div>
+    </div>
+</form>
+
+@if (Model.Items.Count == 0)
+{
+    <div class="admin-card p-4 text-center text-muted">Henüz koku yok; mektup formunda yalnızca "Kokusuz" görünür.</div>
+}
+else
+{
+    <div class="admin-card">
+        <table class="table table-sm align-middle mb-0">
+            <thead><tr><th style="width:4rem">Sıra</th><th>Koku</th><th>Durum</th><th class="text-end">İşlem</th></tr></thead>
+            <tbody>
+                @foreach (var s in Model.Items)
+                {
+                    <tr class="@(s.IsActive ? "" : "text-muted")">
+                        <td>@s.SortOrder</td>
+                        <td>
+                            <a asp-action="Edit" asp-route-id="@s.Id">@s.Name</a>
+                            @if (s.IsUsed) { <span class="small" title="Mektuplarda seçildi; silinemez"> 📬</span> }
+                        </td>
+                        <td>@if (s.IsActive) { <span class="badge bg-success">Aktif</span> } else { <span class="badge bg-secondary">Pasif</span> }</td>
+                        <td class="text-end">
+                            <div class="d-inline-flex gap-1">
+                                <a asp-action="Edit" asp-route-id="@s.Id" class="btn btn-sm btn-outline-secondary">Düzenle</a>
+                                <form asp-action="Toggle" asp-route-id="@s.Id" method="post">
+                                    <input type="hidden" name="active" value="@(s.IsActive ? "false" : "true")" />
+                                    <button class="btn btn-sm @(s.IsActive ? "btn-outline-warning" : "btn-outline-success")">@(s.IsActive ? "Pasife al" : "Aktif et")</button>
+                                </form>
+                                @if (!s.IsUsed)
+                                {
+                                    <form asp-action="Delete" asp-route-id="@s.Id" method="post" data-confirm="&quot;@s.Name&quot; kokusu silinecek. Emin misiniz?" onsubmit="return confirm(this.dataset.confirm);">
+                                        <button class="btn btn-sm btn-outline-danger">Sil</button>
+                                    </form>
+                                }
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
+
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }

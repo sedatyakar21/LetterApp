@@ -34,5 +34,5 @@ public sealed class WeightService(IWeightSettingsRepository settings, IUnitOfWor
 
     /// <summary>Sipariş ekranı / zarf çıktısı için: mektubun tahmini ağırlığı.</summary>
     public static WeightEstimate Estimate(LetterDetailsDto l, PaperWeights w) =>
-        LetterWeightPolicy.Estimate(l.PageCount, l.Photos.Count, l.Documents.Sum(d => d.PageCount), l.Postcard is not null, w);
+        LetterWeightPolicy.Estimate(l.PageCount, l.Photos.Count, l.Documents.Sum(d => d.PageCount), l.Postcards.Count, w);
 }

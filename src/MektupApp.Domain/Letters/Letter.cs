@@ -12,7 +12,9 @@ public sealed class Letter : AggregateRoot
     public const int MaxContentLength = 25_000;
     public const int MaxPhotos = 10;
     public const int MaxDocuments = 5;
+    public const int MaxPostcards = 5;
 
+    private readonly List<Postcard> _postcards = [];
     private readonly List<LetterPhoto> _photos = [];
     private readonly List<LetterDocument> _documents = [];
     private readonly List<LetterStatusChange> _history = [];
@@ -25,8 +27,10 @@ public sealed class Letter : AggregateRoot
     public Recipient Recipient { get; private set; } = null!;
     public string Content { get; private set; } = string.Empty;
     public LetterStyle Style { get; private set; } = LetterStyle.Default;
-    public Scent Scent { get; private set; }
-    public Postcard? Postcard { get; private set; }
+    /// <summary>Seçilen koku (yoksa kokusuz).</summary>
+    public LetterScent? Scent { get; private set; }
+    /// <summary>Zarfa konan kartpostallar (seçim sırasıyla; her kartpostal bir kez, en çok <see cref="MaxPostcards"/>).</summary>
+    public IReadOnlyList<Postcard> Postcards => _postcards.AsReadOnly();
 
     public LetterStatus Status { get; private set; }
     public PaymentMethod? PaymentMethod { get; private set; }
@@ -116,18 +120,25 @@ public sealed class Letter : AggregateRoot
         Touch();
     }
 
-    public void ChooseScent(Scent scent)
+    /// <param name="scent">Boş: kokusuz.</param>
+    public void ChooseScent(LetterScent? scent)
     {
         EnsureEditable();
-        if (!Enum.IsDefined(scent)) throw new DomainException("Geçersiz koku seçimi.");
         Scent = scent;
         Touch();
     }
 
-    public void AttachPostcard(Postcard? postcard)
+    /// <summary>Kartpostal seçimini değiştirir (boş liste: kartpostal yok). Aynı kartpostal iki kez eklenemez.</summary>
+    public void SetPostcards(IEnumerable<Postcard>? postcards)
     {
         EnsureEditable();
-        Postcard = postcard;
+        var list = (postcards ?? []).ToList();
+        if (list.Count > MaxPostcards)
+            throw new DomainException($"Bir mektuba en fazla {MaxPostcards} kartpostal eklenebilir.");
+        if (list.Where(p => p.DesignId is not null).GroupBy(p => p.DesignId).Any(g => g.Count() > 1))
+            throw new DomainException("Aynı kartpostal birden fazla seçilemez.");
+        _postcards.Clear();
+        _postcards.AddRange(list);
         Touch();
     }
 
