@@ -153,13 +153,14 @@ public sealed class Letter : AggregateRoot
         return photo;
     }
 
-    public LetterDocument AddDocument(string storageKey, string originalFileName)
+    /// <param name="pageCount">Basılacak yaprak sayısı (PDF'in sayfa sayısı; görselde 1). Ağırlık hesabında kullanılır.</param>
+    public LetterDocument AddDocument(string storageKey, string originalFileName, int pageCount = 1)
     {
         EnsureEditable();
         if (_documents.Count >= MaxDocuments)
             throw new DomainException($"Bir mektuba en fazla {MaxDocuments} belge eklenebilir.");
 
-        var document = new LetterDocument(Id, storageKey, originalFileName);
+        var document = new LetterDocument(Id, storageKey, originalFileName, pageCount);
         _documents.Add(document);
         Touch();
         return document;
@@ -394,17 +395,20 @@ public sealed class LetterDocument : Entity
 {
     private LetterDocument() { } // EF Core
 
-    internal LetterDocument(Guid letterId, string storageKey, string originalFileName)
+    internal LetterDocument(Guid letterId, string storageKey, string originalFileName, int pageCount = 1)
     {
         LetterId = letterId;
         StorageKey = Guard.Required(storageKey, "Dosya anahtarı", 300);
         OriginalFileName = Guard.Required(originalFileName, "Dosya adı", 255);
+        PageCount = Math.Max(1, pageCount);
         AddedAt = DateTime.UtcNow;
     }
 
     public Guid LetterId { get; private set; }
     public string StorageKey { get; private set; } = string.Empty;
     public string OriginalFileName { get; private set; } = string.Empty;
+    /// <summary>Basılacak yaprak sayısı (PDF sayfa sayısı; görselde 1).</summary>
+    public int PageCount { get; private set; } = 1;
     public DateTime AddedAt { get; private set; }
     public bool IsPdf => OriginalFileName.EndsWith(".pdf", StringComparison.OrdinalIgnoreCase);
 }

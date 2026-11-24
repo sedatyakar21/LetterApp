@@ -43,6 +43,14 @@ internal sealed class LetterRepository(AppDbContext db) : ILetterRepository
     public void Add(Letter letter) => db.Letters.Add(letter);
 }
 
+internal sealed class WeightSettingsRepository(AppDbContext db) : IWeightSettingsRepository
+{
+    public Task<WeightSettings?> GetAsync(CancellationToken ct = default) =>
+        db.Set<WeightSettings>().FirstOrDefaultAsync(s => s.Id == WeightSettings.SingletonId, ct);
+
+    public void Add(WeightSettings settings) => db.Set<WeightSettings>().Add(settings);
+}
+
 internal sealed class PricingSettingsRepository(AppDbContext db) : IPricingSettingsRepository
 {
     public Task<PricingSettings?> GetAsync(CancellationToken ct = default) =>

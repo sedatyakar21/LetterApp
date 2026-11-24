@@ -1,25 +1,20 @@
 // Yönetim paneli baskı sayfası.
-// - Kutucuklarla hangi bölümlerin (adres etiketi, mektup, fotoğraf, belge) basılacağı seçilir.
+// - "Zarf Yazdır", "Mektup Yazdır" vb. düğmeler yalnızca o bölümü yazdırır; "Tümünü Yazdır" hepsini.
 // - PDF belgelerin her sayfası pdf.js ile görüntüye çevrilip baskıya eklenir.
-// - Tüm görseller ve PDF'ler hazır olunca "Yazdır" düğmesi açılır.
+// - Tüm görseller ve PDF'ler hazır olunca düğmeler açılır.
 (function () {
     "use strict";
 
     const status = document.getElementById("printStatus");
-    const button = document.getElementById("printButton");
+    const printButtons = [...document.querySelectorAll("[data-print]")];
     const parts = ["label", "letter", "photos", "documents"];
-    const storageKey = "orderPrint.parts";
     let pdfErrors = 0;
 
-    // ---------------- Bölüm seçimi ----------------
+    // ---------------- Bölüm yazdırma ----------------
 
-    function applyParts() {
-        const hidden = [];
-        document.querySelectorAll("[data-part]").forEach(cb => {
-            document.body.classList.toggle("hide-" + cb.dataset.part, !cb.checked);
-            if (!cb.checked) hidden.push(cb.dataset.part);
-        });
-        try { localStorage.setItem(storageKey, JSON.stringify(hidden)); } catch { /* tarayıcı izin vermiyorsa önemsiz */ }
+    // Yalnızca istenen bölümler görünür kalır (ekranda da baskıda da).
+    function showOnly(visible) {
+        parts.forEach(p => document.body.classList.toggle("hide-" + p, !visible.includes(p)));
         markFirstVisible();
     }
 
@@ -31,12 +26,14 @@
         if (first) first.classList.add("first-visible");
     }
 
-    try {
-        const hidden = JSON.parse(localStorage.getItem(storageKey) || "[]");
-        document.querySelectorAll("[data-part]").forEach(cb => { if (hidden.includes(cb.dataset.part)) cb.checked = false; });
-    } catch { /* yok say */ }
-    document.querySelectorAll("[data-part]").forEach(cb => cb.addEventListener("change", applyParts));
-    applyParts();
+    function printPart(part) {
+        showOnly(part === "all" ? parts : [part]);
+        window.print();
+    }
+
+    // Yazdırma penceresi kapanınca tüm bölümler yeniden görünür.
+    window.addEventListener("afterprint", () => showOnly(parts));
+    printButtons.forEach(b => b.addEventListener("click", () => printPart(b.dataset.print)));
 
     // ---------------- Uzun mektubu sayfalara bölme ----------------
     // Her mektup sayfası sabit A4 yüksekliğindedir; sığmayan metin yeni bir sayfaya taşınır.
@@ -170,6 +167,16 @@
         console.error("PDF hazırlanamadı:", placeholder.dataset.name, error);
     }
 
+    // Yatay fotoğraflar 15×10 cm (yatay) sayfaya basılır; dikey ve kare olanlar 10×15 cm.
+    function orientPhotos() {
+        document.querySelectorAll(".photo-sheet img").forEach(img => {
+            const landscape = img.naturalWidth > img.naturalHeight;
+            const sheet = img.closest(".photo-sheet");
+            sheet.classList.toggle("photo-landscape", landscape);
+            sheet.classList.toggle("photo-portrait", !landscape);
+        });
+    }
+
     // ---------------- Hazırlık ----------------
 
     function waitForImages() {
@@ -200,9 +207,14 @@
             update();
         }
         await waitForImages();
+        orientPhotos();
         markFirstVisible();
 
-        button.disabled = false;
+        // Basılacak bir şeyi olmayan düğmeler (ör. hiç fotoğraf yoksa "Fotoğrafları Yazdır") kapalı kalır.
+        printButtons.forEach(b => {
+            b.disabled = b.dataset.empty === "true";
+            if (b.disabled) b.title = "Bu siparişlerde yazdırılacak öğe yok.";
+        });
         status.textContent = pdfErrors > 0
             ? `⚠ ${pdfErrors} PDF hazırlanamadı; bağlantılarından ayrıca yazdırın.`
             : "Baskıya hazır.";
@@ -210,7 +222,6 @@
         status.classList.toggle("text-success", pdfErrors === 0);
     }
 
-    button.addEventListener("click", () => window.print());
     window.addEventListener("beforeprint", markFirstVisible);
     prepare();
 })();

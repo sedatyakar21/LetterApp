@@ -511,6 +511,9 @@ namespace MektupApp.Infrastructure.Persistence.Migrations
                         .HasMaxLength(255)
                         .HasColumnType("nvarchar(255)");
 
+                    b.Property<int>("PageCount")
+                        .HasColumnType("int");
+
                     b.Property<string>("StorageKey")
                         .IsRequired()
                         .HasMaxLength(300)
@@ -644,6 +647,53 @@ namespace MektupApp.Infrastructure.Persistence.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("PricingSettings", (string)null);
+                });
+
+            modelBuilder.Entity("MektupApp.Domain.Letters.WeightSettings", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.ComplexProperty(typeof(Dictionary<string, object>), "Weights", "MektupApp.Domain.Letters.WeightSettings.Weights#PaperWeights", b1 =>
+                        {
+                            b1.IsRequired();
+
+                            b1.Property<decimal>("DocumentSheet")
+                                .HasPrecision(8, 2)
+                                .HasColumnType("decimal(8,2)")
+                                .HasColumnName("DocumentSheetGrams");
+
+                            b1.Property<decimal>("Envelope")
+                                .HasPrecision(8, 2)
+                                .HasColumnType("decimal(8,2)")
+                                .HasColumnName("EnvelopeGrams");
+
+                            b1.Property<decimal>("LetterSheet")
+                                .HasPrecision(8, 2)
+                                .HasColumnType("decimal(8,2)")
+                                .HasColumnName("LetterSheetGrams");
+
+                            b1.Property<decimal>("Photo")
+                                .HasPrecision(8, 2)
+                                .HasColumnType("decimal(8,2)")
+                                .HasColumnName("PhotoGrams");
+
+                            b1.Property<decimal>("Postcard")
+                                .HasPrecision(8, 2)
+                                .HasColumnType("decimal(8,2)")
+                                .HasColumnName("PostcardGrams");
+                        });
+
+                    b.HasKey("Id");
+
+                    b.ToTable("WeightSettings", (string)null);
                 });
 
             modelBuilder.Entity("MektupApp.Domain.Loyalty.LoyaltyAccount", b =>

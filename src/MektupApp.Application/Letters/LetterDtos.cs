@@ -53,7 +53,7 @@ public sealed record LetterSummaryDto(
 
 public sealed record LetterPhotoDto(Guid Id, string OriginalFileName);
 
-public sealed record LetterDocumentDto(Guid Id, string OriginalFileName, bool IsPdf);
+public sealed record LetterDocumentDto(Guid Id, string OriginalFileName, bool IsPdf, int PageCount = 1);
 
 public sealed record StatusChangeDto(LetterStatus Status, string Note, DateTime At);
 
@@ -116,7 +116,7 @@ public sealed record LetterDetailsDto(
         RecipientFatherName = l.Recipient.FatherName,
         RecipientWard = l.Recipient.Ward,
         RecipientNote = l.Recipient.Note,
-        Documents = l.Documents.Select(d => new LetterDocumentDto(d.Id, d.OriginalFileName, d.IsPdf)).ToList()
+        Documents = l.Documents.Select(d => new LetterDocumentDto(d.Id, d.OriginalFileName, d.IsPdf, d.PageCount)).ToList()
     };
 }
 

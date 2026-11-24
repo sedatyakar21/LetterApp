@@ -5,6 +5,8 @@
     var single = Model.Count == 1;
     var title = single ? $"Yazdır — {Model[0].RecipientName}" : $"Yazdır — {Model.Count} sipariş";
     string OrderNo(LetterDetailsDto l) => "#" + OrderNumber.Format(l.Id);
+    var weights = (Dictionary<Guid, WeightEstimate>)ViewBag.Weights;
+    string G(decimal grams) => grams.ToString("0.#", System.Globalization.CultureInfo.GetCultureInfo("tr-TR")) + " g";
 }
 <!DOCTYPE html>
 <html lang="tr">
@@ -24,25 +26,28 @@
         <div class="d-flex flex-wrap align-items-center gap-3">
             <a href="@(single ? Url.Action("Details", new { id = Model[0].Id }) : Url.Action("Index"))" class="small">← @(single ? "Sipariş" : "Siparişler")</a>
             <strong>@(single ? $"{Model[0].RecipientName} {OrderNo(Model[0])}" : $"{Model.Count} sipariş")</strong>
-            <span class="text-muted small">Basılacaklar:</span>
-            <label class="form-check form-check-inline mb-0"><input class="form-check-input" type="checkbox" data-part="label" checked /> Zarf</label>
-            <label class="small mb-0">
-                <span class="visually-hidden">Zarf boyutu</span>
-                <select class="form-select form-select-sm d-inline-block w-auto" id="envelopeSize" title="Zarf boyutu">
-                    <option value="z1318">13×18 cm (yatay 180×130 mm)</option>
+            <span class="ms-auto small" id="printStatus" role="status"></span>
+        </div>
+        @* Her düğme yalnızca o bölümü yazdırır; yazıcıya uygun kâğıdı (zarf, A4, fotoğraf kağıdı) koyup ilgili düğmeye basın. *@
+        <div class="d-flex flex-wrap align-items-center gap-2 mt-2">
+            <div class="btn-group" role="group" aria-label="Zarf">
+                <button type="button" class="btn btn-sm btn-primary" data-print="label" disabled>📮 Zarf Yazdır</button>
+                <select class="form-select form-select-sm w-auto rounded-start-0" id="envelopeSize" title="Zarf boyutu" aria-label="Zarf boyutu">
+                    <option value="z1318">13×18 cm</option>
                     <option value="dl">DL · 220×110 mm</option>
                     <option value="c5">C5 · 229×162 mm</option>
                     <option value="c4">C4 · 324×229 mm</option>
                 </select>
-            </label>
-            <label class="form-check form-check-inline mb-0"><input class="form-check-input" type="checkbox" data-part="letter" checked /> Mektup</label>
-            <label class="form-check form-check-inline mb-0"><input class="form-check-input" type="checkbox" data-part="photos" checked /> Fotoğraflar</label>
-            <label class="form-check form-check-inline mb-0"><input class="form-check-input" type="checkbox" data-part="documents" checked /> Belgeler</label>
-            <span class="ms-auto small" id="printStatus" role="status"></span>
-            <button type="button" class="btn btn-primary" id="printButton" disabled>🖨️ Yazdır</button>
+            </div>
+            <button type="button" class="btn btn-sm btn-primary" data-print="letter" disabled>✉️ Mektup Yazdır</button>
+            <button type="button" class="btn btn-sm btn-primary" data-print="photos" disabled
+                    data-empty="@(Model.All(l => l.Photos.Count == 0) ? "true" : null)">📷 Fotoğrafları Yazdır</button>
+            <button type="button" class="btn btn-sm btn-primary" data-print="documents" disabled
+                    data-empty="@(Model.All(l => l.Documents.Count == 0) ? "true" : null)">📄 Belgeleri Yazdır</button>
+            <button type="button" class="btn btn-sm btn-outline-secondary" data-print="all" disabled>🖨️ Tümünü Yazdır</button>
         </div>
         <div class="small text-muted mt-1">
-            Her bölüm yeni sayfadan başlar. Zarf, seçilen zarf boyutunda basılır; zarfları ayrı basmak için yalnızca "Zarf"ı işaretleyin.
+            Zarf seçilen boyutta, fotoğraflar 10×15 cm fotoğraf kağıdına (kenarsız), mektup ve belgeler A4 basılır; her bölüm yeni sayfadan başlar.
             Renkli kâğıt seçilen mektuplarda arka plan basılmaz; yazıcıya o renkte kâğıt koyun.
         </div>
     </div>
@@ -52,6 +57,7 @@
         {
             var photoCount = l.Photos.Count;
             var docCount = l.Documents.Count;
+            var weight = weights[l.Id];
 
             @* 1a. Zarflama kontrol listesi: yalnızca ekranda (zarfa basılmaz). *@
             <div class="envelope-checklist part-label no-print">
@@ -68,6 +74,11 @@
                     @if (l.Scent != Scent.None) { <li>Koku: @l.Scent.DisplayName()</li> }
                     <li>Zarf: @l.Style.Envelope.DisplayName()</li>
                 </ul>
+                <div class="small mt-1">
+                    <strong>Tahmini ağırlık: @weight.RoundedGrams g</strong>
+                    <span class="text-muted">(@string.Join(" + ", weight.Lines.Select(x => x.Count > 1 ? $"{x.Description} {x.Count}×{G(x.Grams / x.Count)}" : $"{x.Description} {G(x.Grams)}")))</span>
+                    · <a asp-controller="Weights" asp-action="Index" target="_blank">birim ağırlıklar</a>
+                </div>
             </div>
 
             @* 1b. Zarf çıktısı: sol üst aracı firma + gönderen, sağ alt alıcı, sol alt logo. Zarf boyutunda sayfa. *@
@@ -85,6 +96,19 @@
                     @if (l.RecipientDetail is not null) { <div>@l.RecipientDetail</div> }
                     <div>@l.RecipientAddress.Line</div>
                     <div class="fw-semibold">@l.RecipientAddress.District / @l.RecipientAddress.City @l.RecipientAddress.PostalCode</div>
+                </div>
+                @* Sağ üst: tahmini ağırlık, altında takip numarasının barkodu (Code 128) ve numara. *@
+                <div class="env-weight">
+                    <div>Tahmini ağırlık: <strong>@weight.RoundedGrams g</strong></div>
+                    @if (l.TrackingCode is { } trackingCode)
+                    {
+                        <div class="env-barcode">@Html.Raw(Code128.Svg(trackingCode, 50, 11))</div>
+                        <div class="env-tracking">@trackingCode</div>
+                    }
+                    else
+                    {
+                        <div class="env-no-tracking no-print">Takip no yok — mektup postaya verilince (PTT kaydı) oluşur.</div>
+                    }
                 </div>
                 @* Sol alt: aracı firma yazısı ve hemen altında logo. *@
                 <div class="env-brand">
@@ -122,10 +146,10 @@
                 <div class="letter-foot">[@l.SenderName → @l.RecipientName]</div>
             </section>
 
-            @* 3. Fotoğraflar: her biri ayrı sayfada, sayfaya sığdırılarak *@
+            @* 3. Fotoğraflar: her biri 10×15 cm fotoğraf kağıdına, kenarsız; yatay fotoğraf yatay sayfaya basılır. *@
             @foreach (var p in l.Photos)
             {
-                <section class="sheet part-photos sheet-image">
+                <section class="sheet part-photos photo-sheet photo-portrait">
                     <img src="@Url.Action("Photo", "Letters", new { area = "", id = l.Id, photoId = p.Id })" alt="@p.OriginalFileName" data-wait />
                 </section>
             }

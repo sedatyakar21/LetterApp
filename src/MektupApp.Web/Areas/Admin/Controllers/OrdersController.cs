@@ -74,7 +74,7 @@ public class OrdersController(IAdminQueries queries, FulfillmentService fulfillm
     /// Baskı sayfası: tek sipariş (/Print/{id}) veya listeden seçilen siparişler (?ids=..&amp;ids=..).
     /// Her siparişin adres etiketi, mektubu, fotoğrafları ve belgeleri (PDF'ler dahil) sırayla basılır.
     /// </summary>
-    public async Task<IActionResult> Print(Guid? id, [FromQuery] Guid[] ids, CancellationToken ct)
+    public async Task<IActionResult> Print(Guid? id, [FromQuery] Guid[] ids, [FromServices] WeightService weightService, CancellationToken ct)
     {
         const int max = 50;
         var all = (id is { } single ? ids.Prepend(single) : ids).Distinct().ToList();
@@ -83,6 +83,10 @@ public class OrdersController(IAdminQueries queries, FulfillmentService fulfillm
 
         var letters = new List<LetterDetailsDto>();
         foreach (var letterId in all) letters.Add(await fulfillment.GetAsync(letterId, ct));
+
+        // Zarfa basılan tahmini ağırlık (yönetim panelindeki birim ağırlıklardan).
+        var unit = await weightService.GetCurrentAsync(ct);
+        ViewBag.Weights = letters.ToDictionary(l => l.Id, l => WeightService.Estimate(l, unit));
         return View(letters);
     }
 

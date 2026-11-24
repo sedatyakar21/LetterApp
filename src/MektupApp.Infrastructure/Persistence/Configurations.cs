@@ -161,6 +161,26 @@ internal sealed class PricingSettingsConfiguration : IEntityTypeConfiguration<Pr
     }
 }
 
+internal sealed class WeightSettingsConfiguration : IEntityTypeConfiguration<WeightSettings>
+{
+    public void Configure(EntityTypeBuilder<WeightSettings> b)
+    {
+        b.ToTable("WeightSettings");
+        b.HasKey(s => s.Id);
+        b.Property(s => s.Id).ValueGeneratedNever();
+        b.Ignore(s => s.DomainEvents);
+        b.Property(s => s.UpdatedBy).HasMaxLength(200);
+        b.ComplexProperty(s => s.Weights, w =>
+        {
+            w.Property(x => x.LetterSheet).HasColumnName("LetterSheetGrams").HasPrecision(8, 2);
+            w.Property(x => x.Photo).HasColumnName("PhotoGrams").HasPrecision(8, 2);
+            w.Property(x => x.Postcard).HasColumnName("PostcardGrams").HasPrecision(8, 2);
+            w.Property(x => x.DocumentSheet).HasColumnName("DocumentSheetGrams").HasPrecision(8, 2);
+            w.Property(x => x.Envelope).HasColumnName("EnvelopeGrams").HasPrecision(8, 2);
+        });
+    }
+}
+
 internal static class AddressMapping
 {
     public static void MapAddress(this ComplexPropertyBuilder<PostalAddress> a, string prefix)

@@ -20,6 +20,7 @@ public sealed class CarrierShippingService(
     ICustomerRepository customers,
     IPostalCarrier carrier,
     IBarcodeAllocator barcodes,
+    WeightService weights,
     IUnitOfWork unitOfWork)
 {
     public string CarrierName => carrier.Name;
@@ -36,7 +37,8 @@ public sealed class CarrierShippingService(
         var sender = await customers.GetAsync(letter.CustomerId, ct);
         var barcode = await barcodes.NextAsync(ct);
 
-        var result = await carrier.CreateShipmentAsync(BuildRequest(letter, sender, barcode), ct);
+        var weightGrams = LetterWeightPolicy.Estimate(letter, await weights.GetCurrentAsync(ct)).RoundedGrams;
+        var result = await carrier.CreateShipmentAsync(BuildRequest(letter, sender, barcode, weightGrams), ct);
         if (!result.Succeeded)
             throw new AppException($"{carrier.Name} gönderi kaydı açılamadı: {result.Error ?? "bilinmeyen hata"}");
 
@@ -139,7 +141,8 @@ public sealed class CarrierShippingService(
         return new CarrierSyncResult(isNew, false, null);
     }
 
-    private static CarrierShipmentRequest BuildRequest(Letter letter, Customer? sender, string barcode)
+    /// <param name="weightGrams">Yönetim panelindeki birim ağırlıklardan hesaplanan, zarfa da basılan tahmini ağırlık.</param>
+    private static CarrierShipmentRequest BuildRequest(Letter letter, Customer? sender, string barcode, int weightGrams)
     {
         var r = letter.Recipient;
         // Asker birliği / cezaevi kurumu, baba adı ve koğuş adresin başına eklenir; zarfın üzerinde de böyle basılır.
@@ -152,10 +155,6 @@ public sealed class CarrierShippingService(
             Recipient: new CarrierParty(r.FullName, recipientLine, r.Address.District, r.Address.City, r.Address.PostalCode),
             Sender: new CarrierParty(letter.SenderName, letter.SenderAddress.Line, letter.SenderAddress.District,
                 letter.SenderAddress.City, letter.SenderAddress.PostalCode, sender?.Phone.Value, sender?.Email.Value),
-            WeightGrams: EstimateWeightGrams(letter));
+            WeightGrams: weightGrams);
     }
-
-    /// <summary>Zarf + sayfa + fotoğraf + belge + kartpostal için yaklaşık ağırlık (gram; belge ortalama 2 sayfa sayılır).</summary>
-    internal static int EstimateWeightGrams(Letter letter) =>
-        10 + letter.PageCount * 5 + letter.Photos.Count * 8 + letter.Documents.Count * 10 + (letter.Postcard is null ? 0 : 10);
 }

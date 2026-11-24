@@ -158,10 +158,20 @@ Dilekçe, vekaletname, okul belgesi gibi evraklar mektuba eklenir; basılıp mek
 ### Sipariş yazdırma (`/yonetim/Orders/Print`)
 
 - **Nereden:** sipariş detayındaki "🖨️ Yazdır", sipariş listesinde her satırdaki 🖨️ veya listede seçilenler için "Seçilenleri: 🖨️ Yazdır" (her sekmede; en fazla 50 sipariş).
-- **Her sipariş için sırayla:** adres etiketi ve "zarfa konacaklar" kontrol listesi → mektup → fotoğraflar (her biri ayrı sayfada, sayfaya sığdırılmış) → belgeler. Her bölüm yeni A4 sayfadan başlar.
+- **Her sipariş için sırayla:** zarf (ekranda "zarfa konacaklar" kontrol listesiyle) → mektup → fotoğraflar → belgeler. Her bölüm yeni sayfadan başlar.
+- **Fotoğraflar:** 10×15 cm fotoğraf kağıdına, kenarsız basılır; dikey fotoğraf 100×150 mm, yatay fotoğraf 150×100 mm sayfaya. Fotoğraf kağıdı tamamen doldurur (oran korunur, 2:3 olmayan fotoğrafların taşan kenarı kırpılır).
 - **PDF belgeler:** tarayıcıda pdf.js (`wwwroot/lib/pdfjs`, 3.11.174) ile her sayfası görüntüye çevrilip baskıya eklenir; hepsi hazır olunca "Yazdır" düğmesi açılır. Kötü niyetli PDF'lere karşı `isEvalSupported: false` ile çalışır (CVE-2024-4367). Hazırlanamayan PDF için bağlantı ve "ayrıca yazdırın" uyarısı çıkar.
-- **Seçim:** üstteki kutucuklarla adres etiketi / mektup / fotoğraflar / belgeler ayrı ayrı açılıp kapatılır; seçim tarayıcıda hatırlanır.
+- **Düğmeler:** "📮 Zarf Yazdır" (yanında zarf boyutu), "✉️ Mektup Yazdır", "📷 Fotoğrafları Yazdır", "📄 Belgeleri Yazdır" yalnızca o bölümü, "🖨️ Tümünü Yazdır" hepsini basar. Yazdırılacak öğesi olmayan düğme kapalıdır.
 - **Renkli kâğıt:** arka plan rengi basılmaz; yazıcıya o renkte kâğıt konur (kontrol listesinde yazar).
+- **Zarf çıktısı:** varsayılan 13×18 cm (yatay 180×130 mm; DL, C5, C4 de seçilebilir). Sol üst gönderen; sağ üst tahmini ağırlık, altında takip numarasının Code 128 barkodu (`Code128`, dış kütüphane yok) ve numara; sağ alt alıcı; sol alt "Aracı Firma : BiMektup.net" ve logo. Takip numarası PTT kaydında (postaya verirken) oluştuğu için ondan önce barkod basılmaz, ekranda uyarı çıkar.
+
+### Ağırlıklar (`/yonetim/Weights`)
+
+- Yönetim panelinde **⚖️ Ağırlıklar**: A4 mektup kağıdı (yaprak başı), fotoğraf kağıdı (fotoğraf başı), kartpostal, normal belge kağıdı (yaprak başı) ve boş zarf için gram değerleri girilir. Kayıt yoksa varsayılanlar kullanılır (5 / 12 / 5 / 5 / 6 g).
+- **Tahmini ağırlık** = zarf + mektup sayfası × A4 + fotoğraf × fotoğraf kağıdı + kartpostal + belge yaprakları × belge kağıdı; yukarı yuvarlanır (`LetterWeightPolicy`).
+- Belgelerin yaprak sayısı yüklenirken okunur: görsel 1, PDF'in sayfa sayısı (`PdfPageCounter`; sıkıştırılmış nesne akışları da açılır, okunamazsa 1). Bu özellikten önce yüklenen belgeler 1 yaprak sayılır.
+- Zarf çıktısının sağ üstüne basılır; ekrandaki kontrol listesinde kalem kalem dökümü görünür. **PTT kaydına giden ağırlık da aynı hesaptır.**
+- Veritabanı: `WeightSettings` tablosu, `LetterDocuments.PageCount` (migration: `WeightSettings`).
 - **Veritabanı:** `LetterDocuments` tablosu ve `PricingSettings.Document` sütunu (migration: `LetterDocuments`).
 
 ### Mobil uygulama (Flutter · iOS ve Android)

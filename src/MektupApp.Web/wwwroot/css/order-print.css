@@ -48,6 +48,16 @@
     font-size: 1.2em; line-height: 1.35; overflow-wrap: anywhere;
 }
 .env-to-name { font-size: 1.3em; font-weight: 700; }
+/* Sağ üst: tahmini ağırlık (pul / barkod alanının altında kalmasın diye küçük ve kenara yakın). */
+/* Ağırlık yazısı, barkod ve takip no alt alta; üçü de barkodun ortasına hizalı. */
+.env-weight { position: absolute; top: 8mm; right: 10mm; font-size: .9em; text-align: center; }
+/* Barkod: siyah çubuklar, okuyucu için kenarlarda boşluk (sessiz bölge SVG'nin içinde). */
+.env-barcode { margin-top: 1.5mm; line-height: 0; }
+.env-barcode svg { fill: #000; display: inline-block; }
+.env-tracking { font-family: "Courier New", monospace; font-weight: 700; letter-spacing: .12em; font-size: 1.05em; margin-top: .5mm; text-align: center; }
+.env-no-tracking { margin-top: 1.5mm; max-width: 50mm; font-size: .8em; color: #842029; background: #f8d7da; padding: 1mm 2mm; border-radius: 2px; }
+.env-c4 .env-weight { top: 12mm; right: 15mm; }
+
 /* Sol alt: aracı firma yazısı, altında logo. */
 .env-brand { position: absolute; left: 10mm; bottom: 8mm; max-width: 40%; }
 .env-brand .envelope-intermediary { margin-bottom: 1.5mm; white-space: nowrap; }
@@ -69,6 +79,21 @@
 }
 .envelope-sheet .env-from .label-caption { color: var(--navy, #26304E); }
 .envelope-sheet .env-to .label-caption { color: var(--burgundy, #8E2235); }
+
+/* Gönderen ve alıcı kutu içinde (zarfta ve mektup başlığında); kenar rengi başlıkla aynı (lacivert / bordo).
+   Köşeler çapraz: sol üst ve sağ alt oval, sağ üst ve sol alt keskin (iki kutuda da aynı). */
+.envelope-sheet .env-from, .envelope-sheet .env-to,
+.letter-head-from, .letter-head-to {
+    border: .4mm solid; padding: 2mm 3mm;
+    -webkit-print-color-adjust: exact; print-color-adjust: exact;
+}
+.envelope-sheet .env-from, .envelope-sheet .env-to,
+.letter-head-from, .letter-head-to { border-radius: 5mm 0 5mm 0; padding: 2mm 4mm; }
+.envelope-sheet .env-from, .letter-head-from { border-color: var(--navy, #26304E); }
+.envelope-sheet .env-to, .letter-head-to { border-color: var(--burgundy, #8E2235); }
+.envelope-sheet .env-to { text-align: left; }
+.letter-head-from .label-caption { color: var(--navy, #26304E); font-weight: 700; }
+.letter-head-to .label-caption { color: var(--burgundy, #8E2235); font-weight: 700; }
 
 /* Zarflama kontrol listesi (yalnızca ekranda, zarfın üstünde). */
 .envelope-checklist {
@@ -109,6 +134,17 @@
 /* Mektup kâğıdı: baskıda önizleme gölgesi / yüksekliği olmadan, sayfaya akar. */
 .part-letter .paper { min-height: 0; box-shadow: none; border-radius: 0; padding: 0; background-image: none; }
 
+/* ---------- Fotoğraflar: 10×15 cm fotoğraf kağıdı, kenarsız ----------
+   Dikey fotoğraf 100×150 mm, yatay fotoğraf 150×100 mm sayfaya basılır; fotoğraf kağıdı tamamen doldurur
+   (oran korunur, taşan kenar kırpılır; fotoğraf stüdyolarındaki gibi). */
+@page photo-portrait { size: 100mm 150mm; margin: 0; }
+@page photo-landscape { size: 150mm 100mm; margin: 0; }
+
+.sheet.photo-sheet { padding: 0; min-height: 0; overflow: hidden; }
+.sheet.photo-portrait { page: photo-portrait; width: 100mm; height: 150mm; }
+.sheet.photo-landscape { page: photo-landscape; width: 150mm; height: 100mm; }
+.photo-sheet img { display: block; width: 100%; height: 100%; object-fit: cover; }
+
 /* Görseller sayfaya sığdırılır (oran korunur). */
 .sheet-image { display: flex; align-items: center; justify-content: center; }
 .sheet-image img { max-width: 100%; max-height: 270mm; object-fit: contain; }
@@ -134,6 +170,10 @@
     /* Her bölüm yeni sayfadan başlar (ilk görünen bölüm hariç; boş ilk sayfa olmasın). */
     .sheet:not(.first-visible) { break-before: page; page-break-before: always; }
     .sheet-image { break-inside: avoid; page-break-inside: avoid; height: 270mm; }
+    /* Fotoğraf sayfaları kendi boyutunda (genel .sheet kuralı genişliği sıfırlamasın). */
+    .sheet.photo-portrait { width: 100mm; height: 150mm; break-inside: avoid; }
+    .sheet.photo-landscape { width: 150mm; height: 100mm; break-inside: avoid; }
+    .photo-sheet img { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
     /* Renkli kâğıt fiziksel kâğıtla sağlanır: arka plan basılmaz, mürekkep rengi korunur. */
     .part-letter .paper { background-color: transparent !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
 }

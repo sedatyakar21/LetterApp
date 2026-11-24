@@ -146,12 +146,14 @@ public sealed class LetterService(
             throw new AppException("Belge boyutu en fazla 10 MB olabilir.");
         if (!DocumentSignature.Matches(buffer.GetBuffer().AsSpan(0, (int)buffer.Length), ext))
             throw new AppException("Dosya bozuk veya uzantısıyla uyuşmuyor. Lütfen geçerli bir PDF, JPG veya PNG yükleyin.");
+        // Ağırlık hesabı için yaprak sayısı: PDF'in sayfa sayısı, görselde 1.
+        var pageCount = ext == ".pdf" ? PdfPageCounter.Count(buffer.GetBuffer().AsSpan(0, (int)buffer.Length)) : 1;
         buffer.Position = 0;
 
         var key = await fileStorage.SaveAsync(buffer, ext, ct);
         try
         {
-            letter.AddDocument(key, Path.GetFileName(fileName));
+            letter.AddDocument(key, Path.GetFileName(fileName), pageCount);
             await unitOfWork.SaveChangesAsync(ct);
         }
         catch

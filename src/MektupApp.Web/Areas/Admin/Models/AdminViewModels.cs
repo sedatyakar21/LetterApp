@@ -41,6 +41,53 @@ public sealed class CustomerDetailsViewModel
     public DateOnly? BirthDate { get; init; }
 }
 
+/// <summary>Zarfa basılan tahmini ağırlık için birim ağırlıklar (gram).</summary>
+public sealed class WeightFormViewModel
+{
+    [Range(0, 1000, ErrorMessage = "0 ile 1000 gram arasında bir değer girin.")]
+    [Display(Name = "A4 mektup kağıdı (yaprak başı)")]
+    public decimal LetterSheet { get; set; }
+
+    [Range(0, 1000, ErrorMessage = "0 ile 1000 gram arasında bir değer girin.")]
+    [Display(Name = "Fotoğraf kağıdı (fotoğraf başı)")]
+    public decimal Photo { get; set; }
+
+    [Range(0, 1000, ErrorMessage = "0 ile 1000 gram arasında bir değer girin.")]
+    [Display(Name = "Kartpostal (adet başı)")]
+    public decimal Postcard { get; set; }
+
+    [Range(0, 1000, ErrorMessage = "0 ile 1000 gram arasında bir değer girin.")]
+    [Display(Name = "Normal belge kağıdı (yaprak başı)")]
+    public decimal DocumentSheet { get; set; }
+
+    [Range(0, 1000, ErrorMessage = "0 ile 1000 gram arasında bir değer girin.")]
+    [Display(Name = "Zarf (boş)")]
+    public decimal Envelope { get; set; }
+
+    public DateTime? UpdatedAt { get; set; }
+    public string? UpdatedBy { get; set; }
+
+    public PaperWeights ToWeights() => new()
+    {
+        LetterSheet = LetterSheet,
+        Photo = Photo,
+        Postcard = Postcard,
+        DocumentSheet = DocumentSheet,
+        Envelope = Envelope
+    };
+
+    public static WeightFormViewModel From(PaperWeights w, DateTime? updatedAt, string? updatedBy) => new()
+    {
+        LetterSheet = w.LetterSheet,
+        Photo = w.Photo,
+        Postcard = w.Postcard,
+        DocumentSheet = w.DocumentSheet,
+        Envelope = w.Envelope,
+        UpdatedAt = updatedAt,
+        UpdatedBy = updatedBy
+    };
+}
+
 public sealed class PricingFormViewModel
 {
     [Range(1, 100000, ErrorMessage = "Geçerli bir tutar girin.")]

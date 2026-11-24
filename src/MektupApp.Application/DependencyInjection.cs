@@ -22,6 +22,7 @@ public static class DependencyInjection
         services.AddScoped<LetterService>();
         services.AddScoped<FulfillmentService>();
         services.AddScoped<CarrierShippingService>();
+        services.AddScoped<WeightService>();
         services.AddScoped<AccountService>();
         services.AddScoped<CustomerAdminService>();
         services.AddScoped<LoyaltyService>();
