@@ -42,12 +42,11 @@
 .env-c5 .envelope-sheet { page: envelope-c5; width: 229mm; height: 162mm; }
 .env-c4 .envelope-sheet { page: envelope-c4; width: 324mm; height: 229mm; font-size: 12pt; }
 
-.env-from { position: absolute; top: 8mm; left: 10mm; max-width: 45%; overflow-wrap: anywhere; }
-.env-to {
-    position: absolute; right: 15mm; bottom: 12mm; max-width: 55%;
-    font-size: 1.2em; line-height: 1.35; overflow-wrap: anywhere;
-}
-.env-to-name { font-size: 1.3em; font-weight: 700; }
+/* Gönderen ve alıcı aynı yazı büyüklüğünde (başlık, ad ve adres satırları birebir aynı). */
+.env-from, .env-to { font-size: 1.1em; line-height: 1.35; overflow-wrap: anywhere; }
+.env-from { position: absolute; top: 8mm; left: 10mm; max-width: 45%; }
+.env-to { position: absolute; right: 15mm; bottom: 12mm; max-width: 55%; }
+.env-to-name { font-weight: 600; }
 /* Sağ üst: tahmini ağırlık (pul / barkod alanının altında kalmasın diye küçük ve kenara yakın). */
 /* Ağırlık yazısı, barkod ve takip no alt alta; üçü de barkodun ortasına hizalı. */
 .env-weight { position: absolute; top: 8mm; right: 10mm; font-size: .9em; text-align: center; }
