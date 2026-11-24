@@ -64,6 +64,7 @@ if (googleConfigured)
 }
 builder.Services.AddSingleton(new GoogleSignIn(googleConfigured, Simulation: !googleConfigured && builder.Environment.IsDevelopment()));
 builder.Services.AddAuthorization();
+builder.Services.AddSingleton(TurkeyLocations.Load(builder.Environment.WebRootPath));
 builder.Services.Configure<SupportOptions>(builder.Configuration.GetSection(SupportOptions.Section));
 
 // PayTR ödemede müşterinin gerçek IP'sini (user_ip) ister. Uygulama Nginx / yük dengeleyici arkasındaysa

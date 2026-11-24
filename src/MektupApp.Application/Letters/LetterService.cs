@@ -17,6 +17,8 @@ public sealed class LetterService(
 {
     private static readonly HashSet<string> AllowedPhotoExtensions = [".jpg", ".jpeg", ".png", ".webp"];
     public const long MaxPhotoBytes = 5 * 1024 * 1024;
+    public const long MaxDocumentBytes = 10 * 1024 * 1024;
+    public static readonly IReadOnlyList<string> AllowedDocumentExtensions = [".pdf", ".jpg", ".jpeg", ".png"];
 
     public async Task<IReadOnlyList<LetterSummaryDto>> ListMineAsync(Guid customerId, CancellationToken ct = default)
     {
@@ -28,12 +30,30 @@ public sealed class LetterService(
             .ToList();
     }
 
+    /// <summary>
+    /// Müşterinin bu türdeki (cezaevi / asker) en son mektubunun alıcı ve gönderen bilgileri; yoksa null.
+    /// Aynı kişiye düzenli yazanlar her seferinde adresi tekrar girmesin diye yeni mektup formunu doldurur.
+    /// </summary>
+    public async Task<LetterPrefillDto?> GetPrefillAsync(Guid customerId, RecipientType type, CancellationToken ct = default)
+    {
+        if (type == RecipientType.Standard) return null;
+        var last = (await letters.ListByCustomerAsync(customerId, ct))
+            .Where(l => !l.IsDeleted && l.Recipient.Type == type)
+            .OrderByDescending(l => l.CreatedAt)
+            .FirstOrDefault();
+        if (last is null) return null;
+        var r = last.Recipient;
+        return new LetterPrefillDto(type, r.FullName, r.Detail, r.FatherName, r.Ward, AddressDto.From(r.Address),
+            last.SenderName, AddressDto.From(last.SenderAddress));
+    }
+
     public async Task<LetterDetailsDto> GetAsync(Guid letterId, Guid customerId, CancellationToken ct = default) =>
         LetterDetailsDto.From(await LoadOwnedAsync(letterId, customerId, ct));
 
     public async Task<Guid> SaveDraftAsync(SaveLetterCommand cmd, CancellationToken ct = default)
     {
-        var recipient = new Recipient(cmd.RecipientName, cmd.RecipientType, cmd.RecipientDetail, cmd.RecipientAddress.ToDomain());
+        var recipient = new Recipient(cmd.RecipientName, cmd.RecipientType, cmd.RecipientDetail, cmd.RecipientAddress.ToDomain(),
+            cmd.RecipientFatherName, cmd.RecipientWard);
         var senderAddress = cmd.SenderAddress.ToDomain();
 
         Letter letter;
@@ -101,6 +121,63 @@ public sealed class LetterService(
         if (photo is null) return null;
         var stream = await fileStorage.OpenAsync(photo.StorageKey, ct);
         return stream is null ? null : (stream, photo.OriginalFileName);
+    }
+
+    /// <summary>
+    /// Basılıp zarfa konacak belge ekler (PDF, JPG, PNG; en fazla 10 MB). Dosyanın içeriği uzantısıyla
+    /// uyuşmalıdır (ör. adı .pdf olan bir dosya gerçekten PDF olmalı), aksi hâlde reddedilir.
+    /// </summary>
+    public async Task AddDocumentAsync(Guid letterId, Guid customerId, Stream content, string fileName, long length, CancellationToken ct = default)
+    {
+        var ext = Path.GetExtension(fileName).ToLowerInvariant();
+        if (!AllowedDocumentExtensions.Contains(ext))
+            throw new AppException("Sadece PDF, JPG veya PNG belge yükleyebilirsiniz.");
+        if (length is <= 0 or > MaxDocumentBytes)
+            throw new AppException("Belge boyutu en fazla 10 MB olabilir.");
+
+        var letter = await LoadOwnedAsync(letterId, customerId, ct);
+        if (letter.Documents.Count >= Letter.MaxDocuments)
+            throw new DomainException($"Bir mektuba en fazla {Letter.MaxDocuments} belge eklenebilir.");
+
+        // İçerik imzasını kontrol edebilmek için belleğe al (boyut zaten sınırlı).
+        using var buffer = new MemoryStream();
+        await content.CopyToAsync(buffer, ct);
+        if (buffer.Length > MaxDocumentBytes)
+            throw new AppException("Belge boyutu en fazla 10 MB olabilir.");
+        if (!DocumentSignature.Matches(buffer.GetBuffer().AsSpan(0, (int)buffer.Length), ext))
+            throw new AppException("Dosya bozuk veya uzantısıyla uyuşmuyor. Lütfen geçerli bir PDF, JPG veya PNG yükleyin.");
+        buffer.Position = 0;
+
+        var key = await fileStorage.SaveAsync(buffer, ext, ct);
+        try
+        {
+            letter.AddDocument(key, Path.GetFileName(fileName));
+            await unitOfWork.SaveChangesAsync(ct);
+        }
+        catch
+        {
+            await fileStorage.DeleteAsync(key, ct);
+            throw;
+        }
+    }
+
+    public async Task RemoveDocumentAsync(Guid letterId, Guid customerId, Guid documentId, CancellationToken ct = default)
+    {
+        var letter = await LoadOwnedAsync(letterId, customerId, ct);
+        var removed = letter.RemoveDocument(documentId);
+        await unitOfWork.SaveChangesAsync(ct);
+        await fileStorage.DeleteAsync(removed.StorageKey, ct);
+    }
+
+    public async Task<(Stream Stream, string FileName)?> OpenDocumentAsync(Guid letterId, Guid documentId, Guid customerId, bool isAdmin, CancellationToken ct = default)
+    {
+        var letter = isAdmin
+            ? await letters.GetAsync(letterId, ct) ?? throw new AppException("Mektup bulunamadı.")
+            : await LoadOwnedAsync(letterId, customerId, ct);
+        var document = letter.Documents.FirstOrDefault(d => d.Id == documentId);
+        if (document is null) return null;
+        var stream = await fileStorage.OpenAsync(document.StorageKey, ct);
+        return stream is null ? null : (stream, document.OriginalFileName);
     }
 
     public async Task<QuoteDto> GetQuoteAsync(Guid letterId, Guid customerId, PaymentMethod method, bool usePoints,

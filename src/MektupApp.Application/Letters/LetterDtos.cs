@@ -2,7 +2,8 @@ using MektupApp.Domain.Letters;
 
 namespace MektupApp.Application.Letters;
 
-public sealed record AddressDto(string Line, string District, string City, string PostalCode)
+/// <param name="PostalCode">İsteğe bağlı (formlarda şimdilik gizli).</param>
+public sealed record AddressDto(string Line, string District, string City, string? PostalCode = null)
 {
     public PostalAddress ToDomain() => new(Line, District, City, PostalCode);
     public static AddressDto From(PostalAddress a) => new(a.Line, a.District, a.City, a.PostalCode);
@@ -24,7 +25,22 @@ public sealed record SaveLetterCommand(
     InkColor Ink,
     Scent Scent,
     PostcardCategory? PostcardCategory,
-    int? PostcardDesign);
+    int? PostcardDesign,
+    string? RecipientFatherName = null,
+    string? RecipientWard = null);
+
+/// <summary>
+/// Aynı türdeki (cezaevi / asker) son mektubun alıcı ve gönderen bilgileri: yeni mektup formunu doldurmak için.
+/// </summary>
+public sealed record LetterPrefillDto(
+    RecipientType RecipientType,
+    string RecipientName,
+    string? RecipientDetail,
+    string? RecipientFatherName,
+    string? RecipientWard,
+    AddressDto RecipientAddress,
+    string SenderName,
+    AddressDto SenderAddress);
 
 public sealed record LetterSummaryDto(
     Guid Id,
@@ -36,6 +52,8 @@ public sealed record LetterSummaryDto(
     string? TrackingCode);
 
 public sealed record LetterPhotoDto(Guid Id, string OriginalFileName);
+
+public sealed record LetterDocumentDto(Guid Id, string OriginalFileName, bool IsPdf);
 
 public sealed record StatusChangeDto(LetterStatus Status, string Note, DateTime At);
 
@@ -76,6 +94,12 @@ public sealed record LetterDetailsDto(
 {
     public string? CampaignTitle { get; init; }
     public decimal CampaignDiscount { get; init; }
+    public string? RecipientFatherName { get; init; }
+    public string? RecipientWard { get; init; }
+    /// <summary>Zarfta adın altına yazılan ek bilgiler (ör. "Baba adı: Ali · Koğuş: B-12").</summary>
+    public string? RecipientNote { get; init; }
+    /// <summary>Basılıp zarfa konan belgeler.</summary>
+    public IReadOnlyList<LetterDocumentDto> Documents { get; init; } = [];
 
     public static LetterDetailsDto From(Letter l) => new(
         l.Id, l.CustomerId, l.SenderName, AddressDto.From(l.SenderAddress),
@@ -88,7 +112,11 @@ public sealed record LetterDetailsDto(
         l.Carrier, l.CarrierLastMovement, l.CarrierLastMovementAt, l.CarrierCheckedAt)
     {
         CampaignTitle = l.CampaignTitle,
-        CampaignDiscount = l.CampaignDiscount
+        CampaignDiscount = l.CampaignDiscount,
+        RecipientFatherName = l.Recipient.FatherName,
+        RecipientWard = l.Recipient.Ward,
+        RecipientNote = l.Recipient.Note,
+        Documents = l.Documents.Select(d => new LetterDocumentDto(d.Id, d.OriginalFileName, d.IsPdf)).ToList()
     };
 }
 

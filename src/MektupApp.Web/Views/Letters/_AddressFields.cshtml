@@ -1,26 +1,69 @@
-@model (string Prefix, AddressInput Address)
-@* Ortak adres alanları. Prefix model bağlama için alan adının önekidir (ör. "SenderAddress"). *@
+@model AddressFieldsModel
+@inject MektupApp.Web.Infrastructure.TurkeyLocations Locations
+@* Ortak adres alanları. Prefix model bağlama için alan adının önekidir (ör. "SenderAddress").
+   Sıra: il, ilçe, adres. İl ve ilçe açılır listedir; il değişince ilçeler address-picker.js ile yenilenir.
+   Listede olmayan eski bir değer (ör. "Istanbul") seçili ek seçenek olarak korunur.
+   Prison açıksa ve alıcı türü "Cezaevi" ise il etiketi "Alıcı Cezaevi" olur, ilin cezaevleri ayrı listede gösterilir
+   ve seçilen kurumun ilçe / adres bilgisi otomatik dolar. *@
 @{
     var p = Model.Prefix;
     var a = Model.Address;
+    var province = Locations.Find(a.City);
+    var city = province?.Name ?? a.City;
+    var district = Locations.FindDistrict(province, a.District) ?? a.District;
+    var districts = province?.Districts ?? [];
+    var prison = Model.Prison;
 }
-<div class="row g-2">
+@* Razor, değeri null olan öznitelikleri yazmaz: cezaevi seçimi yoksa bu öznitelikler hiç çıkmaz. *@
+<div class="row g-2" data-address-picker
+     data-prison="@(prison is null ? null : "true")"
+     data-type-select="@prison?.TypeSelector"
+     data-inmate-value="@prison?.InmateValue"
+     data-inmate="@(prison is null ? null : prison.IsInmate ? "true" : "false")"
+     data-detail-input="@prison?.DetailSelector">
+    <div class="col-sm-6">
+        <label class="form-label small" for="@(p)_City" data-city-label data-default-text="İl" data-prison-text="Alıcı Cezaevi">@(prison?.IsInmate == true ? "Alıcı Cezaevi" : "İl")</label>
+        <select class="form-select" id="@(p)_City" name="@(p).City" data-address-city required>
+            <option value="">İl seçin</option>
+            @if (province is null && !string.IsNullOrWhiteSpace(a.City))
+            {
+                <option value="@a.City" selected>@a.City</option>
+            }
+            @foreach (var pr in Locations.Provinces)
+            {
+                <option value="@pr.Name" selected="@(pr.Name == city)">@pr.Name</option>
+            }
+        </select>
+    </div>
+    @if (prison is not null)
+    {
+        <div class="col-sm-6 order-sm-0" data-prison-row @(prison.IsInmate ? "" : "hidden")>
+            <label class="form-label small" for="@(p)_Prison">Cezaevi</label>
+            <select class="form-select" id="@(p)_Prison" data-prison-select aria-describedby="@(p)_PrisonHelp">
+                <option value="">@(province is null ? "Önce il seçin" : "Cezaevi seçin")</option>
+            </select>
+            <div class="form-text" id="@(p)_PrisonHelp">Seçince ilçe ve adres otomatik dolar ve kilitlenir; değiştirmek için "Listede yok" seçeneğini seçin.</div>
+        </div>
+    }
+    <div class="col-sm-6">
+        <label class="form-label small" for="@(p)_District">İlçe</label>
+        <select class="form-select" id="@(p)_District" name="@(p).District" data-address-district required>
+            <option value="">@(province is null && string.IsNullOrWhiteSpace(a.City) ? "Önce il seçin" : "İlçe seçin")</option>
+            @if (!string.IsNullOrWhiteSpace(a.District) && !districts.Contains(district))
+            {
+                <option value="@a.District" selected>@a.District</option>
+            }
+            @foreach (var d in districts)
+            {
+                <option value="@d" selected="@(d == district)">@d</option>
+            }
+        </select>
+    </div>
     <div class="col-12">
         <label class="form-label small" for="@(p)_Line">Adres</label>
-        <textarea class="form-control" id="@(p)_Line" name="@(p).Line" rows="2" maxlength="250" required>@a.Line</textarea>
+        <textarea class="form-control" id="@(p)_Line" name="@(p).Line" rows="2" maxlength="250" required data-address-line>@a.Line</textarea>
         <span class="text-danger small field-validation-valid" data-valmsg-for="@(p).Line"></span>
     </div>
-    <div class="col-sm-5">
-        <label class="form-label small" for="@(p)_District">İlçe</label>
-        <input class="form-control" id="@(p)_District" name="@(p).District" value="@a.District" maxlength="60" required />
-    </div>
-    <div class="col-sm-4">
-        <label class="form-label small" for="@(p)_City">İl</label>
-        <input class="form-control" id="@(p)_City" name="@(p).City" value="@a.City" maxlength="60" required />
-    </div>
-    <div class="col-sm-3">
-        <label class="form-label small" for="@(p)_PostalCode">Posta Kodu</label>
-        <input class="form-control" id="@(p)_PostalCode" name="@(p).PostalCode" value="@a.PostalCode"
-               inputmode="numeric" pattern="\d{5}" maxlength="5" title="5 haneli posta kodu" required />
-    </div>
+    @* Posta kodu şimdilik gizli; kayıtlı değer korunur. Tekrar göstermek için type="hidden" yerine görünür bir input kullanın. *@
+    <input type="hidden" id="@(p)_PostalCode" name="@(p).PostalCode" value="@a.PostalCode" data-address-postal />
 </div>

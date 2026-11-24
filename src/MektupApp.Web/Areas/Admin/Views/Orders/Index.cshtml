@@ -5,6 +5,8 @@
     var allCount = Model.Counts.Values.Sum();
     // Toplu işlem: "Ödendi" sekmesinde basıma alma, "Basımda" sekmesinde PTT'ye kaydedip postaya verme.
     var canBulk = Model.Status is LetterStatus.Paid or LetterStatus.InProduction && Model.Result.Items.Count > 0;
+    // Toplu yazdırma her sekmede kullanılabilir.
+    var canSelect = Model.Result.Items.Count > 0;
     var pager = new PagerModel(Model.Result.Page, Model.Result.TotalPages, Model.Result.TotalCount,
         p => Url.Action("Index", new { status = Model.Status, q = Model.Query, page = p }));
 }
@@ -37,27 +39,30 @@
 
 <form asp-action="StartProductionMany" method="post" id="bulkForm">
     <div class="admin-card overflow-hidden">
-        @if (canBulk)
+        @if (canSelect)
         {
-            <div class="d-flex align-items-center gap-2 p-2 border-bottom">
+            <div class="d-flex flex-wrap align-items-center gap-2 p-2 border-bottom">
                 <span class="small text-muted">Seçilenleri:</span>
-                @if (Model.Status == LetterStatus.Paid)
+                <button type="button" class="btn btn-sm btn-outline-secondary" id="printSelected"
+                        data-url="@Url.Action("Print")" title="Mektup, fotoğraf ve belgeleri yeni sekmede yazdır">🖨️ Yazdır</button>
+                @if (canBulk && Model.Status == LetterStatus.Paid)
                 {
                     <button type="submit" class="btn btn-sm btn-warning">Basıma Al</button>
                 }
-                else
+                else if (canBulk)
                 {
                     <button type="submit" class="btn btn-sm btn-primary" formaction="@Url.Action("ShipManyWithCarrier")">
                         @ViewBag.CarrierName'ye Kaydet ve Postaya Ver
                     </button>
                 }
+                <span class="small text-muted ms-auto" id="selectedCount"></span>
             </div>
         }
         <div class="table-responsive">
             <table class="table table-admin table-hover">
                 <thead>
                     <tr>
-                        @if (canBulk)
+                        @if (canSelect)
                         {
                             <th style="width:1%"><input type="checkbox" class="form-check-input" id="selectAll" aria-label="Tümünü seç" /></th>
                         }
@@ -69,20 +74,21 @@
                         <th>Ödeme</th>
                         <th>Takip</th>
                         <th>Güncelleme</th>
+                        <th style="width:1%"><span class="visually-hidden">Yazdır</span></th>
                     </tr>
                 </thead>
                 <tbody>
                     @foreach (var o in Model.Result.Items)
                     {
                         <tr>
-                            @if (canBulk)
+                            @if (canSelect)
                             {
                                 <td><input type="checkbox" class="form-check-input row-check" name="ids" value="@o.Id" aria-label="Seç: @o.RecipientName" /></td>
                             }
                             <td><partial name="_StatusBadge" model="o.Status" /></td>
                             <td>
                                 <a asp-action="Details" asp-route-id="@o.Id" class="fw-semibold">@o.RecipientName</a>
-                                <div class="text-muted small">@o.RecipientType.DisplayName()@(o.PhotoCount > 0 ? $" · 📷 {o.PhotoCount}" : "")</div>
+                                <div class="text-muted small">@o.RecipientType.DisplayName()@(o.PhotoCount > 0 ? $" · 📷 {o.PhotoCount}" : "")@(o.DocumentCount > 0 ? $" · 📄 {o.DocumentCount}" : "")</div>
                             </td>
                             <td><a asp-controller="Customers" asp-action="Details" asp-route-id="@o.CustomerId" class="text-reset">@o.SenderName</a></td>
                             <td>@o.City</td>
@@ -90,11 +96,15 @@
                             <td class="small">@(o.PaidAt?.ToLocalTime().ToString("dd.MM.yy HH:mm") ?? "-")</td>
                             <td class="small font-monospace">@(o.TrackingCode ?? "-")</td>
                             <td class="small text-muted">@o.UpdatedAt.ToLocalTime().ToString("dd.MM.yy HH:mm")</td>
+                            <td>
+                                <a asp-action="Print" asp-route-id="@o.Id" target="_blank" class="btn btn-sm btn-outline-secondary py-0"
+                                   title="Mektup, fotoğraf ve belgeleri yazdır" aria-label="Yazdır: @o.RecipientName">🖨️</a>
+                            </td>
                         </tr>
                     }
                     @if (Model.Result.Items.Count == 0)
                     {
-                        <tr><td colspan="9" class="text-center text-muted py-4">Kayıt bulunamadı.</td></tr>
+                        <tr><td colspan="10" class="text-center text-muted py-4">Kayıt bulunamadı.</td></tr>
                     }
                 </tbody>
             </table>
@@ -106,7 +116,24 @@
 
 @section Scripts {
     <script>
-        document.getElementById("selectAll")?.addEventListener("change", e =>
-            document.querySelectorAll(".row-check").forEach(c => c.checked = e.target.checked));
+        const checks = () => [...document.querySelectorAll(".row-check")];
+        const selected = () => checks().filter(c => c.checked).map(c => c.value);
+        const countLabel = document.getElementById("selectedCount");
+        const updateCount = () => { if (countLabel) countLabel.textContent = selected().length ? `${selected().length} seçili` : ""; };
+
+        document.getElementById("selectAll")?.addEventListener("change", e => {
+            checks().forEach(c => c.checked = e.target.checked);
+            updateCount();
+        });
+        checks().forEach(c => c.addEventListener("change", updateCount));
+
+        // Seçilenleri yeni sekmede baskı sayfasında aç (GET; form token'ı adrese eklenmez).
+        document.getElementById("printSelected")?.addEventListener("click", e => {
+            const ids = selected();
+            if (ids.length === 0) { alert("Lütfen yazdırmak için en az bir sipariş seçin."); return; }
+            const url = new URL(e.currentTarget.dataset.url, location.origin);
+            ids.forEach(id => url.searchParams.append("ids", id));
+            window.open(url, "_blank");
+        });
     </script>
 }

@@ -3,3 +3,6 @@ obj/
 .vs/
 *.user
 **/App_Data/
+
+# Kişisel test notları ve görseller (depoya girmez)
+canlı-test/

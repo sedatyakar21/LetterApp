@@ -27,7 +27,13 @@ public sealed record LetterSaveRequest(
     InkColor Ink,
     Scent Scent,
     PostcardCategory? PostcardCategory,
-    int? PostcardDesign);
+    int? PostcardDesign,
+    string? RecipientFatherName = null,
+    string? RecipientWard = null);
+
+public sealed record LetterPrefillApiDto(
+    string RecipientType, string RecipientName, string? RecipientDetail, string? RecipientFatherName, string? RecipientWard,
+    AddressDto RecipientAddress, string SenderName, AddressDto SenderAddress);
 
 public sealed record LetterSummaryApiDto(Guid Id, string RecipientName, string RecipientType, string Status, string StatusLabel,
     string Preview, DateTime UpdatedAt, string? TrackingCode);
@@ -77,7 +83,13 @@ public sealed record LetterApiDto(
     DateTime CreatedAt,
     bool CanReview,
     ReviewMineDto? Review,
-    PendingPaymentApiDto? PendingPayment);
+    PendingPaymentApiDto? PendingPayment,
+    string? RecipientFatherName,
+    string? RecipientWard,
+    string? RecipientNote,
+    IReadOnlyList<DocumentApiDto> Documents);
+
+public sealed record DocumentApiDto(Guid Id, string FileName, bool IsPdf, string Url);
 
 public sealed record QuoteLineDto(string Description, decimal Amount);
 
@@ -132,6 +144,16 @@ public sealed class MobileLettersController(
 
     [HttpGet("{id:guid}")]
     public Task<LetterApiDto> Get(Guid id, CancellationToken ct) => DetailsAsync(id, ct);
+
+    /// <summary>Bu türdeki (Inmate / Soldier) son mektubun alıcı ve gönderen bilgileri; yoksa 204.</summary>
+    [HttpGet("prefill")]
+    public async Task<ActionResult<LetterPrefillApiDto>> Prefill(RecipientType type, CancellationToken ct)
+    {
+        var p = await letters.GetPrefillAsync(CustomerId, type, ct);
+        if (p is null) return NoContent();
+        return new LetterPrefillApiDto(p.RecipientType.ToString(), p.RecipientName, p.RecipientDetail, p.RecipientFatherName,
+            p.RecipientWard, p.RecipientAddress, p.SenderName, p.SenderAddress);
+    }
 
     [HttpPost]
     public async Task<LetterApiDto> Create(LetterSaveRequest req, CancellationToken ct) =>
@@ -188,6 +210,36 @@ public sealed class MobileLettersController(
         if (file is null) return NotFound();
         new FileExtensionContentTypeProvider().TryGetContentType(file.Value.FileName, out var contentType);
         return File(file.Value.Stream, contentType ?? "application/octet-stream");
+    }
+
+    // ---------------- Belgeler (basılıp zarfa konur) ----------------
+
+    [HttpPost("{id:guid}/documents")]
+    [RequestSizeLimit(11 * 1024 * 1024)]
+    [RequestFormLimits(MultipartBodyLengthLimit = 11 * 1024 * 1024)]
+    public async Task<LetterApiDto> AddDocument(Guid id, IFormFile? document, CancellationToken ct)
+    {
+        if (document is null) throw new AppException("Lütfen bir belge seçin.");
+        await using (var stream = document.OpenReadStream())
+            await letters.AddDocumentAsync(id, CustomerId, stream, document.FileName, document.Length, ct);
+        return await DetailsAsync(id, ct);
+    }
+
+    [HttpDelete("{id:guid}/documents/{documentId:guid}")]
+    public async Task<LetterApiDto> RemoveDocument(Guid id, Guid documentId, CancellationToken ct)
+    {
+        await letters.RemoveDocumentAsync(id, CustomerId, documentId, ct);
+        return await DetailsAsync(id, ct);
+    }
+
+    [HttpGet("{id:guid}/documents/{documentId:guid}")]
+    public async Task<IActionResult> Document(Guid id, Guid documentId, CancellationToken ct)
+    {
+        var file = await letters.OpenDocumentAsync(id, documentId, CustomerId, isAdmin: false, ct);
+        if (file is null) return NotFound();
+        new FileExtensionContentTypeProvider().TryGetContentType(file.Value.FileName, out var contentType);
+        Response.Headers.XContentTypeOptions = "nosniff";
+        return File(file.Value.Stream, contentType ?? "application/octet-stream", file.Value.FileName);
     }
 
     // ---------------- Ödeme ----------------
@@ -288,7 +340,9 @@ public sealed class MobileLettersController(
             l.History.Select(ApiMapping.ToApi).ToList(),
             l.IsEditable, l.CanCancel, l.CanDelete, l.CanChangeAddress,
             l.PointsUsed, l.PointsDiscount, l.PointsToEarn, l.CampaignTitle, l.CampaignDiscount, l.CreatedAt,
-            l.Status == LetterStatus.Delivered && review is null, review, pending);
+            l.Status == LetterStatus.Delivered && review is null, review, pending,
+            l.RecipientFatherName, l.RecipientWard, l.RecipientNote,
+            l.Documents.Select(d => new DocumentApiDto(d.Id, d.OriginalFileName, d.IsPdf, $"/api/mobile/letters/{l.Id}/documents/{d.Id}")).ToList());
     }
 
     /// <summary>Simülasyon formu sitenin kendi sayfasıdır (çerez ister); uygulama onun yerine kendi ekranını gösterir.</summary>
@@ -302,16 +356,17 @@ public sealed class MobileLettersController(
         return new SaveLetterCommand(id, CustomerId, r.SenderName.Trim(), Clean(r.SenderAddress, "Gönderen"),
             r.RecipientName.Trim(), r.RecipientType, string.IsNullOrWhiteSpace(r.RecipientDetail) ? null : r.RecipientDetail.Trim(),
             Clean(r.RecipientAddress, "Alıcı"), r.Content, r.Paper, r.Envelope, r.Font, r.Ink, r.Scent,
-            r.PostcardCategory, r.PostcardCategory is null ? null : r.PostcardDesign);
+            r.PostcardCategory, r.PostcardCategory is null ? null : r.PostcardDesign,
+            r.RecipientFatherName, r.RecipientWard);
     }
 
-    /// <summary>Web formundaki doğrulamanın aynısı: boş alan ve 5 haneli posta kodu.</summary>
+    /// <summary>Web formundaki doğrulamanın aynısı: boş alan; posta kodu isteğe bağlı, girilirse 5 haneli.</summary>
     private static AddressDto Clean(AddressDto? a, string who)
     {
         if (a is null || string.IsNullOrWhiteSpace(a.Line) || string.IsNullOrWhiteSpace(a.District) || string.IsNullOrWhiteSpace(a.City))
-            throw new AppException($"Lütfen {who.ToLowerInvariant()} adresini eksiksiz girin (adres, ilçe, il).");
+            throw new AppException($"Lütfen {who.ToLowerInvariant()} adresini eksiksiz girin (il, ilçe, adres).");
         var postal = (a.PostalCode ?? "").Trim();
-        if (postal.Length != 5 || !postal.All(char.IsAsciiDigit))
+        if (postal.Length > 0 && (postal.Length != 5 || !postal.All(char.IsAsciiDigit)))
             throw new AppException($"{who} posta kodu 5 haneli olmalıdır.");
         return new AddressDto(a.Line.Trim(), a.District.Trim(), a.City.Trim(), postal);
     }

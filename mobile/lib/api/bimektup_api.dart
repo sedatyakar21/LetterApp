@@ -34,6 +34,11 @@ class BiMektupApi {
 
   Future<AppSettings> config() async => AppSettings.fromJson(await client.get('/api/mobile/config'));
 
+  Future<Locations> locations() async => Locations.fromJson(await client.get('/api/mobile/locations') as List);
+
+  Future<List<PrisonOption>> prisons(String city) async =>
+      (await client.get('/api/mobile/prisons', query: {'city': city}) as List).map((e) => PrisonOption.fromJson(e)).toList();
+
   Future<Me> me() async => Me.fromJson(await client.get('/api/mobile/me'));
 
   Future<void> setBirthDate(DateTime date) => client.post('/api/mobile/me/birth-date', {'birthDate': _date(date)});
@@ -44,6 +49,12 @@ class BiMektupApi {
 
   Future<List<LetterSummary>> letters() async =>
       (await client.get('/api/mobile/letters') as List).map((e) => LetterSummary.fromJson(e)).toList();
+
+  /// Bu türdeki (Inmate / Soldier) son mektubun alıcı ve gönderen bilgileri; yoksa null.
+  Future<LetterDraft?> prefill(String type) async {
+    final j = await client.get('/api/mobile/letters/prefill', query: {'type': type});
+    return j == null ? null : LetterDraft.fromPrefill(j as Map<String, dynamic>);
+  }
 
   Future<Letter> letter(String id) async => Letter.fromJson(await client.get('/api/mobile/letters/$id'));
 
@@ -64,6 +75,11 @@ class BiMektupApi {
   Future<Letter> removePhoto(String id, String photoId) async =>
       Letter.fromJson(await client.delete('/api/mobile/letters/$id/photos/$photoId'));
 
+  Future<Letter> addDocument(String id, List<int> bytes, String fileName) async => Letter.fromJson(
+      await client.upload('/api/mobile/letters/$id/documents', bytes, fileName, field: 'document'));
+
+  Future<Letter> removeDocument(String id, String documentId) async =>
+      Letter.fromJson(await client.delete('/api/mobile/letters/$id/documents/$documentId'));
   Future<Letter> review(String id, int rating, String comment) async =>
       Letter.fromJson(await client.post('/api/mobile/letters/$id/review', {'rating': rating, 'comment': comment}));
 

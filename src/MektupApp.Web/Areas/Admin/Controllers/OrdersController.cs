@@ -70,8 +70,21 @@ public class OrdersController(IAdminQueries queries, FulfillmentService fulfillm
         ViewBag.CarrierIsSimulation = shipping.IsSimulation;
     }
 
-    public async Task<IActionResult> Print(Guid id, CancellationToken ct) =>
-        View(await fulfillment.GetAsync(id, ct));
+    /// <summary>
+    /// Baskı sayfası: tek sipariş (/Print/{id}) veya listeden seçilen siparişler (?ids=..&amp;ids=..).
+    /// Her siparişin adres etiketi, mektubu, fotoğrafları ve belgeleri (PDF'ler dahil) sırayla basılır.
+    /// </summary>
+    public async Task<IActionResult> Print(Guid? id, [FromQuery] Guid[] ids, CancellationToken ct)
+    {
+        const int max = 50;
+        var all = (id is { } single ? ids.Prepend(single) : ids).Distinct().ToList();
+        if (all.Count == 0) throw new AppException("Lütfen yazdırmak için en az bir sipariş seçin.");
+        if (all.Count > max) throw new AppException($"Tek seferde en fazla {max} sipariş yazdırılabilir.");
+
+        var letters = new List<LetterDetailsDto>();
+        foreach (var letterId in all) letters.Add(await fulfillment.GetAsync(letterId, ct));
+        return View(letters);
+    }
 
     [HttpPost]
     public async Task<IActionResult> StartProduction(Guid id, CancellationToken ct)

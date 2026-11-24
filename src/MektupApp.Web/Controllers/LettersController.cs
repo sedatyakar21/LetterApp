@@ -27,7 +27,18 @@ public class LettersController(LetterService letters, AccountService accounts, P
     public async Task<IActionResult> Write(CancellationToken ct)
     {
         var profile = await accounts.GetProfileAsync(CustomerId, ct);
-        return await FormViewAsync(new LetterFormViewModel { SenderName = profile?.FullName ?? string.Empty });
+        var model = new LetterFormViewModel { SenderName = profile?.FullName ?? string.Empty };
+
+        // Cezaevi / askere yazanlar genelde aynı kişiye yazar: o türdeki son mektubun alıcı ve gönderen bilgileri hazır gelsin.
+        var prefills = new Dictionary<string, LetterPrefillDto>();
+        foreach (var type in new[] { RecipientType.Inmate, RecipientType.Soldier })
+            if (await letters.GetPrefillAsync(CustomerId, type, ct) is { } p)
+                prefills[((int)type).ToString()] = p;
+        if (prefills.TryGetValue(((int)model.RecipientType).ToString(), out var initial))
+            model.ApplyPrefill(initial);
+        ViewBag.Prefills = prefills;
+
+        return await FormViewAsync(model);
     }
 
     [HttpGet("mektup/{id:guid}/duzenle")]
@@ -38,7 +49,7 @@ public class LettersController(LetterService letters, AccountService accounts, P
         return await FormViewAsync(LetterFormViewModel.From(letter));
     }
 
-    /// <param name="next">"save": taslak kaydet, "photos": fotoğraf ekle, "checkout": ödemeye geç</param>
+    /// <param name="next">"save": taslak kaydet, "photos": fotoğraf ekle, "documents": belge ekle, "checkout": ödemeye geç</param>
     [HttpPost("mektup/kaydet")]
     public async Task<IActionResult> Save(LetterFormViewModel model, string next, CancellationToken ct)
     {
@@ -60,6 +71,7 @@ public class LettersController(LetterService letters, AccountService accounts, P
         {
             "checkout" => RedirectToAction(nameof(Checkout), new { id }),
             "photos" => RedirectToAction(nameof(Details), null, new { id }, "photos"),
+            "documents" => RedirectToAction(nameof(Details), null, new { id }, "documents"),
             _ => Saved(id)
         };
     }
@@ -97,6 +109,39 @@ public class LettersController(LetterService letters, AccountService accounts, P
         var file = await letters.OpenPhotoAsync(id, photoId, CustomerId, User.IsInRole("Admin"), ct);
         if (file is null) return NotFound();
         new FileExtensionContentTypeProvider().TryGetContentType(file.Value.FileName, out var contentType);
+        return File(file.Value.Stream, contentType ?? "application/octet-stream");
+    }
+
+    [HttpPost("mektup/{id:guid}/belge")]
+    [RequestSizeLimit(11 * 1024 * 1024)]
+    [RequestFormLimits(MultipartBodyLengthLimit = 11 * 1024 * 1024)]
+    public async Task<IActionResult> AddDocument(Guid id, IFormFile? document, CancellationToken ct)
+    {
+        if (document is null) throw new AppException("Lütfen bir belge seçin.");
+        await using var stream = document.OpenReadStream();
+        await letters.AddDocumentAsync(id, CustomerId, stream, document.FileName, document.Length, ct);
+        TempData["Success"] = "Belge eklendi. Mektubunuzla birlikte basılıp zarfa konacak.";
+        return RedirectToAction(nameof(Details), null, new { id }, "documents");
+    }
+
+    [HttpPost("mektup/{id:guid}/belge/{documentId:guid}/sil")]
+    public async Task<IActionResult> RemoveDocument(Guid id, Guid documentId, CancellationToken ct)
+    {
+        await letters.RemoveDocumentAsync(id, CustomerId, documentId, ct);
+        return RedirectToAction(nameof(Details), null, new { id }, "documents");
+    }
+
+    [HttpGet("mektup/{id:guid}/belge/{documentId:guid}")]
+    public async Task<IActionResult> Document(Guid id, Guid documentId, CancellationToken ct)
+    {
+        var file = await letters.OpenDocumentAsync(id, documentId, CustomerId, User.IsInRole("Admin"), ct);
+        if (file is null) return NotFound();
+        new FileExtensionContentTypeProvider().TryGetContentType(file.Value.FileName, out var contentType);
+        Response.Headers.XContentTypeOptions = "nosniff";
+        // Tarayıcıda açılsın (PDF görüntüleyici / resim); kaydedilirse asıl dosya adı kullanılsın.
+        var disposition = new Microsoft.Net.Http.Headers.ContentDispositionHeaderValue("inline");
+        disposition.SetHttpFileName(file.Value.FileName); // Türkçe karakterli adlar için filename* de yazılır
+        Response.Headers.ContentDisposition = disposition.ToString();
         return File(file.Value.Stream, contentType ?? "application/octet-stream");
     }
 

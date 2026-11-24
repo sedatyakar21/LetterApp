@@ -99,6 +99,19 @@
                 </div>
             </div>
         }
+
+        @if (l.Documents.Count > 0)
+        {
+            <div class="admin-card p-3 mt-3">
+                <div class="fw-semibold mb-2">Belgeler (@l.Documents.Count) <span class="text-muted small fw-normal">— basılıp mektupla aynı zarfa konur</span></div>
+                <ul class="mb-0 small">
+                    @foreach (var d in l.Documents)
+                    {
+                        <li><a target="_blank" rel="noopener" href="@Url.Action("Document", "Letters", new { area = "", id = l.Id, documentId = d.Id })">@(d.IsPdf ? "📄" : "🖼️") @d.OriginalFileName</a></li>
+                    }
+                </ul>
+            </div>
+        }
     </div>
 
     <div class="col-xl-5">
@@ -108,6 +121,7 @@
                 <li class="list-group-item">
                     <div class="text-muted">Alıcı</div>
                     <strong>@l.RecipientName</strong> (@l.RecipientType.DisplayName())
+                    @if (l.RecipientNote is not null) { <br />@l.RecipientNote }
                     @if (l.RecipientDetail is not null) { <br />@l.RecipientDetail }
                     <br />@l.RecipientAddress.Line, @l.RecipientAddress.District / @l.RecipientAddress.City @l.RecipientAddress.PostalCode
                 </li>
@@ -120,7 +134,7 @@
                     <div class="text-muted">Üretim</div>
                     @l.PageCount sayfa · Kağıt: @l.Style.Paper.DisplayName() · Zarf: @l.Style.Envelope.DisplayName()<br />
                     Yazı: @l.Style.Font.DisplayName() / @l.Style.Ink.DisplayName() · Koku: @l.Scent.DisplayName()<br />
-                    Kartpostal: @(l.Postcard is null ? "Yok" : $"{l.Postcard.Category.DisplayName()} #{l.Postcard.Design}") · Fotoğraf: @l.Photos.Count
+                    Kartpostal: @(l.Postcard is null ? "Yok" : $"{l.Postcard.Category.DisplayName()} #{l.Postcard.Design}") · Fotoğraf: @l.Photos.Count · Belge: @l.Documents.Count
                 </li>
                 <li class="list-group-item">
                     <div class="text-muted">Ödeme</div>

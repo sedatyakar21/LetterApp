@@ -11,8 +11,10 @@ public sealed class Letter : AggregateRoot
 {
     public const int MaxContentLength = 25_000;
     public const int MaxPhotos = 10;
+    public const int MaxDocuments = 5;
 
     private readonly List<LetterPhoto> _photos = [];
+    private readonly List<LetterDocument> _documents = [];
     private readonly List<LetterStatusChange> _history = [];
 
     private Letter() { } // EF Core
@@ -55,6 +57,8 @@ public sealed class Letter : AggregateRoot
     public DateTime UpdatedAt { get; private set; }
 
     public IReadOnlyCollection<LetterPhoto> Photos => _photos.AsReadOnly();
+    /// <summary>Basılıp mektupla birlikte zarfa konan belgeler (dilekçe, vekaletname, okul belgesi vb.).</summary>
+    public IReadOnlyCollection<LetterDocument> Documents => _documents.OrderBy(d => d.AddedAt).ToList().AsReadOnly();
     public IReadOnlyCollection<LetterStatusChange> History => _history.OrderBy(h => h.At).ToList().AsReadOnly();
 
     public int PageCount => LetterPages.Count(Content);
@@ -147,6 +151,28 @@ public sealed class Letter : AggregateRoot
         _photos.Remove(photo);
         Touch();
         return photo;
+    }
+
+    public LetterDocument AddDocument(string storageKey, string originalFileName)
+    {
+        EnsureEditable();
+        if (_documents.Count >= MaxDocuments)
+            throw new DomainException($"Bir mektuba en fazla {MaxDocuments} belge eklenebilir.");
+
+        var document = new LetterDocument(Id, storageKey, originalFileName);
+        _documents.Add(document);
+        Touch();
+        return document;
+    }
+
+    public LetterDocument RemoveDocument(Guid documentId)
+    {
+        EnsureEditable();
+        var document = _documents.FirstOrDefault(d => d.Id == documentId)
+                       ?? throw new DomainException("Belge bulunamadı.");
+        _documents.Remove(document);
+        Touch();
+        return document;
     }
 
     // ---------- Sipariş yaşam döngüsü ----------
@@ -304,7 +330,7 @@ public sealed class Letter : AggregateRoot
     {
         if (!CanChangeAddress)
             throw new DomainException("Dağıtıma çıkmış bir mektubun adresi değiştirilemez.");
-        Recipient = new Recipient(Recipient.FullName, Recipient.Type, Recipient.Detail, newAddress);
+        Recipient = Recipient.WithAddress(newAddress);
         if (Status != LetterStatus.Draft)
             AddHistory(Status, "Alıcı adresi güncellendi.");
         Touch();
@@ -358,6 +384,29 @@ public sealed class LetterPhoto : Entity
     public string StorageKey { get; private set; } = string.Empty;
     public string OriginalFileName { get; private set; } = string.Empty;
     public DateTime AddedAt { get; private set; }
+}
+
+/// <summary>
+/// Mektuba eklenmiş belge (PDF veya görsel). Basılıp mektupla birlikte zarfa konur.
+/// Sadece Letter aggregate'i üzerinden yönetilir.
+/// </summary>
+public sealed class LetterDocument : Entity
+{
+    private LetterDocument() { } // EF Core
+
+    internal LetterDocument(Guid letterId, string storageKey, string originalFileName)
+    {
+        LetterId = letterId;
+        StorageKey = Guard.Required(storageKey, "Dosya anahtarı", 300);
+        OriginalFileName = Guard.Required(originalFileName, "Dosya adı", 255);
+        AddedAt = DateTime.UtcNow;
+    }
+
+    public Guid LetterId { get; private set; }
+    public string StorageKey { get; private set; } = string.Empty;
+    public string OriginalFileName { get; private set; } = string.Empty;
+    public DateTime AddedAt { get; private set; }
+    public bool IsPdf => OriginalFileName.EndsWith(".pdf", StringComparison.OrdinalIgnoreCase);
 }
 
 /// <summary>Takip ekranında gösterilen durum geçmişi kaydı.</summary>

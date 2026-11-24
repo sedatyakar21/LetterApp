@@ -57,6 +57,30 @@ void main() {
       expect(s.pageCount('${'a' * 1050}\n\n${'a' * 1048}'), 2);
     });
     test('etiket bulunamazsa değerin kendisi döner', () => expect(s.label(s.paperColors, 'Pink'), 'Pink'));
+    test('eski sunucu belge sınırı göndermezse varsayılanlar kullanılır', () {
+      expect(s.maxDocuments, 5);
+      expect(s.maxDocumentBytes, 10 * 1024 * 1024);
+    });
+  });
+
+  group('Locations (il / ilçe)', () {
+    final loc = Locations.fromJson([
+      {'name': 'Ankara', 'districts': ['Çankaya', 'Keçiören']},
+      {'name': 'Iğdır', 'districts': ['Merkez']},
+      {'name': 'İstanbul', 'districts': ['Kadıköy', 'Üsküdar']},
+    ]);
+
+    test('Türkçe karakter ve büyük/küçük harf farkı yok sayılır', () {
+      expect(loc.find('Istanbul')?.name, 'İstanbul');
+      expect(loc.find(' ISTANBUL ')?.name, 'İstanbul');
+      expect(loc.find('igdir')?.name, 'Iğdır');
+      expect(loc.find('Atlantis'), isNull);
+    });
+    test('ilçe yazımı listedekine çevrilir', () {
+      expect(loc.findDistrict(loc.find('İstanbul'), 'Kadikoy'), 'Kadıköy');
+      expect(loc.findDistrict(loc.find('Ankara'), 'cankaya'), 'Çankaya');
+      expect(loc.findDistrict(loc.find('Ankara'), 'Kadıköy'), isNull);
+    });
   });
 
   group('LetterDraft.toJson', () {
@@ -64,6 +88,15 @@ void main() {
       final j = LetterDraft(recipientType: 'Standard', recipientDetail: 'x', postcardDesign: 3).toJson();
       expect(j['recipientDetail'], isNull);
       expect(j['postcardDesign'], isNull);
+    });
+    test('yeni mektupta varsayılan alıcı türü cezaevi', () => expect(LetterDraft().recipientType, 'Inmate'));
+    test('baba adı ve koğuş yalnızca cezaevi alıcısında gönderilir', () {
+      final inmate = LetterDraft(recipientType: 'Inmate', recipientFatherName: 'Ali', recipientWard: 'B-12').toJson();
+      expect(inmate['recipientFatherName'], 'Ali');
+      expect(inmate['recipientWard'], 'B-12');
+      final soldier = LetterDraft(recipientType: 'Soldier', recipientFatherName: 'Ali', recipientWard: 'B-12').toJson();
+      expect(soldier['recipientFatherName'], isNull);
+      expect(soldier['recipientWard'], isNull);
     });
     test('kartpostal seçiliyse tasarım varsayılan 1', () {
       final j = LetterDraft(postcardCategory: 'Love').toJson();

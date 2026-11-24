@@ -180,6 +180,7 @@ internal sealed class AdminQueries(AppDbContext db) : IAdminQueries
             l.PaidAmount,
             l.PaymentMethod,
             db.Set<LetterPhoto>().Count(p => p.LetterId == l.Id),
+            db.Set<LetterDocument>().Count(d => d.LetterId == l.Id),
             l.TrackingCode,
             l.PaidAt,
             l.UpdatedAt));

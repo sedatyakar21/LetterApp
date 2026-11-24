@@ -24,15 +24,20 @@ class LetterEditorScreen extends StatefulWidget {
 }
 
 class _LetterEditorScreenState extends State<LetterEditorScreen> {
-  static const _steps = ['Alıcı', 'Mektup', 'Görünüm', 'Gönderen', 'Özet'];
+  // İlk adım mektup metni (sitedeki formla aynı sıra).
+  static const _steps = ['Mektup', 'Alıcı', 'Gönderen', 'Görünüm', 'Özet'];
+  static const _contentIndex = 0, _recipientIndex = 1, _senderIndex = 2;
 
   final _forms = List.generate(5, (_) => GlobalKey<FormState>());
   late final LetterDraft _draft;
-  late final TextEditingController _recipientName, _recipientDetail, _content, _senderName;
+  late final TextEditingController _recipientName, _recipientDetail, _fatherName, _ward, _content, _senderName;
   late final AddressControllers _recipientAddress, _senderAddress;
   int _step = 0;
   bool _busy = false;
   bool _dirty = false;
+  // Önceki mektuptan doldurma: alıcı adı hâlâ otomatik gelen adsa tür değişince yeniden doldurulur.
+  String? _autoName;
+  int _addressVersion = 0; // adres alanları dışarıdan değişince yeniden kurulsun
 
   @override
   void initState() {
@@ -41,21 +46,64 @@ class _LetterEditorScreenState extends State<LetterEditorScreen> {
     _draft = l == null ? LetterDraft(senderName: AppScope.read(context).me?.fullName ?? '') : LetterDraft.fromLetter(l);
     _recipientName = TextEditingController(text: _draft.recipientName);
     _recipientDetail = TextEditingController(text: _draft.recipientDetail ?? '');
+    _fatherName = TextEditingController(text: _draft.recipientFatherName ?? '');
+    _ward = TextEditingController(text: _draft.recipientWard ?? '');
     _content = TextEditingController(text: _draft.content);
     _senderName = TextEditingController(text: _draft.senderName);
     _recipientAddress = AddressControllers(_draft.recipientAddress);
     _senderAddress = AddressControllers(_draft.senderAddress);
-    for (final c in [_recipientName, _recipientDetail, _content, _senderName]) {
+    for (final c in [_recipientName, _recipientDetail, _fatherName, _ward, _content, _senderName]) {
       c.addListener(_markDirty);
     }
     _recipientAddress.addListener(_markDirty);
     _senderAddress.addListener(_markDirty);
     _content.addListener(() => setState(() {})); // sayfa sayısı ve önizleme
+    if (l == null) WidgetsBinding.instance.addPostFrameCallback((_) => _applyPrefill());
+  }
+
+  /// Yeni mektupta cezaevi / asker seçiliyken o türdeki son mektubun alıcı ve gönderen bilgilerini yazar.
+  /// Kullanıcı alıcı adını kendisi değiştirdiyse dokunulmaz.
+  Future<void> _applyPrefill() async {
+    if (widget.letter != null) return;
+    final name = _recipientName.text.trim();
+    if (name.isNotEmpty && name != _autoName) return;
+    final type = _draft.recipientType;
+    LetterDraft? p;
+    if (type != 'Standard') {
+      try {
+        p = await AppScope.read(context).api.prefill(type);
+      } catch (_) {
+        return; // bağlantı hatasında form boş kalır, kullanıcı elle doldurur
+      }
+    }
+    if (!mounted || _draft.recipientType != type) return;
+    final wasDirty = _dirty;
+    setState(() {
+      _recipientName.text = p?.recipientName ?? '';
+      _recipientDetail.text = p?.recipientDetail ?? '';
+      _fatherName.text = p?.recipientFatherName ?? '';
+      _ward.text = p?.recipientWard ?? '';
+      _setAddress(_recipientAddress, p?.recipientAddress ?? const Address());
+      if (p != null) {
+        _senderName.text = p.senderName;
+        _setAddress(_senderAddress, p.senderAddress);
+      }
+      _autoName = p?.recipientName;
+      _addressVersion++;
+    });
+    _dirty = wasDirty; // otomatik doldurma "kaydedilmemiş değişiklik" sayılmaz
+  }
+
+  static void _setAddress(AddressControllers c, Address a) {
+    c.line.text = a.line;
+    c.district.text = a.district;
+    c.city.text = a.city;
+    c.postalCode.text = a.postalCode;
   }
 
   @override
   void dispose() {
-    for (final c in [_recipientName, _recipientDetail, _content, _senderName]) {
+    for (final c in [_recipientName, _recipientDetail, _fatherName, _ward, _content, _senderName]) {
       c.dispose();
     }
     _recipientAddress.dispose();
@@ -73,6 +121,8 @@ class _LetterEditorScreenState extends State<LetterEditorScreen> {
   LetterDraft _collect() => _draft
     ..recipientName = _recipientName.text.trim()
     ..recipientDetail = _recipientDetail.text.trim().isEmpty ? null : _recipientDetail.text.trim()
+    ..recipientFatherName = _fatherName.text.trim().isEmpty ? null : _fatherName.text.trim()
+    ..recipientWard = _ward.text.trim().isEmpty ? null : _ward.text.trim()
     ..recipientAddress = _recipientAddress.value
     ..content = _content.text
     ..senderName = _senderName.text.trim()
@@ -98,17 +148,17 @@ class _LetterEditorScreenState extends State<LetterEditorScreen> {
     // Taslak olarak kaydederken de alıcı ve gönderen bilgileri zorunludur (sunucu kuralı).
     final draft = _collect();
     if (!_validateUpTo(_steps.length - 1)) return;
-    if (draft.recipientName.isEmpty || draft.recipientAddress.isEmpty) {
-      setState(() => _step = 0);
+    if (draft.recipientName.isEmpty || draft.recipientAddress.line.isEmpty) {
+      setState(() => _step = _recipientIndex);
       return;
     }
-    if (draft.senderName.isEmpty || draft.senderAddress.isEmpty) {
-      setState(() => _step = 3);
+    if (draft.senderName.isEmpty || draft.senderAddress.line.isEmpty) {
+      setState(() => _step = _senderIndex);
       showMessage(context, 'Lütfen gönderen bilgilerini doldurun.', error: true);
       return;
     }
     if (checkout && draft.content.trim().isEmpty) {
-      setState(() => _step = 1);
+      setState(() => _step = _contentIndex);
       showMessage(context, 'Ödemeye geçmeden önce mektubunuzu yazın.', error: true);
       return;
     }
@@ -162,10 +212,10 @@ class _LetterEditorScreenState extends State<LetterEditorScreen> {
         ),
         body: SafeArea(
           child: IndexedStack(index: _step, children: [
-            _page(0, _recipientStep(settings)),
-            _page(1, _contentStep(settings)),
-            _page(2, _styleStep(settings)),
-            _page(3, _senderStep()),
+            _page(0, _contentStep(settings)),
+            _page(1, _recipientStep(settings)),
+            _page(2, _senderStep()),
+            _page(3, _styleStep(settings)),
             _page(4, _summaryStep(settings)),
           ]),
         ),
@@ -217,7 +267,10 @@ class _LetterEditorScreenState extends State<LetterEditorScreen> {
                 ButtonSegment(value: o.value, label: Text(o.value == 'Standard' ? 'Sevdiklerim' : o.label)),
             ],
             selected: {type},
-            onSelectionChanged: (v) => _change(() => _draft.recipientType = v.first),
+            onSelectionChanged: (v) {
+              _change(() => _draft.recipientType = v.first);
+              _applyPrefill();
+            },
           ),
           const SizedBox(height: 16),
           TextFormField(
@@ -227,24 +280,69 @@ class _LetterEditorScreenState extends State<LetterEditorScreen> {
             decoration: const InputDecoration(labelText: 'Alıcı ad soyad', counterText: ''),
             validator: (v) => (v ?? '').trim().isEmpty ? 'Alıcı adı zorunludur.' : null,
           ),
-          if (type != 'Standard') ...[
+          if (type == 'Soldier') ...[
             const SizedBox(height: 12),
             TextFormField(
               controller: _recipientDetail,
               maxLength: 200,
-              decoration: InputDecoration(
-                labelText: type == 'Soldier' ? 'Birlik bilgisi (rütbe, birlik adı)' : 'Kurum ve koğuş bilgisi',
-                counterText: '',
-              ),
-              validator: (v) => (v ?? '').trim().isEmpty
-                  ? (type == 'Soldier' ? 'Askere giden mektuplarda birlik bilgisi zorunludur.' : 'Kurum ve koğuş bilgisi zorunludur.')
-                  : null,
+              decoration: const InputDecoration(labelText: 'Birlik bilgisi (rütbe, birlik adı)', counterText: ''),
+              validator: (v) => (v ?? '').trim().isEmpty ? 'Askere giden mektuplarda birlik bilgisi zorunludur.' : null,
             ),
+          ],
+          // Cezaevi: baba adı ve koğuş; kurum adı seçilen cezaevinden gelir (ayrı alan gösterilmez).
+          if (type == 'Inmate') ...[
+            const SizedBox(height: 12),
+            Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              Expanded(
+                flex: 3,
+                child: TextFormField(
+                  controller: _fatherName,
+                  maxLength: 60,
+                  textCapitalization: TextCapitalization.words,
+                  decoration: const InputDecoration(labelText: 'Alıcının baba adı', counterText: ''),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                flex: 2,
+                child: TextFormField(
+                  controller: _ward,
+                  maxLength: 30,
+                  textCapitalization: TextCapitalization.characters,
+                  decoration: const InputDecoration(labelText: 'Koğuş no', hintText: 'Ör. B-12', counterText: ''),
+                ),
+              ),
+            ]),
+            const SizedBox(height: 6),
+            // İsteğe bağlı ama tavsiye edilir; boş bırakılırsa kaydı engellemez.
+            Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              Icon(Icons.lightbulb_outline, size: 16, color: Theme.of(context).colorScheme.primary),
+              const SizedBox(width: 6),
+              Expanded(
+                child: Text(
+                  'Zorunlu değil ama yazmanızı tavsiye ederiz: baba adı ve koğuş numarası, mektubun aynı adlı '
+                  'kişilerle karışmadan doğrudan alıcıya ulaşmasını kolaylaştırır.',
+                  style: Theme.of(context).textTheme.bodySmall,
+                ),
+              ),
+            ]),
           ],
         ]),
       ),
       const SizedBox(height: 12),
-      SectionCard(title: 'Alıcı adresi', child: AddressFields(controllers: _recipientAddress)),
+      SectionCard(
+        title: type == 'Inmate' ? 'Cezaevi adresi' : 'Alıcı adresi',
+        child: AddressFields(
+          key: ValueKey('recipient-address-$_addressVersion'),
+          controllers: _recipientAddress,
+          prisonMode: type == 'Inmate',
+          // Kurum adı gizli ek bilgi alanında saklanır (zarfa ve PTT kaydına basılır).
+          onPrisonPicked: (p) {
+            _recipientDetail.text = p.name;
+            _markDirty();
+          },
+        ),
+      ),
     ]);
   }
 
@@ -410,7 +508,7 @@ class _LetterEditorScreenState extends State<LetterEditorScreen> {
             validator: (v) => (v ?? '').trim().isEmpty ? 'Gönderen adı zorunludur.' : null,
           ),
           const SizedBox(height: 12),
-          AddressFields(controllers: _senderAddress),
+          AddressFields(key: ValueKey('sender-address-$_addressVersion'), controllers: _senderAddress),
         ]),
       ),
       const SizedBox(height: 10),
@@ -426,10 +524,12 @@ class _LetterEditorScreenState extends State<LetterEditorScreen> {
     final p = s.prices;
     final pages = s.pageCount(d.content);
     final photos = widget.letter?.photos.length ?? 0;
+    final documents = widget.letter?.documents.length ?? 0;
     final lines = <(String, double)>[
       ('Mektup (1 sayfa, zarf ve kayıtlı posta)', p.basePrice),
       if (pages > 1) ('Ek sayfa × ${pages - 1}', p.extraPage * (pages - 1)),
       if (photos > 0) ('Fotoğraf × $photos', p.photo * photos),
+      if (documents > 0) ('Belge × $documents', p.document * documents),
       if (d.postcardCategory != null) ('Kartpostal', p.postcard),
       if (d.paper != 'White') ('Renkli kâğıt', p.coloredPaper),
       if (d.envelope != 'White') ('Renkli zarf', p.coloredEnvelope),
@@ -442,6 +542,11 @@ class _LetterEditorScreenState extends State<LetterEditorScreen> {
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Text(d.recipientName.isEmpty ? '—' : d.recipientName, style: const TextStyle(fontWeight: FontWeight.w700)),
           if (d.recipientType != 'Standard' && d.recipientDetail != null) Text(d.recipientDetail!),
+          if (d.recipientType == 'Inmate' && (d.recipientFatherName != null || d.recipientWard != null))
+            Text([
+              if (d.recipientFatherName != null) 'Baba adı: ${d.recipientFatherName}',
+              if (d.recipientWard != null) 'Koğuş: ${d.recipientWard}',
+            ].join(' · ')),
           Text(d.recipientAddress.isEmpty ? '—' : d.recipientAddress.toString(), style: const TextStyle(color: Brand.muted)),
         ]),
       ),
@@ -468,7 +573,7 @@ class _LetterEditorScreenState extends State<LetterEditorScreen> {
           const SizedBox(height: 6),
           const Text(
             'Kampanya indirimi, MektupPuan ve ödeme yöntemi bir sonraki ekranda uygulanır. '
-            'Fotoğrafları mektubu kaydettikten sonra detay ekranından ekleyebilirsiniz.',
+            'Fotoğraf ve belgeleri mektubu kaydettikten sonra detay ekranından ekleyebilirsiniz.',
             style: TextStyle(color: Brand.muted, fontSize: 12),
           ),
         ]),

@@ -45,6 +45,9 @@ internal sealed class LetterConfiguration : IEntityTypeConfiguration<Letter>
             r.Property(x => x.FullName).HasColumnName("RecipientName").HasMaxLength(100);
             r.Property(x => x.Type).HasColumnName("RecipientType").HasConversion<string>().HasMaxLength(20);
             r.Property(x => x.Detail).HasColumnName("RecipientDetail").HasMaxLength(200);
+            r.Property(x => x.FatherName).HasColumnName("RecipientFatherName").HasMaxLength(Recipient.FatherNameMax);
+            r.Property(x => x.Ward).HasColumnName("RecipientWard").HasMaxLength(Recipient.WardMax);
+            r.Ignore(x => x.Note);
             r.ComplexProperty(x => x.Address, a => a.MapAddress("Recipient"));
         });
         b.ComplexProperty(l => l.Style, s =>
@@ -63,6 +66,9 @@ internal sealed class LetterConfiguration : IEntityTypeConfiguration<Letter>
         b.HasMany(l => l.Photos).WithOne().HasForeignKey(p => p.LetterId).OnDelete(DeleteBehavior.Cascade);
         b.Navigation(l => l.Photos).UsePropertyAccessMode(PropertyAccessMode.Field).AutoInclude();
 
+        b.HasMany(l => l.Documents).WithOne().HasForeignKey(d => d.LetterId).OnDelete(DeleteBehavior.Cascade);
+        b.Navigation(l => l.Documents).UsePropertyAccessMode(PropertyAccessMode.Field).AutoInclude();
+
         b.HasMany(l => l.History).WithOne().HasForeignKey(h => h.LetterId).OnDelete(DeleteBehavior.Cascade);
         b.Navigation(l => l.History).UsePropertyAccessMode(PropertyAccessMode.Field).AutoInclude();
     }
@@ -77,6 +83,19 @@ internal sealed class LetterPhotoConfiguration : IEntityTypeConfiguration<Letter
         b.Property(p => p.Id).ValueGeneratedNever();
         b.Property(p => p.StorageKey).HasMaxLength(300).IsRequired();
         b.Property(p => p.OriginalFileName).HasMaxLength(255).IsRequired();
+    }
+}
+
+internal sealed class LetterDocumentConfiguration : IEntityTypeConfiguration<LetterDocument>
+{
+    public void Configure(EntityTypeBuilder<LetterDocument> b)
+    {
+        b.ToTable("LetterDocuments");
+        b.HasKey(d => d.Id);
+        b.Property(d => d.Id).ValueGeneratedNever();
+        b.Property(d => d.StorageKey).HasMaxLength(300).IsRequired();
+        b.Property(d => d.OriginalFileName).HasMaxLength(255).IsRequired();
+        b.Ignore(d => d.IsPdf);
     }
 }
 
@@ -132,6 +151,7 @@ internal sealed class PricingSettingsConfiguration : IEntityTypeConfiguration<Pr
             p.Property(x => x.BasePrice).HasColumnName("BasePrice").HasPrecision(10, 2);
             p.Property(x => x.ExtraPage).HasColumnName("ExtraPage").HasPrecision(10, 2);
             p.Property(x => x.Photo).HasColumnName("Photo").HasPrecision(10, 2);
+            p.Property(x => x.Document).HasColumnName("Document").HasPrecision(10, 2);
             p.Property(x => x.Postcard).HasColumnName("Postcard").HasPrecision(10, 2);
             p.Property(x => x.ColoredPaper).HasColumnName("ColoredPaper").HasPrecision(10, 2);
             p.Property(x => x.ColoredEnvelope).HasColumnName("ColoredEnvelope").HasPrecision(10, 2);

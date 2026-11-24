@@ -26,39 +26,7 @@
             <!-- SOL: form -->
             <div class="col-lg-6">
                 <div class="card mb-3">
-                    <div class="card-header fw-semibold">1. Alıcı</div>
-                    <div class="card-body">
-                        <div class="row g-2 mb-2">
-                            <div class="col-sm-7">
-                                <label asp-for="RecipientName" class="form-label small"></label>
-                                <input asp-for="RecipientName" class="form-control" />
-                            </div>
-                            <div class="col-sm-5">
-                                <label asp-for="RecipientType" class="form-label small"></label>
-                                <select asp-for="RecipientType" asp-items="Html.GetEnumSelectList<RecipientType>()" class="form-select"></select>
-                            </div>
-                        </div>
-                        <div class="mb-2" id="recipientDetailGroup">
-                            <label asp-for="RecipientDetail" class="form-label small" id="recipientDetailLabel"></label>
-                            <input asp-for="RecipientDetail" class="form-control" />
-                        </div>
-                        <partial name="_AddressFields" model="(nameof(Model.RecipientAddress), Model.RecipientAddress)" />
-                    </div>
-                </div>
-
-                <div class="card mb-3">
-                    <div class="card-header fw-semibold">2. Gönderen (iade adresi)</div>
-                    <div class="card-body">
-                        <div class="mb-2">
-                            <label asp-for="SenderName" class="form-label small"></label>
-                            <input asp-for="SenderName" class="form-control" />
-                        </div>
-                        <partial name="_AddressFields" model="(nameof(Model.SenderAddress), Model.SenderAddress)" />
-                    </div>
-                </div>
-
-                <div class="card mb-3">
-                    <div class="card-header fw-semibold">3. Mektubun</div>
+                    <div class="card-header fw-semibold">1. Mektubun</div>
                     <div class="card-body">
                         <textarea asp-for="Content" class="form-control letter-textarea" rows="14"
                                   placeholder="Sevgili ..., (emoji kullanabilirsiniz 😊)"></textarea>
@@ -70,7 +38,56 @@
                 </div>
 
                 <div class="card mb-3">
+                    <div class="card-header fw-semibold">2. Alıcı</div>
+                    <div class="card-body">
+                        <div class="row g-2 mb-2">
+                            <div class="col-sm-7">
+                                <label asp-for="RecipientName" class="form-label small"></label>
+                                <input asp-for="RecipientName" class="form-control" />
+                            </div>
+                            <div class="col-sm-5">
+                                <label asp-for="RecipientType" class="form-label small"></label>
+                                <select asp-for="RecipientType" asp-items="Html.GetEnumSelectList<RecipientType>()" class="form-select"></select>
+                            </div>
+                        </div>
+                        @* Asker: birlik bilgisi. Cezaevi: alan gizlidir ve seçilen kurumun adını taşır. *@
+                        <div class="mb-2" id="recipientDetailGroup">
+                            <label asp-for="RecipientDetail" class="form-label small">Birlik bilgisi (rütbe, birlik adı)</label>
+                            <input asp-for="RecipientDetail" class="form-control" />
+                        </div>
+                        <div class="row g-2 mb-2" id="inmateGroup">
+                            <div class="col-sm-7">
+                                <label asp-for="RecipientFatherName" class="form-label small"></label>
+                                <input asp-for="RecipientFatherName" class="form-control" autocomplete="off" />
+                            </div>
+                            <div class="col-sm-5">
+                                <label asp-for="RecipientWard" class="form-label small"></label>
+                                <input asp-for="RecipientWard" class="form-control" autocomplete="off" placeholder="Ör. B-12" />
+                            </div>
+                            <div class="col-12 form-text mt-1">
+                                💡 Zorunlu değil ama yazmanızı tavsiye ederiz: baba adı ve koğuş numarası, kurumun mektubu
+                                aynı adlı kişilerle karıştırmadan doğrudan alıcıya ulaştırmasını kolaylaştırır.
+                            </div>
+                        </div>
+                        <partial name="_AddressFields" model='new AddressFieldsModel(nameof(Model.RecipientAddress), Model.RecipientAddress,
+                            new PrisonPickerOptions(Model.RecipientType == RecipientType.Inmate, TypeSelector: "#RecipientType", DetailSelector: "#RecipientDetail"))' />
+                    </div>
+                </div>
+
+                <div class="card mb-3">
+                    <div class="card-header fw-semibold">3. Gönderen (iade adresi)</div>
+                    <div class="card-body">
+                        <div class="mb-2">
+                            <label asp-for="SenderName" class="form-label small"></label>
+                            <input asp-for="SenderName" class="form-control" />
+                        </div>
+                        <partial name="_AddressFields" model="new AddressFieldsModel(nameof(Model.SenderAddress), Model.SenderAddress)" />
+                    </div>
+                </div>
+
+                <div class="card mb-3">
                     <div class="card-header fw-semibold">4. Görünüm ve Ekstralar</div>
+                    @* Sıra: mektup, alıcı, gönderen, görünüm (mobil uygulamadaki adımlarla aynı). *@
                     <div class="card-body">
                         <div class="row g-2">
                             <div class="col-6">
@@ -134,12 +151,13 @@
                                 <span>Tahmini tutar <span class="text-muted small">(kart ile)</span></span>
                                 <strong id="estimate">—</strong>
                             </div>
-                            <div class="text-muted small">Fotoğraf: @Model.PhotoCount adet. Kesin tutar ödeme adımında gösterilir.</div>
+                            <div class="text-muted small">Fotoğraf: @Model.PhotoCount adet · Belge: @Model.DocumentCount adet. Kesin tutar ödeme adımında gösterilir.</div>
                             <div class="d-grid gap-2 mt-3">
                                 <button type="submit" name="next" value="checkout" class="btn btn-primary">Kaydet ve Ödemeye Geç</button>
+                                <button type="submit" name="next" value="save" class="btn btn-outline-secondary">Taslak Kaydet</button>
                                 <div class="d-flex gap-2">
-                                    <button type="submit" name="next" value="save" class="btn btn-outline-secondary flex-fill">Taslak Kaydet</button>
                                     <button type="submit" name="next" value="photos" class="btn btn-outline-secondary flex-fill">📷 Fotoğraf Ekle</button>
+                                    <button type="submit" name="next" value="documents" class="btn btn-outline-secondary flex-fill">📄 Belge Ekle</button>
                                 </div>
                             </div>
                         </div>
@@ -157,7 +175,11 @@
             prices: @Json.Serialize(prices),
             charsPerPage: @LetterPages.CharsPerPage,
             photoCount: @Model.PhotoCount,
-            postcardIcons: @Json.Serialize(postcardIcons.ToDictionary(k => ((int)k.Key).ToString(), v => v.Value))
+            documentCount: @Model.DocumentCount,
+            postcardIcons: @Json.Serialize(postcardIcons.ToDictionary(k => ((int)k.Key).ToString(), v => v.Value)),
+            // Yeni mektupta, alıcı türüne göre (cezaevi / asker) o türdeki son mektubun alıcı ve gönderen bilgileri.
+            isNew: @(Model.Id is null ? "true" : "false"),
+            prefills: @Json.Serialize(ViewBag.Prefills ?? new Dictionary<string, LetterPrefillDto>())
         };
     </script>
     <script src="~/js/letter-editor.js" asp-append-version="true"></script>

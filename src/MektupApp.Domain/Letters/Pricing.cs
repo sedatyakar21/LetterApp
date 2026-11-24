@@ -8,6 +8,8 @@ public sealed record PriceList
     public decimal BasePrice { get; init; } = 290m;     // 1 sayfa + zarf + posta
     public decimal ExtraPage { get; init; } = 30m;
     public decimal Photo { get; init; } = 20m;
+    /// <summary>Basılıp zarfa konan belge (adet başı).</summary>
+    public decimal Document { get; init; } = 25m;
     public decimal Postcard { get; init; } = 35m;
     public decimal ColoredPaper { get; init; } = 15m;
     public decimal ColoredEnvelope { get; init; } = 15m;
@@ -17,7 +19,7 @@ public sealed record PriceList
     public void Validate()
     {
         if (BasePrice <= 0) throw new DomainException("Temel fiyat sıfırdan büyük olmalıdır.");
-        if (new[] { ExtraPage, Photo, Postcard, ColoredPaper, ColoredEnvelope, Scent }.Any(p => p < 0))
+        if (new[] { ExtraPage, Photo, Document, Postcard, ColoredPaper, ColoredEnvelope, Scent }.Any(p => p < 0))
             throw new DomainException("Ek ücretler negatif olamaz.");
         if (MobilePaymentSurchargeRate is < 0 or > 1)
             throw new DomainException("Mobil ödeme farkı %0 ile %100 arasında olmalıdır.");
@@ -79,6 +81,9 @@ public sealed class LetterPricingPolicy
 
         if (letter.Photos.Count > 0)
             lines.Add(new($"Fotoğraf × {letter.Photos.Count}", new Money(prices.Photo) * letter.Photos.Count));
+
+        if (letter.Documents.Count > 0)
+            lines.Add(new($"Belge × {letter.Documents.Count}", new Money(prices.Document) * letter.Documents.Count));
 
         if (letter.Postcard is not null)
             lines.Add(new("Kartpostal", new Money(prices.Postcard)));

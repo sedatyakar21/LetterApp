@@ -29,7 +29,7 @@
 
     function estimate(pages) {
         const p = cfg.prices;
-        let total = p.basePrice + (pages - 1) * p.extraPage + cfg.photoCount * p.photo;
+        let total = p.basePrice + (pages - 1) * p.extraPage + cfg.photoCount * p.photo + (cfg.documentCount || 0) * p.document;
         if (field("PostcardCategory").value) total += p.postcard;
         if (field("Paper").value !== "0") total += p.coloredPaper;
         if (field("Envelope").value !== "0") total += p.coloredEnvelope;
@@ -37,15 +37,44 @@
         return total;
     }
 
+    // Asker: birlik bilgisi. Cezaevi: baba adı + koğuş (kurum adı gizli alanda, seçilen cezaevinden gelir).
     function updateRecipientDetail() {
         const type = field("RecipientType").value;
-        const group = $("recipientDetailGroup");
-        const label = $("recipientDetailLabel");
-        const input = field("RecipientDetail");
-        group.style.display = type === "0" ? "none" : "";
-        input.required = type !== "0";
-        label.textContent = type === "1" ? "Birlik bilgisi (rütbe, birlik adı)" : "Kurum ve koğuş bilgisi";
+        const soldier = type === "1", inmate = type === "2";
+        $("recipientDetailGroup").style.display = soldier ? "" : "none";
+        field("RecipientDetail").required = soldier;
+        // Baba adı ve koğuş isteğe bağlıdır (tavsiye edilir), bu yüzden required yapılmaz.
+        $("inmateGroup").style.display = inmate ? "" : "none";
     }
+
+    // ---------------- Önceki mektuptan doldurma ----------------
+    // Yeni mektupta cezaevi / asker seçilince o türdeki son mektubun alıcı ve gönderen bilgileri yazılır.
+    // Kullanıcı alıcı adını kendisi değiştirdiyse dokunulmaz.
+    let autoName = cfg.isNew && cfg.prefills[field("RecipientType").value] ? field("RecipientName").value : null;
+
+    async function applyPrefill() {
+        if (!cfg.isNew) return;
+        const name = field("RecipientName").value;
+        if (name && name !== autoName) return;
+        const p = cfg.prefills[field("RecipientType").value];
+        const set = (n, v) => { if (field(n)) field(n).value = v ?? ""; };
+        const picker = n => field(n + ".City")?.closest("[data-address-picker]");
+        const empty = { city: "", district: "", line: "", postalCode: "" };
+
+        set("RecipientName", p?.recipientName);
+        set("RecipientDetail", p?.recipientDetail);
+        set("RecipientFatherName", p?.recipientFatherName);
+        set("RecipientWard", p?.recipientWard);
+        autoName = p ? p.recipientName : null;
+        await window.addressPicker?.set(picker("RecipientAddress"), p ? p.recipientAddress : empty);
+        if (p) {
+            set("SenderName", p.senderName);
+            await window.addressPicker?.set(picker("SenderAddress"), p.senderAddress);
+        }
+        render();
+    }
+
+    field("RecipientType").addEventListener("change", applyPrefill);
 
     function updatePostcard() {
         const cat = field("PostcardCategory").value;

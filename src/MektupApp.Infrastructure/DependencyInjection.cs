@@ -43,6 +43,7 @@ public static class DependencyInjection
         services.AddScoped<MektupApp.Domain.Reviews.IBlogCommentRepository, BlogCommentRepository>();
         services.AddScoped<ILoyaltyAccountRepository, LoyaltyAccountRepository>();
         services.AddScoped<ILoyaltySettingsRepository, LoyaltySettingsRepository>();
+        services.AddScoped<MektupApp.Domain.Prisons.IPrisonRepository, PrisonRepository>();
 
         services.AddSingleton<IPasswordHasher, IdentityPasswordHasher>();
         AddNotifications(services, config);
@@ -154,6 +155,7 @@ public static class DependencyInjection
         await db.Database.MigrateAsync();
         await scope.ServiceProvider.GetRequiredService<PricingService>().EnsureInitializedAsync();
         await scope.ServiceProvider.GetRequiredService<LoyaltyService>().EnsureInitializedAsync();
+        await SeedPrisonsAsync(scope.ServiceProvider);
 
         var adminEmail = config["Seed:AdminEmail"];
         var adminPassword = config["Seed:AdminPassword"];
@@ -168,5 +170,21 @@ public static class DependencyInjection
         await db.SaveChangesAsync();
         scope.ServiceProvider.GetRequiredService<ILogger<AppDbContext>>()
             .LogInformation("Yönetici hesabı oluşturuldu: {Email}", adminEmail);
+    }
+
+    /// <summary>
+    /// Cezaevi tablosu boşsa Seed/cezaevleri.json'dan yükler (kaynak: cte.adalet.gov.tr, Kasım 2026).
+    /// Sonraki değişiklikler yönetim panelinden yapılır; dosya tekrar okunmaz.
+    /// </summary>
+    private static async Task SeedPrisonsAsync(IServiceProvider sp)
+    {
+        var path = Path.Combine(AppContext.BaseDirectory, "Seed", "cezaevleri.json");
+        if (!File.Exists(path)) return;
+        await using var stream = File.OpenRead(path);
+        var items = await System.Text.Json.JsonSerializer.DeserializeAsync<List<MektupApp.Application.Prisons.PrisonSeedItem>>(stream,
+            new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true }) ?? [];
+        var added = await sp.GetRequiredService<MektupApp.Application.Prisons.PrisonService>().SeedIfEmptyAsync(items);
+        if (added > 0)
+            sp.GetRequiredService<ILogger<AppDbContext>>().LogInformation("Cezaevi listesi yüklendi: {Count} kurum", added);
     }
 }

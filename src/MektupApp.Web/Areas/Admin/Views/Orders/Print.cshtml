@@ -1,47 +1,141 @@
-@model LetterDetailsDto
+@model IReadOnlyList<LetterDetailsDto>
 @{
-    ViewData["Title"] = "Yazdır";
+    // Baskıya özel sayfa: yönetim menüsü olmadan, A4 sayfalar halinde.
+    Layout = null;
+    var single = Model.Count == 1;
+    var title = single ? $"Yazdır — {Model[0].RecipientName}" : $"Yazdır — {Model.Count} sipariş";
+    string OrderNo(LetterDetailsDto l) => "#" + l.Id.ToString()[..8].ToUpperInvariant();
 }
-<div style="max-width: 820px">
-    <div class="no-print d-flex justify-content-between align-items-center mb-3">
-        <a asp-action="Details" asp-route-id="@Model.Id">← Sipariş</a>
-        <button class="btn btn-primary" onclick="window.print()">Yazdır</button>
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex" />
+    <title>@title | BiMektup Yönetim</title>
+    <link rel="icon" href="~/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Caveat:wght@500&family=Lora:ital,wght@0,400;0,600;0,700;1,400;1,600;1,700&display=swap">
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/order-print.css" asp-append-version="true" />
+</head>
+<body class="print-body">
+    <div class="print-toolbar no-print">
+        <div class="d-flex flex-wrap align-items-center gap-3">
+            <a href="@(single ? Url.Action("Details", new { id = Model[0].Id }) : Url.Action("Index"))" class="small">← @(single ? "Sipariş" : "Siparişler")</a>
+            <strong>@(single ? $"{Model[0].RecipientName} {OrderNo(Model[0])}" : $"{Model.Count} sipariş")</strong>
+            <span class="text-muted small">Basılacaklar:</span>
+            <label class="form-check form-check-inline mb-0"><input class="form-check-input" type="checkbox" data-part="label" checked /> Adres etiketi</label>
+            <label class="form-check form-check-inline mb-0"><input class="form-check-input" type="checkbox" data-part="letter" checked /> Mektup</label>
+            <label class="form-check form-check-inline mb-0"><input class="form-check-input" type="checkbox" data-part="photos" checked /> Fotoğraflar</label>
+            <label class="form-check form-check-inline mb-0"><input class="form-check-input" type="checkbox" data-part="documents" checked /> Belgeler</label>
+            <span class="ms-auto small" id="printStatus" role="status"></span>
+            <button type="button" class="btn btn-primary" id="printButton" disabled>🖨️ Yazdır</button>
+        </div>
+        <div class="small text-muted mt-1">
+            Her bölüm yeni sayfadan başlar. Renkli kâğıt seçilen mektuplarda arka plan basılmaz; yazıcıya o renkte kâğıt koyun.
+        </div>
     </div>
 
-    <div class="border rounded p-3 mb-4 bg-white">
-        <div class="row small">
-            <div class="col-6">
-                <div class="text-muted">GÖNDEREN</div>
-                <strong>@Model.SenderName</strong><br />
-                @Model.SenderAddress.Line<br />
-                @Model.SenderAddress.District / @Model.SenderAddress.City @Model.SenderAddress.PostalCode
-            </div>
-            <div class="col-6">
-                <div class="text-muted">ALICI</div>
-                <strong>@Model.RecipientName</strong><br />
-                @if (Model.RecipientDetail is not null) { @Model.RecipientDetail<br /> }
-                @Model.RecipientAddress.Line<br />
-                @Model.RecipientAddress.District / @Model.RecipientAddress.City @Model.RecipientAddress.PostalCode
-            </div>
-        </div>
-        <hr />
-        <div class="small no-print">
-            Zarf: <strong>@Model.Style.Envelope.DisplayName()</strong> ·
-            Koku: <strong>@Model.Scent.DisplayName()</strong> ·
-            Kartpostal: <strong>@(Model.Postcard is null ? "Yok" : $"{Model.Postcard.Category.DisplayName()} #{Model.Postcard.Design}")</strong> ·
-            Fotoğraf: <strong>@Model.Photos.Count</strong>
-        </div>
-    </div>
+    <main class="print-pages">
+        @foreach (var l in Model)
+        {
+            var photoCount = l.Photos.Count;
+            var docCount = l.Documents.Count;
 
-    <partial name="_LetterPaper" model="Model" />
+            @* 1. Adres etiketi ve zarf kontrol listesi *@
+            <section class="sheet part-label">
+                <div class="d-flex justify-content-between align-items-baseline mb-3">
+                    <div class="fs-5 fw-semibold">BiMektup · Sipariş @OrderNo(l)</div>
+                    <div class="small text-muted">@(l.TrackingCode is { } tc ? $"Takip: {tc}" : l.Status.DisplayName())</div>
+                </div>
+                <div class="row g-4">
+                    <div class="col-6">
+                        <div class="label-caption">GÖNDEREN</div>
+                        <div class="fw-semibold">@l.SenderName</div>
+                        <div>@l.SenderAddress.Line</div>
+                        <div>@l.SenderAddress.District / @l.SenderAddress.City @l.SenderAddress.PostalCode</div>
+                    </div>
+                    <div class="col-6">
+                        <div class="label-caption">ALICI</div>
+                        <div class="fs-5 fw-bold">@l.RecipientName</div>
+                        @if (l.RecipientNote is not null) { <div>@l.RecipientNote</div> }
+                        @if (l.RecipientDetail is not null) { <div>@l.RecipientDetail</div> }
+                        <div>@l.RecipientAddress.Line</div>
+                        <div class="fw-semibold">@l.RecipientAddress.District / @l.RecipientAddress.City @l.RecipientAddress.PostalCode</div>
+                    </div>
+                </div>
+                <hr />
+                <div class="label-caption mb-1">ZARFA KONACAKLAR</div>
+                <ul class="checklist">
+                    <li>Mektup — @l.PageCount sayfa · @l.Style.Paper.DisplayName() kâğıt · @l.Style.Font.DisplayName() / @l.Style.Ink.DisplayName()</li>
+                    @if (photoCount > 0) { <li>Fotoğraf × @photoCount</li> }
+                    @if (docCount > 0) { <li>Belge × @docCount: @string.Join(", ", l.Documents.Select(d => d.OriginalFileName))</li> }
+                    @if (l.Postcard is not null) { <li>Kartpostal: @l.Postcard.Category.DisplayName() #@l.Postcard.Design</li> }
+                    @if (l.Scent != Scent.None) { <li>Koku: @l.Scent.DisplayName()</li> }
+                    <li>Zarf: @l.Style.Envelope.DisplayName()</li>
+                </ul>
+            </section>
 
-    @if (Model.Photos.Count > 0)
-    {
-        <div class="d-flex flex-wrap gap-3 mt-4">
-            @foreach (var p in Model.Photos)
+            @* 2. Mektup (uzunsa kendiliğinden birden çok sayfaya taşar) *@
+            <section class="sheet part-letter">
+                @* Mektubun ilk sayfasının üstü: solda gönderen, sağda alıcı. *@
+                <div class="letter-head">
+                    <div class="letter-head-from">
+                        <div class="label-caption">GÖNDEREN</div>
+                        <div class="fw-semibold">@l.SenderName</div>
+                        <div>@l.SenderAddress.Line</div>
+                        <div>@l.SenderAddress.District / @l.SenderAddress.City @l.SenderAddress.PostalCode</div>
+                    </div>
+                    <div class="letter-head-to">
+                        <div class="label-caption">ALICI</div>
+                        <div class="fw-semibold">@l.RecipientName</div>
+                        @if (l.RecipientNote is not null) { <div>@l.RecipientNote</div> }
+                        @if (l.RecipientDetail is not null) { <div>@l.RecipientDetail</div> }
+                        <div>@l.RecipientAddress.Line</div>
+                        <div>@l.RecipientAddress.District / @l.RecipientAddress.City @l.RecipientAddress.PostalCode</div>
+                    </div>
+                </div>
+                @* Baskıda imza satırı yok; yerine her sayfanın altında ortada "[gönderen → alıcı]".
+                   Uzun mektuplar order-print.js tarafından A4 sayfalara bölünür (başlık yalnızca ilk sayfada). *@
+                <div class="letter-body">
+                    <div class="paper paper-@l.Style.Paper font-@l.Style.Font ink-@l.Style.Ink">
+                        <div class="paper-content">@l.Content</div>
+                    </div>
+                </div>
+                <div class="letter-foot">[@l.SenderName → @l.RecipientName]</div>
+            </section>
+
+            @* 3. Fotoğraflar: her biri ayrı sayfada, sayfaya sığdırılarak *@
+            @foreach (var p in l.Photos)
             {
-                <img src="@Url.Action("Photo", "Letters", new { area = "", id = Model.Id, photoId = p.Id })" style="max-width: 48%" alt="@p.OriginalFileName" />
+                <section class="sheet part-photos sheet-image">
+                    <img src="@Url.Action("Photo", "Letters", new { area = "", id = l.Id, photoId = p.Id })" alt="@p.OriginalFileName" data-wait />
+                </section>
             }
-        </div>
-    }
-</div>
+
+            @* 4. Belgeler: görseller doğrudan; PDF'lerin her sayfası tarayıcıda görüntüye çevrilip eklenir *@
+            @foreach (var d in l.Documents)
+            {
+                var url = Url.Action("Document", "Letters", new { area = "", id = l.Id, documentId = d.Id });
+                if (d.IsPdf)
+                {
+                    <section class="sheet part-documents pdf-placeholder" data-pdf="@url" data-name="@d.OriginalFileName">
+                        <div class="text-muted small">📄 @d.OriginalFileName hazırlanıyor…</div>
+                    </section>
+                }
+                else
+                {
+                    <section class="sheet part-documents sheet-image">
+                        <img src="@url" alt="@d.OriginalFileName" data-wait />
+                    </section>
+                }
+            }
+        }
+    </main>
+
+    <script src="~/lib/pdfjs/pdf.min.js"></script>
+    <script>window.pdfWorkerSrc = "@Url.Content("~/lib/pdfjs/pdf.worker.min.js")";</script>
+    <script src="~/js/order-print.js" asp-append-version="true"></script>
+</body>
+</html>

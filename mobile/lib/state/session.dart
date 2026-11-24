@@ -19,6 +19,7 @@ class Session extends ChangeNotifier {
 
   SessionStatus status = SessionStatus.loading;
   AppSettings? settings;
+  Locations locations = Locations.empty;
   Me? me;
   String? message;
 
@@ -28,7 +29,9 @@ class Session extends ChangeNotifier {
   Future<void> start() async {
     _set(SessionStatus.loading);
     try {
-      settings = await api.config();
+      final results = await Future.wait([api.config(), api.locations()]);
+      settings = results[0] as AppSettings;
+      locations = results[1] as Locations;
       await api.client.restoreSession();
       if (api.client.hasSession) {
         me = await api.me();

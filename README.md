@@ -111,6 +111,59 @@ Canlı ortamda ortam değişkeni adları `Authentication__Google__ClientId` ve `
 
 **Anahtar yoksa:** geliştirme ortamında Google yerine simülasyon sayfası (`/giris/google/simulasyon`) açılır; buradan ad, e-posta ve "e-posta doğrulandı" bilgisi seçilerek akış denenebilir. Canlı ortamda anahtar yoksa buton hiç gösterilmez ve simülasyon sayfası kapalıdır.
 
+### Adres formu: il / ilçe listeleri
+
+Mektup formunda (alıcı ve gönderen) ve "adres değiştir" ekranında il ve ilçe açılır listeden seçilir; yeni mektupta alıcı türü varsayılan olarak **Cezaevi** gelir.
+
+- Veri: `src/MektupApp.Web/wwwroot/data/il-ilce.json` (81 il, 973 ilçe). Liste Türkçe alfabeye göre sıralanır (`TurkeyLocations`); mobil uygulama aynı veriyi `/api/mobile/locations` üzerinden alır.
+- Site: listeler sunucuda doldurulur, il değişince ilçeler `wwwroot/js/address-picker.js` ile yenilenir. Mobilde il ve ilçe aramalı seçim ekranından seçilir.
+- Eski kayıtlar: Türkçe karaktersiz yazılmış değerler listedeki yazıma eşlenir ("Istanbul / Kadikoy" → "İstanbul / Kadıköy"). Listede hiç olmayan bir değer silinmez, seçili ek seçenek olarak kalır.
+- Yeni ilçe kurulursa yalnızca JSON dosyasını güncellemek yeterlidir.
+
+### Cezaevi seçimi
+
+Mektup formunda alıcı türü **Cezaevi** iken (yeni mektupta varsayılan) il listesinin adı "Alıcı Cezaevi" olur. İl seçilince o ilin cezaevleri ayrı bir listede gösterilir. Kurum seçilince şunlar otomatik dolar:
+- ilçe,
+- adres,
+- adreste geçiyorsa gizli posta kodu,
+- kurum adı (gizli alanda saklanır; zarfa ve PTT kaydına basılır).
+
+Kurum seçiliyken ilçe ve adres **düzenlenemez**. Listede olmayan kurumlar için "Listede yok, adresi elle gireceğim" seçeneği vardır; seçilince alanlar açılır. Aynı seçim mektup detayındaki "adres değiştir" ekranında ve mobil uygulamada da vardır.
+
+- **Alıcı bilgileri:**
+  - Cezaevi alıcısında **baba adı** ve **koğuş numarası** isteğe bağlıdır ama formda tavsiye notuyla istenir (`Recipient.FatherName`, `Recipient.Ward`; migration: `RecipientFatherNameWard`).
+  - Girilenler zarfta, baskı sayfasında ve PTT kaydında "Baba adı: … · Koğuş: …" olarak yazılır; boşsa satır hiç yazılmaz.
+  - Asker alıcısında birlik bilgisi zorunludur.
+- **Önceki mektuptan doldurma:** Yeni mektupta alıcı türü cezaevi veya asker iken, müşterinin o türdeki son mektubunun alıcı ve gönderen bilgileri forma hazır gelir; adres ve kurum da buna dahildir. Tür değiştirilince o türün son mektubu yüklenir. Kullanıcı alıcı adını kendisi değiştirdiyse form ezilmez. Mobil: `GET /api/mobile/letters/prefill?type=Inmate`.
+
+- **Veri:** `Prisons` tablosu (migration: `Prisons`), yönetim → 🏛️ **Cezaevleri** ekranından eklenir, düzenlenir, pasifleştirilir. Pasif kurumlar formda listelenmez.
+- **Başlangıç verisi:** `src/MektupApp.Infrastructure/Seed/cezaevleri.json`. Tablo boşsa açılışta bir kez yüklenir.
+  - Kaynak: Ceza ve Tevkifevleri Genel Müdürlüğü sitesi (`cte.adalet.gov.tr`, harita sayfasındaki il bazlı kurum bilgileri), Kasım 2026.
+  - İçerik: 80 ilde 465 kurum. Siirt için sitede kayıt yok.
+  - Eksikler: 22 kurumun kaynakta adresi yok; 6 kurumun ilçesi belirlenemedi. Panelde "adresi eksik" olarak işaretlenir ve formda adresi doldurmaz.
+  - **Yayından önce adresleri kontrol edin;** resmi kaynak eski olabilir.
+- **API:** `GET /api/mobile/prisons?city=Ankara` (giriş gerektirmez); hem site formu hem mobil uygulama kullanır.
+- **Form sırası:** "Mektup Yaz"da ilk adım mektup metnidir (sitede ve mobilde): Mektup → Alıcı → Gönderen → Görünüm.
+
+### Belge ekleme
+
+Dilekçe, vekaletname, okul belgesi gibi evraklar mektuba eklenir; basılıp mektupla aynı zarfa konur.
+
+- **Nereden:** mektup detay sayfasındaki "Belgeler" kartı (sitede ve mobilde). Mobilde dosya seçilir veya kâğıt belgenin fotoğrafı çekilir.
+- **Kurallar:** PDF, JPG veya PNG; en fazla 10 MB; mektup başına en fazla 5 belge (`Letter.MaxDocuments`). Yalnızca taslakta eklenip kaldırılabilir.
+- **Güvenlik:** dosyanın ilk baytları uzantısıyla karşılaştırılır (`DocumentSignature`); adı .pdf yapılmış HTML veya program dosyası reddedilir. Dosya `nosniff` ile, yalnızca sahibine ve yöneticiye sunulur.
+- **Ücret:** belge başı, varsayılan 25 ₺ (`Pricing:Document`); yönetim panelindeki Fiyatlar sayfasından değiştirilir. Ödeme özetinde "Belge × n" satırı olarak görünür.
+- **Basım:** yönetici sipariş detayında belgeleri listeler; baskı sayfası aşağıda.
+
+### Sipariş yazdırma (`/yonetim/Orders/Print`)
+
+- **Nereden:** sipariş detayındaki "🖨️ Yazdır", sipariş listesinde her satırdaki 🖨️ veya listede seçilenler için "Seçilenleri: 🖨️ Yazdır" (her sekmede; en fazla 50 sipariş).
+- **Her sipariş için sırayla:** adres etiketi ve "zarfa konacaklar" kontrol listesi → mektup → fotoğraflar (her biri ayrı sayfada, sayfaya sığdırılmış) → belgeler. Her bölüm yeni A4 sayfadan başlar.
+- **PDF belgeler:** tarayıcıda pdf.js (`wwwroot/lib/pdfjs`, 3.11.174) ile her sayfası görüntüye çevrilip baskıya eklenir; hepsi hazır olunca "Yazdır" düğmesi açılır. Kötü niyetli PDF'lere karşı `isEvalSupported: false` ile çalışır (CVE-2024-4367). Hazırlanamayan PDF için bağlantı ve "ayrıca yazdırın" uyarısı çıkar.
+- **Seçim:** üstteki kutucuklarla adres etiketi / mektup / fotoğraflar / belgeler ayrı ayrı açılıp kapatılır; seçim tarayıcıda hatırlanır.
+- **Renkli kâğıt:** arka plan rengi basılmaz; yazıcıya o renkte kâğıt konur (kontrol listesinde yazar).
+- **Veritabanı:** `LetterDocuments` tablosu ve `PricingSettings.Document` sütunu (migration: `LetterDocuments`).
+
 ### Mobil uygulama (Flutter · iOS ve Android)
 
 `mobile/` klasöründeki Flutter uygulaması, sitenin üye tarafındaki işlevlerini telefona taşır.
@@ -120,6 +173,7 @@ Canlı ortamda ortam değişkeni adları `Authentication__Google__ClientId` ve `
   - **Mektuplarım:** liste, detay, durum geçmişi, takip no, iptal, adres değişikliği ve taslak silme.
   - **Mektup Yaz:** 5 adım. Alıcı, kâğıt renginde canlı önizlemeli mektup, görünüm ve ekstralar, gönderen, tahmini tutarlı özet.
   - **Fotoğraf:** galeriden veya kameradan eklenir.
+  - **Belge:** dosyalardan (PDF, JPG, PNG) seçilir veya kamerayla çekilir. Görsel belgeler uygulamada önizlenir; PDF'ler yalnızca listelenir.
   - **Ödeme:** kart veya mobil ödeme, MektupPuan, kupon kodu, kampanya indirimi.
   - **Kampanyalar**, **Gönderi takibi**, teslim edilen mektuba **yorum**.
   - **Hesabım:** MektupPuan hareketleri, referans no, doğum tarihi, WhatsApp destek.

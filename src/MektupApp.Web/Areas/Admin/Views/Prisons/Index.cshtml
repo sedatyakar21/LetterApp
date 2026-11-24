@@ -1,0 +1,62 @@
+@model MektupApp.Web.Areas.Admin.Controllers.PrisonsIndexViewModel
+@inject MektupApp.Web.Infrastructure.TurkeyLocations Locations
+@{
+    ViewData["Title"] = "Cezaevleri";
+    var incomplete = Model.Items.Count(p => p.IsActive && (string.IsNullOrEmpty(p.District) || string.IsNullOrEmpty(p.AddressLine)));
+}
+
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-1">
+    <h1 class="h4 mb-0">Cezaevleri</h1>
+    <a class="btn btn-sm btn-primary" asp-action="Create" asp-route-il="@Model.City">+ Yeni Kurum</a>
+</div>
+<p class="small text-muted mb-3">
+    Alıcı türü "Cezaevi" seçilen mektuplarda il seçilince bu liste gösterilir; kurum seçilince ilçe ve adres otomatik dolar.
+    Başlangıç verisi Ceza ve Tevkifevleri Genel Müdürlüğü sitesinden (cte.adalet.gov.tr) alınmıştır; adresleri yayından önce kontrol edin.
+</p>
+
+<form method="get" class="d-flex flex-wrap gap-2 mb-3">
+    <select name="il" class="form-select form-select-sm" style="max-width: 220px" onchange="this.form.submit()" aria-label="İl">
+        <option value="">Tüm iller</option>
+        @foreach (var p in Locations.Provinces)
+        {
+            <option value="@p.Name" selected="@(p.Name == Model.City)">@p.Name</option>
+        }
+    </select>
+    <input type="search" name="q" value="@Model.Query" class="form-control form-control-sm" style="max-width: 260px" placeholder="Kurum adı / adres ara" aria-label="Ara" />
+    <button class="btn btn-sm btn-outline-secondary">Ara</button>
+</form>
+
+<div class="small text-muted mb-2">
+    @Model.Items.Count kurum
+    @if (incomplete > 0)
+    {
+        <span class="badge bg-warning text-dark ms-1" title="İlçesi veya adresi eksik olan aktif kurumlar formda adresi dolduramaz">@incomplete adresi eksik</span>
+    }
+</div>
+
+<div class="admin-card overflow-hidden">
+    <div class="table-responsive">
+        <table class="table table-admin table-hover mb-0">
+            <thead><tr><th>Kurum</th><th>İl / İlçe</th><th>Adres</th><th>Durum</th></tr></thead>
+            <tbody>
+                @foreach (var p in Model.Items)
+                {
+                    var missing = string.IsNullOrEmpty(p.District) || string.IsNullOrEmpty(p.AddressLine);
+                    <tr>
+                        <td><a asp-action="Edit" asp-route-id="@p.Id" class="fw-semibold">@p.Name</a></td>
+                        <td class="small text-nowrap">@p.City / @(string.IsNullOrEmpty(p.District) ? "—" : p.District)</td>
+                        <td class="small">
+                            @(string.IsNullOrEmpty(p.AddressLine) ? "—" : p.AddressLine) @p.PostalCode
+                            @if (missing) { <span class="badge bg-warning text-dark ms-1">eksik</span> }
+                        </td>
+                        <td>@if (p.IsActive) { <span class="badge bg-success">Aktif</span> } else { <span class="badge bg-secondary">Pasif</span> }</td>
+                    </tr>
+                }
+                @if (Model.Items.Count == 0)
+                {
+                    <tr><td colspan="4" class="text-center text-muted py-4">Kayıt yok.</td></tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

@@ -11,7 +11,7 @@
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>Mektubunuza fotoğraf eklemek için galerinize erişmemiz gerekiyor.</string>
 	<key>NSCameraUsageDescription</key>
-	<string>Mektubunuza eklemek üzere fotoğraf çekmek için kameranıza erişmemiz gerekiyor.</string>
+	<string>Mektubunuza eklemek üzere fotoğraf veya belge çekmek için kameranıza erişmemiz gerekiyor.</string>
 	<key>NSAppTransportSecurity</key>
 	<dict>
 		<key>NSAllowsLocalNetworking</key>

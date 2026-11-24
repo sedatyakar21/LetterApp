@@ -39,10 +39,11 @@
                 <div class="card-header fw-semibold">Özet</div>
                 <ul class="list-group list-group-flush small">
                     <li class="list-group-item"><strong>Alıcı:</strong> @Model.RecipientName (@Model.RecipientType.DisplayName())
+                        @if (Model.RecipientNote is not null) { <br /><span class="text-muted">@Model.RecipientNote</span> }
                         @if (Model.RecipientDetail is not null) { <br /><span class="text-muted">@Model.RecipientDetail</span> }
                         <br />@Model.RecipientAddress.Line, @Model.RecipientAddress.District / @Model.RecipientAddress.City @Model.RecipientAddress.PostalCode
                     </li>
-                    <li class="list-group-item"><strong>Sayfa:</strong> @Model.PageCount · <strong>Fotoğraf:</strong> @Model.Photos.Count</li>
+                    <li class="list-group-item"><strong>Sayfa:</strong> @Model.PageCount · <strong>Fotoğraf:</strong> @Model.Photos.Count · <strong>Belge:</strong> @Model.Documents.Count</li>
                     <li class="list-group-item">
                         <strong>Kağıt / Zarf:</strong> @Model.Style.Paper.DisplayName() / @Model.Style.Envelope.DisplayName() ·
                         <strong>Koku:</strong> @Model.Scent.DisplayName() ·
@@ -122,6 +123,43 @@
                 </div>
             </div>
 
+            <div class="card mb-3" id="documents">
+                <div class="card-header fw-semibold">Belgeler (@Model.Documents.Count / @Letter.MaxDocuments)</div>
+                <div class="card-body">
+                    <p class="small text-muted mb-2">Dilekçe, vekaletname, okul belgesi gibi evraklar basılıp mektubunuzla aynı zarfa konur.</p>
+                    @if (Model.Documents.Count == 0)
+                    {
+                        <div class="text-muted small mb-2">Belge eklenmemiş.</div>
+                    }
+                    else
+                    {
+                        <ul class="list-group list-group-flush mb-2">
+                            @foreach (var d in Model.Documents)
+                            {
+                                <li class="list-group-item px-0 d-flex justify-content-between align-items-center gap-2">
+                                    <a class="text-truncate" target="_blank" rel="noopener"
+                                       href="@Url.Action("Document", new { id = Model.Id, documentId = d.Id })">@(d.IsPdf ? "📄" : "🖼️") @d.OriginalFileName</a>
+                                    @if (Model.IsEditable)
+                                    {
+                                        <form asp-action="RemoveDocument" asp-route-id="@Model.Id" asp-route-documentId="@d.Id" method="post">
+                                            <button class="btn btn-link btn-sm text-danger p-0" type="submit">Kaldır</button>
+                                        </form>
+                                    }
+                                </li>
+                            }
+                        </ul>
+                    }
+                    @if (Model.IsEditable && Model.Documents.Count < Letter.MaxDocuments)
+                    {
+                        <form asp-action="AddDocument" asp-route-id="@Model.Id" method="post" enctype="multipart/form-data" class="d-flex gap-2">
+                            <input type="file" name="document" accept=".pdf,.jpg,.jpeg,.png,application/pdf,image/jpeg,image/png" class="form-control form-control-sm" required />
+                            <button class="btn btn-sm btn-outline-primary" type="submit">Yükle</button>
+                        </form>
+                        <div class="form-text">PDF, JPG veya PNG · en fazla 10 MB · belge başı ücretlidir</div>
+                    }
+                </div>
+            </div>
+
             @if (Model.Status == LetterStatus.Delivered)
             {
                 var review = ViewBag.Review as MektupApp.Application.Reviews.ReviewDto;
@@ -170,7 +208,8 @@
                     <div class="card-body">
                         <p class="small text-muted">Mektubunuz postaya verilene kadar adresi değiştirebilirsiniz.</p>
                         <form asp-action="ChangeAddress" asp-route-id="@Model.Id" method="post">
-                            <partial name="_AddressFields" model='("address", AddressInput.From(Model.RecipientAddress))' />
+                            <partial name="_AddressFields" model='new AddressFieldsModel("address", AddressInput.From(Model.RecipientAddress),
+                                Model.RecipientType == RecipientType.Inmate ? new PrisonPickerOptions(true) : null)' />
                             <button class="btn btn-sm btn-outline-primary mt-2" type="submit">Adresi Güncelle</button>
                         </form>
                     </div>

@@ -62,14 +62,27 @@ public sealed class AddressInput
     [Required(ErrorMessage = "İl zorunludur."), StringLength(60), Display(Name = "İl")]
     public string City { get; set; } = string.Empty;
 
-    [Required(ErrorMessage = "Posta kodu zorunludur."), RegularExpression(@"^\d{5}$", ErrorMessage = "Posta kodu 5 haneli olmalıdır.")]
+    /// <summary>İsteğe bağlı; formda şimdilik gizli (kayıtlı değer gizli alanda korunur).</summary>
+    [RegularExpression(@"^\d{5}$", ErrorMessage = "Posta kodu 5 haneli olmalıdır.")]
     [Display(Name = "Posta Kodu")]
-    public string PostalCode { get; set; } = string.Empty;
+    public string? PostalCode { get; set; }
 
-    public AddressDto ToDto() => new(Line, District, City, PostalCode);
+    public AddressDto ToDto() => new(Line, District, City, PostalCode ?? string.Empty);
 
     public static AddressInput From(AddressDto a) =>
         new() { Line = a.Line, District = a.District, City = a.City, PostalCode = a.PostalCode };
+}
+
+/// <summary>_AddressFields parçasının modeli.</summary>
+/// <param name="Prison">Alıcı adresinde cezaevi seçimi (yalnızca alıcı adresi için; gönderende null).</param>
+public sealed record AddressFieldsModel(string Prefix, AddressInput Address, PrisonPickerOptions? Prison = null);
+
+/// <param name="TypeSelector">Alıcı türü açılır listesinin CSS seçicisi (değişince cezaevi listesi gösterilir / gizlenir); yoksa IsInmate sabittir.</param>
+/// <param name="InmateValue">"Cezaevi" seçeneğinin değeri.</param>
+/// <param name="DetailSelector">Kurum adının yazılacağı "Kurum ve koğuş bilgisi" alanı (boşsa doldurulur).</param>
+public sealed record PrisonPickerOptions(bool IsInmate, string? TypeSelector = null, string? DetailSelector = null)
+{
+    public string InmateValue => ((int)RecipientType.Inmate).ToString();
 }
 
 /// <summary>"Mektup Yaz" formu. Hem yeni taslak hem düzenleme için kullanılır.</summary>
@@ -85,11 +98,19 @@ public sealed class LetterFormViewModel
     [Required(ErrorMessage = "Alıcı adı zorunludur."), StringLength(100), Display(Name = "Alıcı Ad Soyad")]
     public string RecipientName { get; set; } = string.Empty;
 
+    /// <summary>Yeni mektupta varsayılan alıcı türü cezaevidir (müşterilerin çoğu cezaevine yazıyor).</summary>
     [Display(Name = "Alıcı Türü")]
-    public RecipientType RecipientType { get; set; }
+    public RecipientType RecipientType { get; set; } = RecipientType.Inmate;
 
+    /// <summary>Asker: birlik bilgisi (formda görünür). Cezaevi: kurum adı (seçilen cezaevinden gelir, gizli alan).</summary>
     [StringLength(200), Display(Name = "Ek Bilgi")]
     public string? RecipientDetail { get; set; }
+
+    [StringLength(Recipient.FatherNameMax), Display(Name = "Alıcının baba adı")]
+    public string? RecipientFatherName { get; set; }
+
+    [StringLength(Recipient.WardMax), Display(Name = "Koğuş numarası")]
+    public string? RecipientWard { get; set; }
 
     public AddressInput RecipientAddress { get; set; } = new();
 
@@ -106,10 +127,26 @@ public sealed class LetterFormViewModel
 
     public int PhotoCount { get; set; }
 
+    public int DocumentCount { get; set; }
+
     public SaveLetterCommand ToCommand(Guid customerId) => new(
         Id, customerId, SenderName, SenderAddress.ToDto(),
         RecipientName, RecipientType, RecipientDetail, RecipientAddress.ToDto(),
-        Content, Paper, Envelope, Font, Ink, Scent, PostcardCategory, PostcardDesign);
+        Content, Paper, Envelope, Font, Ink, Scent, PostcardCategory, PostcardDesign,
+        RecipientFatherName, RecipientWard);
+
+    /// <summary>Aynı türdeki son mektubun alıcı / gönderen bilgilerini forma yazar (yeni mektupta).</summary>
+    public void ApplyPrefill(LetterPrefillDto p)
+    {
+        RecipientType = p.RecipientType;
+        RecipientName = p.RecipientName;
+        RecipientDetail = p.RecipientDetail;
+        RecipientFatherName = p.RecipientFatherName;
+        RecipientWard = p.RecipientWard;
+        RecipientAddress = AddressInput.From(p.RecipientAddress);
+        SenderName = p.SenderName;
+        SenderAddress = AddressInput.From(p.SenderAddress);
+    }
 
     public static LetterFormViewModel From(LetterDetailsDto d) => new()
     {
@@ -119,6 +156,8 @@ public sealed class LetterFormViewModel
         RecipientName = d.RecipientName,
         RecipientType = d.RecipientType,
         RecipientDetail = d.RecipientDetail,
+        RecipientFatherName = d.RecipientFatherName,
+        RecipientWard = d.RecipientWard,
         RecipientAddress = AddressInput.From(d.RecipientAddress),
         Content = d.Content,
         Paper = d.Style.Paper,
@@ -128,7 +167,8 @@ public sealed class LetterFormViewModel
         Scent = d.Scent,
         PostcardCategory = d.Postcard?.Category,
         PostcardDesign = d.Postcard?.Design,
-        PhotoCount = d.Photos.Count
+        PhotoCount = d.Photos.Count,
+        DocumentCount = d.Documents.Count
     };
 }
 

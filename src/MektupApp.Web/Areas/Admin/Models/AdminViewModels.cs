@@ -56,6 +56,10 @@ public sealed class PricingFormViewModel
     public decimal Photo { get; set; }
 
     [Range(0, 100000, ErrorMessage = "Geçerli bir tutar girin.")]
+    [Display(Name = "Belge (adet başı)")]
+    public decimal Document { get; set; }
+
+    [Range(0, 100000, ErrorMessage = "Geçerli bir tutar girin.")]
     [Display(Name = "Kartpostal")]
     public decimal Postcard { get; set; }
 
@@ -83,6 +87,7 @@ public sealed class PricingFormViewModel
         BasePrice = BasePrice,
         ExtraPage = ExtraPage,
         Photo = Photo,
+        Document = Document,
         Postcard = Postcard,
         ColoredPaper = ColoredPaper,
         ColoredEnvelope = ColoredEnvelope,
@@ -95,6 +100,7 @@ public sealed class PricingFormViewModel
         BasePrice = p.BasePrice,
         ExtraPage = p.ExtraPage,
         Photo = p.Photo,
+        Document = p.Document,
         Postcard = p.Postcard,
         ColoredPaper = p.ColoredPaper,
         ColoredEnvelope = p.ColoredEnvelope,

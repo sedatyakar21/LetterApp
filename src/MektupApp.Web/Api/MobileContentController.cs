@@ -32,6 +32,8 @@ public sealed record MobileConfigDto(
     int PostcardDesignsPerCategory,
     int MaxPhotos,
     long MaxPhotoBytes,
+    int MaxDocuments,
+    long MaxDocumentBytes,
     int MaxContentLength,
     int CharsPerPage,
     int CharsPerLineBreak,
@@ -80,12 +82,26 @@ public sealed class MobileContentController(
             await pricing.GetCurrentAsync(ct),
             Options<RecipientType>(), Options<PaperColor>(), Options<EnvelopeColor>(), Options<LetterFont>(),
             Options<InkColor>(), Options<Scent>(), Options<PostcardCategory>(), Options<AcquisitionChannel>(),
-            Postcard.DesignsPerCategory, Letter.MaxPhotos, LetterService.MaxPhotoBytes, Letter.MaxContentLength,
+            Postcard.DesignsPerCategory, Letter.MaxPhotos, LetterService.MaxPhotoBytes,
+            Letter.MaxDocuments, LetterService.MaxDocumentBytes, Letter.MaxContentLength,
             LetterPages.CharsPerPage, LetterPages.CharsPerLineBreak, AccountService.MinPasswordLength,
             (await loyalty.GetSettingsAsync(ct)).IsEnabled,
             paymentProvider.SupportsMobilePayment, paymentProvider.IsSimulation,
             new SupportDto(s.WhatsAppEnabled ? s.Digits : null, s.WhatsAppDisplay, s.Email, s.Hours));
     }
+
+    /// <summary>81 il ve ilçeleri (adres formundaki açılır listeler için), Türkçe alfabeye göre sıralı.</summary>
+    [HttpGet("locations")]
+    [ResponseCache(Duration = 86400, Location = ResponseCacheLocation.Any)]
+    public IReadOnlyList<Province> Locations([FromServices] TurkeyLocations locations) => locations.Provinces;
+
+    /// <summary>İlin aktif cezaevleri (alıcı türü "Cezaevi" iken adres otomatik doldurmak için). Sitedeki form da kullanır.</summary>
+    [HttpGet("prisons")]
+    public Task<IReadOnlyList<MektupApp.Application.Prisons.PrisonOptionDto>> Prisons(string? city,
+        [FromServices] MektupApp.Application.Prisons.PrisonService prisons, [FromServices] TurkeyLocations locations,
+        CancellationToken ct) =>
+        // "Istanbul" gibi yazımlar da listedeki il adına çevrilir.
+        prisons.ListForCityAsync(locations.Find(city)?.Name ?? city, ct);
 
     [HttpGet("campaigns")]
     public async Task<IReadOnlyList<CampaignCardApiDto>> Campaigns(CancellationToken ct) =>

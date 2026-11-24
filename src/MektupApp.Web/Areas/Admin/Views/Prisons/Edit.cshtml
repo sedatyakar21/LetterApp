@@ -1,0 +1,84 @@
+@model MektupApp.Web.Areas.Admin.Controllers.PrisonForm
+@inject MektupApp.Web.Infrastructure.TurkeyLocations Locations
+@{
+    var isNew = Model.Id is null;
+    ViewData["Title"] = isNew ? "Yeni Kurum" : Model.Name;
+    var province = Locations.Find(Model.City);
+    var districts = province?.Districts ?? [];
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="h4 mb-0">@(isNew ? "Yeni Kurum" : "Kurumu Düzenle")</h1>
+    <a asp-action="Index" asp-route-il="@Model.City" class="small">← Cezaevleri</a>
+</div>
+
+<form method="post" class="admin-card p-3" style="max-width: 760px">
+    <div asp-validation-summary="ModelOnly" class="alert alert-danger py-2"></div>
+    <div class="mb-3">
+        <label asp-for="Name" class="form-label small"></label>
+        <input asp-for="Name" class="form-control" />
+        <span asp-validation-for="Name" class="text-danger small"></span>
+    </div>
+    <div class="row g-2 mb-3" data-address-picker>
+        <div class="col-sm-6">
+            <label asp-for="City" class="form-label small"></label>
+            <select asp-for="City" class="form-select" data-address-city required>
+                <option value="">İl seçin</option>
+                @foreach (var p in Locations.Provinces)
+                {
+                    <option value="@p.Name" selected="@(p.Name == province?.Name)">@p.Name</option>
+                }
+            </select>
+            <span asp-validation-for="City" class="text-danger small"></span>
+        </div>
+        <div class="col-sm-6">
+            <label asp-for="District" class="form-label small"></label>
+            <select asp-for="District" class="form-select" data-address-district>
+                <option value="">İlçe seçin</option>
+                @if (!string.IsNullOrEmpty(Model.District) && !districts.Contains(Model.District))
+                {
+                    <option value="@Model.District" selected>@Model.District</option>
+                }
+                @foreach (var d in districts)
+                {
+                    <option value="@d" selected="@(d == Model.District)">@d</option>
+                }
+            </select>
+        </div>
+    </div>
+    <div class="mb-3">
+        <label asp-for="AddressLine" class="form-label small"></label>
+        <textarea asp-for="AddressLine" class="form-control" rows="2"></textarea>
+        <div class="form-text">İl ve ilçeyi buraya yazmayın; zarfa ayrıca basılır. İlçe veya adres boşsa kurum formda listelenir ama adresi doldurmaz.</div>
+    </div>
+    <div class="row g-2 mb-3">
+        <div class="col-sm-4">
+            <label asp-for="PostalCode" class="form-label small"></label>
+            <input asp-for="PostalCode" class="form-control" inputmode="numeric" maxlength="5" />
+            <span asp-validation-for="PostalCode" class="text-danger small"></span>
+        </div>
+        <div class="col-sm-8">
+            <label asp-for="Phone" class="form-label small"></label>
+            <input asp-for="Phone" class="form-control" />
+        </div>
+    </div>
+    <div class="form-check mb-3">
+        <input asp-for="IsActive" class="form-check-input" />
+        <label asp-for="IsActive" class="form-check-label"></label>
+    </div>
+    <div class="d-flex justify-content-between">
+        <button class="btn btn-primary">@(isNew ? "Ekle" : "Kaydet")</button>
+    </div>
+</form>
+
+@if (!isNew)
+{
+    <form asp-action="Delete" asp-route-id="@Model.Id" asp-route-il="@Model.City" method="post" class="mt-3"
+          onsubmit="return confirm('Bu kurum kalıcı olarak silinsin mi? Kayıtlı mektupların adresi etkilenmez. Geçici olarak gizlemek için “Aktif” işaretini kaldırmanız yeterli.');">
+        <button class="btn btn-sm btn-outline-danger">Kurumu sil</button>
+    </form>
+}
+
+@section Scripts {
+    <script src="~/js/address-picker.js" asp-append-version="true"></script>
+}

@@ -142,8 +142,8 @@ public sealed class CarrierShippingService(
     private static CarrierShipmentRequest BuildRequest(Letter letter, Customer? sender, string barcode)
     {
         var r = letter.Recipient;
-        // Asker / cezaevi bilgisi adresin başına eklenir, zarfın üzerinde de böyle basılır.
-        var recipientLine = r.Detail is null ? r.Address.Line : $"{r.Detail} - {r.Address.Line}";
+        // Asker birliği / cezaevi kurumu, baba adı ve koğuş adresin başına eklenir; zarfın üzerinde de böyle basılır.
+        var recipientLine = string.Join(" - ", new[] { r.Detail, r.Note, r.Address.Line }.Where(s => !string.IsNullOrWhiteSpace(s)));
 
         return new CarrierShipmentRequest(
             letter.Id,
@@ -155,7 +155,7 @@ public sealed class CarrierShippingService(
             WeightGrams: EstimateWeightGrams(letter));
     }
 
-    /// <summary>Zarf + sayfa + fotoğraf + kartpostal için yaklaşık ağırlık (gram).</summary>
+    /// <summary>Zarf + sayfa + fotoğraf + belge + kartpostal için yaklaşık ağırlık (gram; belge ortalama 2 sayfa sayılır).</summary>
     internal static int EstimateWeightGrams(Letter letter) =>
-        10 + letter.PageCount * 5 + letter.Photos.Count * 8 + (letter.Postcard is null ? 0 : 10);
+        10 + letter.PageCount * 5 + letter.Photos.Count * 8 + letter.Documents.Count * 10 + (letter.Postcard is null ? 0 : 10);
 }

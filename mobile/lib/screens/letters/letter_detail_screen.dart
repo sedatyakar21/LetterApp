@@ -1,3 +1,4 @@
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
@@ -145,7 +146,7 @@ class _LetterDetailScreenState extends State<LetterDetailScreen> {
               const SizedBox(height: 4),
               const Text('Mektup postaya verilmeden önce değiştirilebilir.', style: TextStyle(color: Brand.muted)),
               const SizedBox(height: 16),
-              AddressFields(controllers: controllers),
+              AddressFields(controllers: controllers, prisonMode: _letter!.recipientType == 'Inmate'),
               const SizedBox(height: 16),
               FilledButton(
                 onPressed: () {
@@ -187,6 +188,77 @@ class _LetterDetailScreenState extends State<LetterDetailScreen> {
   Future<void> _removePhoto(Photo p) async {
     if (!await confirm(context, title: 'Fotoğraf kaldırılsın mı?', message: p.fileName, ok: 'Kaldır', danger: true)) return;
     await _run(() async => _show(await AppScope.read(context).api.removePhoto(widget.letterId, p.id)));
+  }
+
+  static const _documentExtensions = ['pdf', 'jpg', 'jpeg', 'png'];
+
+  /// Dosyalardan PDF / JPG / PNG belge seçer.
+  Future<void> _pickDocumentFile() async {
+    final PlatformFile? file;
+    try {
+      file = await FilePicker.pickFile(type: FileType.custom, allowedExtensions: _documentExtensions);
+    } catch (_) {
+      if (mounted) showMessage(context, 'Dosya seçilemedi.', error: true);
+      return;
+    }
+    if (file == null || !mounted) return;
+    final ext = (file.extension ?? '').toLowerCase();
+    if (!_documentExtensions.contains(ext)) {
+      showMessage(context, 'Sadece PDF, JPG veya PNG belge yükleyebilirsiniz.', error: true);
+      return;
+    }
+    await _uploadDocument(await file.readAsBytes(), file.name);
+  }
+
+  /// Kâğıt belgeyi kamerayla çeker (JPG olarak yüklenir).
+  Future<void> _scanDocument() async {
+    final photo = await ImagePicker().pickImage(source: ImageSource.camera, maxWidth: 2480, maxHeight: 3508, imageQuality: 90);
+    if (photo == null || !mounted) return;
+    var name = photo.name;
+    if (!RegExp(r'\.(jpe?g|png)$', caseSensitive: false).hasMatch(name)) name = '$name.jpg';
+    await _uploadDocument(await photo.readAsBytes(), name);
+  }
+
+  Future<void> _uploadDocument(List<int> bytes, String name) async {
+    if (!mounted) return;
+    final settings = AppScope.read(context).settings!;
+    if (bytes.length > settings.maxDocumentBytes) {
+      showMessage(context, 'Belge boyutu en fazla ${settings.maxDocumentBytes ~/ (1024 * 1024)} MB olabilir.', error: true);
+      return;
+    }
+    await _run(() async {
+      _show(await AppScope.read(context).api.addDocument(widget.letterId, bytes, name));
+      if (mounted) showMessage(context, 'Belge eklendi. Mektubunuzla birlikte basılıp zarfa konacak.');
+    });
+  }
+
+  Future<void> _removeDocument(LetterDocument d) async {
+    if (!await confirm(context, title: 'Belge kaldırılsın mı?', message: d.fileName, ok: 'Kaldır', danger: true)) return;
+    await _run(() async => _show(await AppScope.read(context).api.removeDocument(widget.letterId, d.id)));
+  }
+
+  /// Görsel belgeyi tam ekran gösterir (PDF'ler uygulama içinde açılmaz; dosya adı listelenir).
+  void _previewDocument(LetterDocument d) {
+    final client = AppScope.read(context).api.client;
+    showDialog<void>(
+      context: context,
+      builder: (c) => Dialog(
+        insetPadding: const EdgeInsets.all(12),
+        child: Column(mainAxisSize: MainAxisSize.min, children: [
+          ListTile(
+            title: Text(d.fileName, maxLines: 1, overflow: TextOverflow.ellipsis),
+            trailing: IconButton(icon: const Icon(Icons.close), onPressed: () => Navigator.pop(c)),
+          ),
+          Flexible(
+            child: InteractiveViewer(
+              child: Image.network(client.absolute(d.url), headers: client.authHeaders, fit: BoxFit.contain,
+                  errorBuilder: (_, _, _) => const Padding(
+                      padding: EdgeInsets.all(24), child: Icon(Icons.broken_image_outlined, color: Brand.muted, size: 48))),
+            ),
+          ),
+        ]),
+      ),
+    );
   }
 
   @override
@@ -297,6 +369,7 @@ class _LetterDetailScreenState extends State<LetterDetailScreen> {
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           const Text('Alıcı', style: TextStyle(color: Brand.muted, fontSize: 12)),
           Text(l.recipientName, style: const TextStyle(fontWeight: FontWeight.w700)),
+          if (l.recipientNote != null) Text(l.recipientNote!),
           if (l.recipientDetail != null) Text(l.recipientDetail!),
           Text(l.recipientAddress.toString()),
           const SizedBox(height: 10),
@@ -307,6 +380,10 @@ class _LetterDetailScreenState extends State<LetterDetailScreen> {
       ),
       const SizedBox(height: 12),
       _photos(l, settings),
+      if (l.isEditable || l.documents.isNotEmpty) ...[
+        const SizedBox(height: 12),
+        _documents(l, settings),
+      ],
       if (l.paidAmount != null) ...[
         const SizedBox(height: 12),
         SectionCard(
@@ -453,6 +530,58 @@ class _LetterDetailScreenState extends State<LetterDetailScreen> {
               ),
             ),
           ]),
+        ],
+      ]),
+    );
+  }
+
+  Widget _documents(Letter l, AppSettings s) {
+    final canAdd = l.isEditable && l.documents.length < s.maxDocuments;
+    return SectionCard(
+      title: 'Belgeler (${l.documents.length}/${s.maxDocuments})',
+      trailing: l.isEditable
+          ? Text('Adet: +${money(s.prices.document)}', style: const TextStyle(color: Brand.muted, fontSize: 12))
+          : null,
+      child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+        const Text('Dilekçe, vekaletname, okul belgesi gibi evraklar basılıp mektubunuzla aynı zarfa konur.',
+            style: TextStyle(color: Brand.muted)),
+        for (final d in l.documents)
+          ListTile(
+            contentPadding: EdgeInsets.zero,
+            leading: Icon(d.isPdf ? Icons.picture_as_pdf_outlined : Icons.image_outlined, color: Brand.navy),
+            title: Text(d.fileName, maxLines: 1, overflow: TextOverflow.ellipsis),
+            subtitle: Text(d.isPdf ? 'PDF' : 'Görsel · görmek için dokunun'),
+            onTap: d.isPdf ? null : () => _previewDocument(d),
+            trailing: l.isEditable
+                ? IconButton(
+                    tooltip: 'Belgeyi kaldır',
+                    icon: const Icon(Icons.delete_outline),
+                    onPressed: _busy ? null : () => _removeDocument(d),
+                  )
+                : null,
+          ),
+        if (canAdd) ...[
+          const SizedBox(height: 12),
+          Row(children: [
+            Expanded(
+              child: OutlinedButton.icon(
+                onPressed: _busy ? null : _pickDocumentFile,
+                icon: const Icon(Icons.upload_file_outlined),
+                label: const Text('Dosya seç'),
+              ),
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: OutlinedButton.icon(
+                onPressed: _busy ? null : _scanDocument,
+                icon: const Icon(Icons.document_scanner_outlined),
+                label: const Text('Fotoğrafını çek'),
+              ),
+            ),
+          ]),
+          const SizedBox(height: 4),
+          Text('PDF, JPG veya PNG · en fazla ${s.maxDocumentBytes ~/ (1024 * 1024)} MB',
+              style: const TextStyle(color: Brand.muted, fontSize: 12)),
         ],
       ]),
     );

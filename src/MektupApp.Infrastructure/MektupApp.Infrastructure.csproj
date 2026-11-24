@@ -19,6 +19,11 @@
     <InternalsVisibleTo Include="MektupApp.Infrastructure.Tests" />
   </ItemGroup>
 
+  <ItemGroup>
+    <!-- Cezaevi başlangıç verisi (boş veritabanına bir kez yüklenir). -->
+    <None Update="Seed\cezaevleri.json" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>

@@ -76,12 +76,13 @@ class ApiClient {
   Future<dynamic> put(String path, [Object? body]) => _send('PUT', path, body: body);
   Future<dynamic> delete(String path) => _send('DELETE', path);
 
-  /// Fotoğraf yükleme (multipart/form-data, alan adı "photo").
-  Future<dynamic> upload(String path, List<int> bytes, String fileName) {
+  /// Dosya yükleme (multipart/form-data).
+  /// [field]: formdaki dosya alanının adı ("photo" / "document").
+  Future<dynamic> upload(String path, List<int> bytes, String fileName, {String field = 'photo'}) {
     return _withAuth(() async {
       final req = http.MultipartRequest('POST', Uri.parse('$baseUrl$path'))
         ..headers.addAll(authHeaders)
-        ..files.add(http.MultipartFile.fromBytes('photo', bytes, filename: fileName));
+        ..files.add(http.MultipartFile.fromBytes(field, bytes, filename: fileName));
       final streamed = await _http.send(req).timeout(const Duration(seconds: 90));
       return http.Response.fromStream(streamed);
     });

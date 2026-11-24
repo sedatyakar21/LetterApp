@@ -32,6 +32,7 @@ public sealed record AdminLetterRowDto(
     decimal? PaidAmount,
     PaymentMethod? PaymentMethod,
     int PhotoCount,
+    int DocumentCount,
     string? TrackingCode,
     DateTime? PaidAt,
     DateTime UpdatedAt);

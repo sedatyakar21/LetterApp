@@ -20,6 +20,7 @@ class Prices {
   double get basePrice => _d(json['basePrice']);
   double get extraPage => _d(json['extraPage']);
   double get photo => _d(json['photo']);
+  double get document => _d(json['document']);
   double get postcard => _d(json['postcard']);
   double get coloredPaper => _d(json['coloredPaper']);
   double get coloredEnvelope => _d(json['coloredEnvelope']);
@@ -50,6 +51,8 @@ class AppSettings {
         postcardDesigns = j['postcardDesignsPerCategory'] as int,
         maxPhotos = j['maxPhotos'] as int,
         maxPhotoBytes = j['maxPhotoBytes'] as int,
+        maxDocuments = j['maxDocuments'] as int? ?? 5,
+        maxDocumentBytes = j['maxDocumentBytes'] as int? ?? 10 * 1024 * 1024,
         maxContentLength = j['maxContentLength'] as int,
         charsPerPage = j['charsPerPage'] as int,
         charsPerLineBreak = j['charsPerLineBreak'] as int,
@@ -62,7 +65,7 @@ class AppSettings {
 
   final Prices prices;
   final List<Option> recipientTypes, paperColors, envelopeColors, fonts, inks, scents, postcardCategories, acquisitionChannels;
-  final int postcardDesigns, maxPhotos, maxPhotoBytes, maxContentLength, charsPerPage, charsPerLineBreak, minPasswordLength;
+  final int postcardDesigns, maxPhotos, maxPhotoBytes, maxDocuments, maxDocumentBytes, maxContentLength, charsPerPage, charsPerLineBreak, minPasswordLength;
   final bool loyaltyEnabled, mobilePaymentAvailable, paymentSimulation;
   final Support support;
 
@@ -77,6 +80,65 @@ class AppSettings {
 
   String label(List<Option> options, String? value) =>
       options.firstWhere((o) => o.value == value, orElse: () => Option(value ?? '', value ?? '')).label;
+}
+
+/// Türkiye'nin 81 ili ve ilçeleri (/api/mobile/locations), Türkçe alfabeye göre sıralı.
+class Locations {
+  Locations(this.provinces) : _byKey = {for (final p in provinces) fold(p.name): p};
+
+  factory Locations.fromJson(List<dynamic> j) => Locations([
+        for (final e in j)
+          Province(e['name'] as String, (e['districts'] as List).cast<String>()),
+      ]);
+
+  static final empty = Locations(const []);
+
+  final List<Province> provinces;
+  final Map<String, Province> _byKey;
+
+  List<String> get names => [for (final p in provinces) p.name];
+
+  /// İli bulur; büyük/küçük harf ve Türkçe karakter farkı yok sayılır ("Istanbul" → "İstanbul").
+  Province? find(String? city) => city == null || city.trim().isEmpty ? null : _byKey[fold(city)];
+
+  /// İlçenin listedeki yazımı ("Kadikoy" → "Kadıköy"); yoksa null.
+  String? findDistrict(Province? p, String? district) {
+    if (p == null || district == null || district.trim().isEmpty) return null;
+    final key = fold(district);
+    for (final d in p.districts) {
+      if (fold(d) == key) return d;
+    }
+    return null;
+  }
+
+  /// Karşılaştırma anahtarı: Türkçe kurallarıyla küçük harf + sadeleştirilmiş harfler (sunucudaki Fold ile aynı).
+  static String fold(String value) {
+    const map = {'ç': 'c', 'ğ': 'g', 'ı': 'i', 'ö': 'o', 'ş': 's', 'ü': 'u', 'â': 'a', 'î': 'i', 'û': 'u'};
+    final lower = value.trim().replaceAll('I', 'ı').replaceAll('İ', 'i').toLowerCase();
+    final b = StringBuffer();
+    for (final ch in lower.split('')) {
+      b.write(map[ch] ?? ch);
+    }
+    return b.toString();
+  }
+}
+
+/// Cezaevi (alıcı türü "Cezaevi" iken adres otomatik doldurmak için).
+class PrisonOption {
+  PrisonOption.fromJson(Map<String, dynamic> j)
+      : id = j['id'] as String,
+        name = j['name'] as String,
+        city = j['city'] as String,
+        district = j['district'] as String,
+        addressLine = j['addressLine'] as String,
+        postalCode = j['postalCode'] as String;
+  final String id, name, city, district, addressLine, postalCode;
+}
+
+class Province {
+  const Province(this.name, this.districts);
+  final String name;
+  final List<String> districts;
 }
 
 class Me {
@@ -118,7 +180,7 @@ class Address {
   bool get isEmpty => line.isEmpty && district.isEmpty && city.isEmpty && postalCode.isEmpty;
 
   @override
-  String toString() => '$line, $district / $city $postalCode';
+  String toString() => postalCode.isEmpty ? '$line, $district / $city' : '$line, $district / $city $postalCode';
 }
 
 class StatusChange {
@@ -152,6 +214,17 @@ class Photo {
         fileName = j['fileName'] as String,
         url = j['url'] as String;
   final String id, fileName, url;
+}
+
+/// Basılıp mektupla aynı zarfa konan belge (PDF / JPG / PNG).
+class LetterDocument {
+  LetterDocument.fromJson(Map<String, dynamic> j)
+      : id = j['id'] as String,
+        fileName = j['fileName'] as String,
+        isPdf = j['isPdf'] as bool,
+        url = j['url'] as String;
+  final String id, fileName, url;
+  final bool isPdf;
 }
 
 class MyReview {
@@ -219,7 +292,17 @@ class Letter {
         canReview = j['canReview'] as bool,
         review = j['review'] == null ? null : MyReview.fromJson(j['review'] as Map<String, dynamic>),
         pendingPayment =
-            j['pendingPayment'] == null ? null : PendingPayment.fromJson(j['pendingPayment'] as Map<String, dynamic>);
+            j['pendingPayment'] == null ? null : PendingPayment.fromJson(j['pendingPayment'] as Map<String, dynamic>),
+        recipientFatherName = j['recipientFatherName'] as String?,
+        recipientWard = j['recipientWard'] as String?,
+        recipientNote = j['recipientNote'] as String?,
+        documents = j['documents'] == null ? const [] : _list(j['documents'], LetterDocument.fromJson);
+
+  /// Basılıp zarfa konan belgeler.
+  final List<LetterDocument> documents;
+
+  /// Cezaevi alıcısının baba adı / koğuşu; [recipientNote] zarfta yazan hali ("Baba adı: Ali · Koğuş: B-12").
+  final String? recipientFatherName, recipientWard, recipientNote;
 
   final String id, senderName, recipientName, recipientType, content, paper, envelope, font, ink, scent, status, statusLabel;
   final Address senderAddress, recipientAddress;
@@ -245,7 +328,7 @@ class LetterDraft {
     this.senderName = '',
     this.senderAddress = const Address(),
     this.recipientName = '',
-    this.recipientType = 'Standard',
+    this.recipientType = 'Inmate', // yeni mektupta varsayılan alıcı: cezaevi (sitedeki formla aynı)
     this.recipientDetail,
     this.recipientAddress = const Address(),
     this.content = '',
@@ -256,7 +339,21 @@ class LetterDraft {
     this.scent = 'None',
     this.postcardCategory,
     this.postcardDesign,
+    this.recipientFatherName,
+    this.recipientWard,
   });
+
+  /// Aynı türdeki son mektubun alıcı ve gönderen bilgileri (/api/mobile/letters/prefill).
+  factory LetterDraft.fromPrefill(Map<String, dynamic> j) => LetterDraft(
+        recipientType: j['recipientType'] as String,
+        recipientName: j['recipientName'] as String,
+        recipientDetail: j['recipientDetail'] as String?,
+        recipientFatherName: j['recipientFatherName'] as String?,
+        recipientWard: j['recipientWard'] as String?,
+        recipientAddress: Address.fromJson(j['recipientAddress'] as Map<String, dynamic>),
+        senderName: j['senderName'] as String,
+        senderAddress: Address.fromJson(j['senderAddress'] as Map<String, dynamic>),
+      );
 
   factory LetterDraft.fromLetter(Letter l) => LetterDraft(
         senderName: l.senderName,
@@ -273,11 +370,13 @@ class LetterDraft {
         scent: l.scent,
         postcardCategory: l.postcardCategory,
         postcardDesign: l.postcardDesign,
+        recipientFatherName: l.recipientFatherName,
+        recipientWard: l.recipientWard,
       );
 
   String senderName, recipientName, recipientType, content, paper, envelope, font, ink, scent;
   Address senderAddress, recipientAddress;
-  String? recipientDetail, postcardCategory;
+  String? recipientDetail, postcardCategory, recipientFatherName, recipientWard;
   int? postcardDesign;
 
   Map<String, dynamic> toJson() => {
@@ -295,6 +394,8 @@ class LetterDraft {
         'scent': scent,
         'postcardCategory': postcardCategory,
         'postcardDesign': postcardCategory == null ? null : (postcardDesign ?? 1),
+        'recipientFatherName': recipientType == 'Inmate' ? recipientFatherName : null,
+        'recipientWard': recipientType == 'Inmate' ? recipientWard : null,
       };
 }
 

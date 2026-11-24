@@ -366,6 +366,11 @@ namespace MektupApp.Infrastructure.Persistence.Migrations
                                 .HasColumnType("nvarchar(200)")
                                 .HasColumnName("RecipientDetail");
 
+                            b1.Property<string>("FatherName")
+                                .HasMaxLength(60)
+                                .HasColumnType("nvarchar(60)")
+                                .HasColumnName("RecipientFatherName");
+
                             b1.Property<string>("FullName")
                                 .IsRequired()
                                 .HasMaxLength(100)
@@ -377,6 +382,11 @@ namespace MektupApp.Infrastructure.Persistence.Migrations
                                 .HasMaxLength(20)
                                 .HasColumnType("nvarchar(20)")
                                 .HasColumnName("RecipientType");
+
+                            b1.Property<string>("Ward")
+                                .HasMaxLength(30)
+                                .HasColumnType("nvarchar(30)")
+                                .HasColumnName("RecipientWard");
 
                             b1.ComplexProperty(typeof(Dictionary<string, object>), "Address", "MektupApp.Domain.Letters.Letter.Recipient#Recipient.Address#PostalAddress", b2 =>
                                 {
@@ -485,6 +495,34 @@ namespace MektupApp.Infrastructure.Persistence.Migrations
                     b.ToTable("Letters", (string)null);
                 });
 
+            modelBuilder.Entity("MektupApp.Domain.Letters.LetterDocument", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("AddedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("LetterId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("OriginalFileName")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
+
+                    b.Property<string>("StorageKey")
+                        .IsRequired()
+                        .HasMaxLength(300)
+                        .HasColumnType("nvarchar(300)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("LetterId");
+
+                    b.ToTable("LetterDocuments", (string)null);
+                });
+
             modelBuilder.Entity("MektupApp.Domain.Letters.LetterPhoto", b =>
                 {
                     b.Property<Guid>("Id")
@@ -571,6 +609,11 @@ namespace MektupApp.Infrastructure.Persistence.Migrations
                                 .HasPrecision(10, 2)
                                 .HasColumnType("decimal(10,2)")
                                 .HasColumnName("ColoredPaper");
+
+                            b1.Property<decimal>("Document")
+                                .HasPrecision(10, 2)
+                                .HasColumnType("decimal(10,2)")
+                                .HasColumnName("Document");
 
                             b1.Property<decimal>("ExtraPage")
                                 .HasPrecision(10, 2)
@@ -924,6 +967,54 @@ namespace MektupApp.Infrastructure.Persistence.Migrations
                     b.ToTable("Payments", (string)null);
                 });
 
+            modelBuilder.Entity("MektupApp.Domain.Prisons.Prison", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("AddressLine")
+                        .IsRequired()
+                        .HasMaxLength(250)
+                        .HasColumnType("nvarchar(250)");
+
+                    b.Property<string>("City")
+                        .IsRequired()
+                        .HasMaxLength(60)
+                        .HasColumnType("nvarchar(60)");
+
+                    b.Property<string>("District")
+                        .IsRequired()
+                        .HasMaxLength(60)
+                        .HasColumnType("nvarchar(60)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("Phone")
+                        .HasMaxLength(60)
+                        .HasColumnType("nvarchar(60)");
+
+                    b.Property<string>("PostalCode")
+                        .IsRequired()
+                        .HasMaxLength(5)
+                        .HasColumnType("nvarchar(5)");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("City", "IsActive", "Name");
+
+                    b.ToTable("Prisons", (string)null);
+                });
+
             modelBuilder.Entity("MektupApp.Domain.Reviews.BlogComment", b =>
                 {
                     b.Property<Guid>("Id")
@@ -1052,6 +1143,15 @@ namespace MektupApp.Infrastructure.Persistence.Migrations
                         .OnDelete(DeleteBehavior.NoAction);
                 });
 
+            modelBuilder.Entity("MektupApp.Domain.Letters.LetterDocument", b =>
+                {
+                    b.HasOne("MektupApp.Domain.Letters.Letter", null)
+                        .WithMany("Documents")
+                        .HasForeignKey("LetterId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("MektupApp.Domain.Letters.LetterPhoto", b =>
                 {
                     b.HasOne("MektupApp.Domain.Letters.Letter", null)
@@ -1081,6 +1181,8 @@ namespace MektupApp.Infrastructure.Persistence.Migrations
 
             modelBuilder.Entity("MektupApp.Domain.Letters.Letter", b =>
                 {
+                    b.Navigation("Documents");
+
                     b.Navigation("History");
 
                     b.Navigation("Photos");

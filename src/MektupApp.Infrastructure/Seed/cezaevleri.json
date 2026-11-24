@@ -1,0 +1,3722 @@
+﻿[
+    {
+        "city":  "Adana",
+        "district":  "Sarıçam",
+        "name":  "Adana 1 Nolu Açık Ceza İnfaz Kurumu",
+        "addressLine":  "Yürekli Mahallesi 5595 Sokak No:10 İç Kapı No: B7 Kürkçüler Ceza İnfaz Kurumları Kampüsü",
+        "postalCode":  "",
+        "phone":  "0322 385 3044 -"
+    },
+    {
+        "city":  "Adana",
+        "district":  "Sarıçam",
+        "name":  "Adana 1 Nolu T Tipi Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Yürekli Mahallesi 5595 Sokak No:2",
+        "postalCode":  "",
+        "phone":  "0322 385 3231 - 0322 385 3232"
+    },
+    {
+        "city":  "Adana",
+        "district":  "Seyhan",
+        "name":  "Adana 2 Nolu Açık Ceza İnfaz Kurumu",
+        "addressLine":  "Akkapı Mah. 12340 sokak no: 23",
+        "postalCode":  "",
+        "phone":  "0322 429 6300 - 0322 429 2593"
+    },
+    {
+        "city":  "Adana",
+        "district":  "Seyhan",
+        "name":  "Adana 2 Nolu T Tipi Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Kayalıbağ Mahallesi Avukat Kamil Tekerek Sokak No:2",
+        "postalCode":  "",
+        "phone":  "0322 352 2320 - 0507 820 0001"
+    },
+    {
+        "city":  "Adana",
+        "district":  "Sarıçam",
+        "name":  "Adana E Tipi Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Yürekli Mahallesi 5595 Sokak No 20/A",
+        "postalCode":  "",
+        "phone":  "0322 385 3296 - 0322 385 3298"
+    },
+    {
+        "city":  "Adana",
+        "district":  "Sarıçam",
+        "name":  "Adana F Tipi Yüksek Güvenlikli Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Yürekli Mah.5595 Sok.No:20/B",
+        "postalCode":  "01220",
+        "phone":  "0322 385 3331 - 0322 385 3332"
+    },
+    {
+        "city":  "Adana",
+        "district":  "Sarıçam",
+        "name":  "Adana Rehberlik ve Rehabilitasyon Açık İnfaz Kurumu",
+        "addressLine":  "Dağcı Mahallesi 5950. Sokak No: 20/R Adana Suluca Ceza İnfaz Kurumları Kampüsü",
+        "postalCode":  "",
+        "phone":  "(0 322) 504 27 02 - (0 322) 504 27 03"
+    },
+    {
+        "city":  "Adana",
+        "district":  "Sarıçam",
+        "name":  "Adana Rehberlik ve Rehabilitasyon Kapalı İnfaz Kurumu",
+        "addressLine":  "Dağcı Mahallesi 5950. Sokak No: 20/G",
+        "postalCode":  "",
+        "phone":  "0322 504 50 70 - 0332 504 50 80"
+    },
+    {
+        "city":  "Adana",
+        "district":  "Sarıçam",
+        "name":  "Adana/Suluca 1 Nolu Yüksek Güvenlikli Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Dağcı Mahallesi 5950. Sokak No: 20/F",
+        "postalCode":  "",
+        "phone":  "0322 504 80 82 -"
+    },
+    {
+        "city":  "Adana",
+        "district":  "Sarıçam",
+        "name":  "Adana/Suluca 2 Nolu Yüksek Güvenlikli Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Dağcı Mahallesi 5950. Sokak No: 20/G",
+        "postalCode":  "",
+        "phone":  "0322 504 50 70 - 0332 504 50 80"
+    },
+    {
+        "city":  "Adana",
+        "district":  "Sarıçam",
+        "name":  "Adana/Suluca Açık Ceza İnfaz Kurumu",
+        "addressLine":  "Dağcı mahallesi 5950. sokak No:20",
+        "postalCode":  "",
+        "phone":  "0322 504 5550 - 0322 504 5551"
+    },
+    {
+        "city":  "Adana",
+        "district":  "Sarıçam",
+        "name":  "Adana/Suluca L Tipi Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Dağcı Mahallesi 5950 Sokak. No: 20",
+        "postalCode":  "",
+        "phone":  "0322 504 7072 - 0322 504 7073"
+    },
+    {
+        "city":  "Adana",
+        "district":  "",
+        "name":  "Adana/Suluca Y Tipi Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "",
+        "postalCode":  "",
+        "phone":  "-"
+    },
+    {
+        "city":  "Adana",
+        "district":  "Ceyhan",
+        "name":  "Ceyhan Açık Ceza İnfaz Kurumu",
+        "addressLine":  "Mercimek Kasabası 3. km",
+        "postalCode":  "",
+        "phone":  "0322 648 4215 -"
+    },
+    {
+        "city":  "Adana",
+        "district":  "Ceyhan",
+        "name":  "Ceyhan Çocuk Eğitimevi Müdürlüğü",
+        "addressLine":  "Büyükmangıt Mahallesi Özemir Sabancı Bulvarı No:32",
+        "postalCode":  "",
+        "phone":  "0322 611 1851 - 0507 820 0100"
+    },
+    {
+        "city":  "Adana",
+        "district":  "Karaisalı",
+        "name":  "Karaisalı K1 Tipi Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Karapınar Mah. Lale Sokak No:6 D:1",
+        "postalCode":  "",
+        "phone":  "0322 551 2028 -"
+    },
+    {
+        "city":  "Adana",
+        "district":  "Karataş",
+        "name":  "Karataş Kadın Açık Ceza İnfaz Kurumu",
+        "addressLine":  "Yenimah. Dsi yolu üzeri 71.Sokak No: 61",
+        "postalCode":  "",
+        "phone":  "0322 681 3053 -"
+    },
+    {
+        "city":  "Adana",
+        "district":  "Kozan",
+        "name":  "Kozan Açık Ceza İnfaz Kurumu (M Tipi)",
+        "addressLine":  "Karacaoğlan Mahallesi Develi Bulvarı No:49 Adalet Sarayı Kat 1",
+        "postalCode":  "",
+        "phone":  "0322 516 4943 -"
+    },
+    {
+        "city":  "Adana",
+        "district":  "Kozan",
+        "name":  "Kozan M Tipi Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Tavşan Tepe Mah. Islah Sok. No:8",
+        "postalCode":  "",
+        "phone":  "0322 515 8289 - 0322 515 8291"
+    },
+    {
+        "city":  "Adana",
+        "district":  "Pozantı",
+        "name":  "Pozantı Kadın Açık Ceza İnfaz Kurumu",
+        "addressLine":  "Zafer Mh. Hastane Cad. No:25",
+        "postalCode":  "",
+        "phone":  "03225813060 -"
+    },
+    {
+        "city":  "Adana",
+        "district":  "Pozantı",
+        "name":  "Pozantı M Tipi Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Pozantı M Tipi Kapalı Ceza İnfaz Kurumu Hastane Cad.",
+        "postalCode":  "",
+        "phone":  "0322 581 3060 -"
+    },
+    {
+        "city":  "Adıyaman",
+        "district":  "Merkez",
+        "name":  "Adıyaman L Tipi Kapalı / Açık Ceza İnfaz Kurumu Müdürlüğü",
+        "addressLine":  "Hacıhalil Köyü No: 139",
+        "postalCode":  "",
+        "phone":  "0 416 202 78 02 - 0 416 202 27 47"
+    },
+    {
+        "city":  "Afyonkarahisar",
+        "district":  "Merkez",
+        "name":  "Afyonkarahisar 1 Nolu T Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Ali İhsan Paşa Mah. Sultan Divani Cd. No.8/1",
+        "postalCode":  "",
+        "phone":  "0272 248 3424 - 0272 248 3426"
+    },
+    {
+        "city":  "Afyonkarahisar",
+        "district":  "Merkez",
+        "name":  "Afyonkarahisar 2 Nolu T Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Ali İhsan Paşa Mah. Sultan Divani Cd. No.8/1",
+        "postalCode":  "",
+        "phone":  "0272 248 3263 - 0272 248 3264"
+    },
+    {
+        "city":  "Afyonkarahisar",
+        "district":  "Merkez",
+        "name":  "Afyonkarahisar Açık Ceza İnfaz Kurumu",
+        "addressLine":  "Esentepe Mh. Adnan Menderes Bulvarı No:52/1 PK.03100",
+        "postalCode":  "03100",
+        "phone":  "0272 216 3820 - 0272 216 3821"
+    },
+    {
+        "city":  "Afyonkarahisar",
+        "district":  "Merkez",
+        "name":  "Afyonkarahisar Açık Ceza İnfaz Kurumu (Kampüs)",
+        "addressLine":  "Karaman Mah. Ordu Bulvarı No: 7 Eski Adliye Binası",
+        "postalCode":  "",
+        "phone":  "0272 217 3577 -"
+    },
+    {
+        "city":  "Afyonkarahisar",
+        "district":  "Merkez",
+        "name":  "Afyonkarahisar E Tipi Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Esentepe Mahallesi, Adnan Menderes Bulvarı, Konya Yolu Üzeri, No:52/2",
+        "postalCode":  "03040",
+        "phone":  "0272 216 1179 - 0272 216 1178"
+    },
+    {
+        "city":  "Afyonkarahisar",
+        "district":  "Merkez",
+        "name":  "Afyonkarahisar Kadın Açık Ceza İnfaz Kurumu",
+        "addressLine":  "Sülün Beldesi Hisar Mahallesi No:202/3 Afyonkarahisar-Konya Karayolu 5. km üzeri",
+        "postalCode":  "",
+        "phone":  "0272 2172779 -"
+    },
+    {
+        "city":  "Afyonkarahisar",
+        "district":  "Bolvadin",
+        "name":  "Afyonkarahisar Kampüs Açık Ceza İnfaz Kurumu",
+        "addressLine":  "Konak Mah. İstasyon Cad. No:125",
+        "postalCode":  "",
+        "phone":  "0272 612 8577 -"
+    },
+    {
+        "city":  "Afyonkarahisar",
+        "district":  "Dinar",
+        "name":  "Bolvadin T Tipi Kapalı / Açık Ceza İnfaz Kurumu",
+        "addressLine":  "Camikebir Mah. Hal Cad. Belediye Sarayı Kat : 3",
+        "postalCode":  "",
+        "phone":  "0272 353 0032 - 0507 820 0083"
+    },
+    {
+        "city":  "Afyonkarahisar",
+        "district":  "Dinar",
+        "name":  "Dinar T Tipi Kapalı / Açık Ceza İnfaz Kurumu",
+        "addressLine":  "Dikici Köyü, Mehmet Tuncay Mahallesi, Mehmet Tuncay Küme evler No:52/14",
+        "postalCode":  "",
+        "phone":  "0272 365 4100 - 0272 365 4041"
+    },
+    {
+        "city":  "Afyonkarahisar",
+        "district":  "Emirdağ",
+        "name":  "Emirdağ Açık Ceza İnfaz Kurumu",
+        "addressLine":  "Menderes Mahallesi 1006 Sokak No:2",
+        "postalCode":  "",
+        "phone":  "0272 442 5103 -"
+    },
+    {
+        "city":  "Afyonkarahisar",
+        "district":  "Sandıklı",
+        "name":  "Sandıklı Açık Ceza İnfaz Kurumu",
+        "addressLine":  "İstanyon Mahallesi Uşak Caddesi No:173",
+        "postalCode":  "",
+        "phone":  "0272 512 5091 -"
+    },
+    {
+        "city":  "Ağrı",
+        "district":  "Merkez",
+        "name":  "Ağrı Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Abide Mah. Yaşar Kemal Cad. 634 Sk. 12.Mekanize Piyade Tugay Komutanlığı Yanı.",
+        "postalCode":  "",
+        "phone":  "0472 215 5001 -"
+    },
+    {
+        "city":  "Ağrı",
+        "district":  "Doğubayazıt",
+        "name":  "Doğubayazıt Açık Ceza İnfaz Kurumu (T Tipi)",
+        "addressLine":  "Doğubayazıt Adliye Sarayı Zemin Kat",
+        "postalCode":  "",
+        "phone":  "0472 312 0921 - 0535 107 1292"
+    },
+    {
+        "city":  "Ağrı",
+        "district":  "Doğubayazıt",
+        "name":  "Doğubayazıt T Tipi Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Karaburun Köyü Çevre yolu bulvarı No:47",
+        "postalCode":  "",
+        "phone":  "0472 312 6005 -"
+    },
+    {
+        "city":  "Ağrı",
+        "district":  "Patnos",
+        "name":  "Patnos Açık Ceza İnfaz Kurumu",
+        "addressLine":  "Atatürk Mahallesi Yavuz Sultan Selim Caddesi No: 119 Giriş",
+        "postalCode":  "",
+        "phone":  "0472 616 10 18 -"
+    },
+    {
+        "city":  "Ağrı",
+        "district":  "Patnos",
+        "name":  "Patnos L Tipi Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Malazgirt yolu üzeri Doğansu köyü mevkii",
+        "postalCode":  "",
+        "phone":  "0472 623 2001 - 0472 623 2002"
+    },
+    {
+        "city":  "Aksaray",
+        "district":  "Merkez",
+        "name":  "Aksaray 1 Nolu Yüksek Güvenlikli Kapalı Ceza İnfaz Kurumu Müdürlüğü",
+        "addressLine":  "",
+        "postalCode":  "",
+        "phone":  "-"
+    },
+    {
+        "city":  "Aksaray",
+        "district":  "Merkez",
+        "name":  "Aksaray 2 Nolu Yüksek Güvenlikli Kapalı Ceza İnfaz Kurumu Müdürlüğü",
+        "addressLine":  "",
+        "postalCode":  "",
+        "phone":  "-"
+    },
+    {
+        "city":  "Aksaray",
+        "district":  "Merkez",
+        "name":  "Aksaray 3 Nolu Yüksek Güvenlikli Kapalı Ceza İnfaz Kurumu Müdürlüğü",
+        "addressLine":  "",
+        "postalCode":  "",
+        "phone":  "-"
+    },
+    {
+        "city":  "Aksaray",
+        "district":  "Merkez",
+        "name":  "Aksaray 4 Nolu Yüksek Güvenlikli Kapalı Ceza İnfaz Kurumu Müdürlüğü",
+        "addressLine":  "",
+        "postalCode":  "",
+        "phone":  "-"
+    },
+    {
+        "city":  "Aksaray",
+        "district":  "Merkez",
+        "name":  "Aksaray Açık Ceza İnfaz Kurumu (T Tipi)",
+        "addressLine":  "Zafer Mahallesi 22 Nevşehir Caddesi 136/1",
+        "postalCode":  "",
+        "phone":  "0382 216 0307 -"
+    },
+    {
+        "city":  "Aksaray",
+        "district":  "Merkez",
+        "name":  "Aksaray Kadın Kapalı Ceza İnfaz Kurumu Müdürlüğü",
+        "addressLine":  "",
+        "postalCode":  "",
+        "phone":  "-"
+    },
+    {
+        "city":  "Aksaray",
+        "district":  "Merkez",
+        "name":  "Aksaray Kampüs Açık Ceza İnfaz Kurumu Müdürlüğü",
+        "addressLine":  "Aratol Bahçeli Mahallesi 157/ Ahmet Davutoğlu Bulvarı No:161",
+        "postalCode":  "",
+        "phone":  "0 382 0505 06 00 -"
+    },
+    {
+        "city":  "Aksaray",
+        "district":  "Merkez",
+        "name":  "Aksaray T Tipi Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Aratol Mahallesi Bahçeli Mevkii Cezaevi Küme evleri no: 4/1",
+        "postalCode":  "",
+        "phone":  "0382 213 1065 -"
+    },
+    {
+        "city":  "Aksaray",
+        "district":  "Merkez",
+        "name":  "Aksaray Y Tipi Kapalı Ceza İnfaz Kurumu Müdürlüğü",
+        "addressLine":  "",
+        "postalCode":  "",
+        "phone":  "-"
+    },
+    {
+        "city":  "Amasya",
+        "district":  "Merkez",
+        "name":  "Amasya E Tipi Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Helvacı Mah. Çağlayan Cad. No:53",
+        "postalCode":  "",
+        "phone":  "0358 242 0364 - 0358 242 07 25"
+    },
+    {
+        "city":  "Amasya",
+        "district":  "Gümüşhacıköy",
+        "name":  "Gümüşhacıköy Açık Ceza İnfaz Kurumu",
+        "addressLine":  "Saray Mahallesi Cezaevi Caddesi No:6",
+        "postalCode":  "",
+        "phone":  "0358 717 60 66 - 0358 717 60 68"
+    },
+    {
+        "city":  "Ankara",
+        "district":  "Etimesgut",
+        "name":  "Ankara Açık Ceza İnfaz Kurumu",
+        "addressLine":  "İstasyon Mahallesi Türk Kızılayı Caddesi No:27",
+        "postalCode":  "",
+        "phone":  "0312 243 0001 - 0507 820 0199"
+    },
+    {
+        "city":  "Ankara",
+        "district":  "Keçiören",
+        "name":  "Ankara Çocuk Eğitimevi",
+        "addressLine":  "Şefkat Mahallesi, Dr.Besim Ömer Caddesi, No:61",
+        "postalCode":  "",
+        "phone":  "0312 230 6054 -"
+    },
+    {
+        "city":  "Ankara",
+        "district":  "Çankaya",
+        "name":  "Ayaş Açık Ceza İnfaz Kurumu",
+        "addressLine":  "Ahlatlıbel Mah. 1859.Cad. No:42",
+        "postalCode":  "",
+        "phone":  "0312 339 3330 - 0312 339 6444"
+    },
+    {
+        "city":  "Ankara",
+        "district":  "Elmadağ",
+        "name":  "Elmadağ Kadın Açık Ceza İnfaz Kurumu",
+        "addressLine":  "Kurtuluş Mah. Gürbüz Sok. No:4",
+        "postalCode":  "",
+        "phone":  "0312 863 1840 -"
+    },
+    {
+        "city":  "Ankara",
+        "district":  "Kalecik",
+        "name":  "Kalecik Açık Ceza İnfaz Kurumu",
+        "addressLine":  "Halitcevri Arslangil Mah. Seyit Balcı Sokak No.82",
+        "postalCode":  "06870",
+        "phone":  "0312 857 0291 -"
+    },
+    {
+        "city":  "Ankara",
+        "district":  "Kızılcahamam",
+        "name":  "Kızılcahamam Kapalı ve Açık Ceza İnfaz Kurumu",
+        "addressLine":  "",
+        "postalCode":  "",
+        "phone":  "-"
+    },
+    {
+        "city":  "Ankara",
+        "district":  "Sincan",
+        "name":  "Sincan 1 Nolu F Tipi Yüksek Güvenlikli Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Adalet Mah. Adalet Sk. Sincan Ceza İnfaz Kurumları Kampüsü Yenikent",
+        "postalCode":  "",
+        "phone":  "0312 254 0103 - 0312 254 0104"
+    },
+    {
+        "city":  "Ankara",
+        "district":  "Sincan",
+        "name":  "Sincan 1 Nolu L Tipi Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Adalet Mah. Adalet Sk. Sincan Kampüs Yenikent",
+        "postalCode":  "",
+        "phone":  "0312 589 5074 -"
+    },
+    {
+        "city":  "Ankara",
+        "district":  "Sincan",
+        "name":  "Sincan 1 Nolu Yüksek Güvenlikli Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Adalet Mahallesi Adalet Küme Evleri No:92/1 Yenikent",
+        "postalCode":  "",
+        "phone":  "0312 254 0010 - 0312 254 00 11"
+    },
+    {
+        "city":  "Ankara",
+        "district":  "Sincan",
+        "name":  "Sincan 2 Nolu F Tipi Yüksek Güvenlikli Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Adalet Mah. Adalet Sk. No:80/D Yenikent",
+        "postalCode":  "",
+        "phone":  "0312 254 0202 -"
+    },
+    {
+        "city":  "Ankara",
+        "district":  "Sincan",
+        "name":  "Sincan 2 Nolu L Tipi Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Adalet Mah. Adalet Sk. Sincan Kampüs Yenikent",
+        "postalCode":  "",
+        "phone":  "0312 589 5076 -"
+    },
+    {
+        "city":  "Ankara",
+        "district":  "Sincan",
+        "name":  "Sincan 2 Nolu Yüksek Güvenlikli Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Adalet Mahallesi Adalet Küme Evleri No:92/2 Yenikent",
+        "postalCode":  "",
+        "phone":  "0312 254 0077 -"
+    },
+    {
+        "city":  "Ankara",
+        "district":  "Sincan",
+        "name":  "Sincan 3 Nolu L Tipi Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Adalet Mahallesi Adalet Caddesi Sincan Ceza İnfaz Kurumları Kampüsü 06946 Yenikent",
+        "postalCode":  "06946",
+        "phone":  "0312 254 00 61 - 0312 254 0063"
+    },
+    {
+        "city":  "Ankara",
+        "district":  "Sincan",
+        "name":  "Sincan 4 Nolu L Tipi Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Adalet Mah. Adalet Sok. No: 80/A Yenikent",
+        "postalCode":  "",
+        "phone":  "0312 254 0043 - 0312 254 0047"
+    },
+    {
+        "city":  "Ankara",
+        "district":  "Sincan",
+        "name":  "Sincan Açık Ceza İnfaz Kurumu",
+        "addressLine":  "Adalet Mah. Adalet Sok. No: 80/A Sincan Açık CİK Yenikent",
+        "postalCode":  "06946",
+        "phone":  "0312 589 5001 -"
+    },
+    {
+        "city":  "Ankara",
+        "district":  "Sincan",
+        "name":  "Sincan Çocuk ve Gençlik Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Adalet Mah. Adalet Sok. No: 80/B Sincan Çocuk Kapalı CİK Yenikent",
+        "postalCode":  "",
+        "phone":  "0312 589 5133 -"
+    },
+    {
+        "city":  "Ankara",
+        "district":  "Sincan",
+        "name":  "Sincan Kadın Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Adalet Mah. Adalet Sk. Sincan Kampüs Yenikent",
+        "postalCode":  "",
+        "phone":  "0312 589 5101 - 0312 254 00 40"
+    },
+    {
+        "city":  "Ankara",
+        "district":  "Sincan",
+        "name":  "Sincan T Tipi Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Adalet Mah. Adalet Sk. Sincan Kampüs Yenikent",
+        "postalCode":  "",
+        "phone":  "0312 254 0080 - 0312 254 0081"
+    },
+    {
+        "city":  "Ankara",
+        "district":  "Şereflikoçhisar",
+        "name":  "Şereflikoçhisar B Tipi Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "İstiklal Mah. Ankara Cad. No: 218",
+        "postalCode":  "06950",
+        "phone":  "0312 687 1858 -"
+    },
+    {
+        "city":  "Antalya",
+        "district":  "Akseki",
+        "name":  "Akseki Açık Ceza İnfaz Kurumu Müdürlüğü (T Tipi)",
+        "addressLine":  "",
+        "postalCode":  "",
+        "phone":  "-"
+    },
+    {
+        "city":  "Antalya",
+        "district":  "Akseki",
+        "name":  "Akseki T Tipi Kapalı ve Açık Ceza İnfaz kurumu",
+        "addressLine":  "Büyükalan mahallesi, Kümeevleri, Akseki T Tipi Kapalı ve Açık Ceza İnfaz kurumu",
+        "postalCode":  "",
+        "phone":  "0242 678 23 47 -"
+    },
+    {
+        "city":  "Antalya",
+        "district":  "Alanya",
+        "name":  "Alanya Açık Ceza İnfaz Kurumu (L Tipi)",
+        "addressLine":  "Tosmur Mahallesi 6. Sokak No:7",
+        "postalCode":  "",
+        "phone":  "0 242 513 15 12 - 0 242 511 99 77"
+    },
+    {
+        "city":  "Antalya",
+        "district":  "Alanya",
+        "name":  "Alanya L Tipi Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Mahmutlar Mh. Küçük Ahmetler Sk. No:17",
+        "postalCode":  "",
+        "phone":  "0242 528 7573 - 0242 528 7574"
+    },
+    {
+        "city":  "Antalya",
+        "district":  "Döşemealtı",
+        "name":  "Antalya Açık Ceza İnfaz Kurumu",
+        "addressLine":  "Kömürcüler Mahallesi 2708 Sokak No:6",
+        "postalCode":  "",
+        "phone":  "0242 423 1216 - 0242 423 1266"
+    },
+    {
+        "city":  "Antalya",
+        "district":  "Muratpaşa",
+        "name":  "Antalya Açık Ceza İnfaz Kurumu (E Tipi)",
+        "addressLine":  "Meltem Mahallesi Dumlupınar Bulvarı Yan Yolu Antalya Adliyesi Ek Hizmet Binası",
+        "postalCode":  "",
+        "phone":  "0242 237 95 60 - 0242 237 95 61"
+    },
+    {
+        "city":  "Antalya",
+        "district":  "Kepez",
+        "name":  "Antalya E Tipi Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Kepez Mah. 3230 Sokak NO:69-71",
+        "postalCode":  "",
+        "phone":  "0242 221 2323 - 0242 221 0991"
+    },
+    {
+        "city":  "Antalya",
+        "district":  "Döşemealtı",
+        "name":  "Antalya L Tipi Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Kömürcüler Mahallesi 2711 No:6",
+        "postalCode":  "",
+        "phone":  "0242 423 1360 - 0242 423 1361"
+    },
+    {
+        "city":  "Antalya",
+        "district":  "Döşemealtı",
+        "name":  "Antalya S Tipi Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Kömürcüler Mahallesi 2711 No:6",
+        "postalCode":  "",
+        "phone":  "0242 423 1062 - 0242 423 1142"
+    },
+    {
+        "city":  "Antalya",
+        "district":  "Döşemealtı",
+        "name":  "Antalya Y Tipi Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Kömürcüler Mahallesi 2708 Sokak No:6/11 Antalya Ceza İnfaz Kurumları Kampüsü",
+        "postalCode":  "",
+        "phone":  "0242 423 1286 - 0242 423 1371"
+    },
+    {
+        "city":  "Antalya",
+        "district":  "Döşemealtı",
+        "name":  "Antalya Yüksek Güvenlikli Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Kömürcüler Mah. 2708 Sk. No: 6/10",
+        "postalCode":  "",
+        "phone":  "0242 423 1335 - 0242 423 1351"
+    },
+    {
+        "city":  "Antalya",
+        "district":  "Elmalı",
+        "name":  "Elmalı Açık Ceza İnfaz Kurumu (T Tipi)",
+        "addressLine":  "Yeni Mahalle Pir Abdal Musa Caddesi No:159/6",
+        "postalCode":  "",
+        "phone":  "0242 618 6068 -"
+    },
+    {
+        "city":  "Antalya",
+        "district":  "Elmalı",
+        "name":  "Elmalı T Tipi Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Bozhüyük Mahallesi Bozhüyük Küme Evleri No:306",
+        "postalCode":  "",
+        "phone":  "0242 626 2120 - 0242 626 2121"
+    },
+    {
+        "city":  "Antalya",
+        "district":  "Kumluca",
+        "name":  "Kumluca K1 Tipi Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "CUMHURİYET MAH. HİLAL SK. NO:139",
+        "postalCode":  "",
+        "phone":  "0242 887 2173 -"
+    },
+    {
+        "city":  "Antalya",
+        "district":  "Manavgat",
+        "name":  "Manavgat Açık Ceza İnfaz Kurumu (S Tipi)",
+        "addressLine":  "Bahçelievler Mah. 5011 Sok. No: 28 (Adliye Doğu Kapısı Karşı Sokağı)",
+        "postalCode":  "",
+        "phone":  "0242 743 3804 - 0507 820 0097"
+    },
+    {
+        "city":  "Antalya",
+        "district":  "Manavgat",
+        "name":  "Manavgat S Tipi Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Ilıca Mahallesi",
+        "postalCode":  "",
+        "phone":  "0242 747 6362 - 0242 747 6367"
+    },
+    {
+        "city":  "Ardahan",
+        "district":  "Merkez",
+        "name":  "Ardahan Açık Ceza İnfaz Kurumu (T Tipi)",
+        "addressLine":  "Kaptanpaşa Mahallesi İnönü Caddesi No:17",
+        "postalCode":  "",
+        "phone":  "0478 211 5160 -"
+    },
+    {
+        "city":  "Ardahan",
+        "district":  "Merkez",
+        "name":  "Ardahan T Tipi Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Halilefendi Mahallesi Bahtiyar Vahapzade Caddesi No:62",
+        "postalCode":  "",
+        "phone":  "0478 211 4575 -"
+    },
+    {
+        "city":  "Artvin",
+        "district":  "Ardanuç",
+        "name":  "Ardanuç Açık Ceza İnfaz Kurumu",
+        "addressLine":  "Miralay Şükrü Bey Cad.No:25",
+        "postalCode":  "",
+        "phone":  "0466 212 1095 -"
+    },
+    {
+        "city":  "Artvin",
+        "district":  "Merkez",
+        "name":  "Artvin Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Çayağzı Mah. Miralay Şükrübey Cad. No:166",
+        "postalCode":  "",
+        "phone":  "0466 212 1080 -"
+    },
+    {
+        "city":  "Aydın",
+        "district":  "Efeler",
+        "name":  "Aydın Açık Ceza İnfaz Kurumu",
+        "addressLine":  "Güzelhisar Mah. 73. Sk. No:15/A",
+        "postalCode":  "",
+        "phone":  "0 256 213 67 58 - 0 256 213 67 57"
+    },
+    {
+        "city":  "Aydın",
+        "district":  "Efeler",
+        "name":  "Aydın E Tipi Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Osman Yozgatlı Mah. Atatürk Bul. No:180",
+        "postalCode":  "",
+        "phone":  "0256 226 1774 - 0256 226 1792"
+    },
+    {
+        "city":  "Aydın",
+        "district":  "Çine",
+        "name":  "Çine 1 Nolu L Tipi Kapalı ve Açık Ceza İnfaz Kurumu",
+        "addressLine":  "Karakollar Mahallesi Mera Sokak No:2/A",
+        "postalCode":  "",
+        "phone":  "(0256) 502 34 20 - (0256) 502 34 05"
+    },
+    {
+        "city":  "Aydın",
+        "district":  "Çine",
+        "name":  "Çine A3 Tipi Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Şevketiye Mahallesi Atatürk Cd. No:1",
+        "postalCode":  "",
+        "phone":  "0256 711 6957 -"
+    },
+    {
+        "city":  "Aydın",
+        "district":  "Nazilli",
+        "name":  "Nazilli Açık Ceza İnfaz Kurumu (E Tipi)",
+        "addressLine":  "Yeşilyurt Mahallesi Denizli Caddesi No:105/A",
+        "postalCode":  "",
+        "phone":  "0256 314 0036 -"
+    },
+    {
+        "city":  "Aydın",
+        "district":  "Nazilli",
+        "name":  "Nazilli E Tipi Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Yıldıztepe mah.15 sk. No:99",
+        "postalCode":  "",
+        "phone":  "0256 318 0022 -"
+    },
+    {
+        "city":  "Aydın",
+        "district":  "Söke",
+        "name":  "Söke Açık Ceza İnfaz Kurumu (T Tipi)",
+        "addressLine":  "Kemalpaşa Mh. Futbol Sk. No:46",
+        "postalCode":  "",
+        "phone":  "0256 518 79 78 -"
+    },
+    {
+        "city":  "Aydın",
+        "district":  "Söke",
+        "name":  "Söke T Tipi Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Yuvaca Mah. 4468 Sokak. No:2",
+        "postalCode":  "",
+        "phone":  "0256 547 1328 - 0256 547 1115"
+    },
+    {
+        "city":  "Balıkesir",
+        "district":  "Ayvalık",
+        "name":  "Ayvalık Kadın Açık Ceza İnfaz Kurumu",
+        "addressLine":  "Altınova mahallesi Fuat Güngör Caddesi No:1",
+        "postalCode":  "",
+        "phone":  "0266 338 1110 -"
+    },
+    {
+        "city":  "Balıkesir",
+        "district":  "Altıeylül",
+        "name":  "Balıkesir Açık Ceza İnfaz Kurumu",
+        "addressLine":  "Bahçelievler Mh. 132. Cd. Toprak Sk. No:3",
+        "postalCode":  "",
+        "phone":  "0266 249 2905 -"
+    },
+    {
+        "city":  "Balıkesir",
+        "district":  "Kepsut",
+        "name":  "Balıkesir L Tipi Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "CAMİ CEDİD MAH.PİRİNÇLİK MEVKİ NO: 8",
+        "postalCode":  "",
+        "phone":  "0266 576 2000 -"
+    },
+    {
+        "city":  "Balıkesir",
+        "district":  "Bandırma",
+        "name":  "Bandırma 1 Nolu T Tipi Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Banvit Arkası Ömerli Köyü Yolu üzeri",
+        "postalCode":  "",
+        "phone":  "0266 733 84 61 - 0266 733 84 62"
+    },
+    {
+        "city":  "Balıkesir",
+        "district":  "Bandırma",
+        "name":  "Bandırma 2 Nolu T Tipi Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Banvit Arkası Ömerli Köyü Yolu üzeri",
+        "postalCode":  "",
+        "phone":  "0266 733 8632 - 0266 733 8634"
+    },
+    {
+        "city":  "Balıkesir",
+        "district":  "Bandırma",
+        "name":  "Bandırma Açık Ceza İnfaz Kurumu",
+        "addressLine":  "600 Evler Mahallesi NATO Caddesi No:28",
+        "postalCode":  "",
+        "phone":  "0 266 721 1166 - 0 266 721 1155"
+    },
+    {
+        "city":  "Balıkesir",
+        "district":  "Bandırma",
+        "name":  "Bandırma M Tipi Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Banvit Arkası Ömerli Mahallesi Ömerli Sokak NO:12/16",
+        "postalCode":  "",
+        "phone":  "0266 733 8370 - 0266 733 8372"
+    },
+    {
+        "city":  "Balıkesir",
+        "district":  "Burhaniye",
+        "name":  "Burhaniye Açık Ceza İnfaz Kurumu (T Tipi)",
+        "addressLine":  "Mahkeme Mah. Saip hoca Bulvarı no:17",
+        "postalCode":  "",
+        "phone":  "0266 412 6051 - 0 266 412 60 52"
+    },
+    {
+        "city":  "Balıkesir",
+        "district":  "Burhaniye",
+        "name":  "Burhaniye T Tipi Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Börezli Mahallesi",
+        "postalCode":  "",
+        "phone":  "0266 412 7549 -"
+    },
+    {
+        "city":  "Bartın",
+        "district":  "Merkez",
+        "name":  "Bartın Açık Ceza İnfaz Kurumu",
+        "addressLine":  "Kırtepe Mah. İlknur Erkan Sok. No:6/1",
+        "postalCode":  "",
+        "phone":  "0378 228 1868 -"
+    },
+    {
+        "city":  "Bartın",
+        "district":  "Merkez",
+        "name":  "Bartın Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Yıldız Köyü Mevkii",
+        "postalCode":  "",
+        "phone":  "0378 227 1731 -"
+    },
+    {
+        "city":  "Batman",
+        "district":  "Merkez",
+        "name":  "Batman Açık Ceza İnfaz Kurumu",
+        "addressLine":  "Yeni Adliye Sarayı A Blok Zemin Kat",
+        "postalCode":  "",
+        "phone":  "0488 502 2221 - 0507 820 0072"
+    },
+    {
+        "city":  "Batman",
+        "district":  "Beşiri",
+        "name":  "Batman Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Bağdu Mahallesi, Cezaevi Caddesi, No:2",
+        "postalCode":  "72200",
+        "phone":  "0488 311 3904 - 488 311 3905"
+    },
+    {
+        "city":  "Batman",
+        "district":  "Merkez",
+        "name":  "Batman M Tipi Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Çamlıca Mah. Felek Cd. No:117",
+        "postalCode":  "",
+        "phone":  "0(488) 231 22 37 -"
+    },
+    {
+        "city":  "Batman",
+        "district":  "Beşiri",
+        "name":  "Batman T Tipi Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Cumhuriyet Mahallesi Cezaevi Caddesi No:2",
+        "postalCode":  "",
+        "phone":  "0488 311 38 83 - 0488 311 38 84"
+    },
+    {
+        "city":  "Bayburt",
+        "district":  "Merkez",
+        "name":  "Bayburt Açık Ceza İnfaz Kurumu (M Tipi)",
+        "addressLine":  "Tuzcuzade Mahallesi Vali Nihat Üçyıldız Caddesi İl Özel İdaresi Hizmet Binası Kat: 1",
+        "postalCode":  "",
+        "phone":  "0458 211 8444 - 0507 820 0069"
+    },
+    {
+        "city":  "Bayburt",
+        "district":  "Aydıntepe",
+        "name":  "Bayburt M Tipi Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Şingah Mah. Aydıntepe Cad. No: 26",
+        "postalCode":  "",
+        "phone":  "0458 211 4420 -"
+    },
+    {
+        "city":  "Bilecik",
+        "district":  "Merkez",
+        "name":  "Bilecik M Tipi Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Hürriyet Mah. Cezaevi Sk. No:1 PK:11100",
+        "postalCode":  "11100",
+        "phone":  "0228 212 1037 - 0228 212 4404"
+    },
+    {
+        "city":  "Bilecik",
+        "district":  "Bozüyük",
+        "name":  "Bozüyük Açık Ceza İnfaz Kurumu",
+        "addressLine":  "Çarşı Mah.Karasu Mevkii Atatürk Cad.No:224",
+        "postalCode":  "",
+        "phone":  "0228 314 3827 - 0228 314 3827"
+    },
+    {
+        "city":  "Bilecik",
+        "district":  "Gölpazarı",
+        "name":  "Gölpazarı Açık Ceza İnfaz Kurumu",
+        "addressLine":  "Orgeneral Hüseyin Kıvrıkoğlu Caddesi Reşadiye Mahallesi no:142",
+        "postalCode":  "",
+        "phone":  "0228 411 4660 -"
+    },
+    {
+        "city":  "Bingöl",
+        "district":  "Merkez",
+        "name":  "Bingöl Açık Ceza İnfaz Kurumu",
+        "addressLine":  "Yenişehir Mah. Feyzullah Karaaslan Cad. Çapakçur İş Merkezi No:16 İç Kapı 10-19",
+        "postalCode":  "",
+        "phone":  "0426 213 2081 - 0507 820 0012"
+    },
+    {
+        "city":  "Bitlis",
+        "district":  "Ahlat",
+        "name":  "Ahlat Açık Ceza İnfaz Kurumu (T Tipi)",
+        "addressLine":  "Kırklar Mahallesi Ovakışla Yolun Sağ Tarafı",
+        "postalCode":  "",
+        "phone":  "0434 414 0387 - 0434 414 0389"
+    },
+    {
+        "city":  "Bitlis",
+        "district":  "Merkez",
+        "name":  "Ahlat T Tipi Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Taş Mah. Seyitali Cad. Eski Adliye Binası üst kat",
+        "postalCode":  "",
+        "phone":  "0434 226 6366 -"
+    },
+    {
+        "city":  "Bitlis",
+        "district":  "Merkez",
+        "name":  "Bitlis E Tipi Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Hüsrevpaşa Mahallesi 1222 Sokak Bina No:2/C",
+        "postalCode":  "",
+        "phone":  "0434 228 6234 - 0434 228 6236"
+    },
+    {
+        "city":  "Bitlis",
+        "district":  "Tatvan",
+        "name":  "Tatvan Açık Ceza İnfaz Kurumu",
+        "addressLine":  "Karşıyaka Mah. Cezaevi Sok. No:37",
+        "postalCode":  "",
+        "phone":  "0434 829 1344 - 0434 829 1345"
+    },
+    {
+        "city":  "Bolu",
+        "district":  "Merkez",
+        "name":  "Bolu Açık Ceza İnfaz Kurumu",
+        "addressLine":  "Borazanlar Mah. Hürriyet Caddesi No:36 Adak İş Hanı",
+        "postalCode":  "",
+        "phone":  "0374 212 8071 - 0507 820 0014"
+    },
+    {
+        "city":  "Bolu",
+        "district":  "Merkez",
+        "name":  "Bolu F Tipi Yüksek Güvenlikli Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Kuruçay Mah. Şehit Ümit Çetingöz Cad. No: 8",
+        "postalCode":  "14030",
+        "phone":  "0374 245 1201 - 0374 245 1202"
+    },
+    {
+        "city":  "Bolu",
+        "district":  "Merkez",
+        "name":  "Bolu T Tipi Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Kuruçay Mah. Şehit Ümit Çetingöz Cad. No:10",
+        "postalCode":  "14030",
+        "phone":  "0374 245 1718 - 0374 245 1719"
+    },
+    {
+        "city":  "Bolu",
+        "district":  "Gerede",
+        "name":  "Gerede Açık Ceza İnfaz Kurumu (L Tipi)",
+        "addressLine":  "Demirciler Mah. İsmail Gür Caddesi No:31/1",
+        "postalCode":  "",
+        "phone":  "0374 320 2010 - 0374 320 2011"
+    },
+    {
+        "city":  "Bolu",
+        "district":  "Gerede",
+        "name":  "Gerede L Tipi Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Demirciler Mah. İsmail Gür Caddesi No:31/1",
+        "postalCode":  "",
+        "phone":  "0374 320 2010 -"
+    },
+    {
+        "city":  "Burdur",
+        "district":  "Merkez",
+        "name":  "Burdur 1 Nolu Y Tipi Kapalı Ceza İnfaz Kurumu Müdürlüğü",
+        "addressLine":  "",
+        "postalCode":  "",
+        "phone":  "-"
+    },
+    {
+        "city":  "Burdur",
+        "district":  "Merkez",
+        "name":  "Burdur 2 Nolu Y Tipi Kapalı Ceza İnfaz Kurumu Müdürlüğü",
+        "addressLine":  "",
+        "postalCode":  "",
+        "phone":  "-"
+    },
+    {
+        "city":  "Burdur",
+        "district":  "Merkez",
+        "name":  "Burdur Açık Ceza İnfaz Kurumu",
+        "addressLine":  "Gökçebağ Köyü Kavakaltı Mevkii No:104",
+        "postalCode":  "",
+        "phone":  "0248 502 20 00 -"
+    },
+    {
+        "city":  "Burdur",
+        "district":  "Merkez",
+        "name":  "Burdur Açık Ceza İnfaz Kurumu (E Tipi)",
+        "addressLine":  "Emek mahallesi Bahar Sok. No:1",
+        "postalCode":  "",
+        "phone":  "0248 233 2011 -"
+    },
+    {
+        "city":  "Burdur",
+        "district":  "Merkez",
+        "name":  "Burdur E Tipi Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Yeni Mahalle, Armağan İlci Blv.No:12",
+        "postalCode":  "15030",
+        "phone":  "0248 233 1355 -"
+    },
+    {
+        "city":  "Burdur",
+        "district":  "Merkez",
+        "name":  "Burdur Kampüs Açık Ceza İnfaz Kurumu Müdürlüğü",
+        "addressLine":  "Büğdüz Köyü Oğuzhan Mevkii Cevat Sayılı 4. Sokak No:4/A",
+        "postalCode":  "",
+        "phone":  "0248 277 27 00 -"
+    },
+    {
+        "city":  "Burdur",
+        "district":  "Merkez",
+        "name":  "Burdur Yüksek Güvenlikli Kapalı Ceza İnfaz Kurumu Müdürlüğü",
+        "addressLine":  "Büğdüz Köyü Oğuzhan Mevki Cevat Sayılı 4.Sokak No:4/A",
+        "postalCode":  "",
+        "phone":  "0248 277 27 25 - 0248 277 27 26"
+    },
+    {
+        "city":  "Bursa",
+        "district":  "Osmangazi",
+        "name":  "Bursa Açık Ceza İnfaz Kurumu (E Tipi)",
+        "addressLine":  "Gaziakdemir Mahallesi, Mudanya Bulvarı No:4",
+        "postalCode":  "",
+        "phone":  "0224 253 09 50 - 0224 272 52 34"
+    },
+    {
+        "city":  "Bursa",
+        "district":  "Nilüfer",
+        "name":  "Bursa E Tipi Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Balat Mahallesi Cezaevi Caddesi",
+        "postalCode":  "16140",
+        "phone":  "0224 243 1238 - 0224 243 1239"
+    },
+    {
+        "city":  "Bursa",
+        "district":  "Nilüfer",
+        "name":  "Bursa H Tipi Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Balat Mahallesi Cezaevi Caddesi",
+        "postalCode":  "16140",
+        "phone":  "0224 243 38 46 - 0224 243 2212"
+    },
+    {
+        "city":  "Bursa",
+        "district":  "İnegöl",
+        "name":  "Gemlik Açık Ceza İnfaz Kurumu",
+        "addressLine":  "İnegöl Adalet Sarayı, Zemin Kat",
+        "postalCode":  "",
+        "phone":  "0224 711 7190 - 0533 051 8231"
+    },
+    {
+        "city":  "Bursa",
+        "district":  "Yenişehir",
+        "name":  "Yenişehir Kadın Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "100 YIL MAHALLESİ 2\u0027İNCİ CADDE NO:8/1",
+        "postalCode":  "",
+        "phone":  "0224 773 2124 - 0224 773 21 27"
+    },
+    {
+        "city":  "Çanakkale",
+        "district":  "Ayvacık",
+        "name":  "Ayvacık Açık Ceza İnfaz Kurumu",
+        "addressLine":  "Hamdibey Mh. Recep Yazıcıoğlu Sk. No: 6/A",
+        "postalCode":  "",
+        "phone":  "0286 712 4001 - 0286 712 4002"
+    },
+    {
+        "city":  "Çanakkale",
+        "district":  "Merkez",
+        "name":  "Çanakkale Açık Ceza İnfaz Kurumu",
+        "addressLine":  "Barbaros Mah. Yeni Yol Sk. No:2 (Adalet Sarayı)",
+        "postalCode":  "",
+        "phone":  "0286 214 0445 -"
+    },
+    {
+        "city":  "Çanakkale",
+        "district":  "Merkez",
+        "name":  "Çanakkale E Tipi Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Cevatpaşa Mahallesi Atikhisar Cd. No:87",
+        "postalCode":  "",
+        "phone":  "0286 217 2453 - 0286 217 2957"
+    },
+    {
+        "city":  "Çankırı",
+        "district":  "Orta",
+        "name":  "Orta Açık Ceza İnfaz Kurumu Müdürlüğü",
+        "addressLine":  "Sultan Beyazid Mahallesi Battal Gazi Sokak No: 9",
+        "postalCode":  "",
+        "phone":  "0376 615 2040 - 0376 615 2041"
+    },
+    {
+        "city":  "Çorum",
+        "district":  "Merkez",
+        "name":  "Çorum Açık Ceza İnfaz Kurumu (L Tipi)",
+        "addressLine":  "Çepni Mah. Fen Lisesi Caddesi No: 28",
+        "postalCode":  "",
+        "phone":  "0364 213 4392 - 0364 666 0193"
+    },
+    {
+        "city":  "Çorum",
+        "district":  "Merkez",
+        "name":  "Çorum L Tipi Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Akkent Mahallesi Organize Sanayi 1. Cadde No : 50",
+        "postalCode":  "",
+        "phone":  "0364 254 9780 -"
+    },
+    {
+        "city":  "Çorum",
+        "district":  "Sungurlu",
+        "name":  "İskilip Açık Ceza İnfaz Kurumu",
+        "addressLine":  "Hacettepe Mahallesi Sungurlu Adalet Sarayı Kat:1",
+        "postalCode":  "",
+        "phone":  "0364 311 4440 - 0507 820 0099"
+    },
+    {
+        "city":  "Çorum",
+        "district":  "Sungurlu",
+        "name":  "Sungurlu T Tipi Kapalı ve Açık Ceza İnfaz Kurumu",
+        "addressLine":  "Çiftlik Mah. Kümeevleri No:49/A",
+        "postalCode":  "",
+        "phone":  "0364 311 0919 - 0364 311 09 20"
+    },
+    {
+        "city":  "Denizli",
+        "district":  "Pamukkale",
+        "name":  "Bozkurt Kadın Açık Ceza İnfaz Kurumu",
+        "addressLine":  "Aktepe Mah. 2390 Sokak No:4 Pk.",
+        "postalCode":  "20200",
+        "phone":  "0258 268 6912 - 0258 268 6913"
+    },
+    {
+        "city":  "Denizli",
+        "district":  "Honaz",
+        "name":  "Denizli Açık Ceza İnfaz Kurumu",
+        "addressLine":  "Kocabaş Mah. Ankara Bulvarı No:143",
+        "postalCode":  "",
+        "phone":  "0258 814 5421 - 0258 814 5421"
+    },
+    {
+        "city":  "Denizli",
+        "district":  "Pamukkale",
+        "name":  "Denizli D Tipi Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Yunus Emre Mah. 6456 Sk. No:6",
+        "postalCode":  "",
+        "phone":  "0258 361 2878 - 0507 820 0020"
+    },
+    {
+        "city":  "Denizli",
+        "district":  "Honaz",
+        "name":  "Denizli T Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Kocabaş Mahallesi Ankara(Hürriyet) Bulvarı No.135/1 İç Kapı No:4",
+        "postalCode":  "",
+        "phone":  "0258 814 5260 - 0258 814 5262"
+    },
+    {
+        "city":  "Denizli",
+        "district":  "Sarayköy",
+        "name":  "Sarayköy Açık Ceza İnfaz Kurumu",
+        "addressLine":  "Sakarya Mah. Eski Gerali Yolu Sokak No: 3",
+        "postalCode":  "",
+        "phone":  "0258 415 2477 -"
+    },
+    {
+        "city":  "Diyarbakır",
+        "district":  "Kayapınar",
+        "name":  "Diyarbakır 1 Nolu T Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Talaytepe Mahallesi Talaytepe Küme Evleri",
+        "postalCode":  "",
+        "phone":  "0412 258 0256 - 0412 258 0257"
+    },
+    {
+        "city":  "Diyarbakır",
+        "district":  "Kayapınar",
+        "name":  "Diyarbakır 1 Nolu Yüksek Güvenlikli Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Talaytepe Mahallesi Talaytepe Küme Evleri",
+        "postalCode":  "21070",
+        "phone":  "0412 258 0993 -"
+    },
+    {
+        "city":  "Diyarbakır",
+        "district":  "Kayapınar",
+        "name":  "Diyarbakır 2 Nolu T Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Talaytepe Mahallesi Talaytepe Küme Evleri",
+        "postalCode":  "",
+        "phone":  "0412 258 0296 - 0412 258 0297"
+    },
+    {
+        "city":  "Diyarbakır",
+        "district":  "Kayapınar",
+        "name":  "Diyarbakır 2 Nolu Yüksek Güvenlikli Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Talaytepe Mahallesi Talaytepe Küme Evleri",
+        "postalCode":  "21070",
+        "phone":  "0412 258 0988 -"
+    },
+    {
+        "city":  "Diyarbakır",
+        "district":  "Kayapınar",
+        "name":  "Diyarbakır 3 Nolu T Tipi Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Talaytepe Mahallesi Talaytepe Küme Evleri",
+        "postalCode":  "21070",
+        "phone":  "0412 258 0994 - 0412 258 0984"
+    },
+    {
+        "city":  "Diyarbakır",
+        "district":  "Kayapınar",
+        "name":  "Diyarbakır 4 Nolu T Tipi Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Talaytepe Mahallesi 4020/1 Merkez",
+        "postalCode":  "",
+        "phone":  "0412 258 0990 - 0412 258 0997"
+    },
+    {
+        "city":  "Diyarbakır",
+        "district":  "Kayapınar",
+        "name":  "Diyarbakır Açık Ceza İnfaz Kurumu",
+        "addressLine":  "Talaytepe Mahallesi 4020/1. Sokak",
+        "postalCode":  "",
+        "phone":  "0(412) 258 02 88 -"
+    },
+    {
+        "city":  "Diyarbakır",
+        "district":  "Kayapınar",
+        "name":  "Diyarbakır Çocuk ve Gençlik Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Diyarbakır Adliye Sarayı Ek Hizmet Binası Peyas Mah. Fırat Bulvarı No:6",
+        "postalCode":  "",
+        "phone":  "0412 502 6237 -"
+    },
+    {
+        "city":  "Diyarbakır",
+        "district":  "",
+        "name":  "Diyarbakır Kadın Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "",
+        "postalCode":  "",
+        "phone":  "-"
+    },
+    {
+        "city":  "Düzce",
+        "district":  "Çilimli",
+        "name":  "Düzce T Tipi Kapalı / Açık Ceza İnfaz Kurumu",
+        "addressLine":  "Şerefiye mahallesi.Bağdat caddesi.No:125",
+        "postalCode":  "",
+        "phone":  "0380 523 61 46 - 0380 681 70 58"
+    },
+    {
+        "city":  "Edirne",
+        "district":  "Merkez",
+        "name":  "Edirne Açık Ceza İnfaz Kurumu",
+        "addressLine":  "İstasyon Mah. Hakim Çağlar Işık Cad. Edirne Adalet Sarayı",
+        "postalCode":  "22100",
+        "phone":  "0284 212 7108 - 0507 820 0022"
+    },
+    {
+        "city":  "Edirne",
+        "district":  "Merkez",
+        "name":  "Edirne F Tipi Yüksek Güvenlikli Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Avarız Köyü yolu üzeri 7. Km.",
+        "postalCode":  "",
+        "phone":  "0284 224 8053 - 0284 224 8054"
+    },
+    {
+        "city":  "Edirne",
+        "district":  "Merkez",
+        "name":  "Edirne L Tipi Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "",
+        "postalCode":  "",
+        "phone":  "-"
+    },
+    {
+        "city":  "Elazığ",
+        "district":  "Merkez",
+        "name":  "Elazığ 1 Nolu Yüksek Güvenlikli Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Ataşehir Mah. Çayırlı Sok. No:156",
+        "postalCode":  "",
+        "phone":  "0424 248 1313 - 0424 248 1559"
+    },
+    {
+        "city":  "Elazığ",
+        "district":  "Merkez",
+        "name":  "Elazığ 2 Nolu Yüksek Güvenlikli Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Ataşehir Mah. 2420 Sok. No:7/17",
+        "postalCode":  "",
+        "phone":  "0424 247 2531 - 0424 247 0558"
+    },
+    {
+        "city":  "Elazığ",
+        "district":  "Merkez",
+        "name":  "Elazığ Çocuk Eğitimevi",
+        "addressLine":  "Cumhuriyet Mahallesi Şehit Korgeneral Hulusi Sayın Caddesi No:17",
+        "postalCode":  "",
+        "phone":  "0424 247 8178 - 0507 820 0023"
+    },
+    {
+        "city":  "Elazığ",
+        "district":  "Merkez",
+        "name":  "Elazığ E Tipi Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Ataşehir Mah. Çayırlı Sokak No: 160",
+        "postalCode":  "",
+        "phone":  "0424 247 1111 -"
+    },
+    {
+        "city":  "Elazığ",
+        "district":  "Merkez",
+        "name":  "Elazığ Kampüs Açık Ceza İnfaz Kurumu",
+        "addressLine":  "Ataşehir Mah. Çayırlı Sok. No:148",
+        "postalCode":  "",
+        "phone":  "0424 248 2893 - 0424 248 2894"
+    },
+    {
+        "city":  "Elazığ",
+        "district":  "Merkez",
+        "name":  "Elazığ R Tipi Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Ataşehir Mahallesi 2420. Sokak No:7/14",
+        "postalCode":  "",
+        "phone":  "0424 247 7388 - 0424 248 2465"
+    },
+    {
+        "city":  "Elazığ",
+        "district":  "Merkez",
+        "name":  "Elazığ T Tipi Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Ataşehir Mah. 2420. Sk. No: 7/13 Posta Kodu: 23040 Malatya yolu 10. km.",
+        "postalCode":  "23040",
+        "phone":  "0424 248 1852 - 0424 248 1862"
+    },
+    {
+        "city":  "Elazığ",
+        "district":  "Karakoçan",
+        "name":  "Karakoçan K1 Tipi Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Kırkpınar Mahallesi, Hastane caddesi No: 25",
+        "postalCode":  "",
+        "phone":  "0424 711 2401 -"
+    },
+    {
+        "city":  "Elazığ",
+        "district":  "Sivrice",
+        "name":  "Sivrice Kadın Açık Ceza İnfaz Kurumu",
+        "addressLine":  "Sanayi Mahallesi Temur Irmak Caddesi No:85",
+        "postalCode":  "",
+        "phone":  "0424 411 2989 - 0424 411 2986"
+    },
+    {
+        "city":  "Erzincan",
+        "district":  "Merkez",
+        "name":  "Erzincan Açık Ceza İnfaz Kurumu",
+        "addressLine":  "İnönü Mah. Refik Aras Cad. Erzincan Valiliği Ek Hizmet Binası C Blok Kat: 3",
+        "postalCode":  "",
+        "phone":  "0446 223 3020 - 0507 820 0024"
+    },
+    {
+        "city":  "Erzincan",
+        "district":  "Merkez",
+        "name":  "Erzincan Kadın Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "24002 Gümüştarla, Organize Sanayi Bölgesi Erzincan Ceza İnfaz Kurumları Kampüsü",
+        "postalCode":  "24002",
+        "phone":  "0446 251 1087 - 0446 251 1088"
+    },
+    {
+        "city":  "Erzincan",
+        "district":  "Merkez",
+        "name":  "Erzincan Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "",
+        "postalCode":  "",
+        "phone":  "0446 223 0112 - 0446 223 0114"
+    },
+    {
+        "city":  "Erzincan",
+        "district":  "Merkez",
+        "name":  "Erzincan L Tipi Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Gümüştarla Köyü Organize Sanayi Bölgesi Erzincan Ceza İnfaz Kurumları Kampüsü",
+        "postalCode":  "",
+        "phone":  "0446 251 1401 - 0446 251 1403"
+    },
+    {
+        "city":  "Erzincan",
+        "district":  "Merkez",
+        "name":  "Erzincan T Tipi Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Organize Sanayii Bölgesi 12/1 Sokak",
+        "postalCode":  "",
+        "phone":  "0446 251 1235 - 0446 251 1236"
+    },
+    {
+        "city":  "Erzincan",
+        "district":  "Merkez",
+        "name":  "Erzincan Yüksek Güvenlikli Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "24002 Gümüştarla, Organize Sanayi Bölgesi",
+        "postalCode":  "24002",
+        "phone":  "0446 251 1145 - 0446 251 1157"
+    },
+    {
+        "city":  "Erzurum",
+        "district":  "Aziziye",
+        "name":  "Aziziye 1 Nolu Y Tipi Kapalı Ceza İnfaz Kurumu Müdürlüğü",
+        "addressLine":  "Yarımca Mahallesi Mehmet Kırkıncı Sokak Numara 20, Aziziye Ceza İnfaz Kurumları Kampüsü",
+        "postalCode":  "",
+        "phone":  "0(442) 502 1060 - 0(442) 502 1061"
+    },
+    {
+        "city":  "Erzurum",
+        "district":  "Aziziye",
+        "name":  "Aziziye 2 Nolu Y Tipi Kapalı Ceza İnfaz Kurumu Müdürlüğü",
+        "addressLine":  "Yarımca Mahallesi Mehmet Kırkıncı Sokak Numara 20, Aziziye Ceza İnfaz Kurumları Kampüsü",
+        "postalCode":  "",
+        "phone":  "0(442) 502 1052 - 0(442) 502 1053"
+    },
+    {
+        "city":  "Erzurum",
+        "district":  "Yakutiye",
+        "name":  "Aziziye Açık Ceza İnfaz Kurumu Müdürlüğü",
+        "addressLine":  "Tortum Yolu Üzeri",
+        "postalCode":  "",
+        "phone":  "0442 242 5065 -"
+    },
+    {
+        "city":  "Erzurum",
+        "district":  "Yakutiye",
+        "name":  "Dumlu 1 Nolu Yüksek Güvenlikli Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Dumlu mahallesi Dumlu Ceza İnfaz Kampüsü",
+        "postalCode":  "",
+        "phone":  "0442 263 2010 - 0442 263 20 22"
+    },
+    {
+        "city":  "Erzurum",
+        "district":  "Yakutiye",
+        "name":  "Dumlu 2 Nolu Yüksek Güvenlikli Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Dumlu Mahallesi Dumlu Cezeaevi Kampüsü",
+        "postalCode":  "",
+        "phone":  "0442 263 20 13 - 0442 263 20 14"
+    },
+    {
+        "city":  "Erzurum",
+        "district":  "Yakutiye",
+        "name":  "Dumlu Açık Ceza İnfaz Kurumu",
+        "addressLine":  "Dumlu Mah.Halit Paşa Cad. Açcık Cezaevi No:30/1",
+        "postalCode":  "",
+        "phone":  "0442 263 2784 -"
+    },
+    {
+        "city":  "Erzurum",
+        "district":  "Yakutiye",
+        "name":  "Erzurum Açık Ceza İnfaz Kurumu",
+        "addressLine":  "Muratpaşa Mahallesi Yenişehir Caddesi No:15",
+        "postalCode":  "",
+        "phone":  "0442 235 7528 - 0507 820 0025"
+    },
+    {
+        "city":  "Erzurum",
+        "district":  "Yakutiye",
+        "name":  "Erzurum E Tipi Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "İbrahim Hakkı Mahallesi Filiz 2 Caddesi",
+        "postalCode":  "25050",
+        "phone":  "0 (442) 242 71 15 - 0 (442) 242 71 11"
+    },
+    {
+        "city":  "Erzurum",
+        "district":  "Yakutiye",
+        "name":  "Erzurum H Tipi Yüksek Güvenlikli Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "İbrahim Hakkı Mah. Filiz caddesi",
+        "postalCode":  "25050",
+        "phone":  "0442 242 7156 -"
+    },
+    {
+        "city":  "Erzurum",
+        "district":  "Hınıs",
+        "name":  "Hınıs A1 Tipi Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Yeşilbahçe Mahallesi 1017. Sokak No:6 Hınıs Adliye Sarayı Zemin Kat",
+        "postalCode":  "",
+        "phone":  "0442 511 33 41 - 0507 820 0125"
+    },
+    {
+        "city":  "Erzurum",
+        "district":  "Oltu",
+        "name":  "Narman Açık Ceza İnfaz Kurumu",
+        "addressLine":  "Karabekir Mah. Kehribat Sokak Eski Adliye Lojmanları B Blok No: 2B Pk:25400",
+        "postalCode":  "25400",
+        "phone":  "0442 816 5852 -"
+    },
+    {
+        "city":  "Erzurum",
+        "district":  "Oltu",
+        "name":  "Oltu T Tipi Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "OLTU HALİTPAŞA MAH. ŞEHİT FATİH ALBAYRAK CAD.",
+        "postalCode":  "",
+        "phone":  "0442 816 1385 -"
+    },
+    {
+        "city":  "Eskişehir",
+        "district":  "Tepebaşı",
+        "name":  "Eskişehir 1 Nolu Açık Ceza İnfaz Kurumu",
+        "addressLine":  "Gazipaşa Mah. Güvenir Sok. No:1",
+        "postalCode":  "",
+        "phone":  "0222 322 2019 - 0222 322 2067"
+    },
+    {
+        "city":  "Eskişehir",
+        "district":  "Odunpazarı",
+        "name":  "Eskişehir 2 Nolu Açık Ceza İnfaz Kurumu",
+        "addressLine":  "Arifiye Mah. Müftülük Sok. No:8",
+        "postalCode":  "",
+        "phone":  "0222 230 9211 - 0222 220 79 79"
+    },
+    {
+        "city":  "Eskişehir",
+        "district":  "Odunpazarı",
+        "name":  "Eskişehir H Tipi Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Akpınar Mah. 483. Sok. No:40",
+        "postalCode":  "",
+        "phone":  "0222 417 6003 - 0222 417 6001"
+    },
+    {
+        "city":  "Eskişehir",
+        "district":  "Odunpazarı",
+        "name":  "Eskişehir L Tipi Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Akpınar Mah. 483 Sok. No:38",
+        "postalCode":  "",
+        "phone":  "0222 417 6101 - 0222 417 6116"
+    },
+    {
+        "city":  "Gaziantep",
+        "district":  "Şahinbey",
+        "name":  "Gaziantep Açık Ceza İnfaz Kurumu",
+        "addressLine":  "Aydınbaba mah. İnönü Cad. No:198",
+        "postalCode":  "",
+        "phone":  "0342 322 8460 -"
+    },
+    {
+        "city":  "Gaziantep",
+        "district":  "Şehitkamil",
+        "name":  "Gaziantep E Tipi Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Kayaönü Mh. Turgut özal Blv. No:3",
+        "postalCode":  "",
+        "phone":  "0342 321 0945 -"
+    },
+    {
+        "city":  "Gaziantep",
+        "district":  "Şehitkamil",
+        "name":  "Gaziantep H Tipi Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Kayaönü Mahallesi Turgut Özal Bulvarı 3/1",
+        "postalCode":  "",
+        "phone":  "0342 321 0947 -"
+    },
+    {
+        "city":  "Gaziantep",
+        "district":  "Şehitkamil",
+        "name":  "Gaziantep L Tipi Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Yavuzeli yolu Güngörge Mahallesi 114001 nolu cadde no:147",
+        "postalCode":  "",
+        "phone":  "0342 482 1018 - 0342 482 1019"
+    },
+    {
+        "city":  "Gaziantep",
+        "district":  "Şehitkamil",
+        "name":  "Gaziantep Şehitkamil Açık Ceza İnfaz Kurumu",
+        "addressLine":  "Yavuzeli Yolu Güngörge Mah. 114001 Nolu Cd:147",
+        "postalCode":  "",
+        "phone":  "0342 482 1008 -"
+    },
+    {
+        "city":  "Gaziantep",
+        "district":  "İslahiye",
+        "name":  "İslahiye Açık Ceza İnfaz Kurumu (T Tipi)",
+        "addressLine":  "Beyler Mah. Avukat Levent Erdoğan Cad. 9/2",
+        "postalCode":  "",
+        "phone":  "0 342 869 31 00 -"
+    },
+    {
+        "city":  "Gaziantep",
+        "district":  "İslahiye",
+        "name":  "İslahiye T Tipi Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Beyler Mahallesi Beyler Yolu Üzeri No: 3/1",
+        "postalCode":  "",
+        "phone":  "0342 502 4030 - 0342 502 4028"
+    },
+    {
+        "city":  "Gaziantep",
+        "district":  "Nizip",
+        "name":  "Nizip Açık Ceza İnfaz Kurumu (T Tipi)",
+        "addressLine":  "Fatih Sultan Mahallesi Akpek Sokak No:22/1 Nizip Adliyesi Ek Hizmet Binası",
+        "postalCode":  "",
+        "phone":  "03425176644 -"
+    },
+    {
+        "city":  "Gaziantep",
+        "district":  "Nizip",
+        "name":  "Nizip T Tipi Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Karkamış yolu doğrular mahallesi doğrular sokak No:12/6",
+        "postalCode":  "",
+        "phone":  "0342 502 3610 - 0342 503 2111"
+    },
+    {
+        "city":  "Giresun",
+        "district":  "Espiye",
+        "name":  "Espiye Açık Ceza İnfaz Kurumu (L Tipi)",
+        "addressLine":  "Karadere Mahallesi Osman Kıran Mevki Küme Evleri 3/6",
+        "postalCode":  "",
+        "phone":  "0454 620 0060 -"
+    },
+    {
+        "city":  "Giresun",
+        "district":  "Şebinkarahisar",
+        "name":  "Espiye L Tipi Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Şebinkarahisar Adalet Sarayı Denetimli Serbestlik Müdürlüğü",
+        "postalCode":  "28400",
+        "phone":  "0454 711 4546 - 0507 820 0128"
+    },
+    {
+        "city":  "Giresun",
+        "district":  "Şebinkarahisar",
+        "name":  "Şebinkarahisar K2 Tipi Kapalı ve Açık Ceza İnfaz Kurumu",
+        "addressLine":  "Bülbül Mahallesi Sebahattin Okutan Sok. No : 4 Şebinkarahisar K2 Tipi Kapalı ve Açık Ceza İnfaz Kurumu Müdürlüğü",
+        "postalCode":  "",
+        "phone":  "0454 711 26 90 -"
+    },
+    {
+        "city":  "Gümüşhane",
+        "district":  "Merkez",
+        "name":  "Gümüşhane E Tipi Kapalı / Açık Ceza İnfaz Kurumu",
+        "addressLine":  "Osmangazi mahallesi Atatürk caddesi no:11 Bahçeli Beldesi",
+        "postalCode":  "",
+        "phone":  "0456 252 2156 - 0456 252 2158"
+    },
+    {
+        "city":  "Hakkari",
+        "district":  "Yüksekova",
+        "name":  "Hakkari Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Yeni Mahalle Milli Egemenlik Cad. Eski Devlet Hastanesi Binası İlçe Sağlık Müdürlüğü 4. Kat",
+        "postalCode":  "",
+        "phone":  "0438 351 7062 - 5348914675"
+    },
+    {
+        "city":  "Hatay",
+        "district":  "Antakya",
+        "name":  "Antakya Açık Ceza İnfaz Kurumu",
+        "addressLine":  "",
+        "postalCode":  "",
+        "phone":  "-"
+    },
+    {
+        "city":  "Hatay",
+        "district":  "Yayladağı",
+        "name":  "Hatay Açık Ceza İnfaz Kurumu (T Tipi)",
+        "addressLine":  "Yukarıokçular Mah. Cezaevi Cad. No: 2",
+        "postalCode":  "",
+        "phone":  "0326 236 1476 - 0326 236 1478"
+    },
+    {
+        "city":  "Hatay",
+        "district":  "Antakya",
+        "name":  "Hatay Çocuk ve Gençlik Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Odabaşı Mahallesi Tekel Caddesi No:4/J",
+        "postalCode":  "",
+        "phone":  "0326 227 12 63 -"
+    },
+    {
+        "city":  "Hatay",
+        "district":  "Yayladağı",
+        "name":  "Hatay T Tipi Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Yukarıokçular Mah. Cezaevi Cad. No: 1",
+        "postalCode":  "",
+        "phone":  "0326 236 1476 - 0326 236 1478"
+    },
+    {
+        "city":  "Hatay",
+        "district":  "İskenderun",
+        "name":  "İskenderun Açık Ceza İnfaz Kurumu",
+        "addressLine":  "Gürsel Mahallesi Eyüp Sultan Caddesi No: 2 ( İskenderun Adalet Sarayı Kat:4 )",
+        "postalCode":  "",
+        "phone":  "0326 618 5500 -"
+    },
+    {
+        "city":  "Hatay",
+        "district":  "Arsuz",
+        "name":  "İskenderun T Tipi Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Karahüseyinli Mah. Arsuz Yolu 12.km",
+        "postalCode":  "",
+        "phone":  "0326 631 4333 - 0326 631 4334"
+    },
+    {
+        "city":  "Hatay",
+        "district":  "Kırıkhan",
+        "name":  "Kırıkhan Açık Ceza İnfaz Kurumu",
+        "addressLine":  "",
+        "postalCode":  "",
+        "phone":  "-"
+    },
+    {
+        "city":  "Iğdır",
+        "district":  "Merkez",
+        "name":  "Iğdır Açık Ceza İnfaz Kurumu",
+        "addressLine":  "14 Kasım Mah. Nihat Polat Cad. Ticaret ve Sanayo Odası Binası Kat:1",
+        "postalCode":  "",
+        "phone":  "0476 227 0821 -"
+    },
+    {
+        "city":  "Iğdır",
+        "district":  "Merkez",
+        "name":  "Iğdır S Tipi Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Küllük Köyü Küllük Küme Evler No:422 Havaalanı Yolu Üzeri Küllük",
+        "postalCode":  "",
+        "phone":  "0476 278 5802 -"
+    },
+    {
+        "city":  "Isparta",
+        "district":  "Merkez",
+        "name":  "Isparta Açık Ceza İnfaz Kurumu (E Tipi)",
+        "addressLine":  "Gazi Kemal Mahallesi 120. cadde no :16",
+        "postalCode":  "",
+        "phone":  "0246 232 5083 - 0 246 202 26 96"
+    },
+    {
+        "city":  "Isparta",
+        "district":  "Merkez",
+        "name":  "Isparta E Tipi Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Davraz Mahallesi 142 Cadde No: 87",
+        "postalCode":  "",
+        "phone":  "0246 2243488 - 0246 224 3589"
+    },
+    {
+        "city":  "Isparta",
+        "district":  "Yalvaç",
+        "name":  "Yalvaç Açık Ceza İnfaz Kurumu (T Tipi)",
+        "addressLine":  "Çarşı Mah. Cumhuriyet Cad. Çarşı Kültür Merkezi Kat:4 No:4",
+        "postalCode":  "",
+        "phone":  "0246 441 3649 - 0507 820 0132"
+    },
+    {
+        "city":  "Isparta",
+        "district":  "Yalvaç",
+        "name":  "Yalvaç T Tipi Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Bağlar Mah. Zemzem 2 Sok. No:1",
+        "postalCode":  "",
+        "phone":  "0246 441 4251 -"
+    },
+    {
+        "city":  "İstanbul",
+        "district":  "Kadıköy",
+        "name":  "Bakırköy Kadın Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Hasan Paşa Mah. Uzunçayır Yolu Cd. No:18",
+        "postalCode":  "",
+        "phone":  "0216 545 2900 - 0507 820 0091"
+    },
+    {
+        "city":  "İstanbul",
+        "district":  "Beşiktaş",
+        "name":  "İstanbul Çocuk Eğitimevi",
+        "addressLine":  "Gayrettepe Mahallesi Yıldız Posta Caddesi No:4",
+        "postalCode":  "",
+        "phone":  "0212 521 8787 - 0507 820 0034"
+    },
+    {
+        "city":  "İstanbul",
+        "district":  "Pendik",
+        "name":  "Kartal Açık Ceza İnfaz Kurumu (H Tipi)",
+        "addressLine":  "Velibaba Mah. Yakacık Cd. No:104",
+        "postalCode":  "",
+        "phone":  "0216 583 0913 -"
+    },
+    {
+        "city":  "İstanbul",
+        "district":  "Kartal",
+        "name":  "Kartal H Tipi Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Beşyol Mah. Eski Londra Asfaltı Yolu No:12 Küçükçemece",
+        "postalCode":  "",
+        "phone":  "0212 598 85 88 - 0212 598 84 88"
+    },
+    {
+        "city":  "İstanbul",
+        "district":  "Maltepe",
+        "name":  "Maltepe 1 Nolu L Tipi Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Maltepe Ceza infaz Kurumları Kampüsü Yakacık cad. No:13 Büyükbakkalköy",
+        "postalCode":  "",
+        "phone":  "0216 564 65 11 -"
+    },
+    {
+        "city":  "İstanbul",
+        "district":  "Maltepe",
+        "name":  "Maltepe 2 Nolu L Tipi Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Büyükbakkalköy Mahahlesi Yakacıkyolu Sok. No:13",
+        "postalCode":  "",
+        "phone":  "0216 564 6521 - 0216 564 6522"
+    },
+    {
+        "city":  "İstanbul",
+        "district":  "Maltepe",
+        "name":  "Maltepe 3 Nolu L Tipi Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Büyükbakkalköy Mah. Yakacık Yolu Üzeri No:13",
+        "postalCode":  "",
+        "phone":  "0216 564 6531 - 0216 564 6532"
+    },
+    {
+        "city":  "İstanbul",
+        "district":  "Maltepe",
+        "name":  "Maltepe Açık Ceza İnfaz Kurumu",
+        "addressLine":  "Büyükbakkalköy Mahallesi Yakacık Yolu Sokak No:13",
+        "postalCode":  "",
+        "phone":  "0216 564 65 01 -"
+    },
+    {
+        "city":  "İstanbul",
+        "district":  "Maltepe",
+        "name":  "Maltepe Çocuk ve Gençlik Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Büyükbakkalköy Mah. Yakacık Yolu Sok. No: 13",
+        "postalCode":  "",
+        "phone":  "0216 564 6541 - 0216 561 8160"
+    },
+    {
+        "city":  "İstanbul",
+        "district":  "Silivri",
+        "name":  "Marmara 1 Nolu L Tipi Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Semizkumlar Mah. Silivri Ceza İnfaz Kurumları Kampüsü",
+        "postalCode":  "34550",
+        "phone":  "0212 726 0609 -"
+    },
+    {
+        "city":  "İstanbul",
+        "district":  "Silivri",
+        "name":  "Marmara 2 Nolu L Tipi Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Semizkumlar Mah. Silivri Ceza İnfaz Kurumları Kampüsü",
+        "postalCode":  "34550",
+        "phone":  "0212 726 0056 - 0212 726 0057"
+    },
+    {
+        "city":  "İstanbul",
+        "district":  "Silivri",
+        "name":  "Marmara 3 Nolu L Tipi Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Semizkumlar Mah. Silivri Ceza İnfaz Kurumları Kampüsü",
+        "postalCode":  "34550",
+        "phone":  "0212 726 0026 -"
+    },
+    {
+        "city":  "İstanbul",
+        "district":  "Silivri",
+        "name":  "Marmara 4 Nolu L Tipi Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Semizkumlar Mahallesi Çanta Caddesi Marmara Ceza İnfaz Kurumları Kampüsü",
+        "postalCode":  "",
+        "phone":  "0212 726 0023 - 0212 726 0024"
+    },
+    {
+        "city":  "İstanbul",
+        "district":  "Silivri",
+        "name":  "Marmara 5 Nolu L Tipi Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Semizkumlar Mah. Silivri Ceza İnfaz Kurumları Kampüsü",
+        "postalCode":  "34550",
+        "phone":  "0212 726 0032 -"
+    },
+    {
+        "city":  "İstanbul",
+        "district":  "Silivri",
+        "name":  "Marmara 6 Nolu L Tipi Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Semizkumlar Mah. Silivri Ceza İnfaz Kurumları Kampüsü",
+        "postalCode":  "34550",
+        "phone":  "0212 726 0006 -"
+    },
+    {
+        "city":  "İstanbul",
+        "district":  "Silivri",
+        "name":  "Marmara 7 Nolu L Tipi Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Semizkumlar Mah. Silivri Ceza İnfaz Kurumları Kampüsü",
+        "postalCode":  "34550",
+        "phone":  "0212 726 0010 - 0212 726 0007"
+    },
+    {
+        "city":  "İstanbul",
+        "district":  "Silivri",
+        "name":  "Marmara 8 Nolu L Tipi Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Semizkumlar Mah. Silivri Ceza İnfaz Kurumları Kampüsü",
+        "postalCode":  "34550",
+        "phone":  "0212 726 0008 - 0212 726 0011"
+    },
+    {
+        "city":  "İstanbul",
+        "district":  "Silivri",
+        "name":  "Marmara Açık Ceza İnfaz Kurumu",
+        "addressLine":  "Semizkumlar Mah. Çanta Caddesi Marmara Ceza İnfaz Kurumu",
+        "postalCode":  "",
+        "phone":  "0212 726 0000 - 0212 866 6100"
+    },
+    {
+        "city":  "İstanbul",
+        "district":  "Silivri",
+        "name":  "Marmara Kadın Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Semizkumlar Mahallesi Çanta Caddesi No:162/2",
+        "postalCode":  "",
+        "phone":  "0212 890 2217 - 0212 890 2227"
+    },
+    {
+        "city":  "İstanbul",
+        "district":  "Silivri",
+        "name":  "Marmara Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Semizkumlar Mah. Silivri Ceza İnfaz Kurumları Kampüsü",
+        "postalCode":  "34550",
+        "phone":  "0212 726 0684 - 0212 726 0686"
+    },
+    {
+        "city":  "İstanbul",
+        "district":  "Esenler",
+        "name":  "Metris 1 Nolu T Tipi Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "15 Temmuz Mahallesi Eski Edirne Asfaltı üzeri No:419",
+        "postalCode":  "",
+        "phone":  "0212 538 5056 - 0212 617 5220"
+    },
+    {
+        "city":  "İstanbul",
+        "district":  "Esenler",
+        "name":  "Metris 2 Nolu T Tipi Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Oruçreis Mahallesi Eski Edirne Asfaltı Üzeri No:419",
+        "postalCode":  "",
+        "phone":  "0212 477 66 15 - 0212 618 56 17"
+    },
+    {
+        "city":  "İstanbul",
+        "district":  "Silivri",
+        "name":  "Metris R Tipi Kapalı Ceza İnfaz Kurumu (Rehabilitasyon Merkezi)",
+        "addressLine":  "Alibey Mahellesi Şerif Sokak No: 18 P.K. :",
+        "postalCode":  "34570",
+        "phone":  "0212 729 0781 - 0212 729 07 80"
+    },
+    {
+        "city":  "İstanbul",
+        "district":  "Ümraniye",
+        "name":  "Ümraniye E Tipi Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "İnkılap Mah. Küçüksu Cad. No :267/B",
+        "postalCode":  "",
+        "phone":  "0216 632 43 47 - 0216 632 43 49"
+    },
+    {
+        "city":  "İstanbul",
+        "district":  "Ümraniye",
+        "name":  "Ümraniye T Tipi Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "İnkılap Mah. Küçüksu Cad. Hekimbaşı Mevkii No:265/1",
+        "postalCode":  "",
+        "phone":  "0216 631 65 16 - 0216 632 54 05"
+    },
+    {
+        "city":  "İstanbul",
+        "district":  "Üsküdar",
+        "name":  "Üsküdar/Paşakapısı Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Salacak mh. Paşakapısı sk. No:1",
+        "postalCode":  "",
+        "phone":  "0216 342 1171 -"
+    },
+    {
+        "city":  "İzmir",
+        "district":  "Bergama",
+        "name":  "Bergama Açık Ceza İnfaz Kurumu (M Tipi)",
+        "addressLine":  "Ertuğrul Mahallesi Kaymakam Kemal Bey Cad. No:4/2",
+        "postalCode":  "",
+        "phone":  "0232 633 3290 -"
+    },
+    {
+        "city":  "İzmir",
+        "district":  "Bergama",
+        "name":  "Bergama M Tipi Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "",
+        "postalCode":  "",
+        "phone":  "-"
+    },
+    {
+        "city":  "İzmir",
+        "district":  "Foça",
+        "name":  "Foça Açık Ceza İnfaz Kurumu",
+        "addressLine":  "Yeni Bağarası Mahallesi, İmam Tepe Mevkii Kümeevler No:9",
+        "postalCode":  "",
+        "phone":  "0 232 827 1004 - 0232 827 1005"
+    },
+    {
+        "city":  "İzmir",
+        "district":  "Aliağa",
+        "name":  "İzmir / Aliağa Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Aliağa Ceza İnfaz Kurumları Kampüsü, Bahçedere Köyü No:63 Yenişakran",
+        "postalCode":  "",
+        "phone":  "0232 655 0140 -"
+    },
+    {
+        "city":  "İzmir",
+        "district":  "Buca",
+        "name":  "İzmir 1 Nolu F Tipi Yüksek Güvenlikli Ceza İnfaz Kurumu",
+        "addressLine":  "Karatekeli Caddesi No:10 Kırıklar Mevkii",
+        "postalCode":  "",
+        "phone":  "0232 427 1212 - 0232 427 1191"
+    },
+    {
+        "city":  "İzmir",
+        "district":  "Aliağa",
+        "name":  "İzmir 1 Nolu T Tipi Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Aliağa Ceza İnfaz Kurumları Kampüsü, Bahçedere Köyü No:63 Yenişakran",
+        "postalCode":  "",
+        "phone":  "0232 618 1013 - 0232 618 15 80"
+    },
+    {
+        "city":  "İzmir",
+        "district":  "Buca",
+        "name":  "İzmir 2 Nolu F Tipi Yüksek Güvenlikli Ceza İnfaz Kurumu",
+        "addressLine":  "Karatekeli Caddesi No:58/1 Kırıklar Mevkii",
+        "postalCode":  "",
+        "phone":  "0232 427 11 86 - 0232 427 1185"
+    },
+    {
+        "city":  "İzmir",
+        "district":  "Aliağa",
+        "name":  "İzmir 2 Nolu T Tipi Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Aliağa Ceza İnfaz Kurumları Kampüsü, Bahçedere Köyü No:63 Yenişakran",
+        "postalCode":  "",
+        "phone":  "0232 618 1022 - 0232 618 1025"
+    },
+    {
+        "city":  "İzmir",
+        "district":  "Aliağa",
+        "name":  "İzmir 3 Nolu T Tipi Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Aliağa Ceza İnfaz Kurumları Kampüsü, Bahçedere Köyü No:63 Yenişakran",
+        "postalCode":  "",
+        "phone":  "0232 618 1032 - 0232 618 1033"
+    },
+    {
+        "city":  "İzmir",
+        "district":  "Aliağa",
+        "name":  "İzmir 4 Nolu T Tipi Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Aliağa Ceza İnfaz Kurumları Kampüsü, Bahçedere Köyü No:63 Yenişakran",
+        "postalCode":  "",
+        "phone":  "0232 618 1043 -"
+    },
+    {
+        "city":  "İzmir",
+        "district":  "Aliağa",
+        "name":  "İzmir Açık Ceza İnfaz Kurumu",
+        "addressLine":  "Aliağa Ceza İnfaz Kurumları Kampüsü, Bahçedere Köyü No:63 Yenişakran",
+        "postalCode":  "",
+        "phone":  "0232 618 1003 - 0232 618 1009"
+    },
+    {
+        "city":  "İzmir",
+        "district":  "Buca",
+        "name":  "İzmir Buca Açık Ceza İnfaz Kurumu",
+        "addressLine":  "Kırklar Mahallesi, Karatekeli Cad. No:58/3",
+        "postalCode":  "",
+        "phone":  "0232 487 1366 - 0232 487 3170"
+    },
+    {
+        "city":  "İzmir",
+        "district":  "Buca",
+        "name":  "İzmir Buca Yüksek Güvenlikli Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Kırklar Mh. Karatekeli Cd. No:58/2 Kırklar",
+        "postalCode":  "",
+        "phone":  "0232 427 6003 - 0232 427 6004"
+    },
+    {
+        "city":  "İzmir",
+        "district":  "Buca",
+        "name":  "İzmir Çocuk ve Gençlik Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "İnkılap Mahallesi, Akdoğan Caddesi No:4",
+        "postalCode":  "",
+        "phone":  "0232 449 32 54 - 0232 469 50 76"
+    },
+    {
+        "city":  "İzmir",
+        "district":  "Buca",
+        "name":  "İzmir Kadın Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "İnkılap Mah. Akdoğan Cad. Şirinyer Nato Yanı No:4",
+        "postalCode":  "",
+        "phone":  "0232 381 0707 - 0507 820 0196"
+    },
+    {
+        "city":  "İzmir",
+        "district":  "Menemen",
+        "name":  "Menemen R Tipi Kapalı ve Açık Ceza İnfaz Kurumu",
+        "addressLine":  "Hatundere Mah. Hatundere Cad. No:100",
+        "postalCode":  "",
+        "phone":  "0232 507 10 42 - 0232 507 10 43"
+    },
+    {
+        "city":  "İzmir",
+        "district":  "Menemen",
+        "name":  "Menemen T Tipi Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Hatundere Mah. Hatundere Sok. No:15",
+        "postalCode":  "",
+        "phone":  "0232 507 1050 - 0232 507 1052"
+    },
+    {
+        "city":  "İzmir",
+        "district":  "Ödemiş",
+        "name":  "Ödemiş Açık Ceza İnfaz Kurumu (M Tipi)",
+        "addressLine":  "Anafartalar Mahallesi 1257 Sokak No: 4",
+        "postalCode":  "",
+        "phone":  "0232 546 0125 -"
+    },
+    {
+        "city":  "İzmir",
+        "district":  "Ödemiş",
+        "name":  "Ödemiş Açık Ceza İnfaz Kurumu (T Tipi)",
+        "addressLine":  "Ödemiş Adalet Sarayı Anafartalar Mahallesi Şehit Adnan Menderes Bulvarı No:154",
+        "postalCode":  "",
+        "phone":  "0232 545 4623 -"
+    },
+    {
+        "city":  "İzmir",
+        "district":  "Ödemiş",
+        "name":  "Ödemiş M Tipi Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Anafartalar Mahallesi 1257 Sokak No: 4",
+        "postalCode":  "",
+        "phone":  "0232 546 0125 -"
+    },
+    {
+        "city":  "İzmir",
+        "district":  "Ödemiş",
+        "name":  "Ödemiş T Tipi Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Kaymakçı Mah.Esseli Kümü Evleri No:11",
+        "postalCode":  "",
+        "phone":  "0232 557 2053 - 0232 557 2056"
+    },
+    {
+        "city":  "İzmir",
+        "district":  "Torbalı",
+        "name":  "Torbalı Açık Ceza İnfaz Kurumu",
+        "addressLine":  "",
+        "postalCode":  "",
+        "phone":  "-"
+    },
+    {
+        "city":  "İzmir",
+        "district":  "Urla",
+        "name":  "Urla Çocuk Eğitimevi",
+        "addressLine":  "Rüstem Mah. Yıldıztepe Sk. No: 11",
+        "postalCode":  "",
+        "phone":  "0232 754 1290 -"
+    },
+    {
+        "city":  "Kahramanmaraş",
+        "district":  "Dulkadiroğlu",
+        "name":  "Kahramanmaraş Açık Ceza İnfaz Kurumu",
+        "addressLine":  "İsmetpaşa Mah. Azerbaycan Bulvarı No:25",
+        "postalCode":  "",
+        "phone":  "0 344 211 16 88 -"
+    },
+    {
+        "city":  "Kahramanmaraş",
+        "district":  "Türkoğlu",
+        "name":  "Türkoğlu 1 Nolu L Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Ceceli Mah. Adana Asfaltı Cad.",
+        "postalCode":  "",
+        "phone":  "0344 625 1341 -"
+    },
+    {
+        "city":  "Kahramanmaraş",
+        "district":  "Türkoğlu",
+        "name":  "Türkoğlu 2 Nolu L Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Ceceli Mahallesi Adana Asfaltı Caddesi 1/6G",
+        "postalCode":  "",
+        "phone":  "0344 625 1123 - 0344 625 1265"
+    },
+    {
+        "city":  "Kahramanmaraş",
+        "district":  "Türkoğlu",
+        "name":  "Türkoğlu Açık Ceza İnfaz Kurumu",
+        "addressLine":  "Ceceli Mah. Adana Asfaltı Caddesi",
+        "postalCode":  "",
+        "phone":  "0344 625 1010 -"
+    },
+    {
+        "city":  "Karabük",
+        "district":  "Eskipazar",
+        "name":  "Eskipazar Açık Ceza İnfaz Kurumu",
+        "addressLine":  "Yeni Mahalle Kıncılar Sokak No: 1",
+        "postalCode":  "",
+        "phone":  "0370 818 1303 -"
+    },
+    {
+        "city":  "Karabük",
+        "district":  "Merkez",
+        "name":  "Karabük Açık Ceza İnfaz Kurumu (T Tipi)",
+        "addressLine":  "Adliye Ek Binası Hürriyet Mah. Zonguldak Cad. Çağrı İş Merkezi A.Blok Kat:3",
+        "postalCode":  "",
+        "phone":  "0370 412 6206 - 0370 415 22 88"
+    },
+    {
+        "city":  "Karabük",
+        "district":  "Merkez",
+        "name":  "Karabük T Tipi Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Zopran Köyü Mevkii",
+        "postalCode":  "",
+        "phone":  "0370 447 6446 - 0370 447 6448"
+    },
+    {
+        "city":  "Karabük",
+        "district":  "Merkez",
+        "name":  "Ovacık Açık Ceza İnfaz Kurumu (T Tipi)",
+        "addressLine":  "Ovacık",
+        "postalCode":  "",
+        "phone":  "0370 877 1005 -"
+    },
+    {
+        "city":  "Karaman",
+        "district":  "Ermenek",
+        "name":  "Ermenek M Tipi Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Seyran Mah. Müsteşar Muzaffer Tutar Cad. No: 24",
+        "postalCode":  "",
+        "phone":  "0338 716 4523 -"
+    },
+    {
+        "city":  "Karaman",
+        "district":  "Merkez",
+        "name":  "Karaman Açık Ceza İnfaz Kurumu (M Tipi)",
+        "addressLine":  "Mansurdede Mahallesi 143. Sokak No:1/1",
+        "postalCode":  "",
+        "phone":  "0338 214 10 57 -"
+    },
+    {
+        "city":  "Karaman",
+        "district":  "Merkez",
+        "name":  "Karaman M Tipi Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Çeltek Mah. Cezaevi Yolu Cad.",
+        "postalCode":  "",
+        "phone":  "0338 213 1093 -"
+    },
+    {
+        "city":  "Kars",
+        "district":  "Merkez",
+        "name":  "Kars Açık Ceza İnfaz Kurumu",
+        "addressLine":  "Karadağ Mahallesi Vali Hüseyin Atak Bulvarı Ardahan Yolu Üzeri",
+        "postalCode":  "",
+        "phone":  "0474 212 9071 -"
+    },
+    {
+        "city":  "Kars",
+        "district":  "Merkez",
+        "name":  "Kars Açık Ceza İnfaz Kurumu ( T Tipi)",
+        "addressLine":  "Merkez Mah. Davut Aksu Cad. Turgut Reis Binası 75/A KAT: 5",
+        "postalCode":  "",
+        "phone":  "0474 223 8989 - 0507 820 0036"
+    },
+    {
+        "city":  "Kars",
+        "district":  "Merkez",
+        "name":  "Kars T Tipi Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Aydınlık Evler Mah. Subatan Yolu Mevkii Nato Yolu Üzeri No:60",
+        "postalCode":  "",
+        "phone":  "0474 212 9427 -"
+    },
+    {
+        "city":  "Kastamonu",
+        "district":  "İnebolu",
+        "name":  "Araç Açık Ceza İnfaz Kurumu",
+        "addressLine":  "Avara Mahallesi , Şehit Er Rahmi YILMAZER Caddesi No:42 İnebolu Adalet Sarayı",
+        "postalCode":  "",
+        "phone":  "0366 811 4257 - 0507 820 0136"
+    },
+    {
+        "city":  "Kastamonu",
+        "district":  "Merkez",
+        "name":  "Kastamonu Açık Ceza İnfaz Kurumu (E Tipi)",
+        "addressLine":  "Candaroğulları Mah. Miralay Halitbey Cad. No:7",
+        "postalCode":  "",
+        "phone":  "0366 215 0347 -"
+    },
+    {
+        "city":  "Kastamonu",
+        "district":  "Merkez",
+        "name":  "Kastamonu E Tipi Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Candaroğulları Mah. Miralay Halitbey Cad. No:15/1",
+        "postalCode":  "",
+        "phone":  "0366 215 1047 - 0366 215 1426"
+    },
+    {
+        "city":  "Kayseri",
+        "district":  "Develi",
+        "name":  "Develi B Tipi Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "İbrahimağa Mah.Karamüftü Cad. 5/1 Kat 3-4",
+        "postalCode":  "",
+        "phone":  "0352 331 31 38 -"
+    },
+    {
+        "city":  "Kayseri",
+        "district":  "Bünyan",
+        "name":  "Kayseri 1 Nolu T Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Camiikebir Mah. Çardakkaya Sırtı Küme Evler No:1",
+        "postalCode":  "",
+        "phone":  "0352 712 1124 - 0352 712 1437"
+    },
+    {
+        "city":  "Kayseri",
+        "district":  "Bünyan",
+        "name":  "Kayseri 2 Nolu T Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Camiikebir Mah. Çardakkaya Sırtı Küme Evler No:1",
+        "postalCode":  "",
+        "phone":  "0352 712 1321 - 0352 712 0891"
+    },
+    {
+        "city":  "Kayseri",
+        "district":  "Bünyan",
+        "name":  "Kayseri Açık Ceza İnfaz Kurumu",
+        "addressLine":  "Camiikebir Mah. Çardakkaya Sırtı Küme Evler No:1",
+        "postalCode":  "",
+        "phone":  "0352 712 3538 -"
+    },
+    {
+        "city":  "Kayseri",
+        "district":  "Melikgazi",
+        "name":  "Kayseri Çocuk ve Gençlik Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Tacettinveli Mahallesi Tacettinveli Bulvarı No : 26",
+        "postalCode":  "",
+        "phone":  "0(352) 221 16 32 -"
+    },
+    {
+        "city":  "Kayseri",
+        "district":  "Bünyan",
+        "name":  "Kayseri Kadın Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Yakutiye Mahallesi, 1237. Sokak, No:10",
+        "postalCode":  "38600",
+        "phone":  "0352 712 3509 - 0352 712 2934"
+    },
+    {
+        "city":  "Kayseri",
+        "district":  "Melikgazi",
+        "name":  "Kayseri Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Gültepe Mahallesi Yapısanat Okulu 3.Sokak No:9",
+        "postalCode":  "",
+        "phone":  "0352 235 6366 - 0352 235 54 00"
+    },
+    {
+        "city":  "Kırıkkale",
+        "district":  "Delice",
+        "name":  "Delice Kapalı ve Açık Ceza İnfaz Kurumu",
+        "addressLine":  "Karabekir Mahallesi 51. Sokak No : 6",
+        "postalCode":  "",
+        "phone":  "0318 618 5110 -"
+    },
+    {
+        "city":  "Kırıkkale",
+        "district":  "Keskin",
+        "name":  "Keskin Açık Ceza İnfaz Kurumu",
+        "addressLine":  "Bozkurt Mahallesi Bozkurt/1 Sokak No: 5A",
+        "postalCode":  "",
+        "phone":  "0318 515 3443 - 0318 515 3445"
+    },
+    {
+        "city":  "Kırıkkale",
+        "district":  "Merkez",
+        "name":  "Keskin T Tipi Ceza İnfaz Kurumu",
+        "addressLine":  "Fabrikalar Mah. Ağabey Pehlivanlı Bul. No:1 (Kırıkkale Adalet Sarayı)",
+        "postalCode":  "",
+        "phone":  "0318 224 4483 -"
+    },
+    {
+        "city":  "Kırıkkale",
+        "district":  "Merkez",
+        "name":  "Kırıkkale F Tipi Yüksek Güvenlikli Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Hacıbey Mah. 71480 Hacılar",
+        "postalCode":  "71480",
+        "phone":  "0318 297 4194 -"
+    },
+    {
+        "city":  "Kırıkkale",
+        "district":  "Sulakyurt",
+        "name":  "Sulakyurt Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Yenimahalle Koru Cad.",
+        "postalCode":  "",
+        "phone":  "0318 812 7089 -"
+    },
+    {
+        "city":  "Kırklareli",
+        "district":  "Merkez",
+        "name":  "Kırklareli Açık Ceza İnfaz Kurumu",
+        "addressLine":  "Karacaibrahim Mahallesi Ambarlar Sokak No:11",
+        "postalCode":  "",
+        "phone":  "0288 212 4898 -"
+    },
+    {
+        "city":  "Kırklareli",
+        "district":  "Merkez",
+        "name":  "Kırklareli E Tipi Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Bademlik Mah. Rodoplular Cad. E Tipi Ceza İnfaz Kurumu Sitesi No:52",
+        "postalCode":  "",
+        "phone":  "0288 2124299 -"
+    },
+    {
+        "city":  "Kırklareli",
+        "district":  "Pınarhisar",
+        "name":  "Pınarhisar Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Beylik Mah. Salih Bilinmez Cad. No.139/1",
+        "postalCode":  "",
+        "phone":  "0288 615 1100 -"
+    },
+    {
+        "city":  "Kırklareli",
+        "district":  "Vize",
+        "name":  "Vize Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Gazi Mahallesi Develi Yolu Sokak no:28",
+        "postalCode":  "",
+        "phone":  "0288 318 2005 -"
+    },
+    {
+        "city":  "Kırşehir",
+        "district":  "Merkez",
+        "name":  "Kırşehir 1 Nolu Açık Ceza İnfaz Kurumu",
+        "addressLine":  "Kırşehir Ankara Karayolu 18. Km. Çuğun Mevkii",
+        "postalCode":  "",
+        "phone":  "0386 224 3424 -"
+    },
+    {
+        "city":  "Kırşehir",
+        "district":  "Merkez",
+        "name":  "Kırşehir 2 Nolu Açık Ceza İnfaz Kurumu",
+        "addressLine":  "Aşıkpaşa Mah, Ahmet Yesevi Blv. No 12",
+        "postalCode":  "40200",
+        "phone":  "0386 214 48 38 -"
+    },
+    {
+        "city":  "Kırşehir",
+        "district":  "Merkez",
+        "name":  "Kırşehir E Tipi Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Bağbaşı Mah. 962. Sk. No:7",
+        "postalCode":  "",
+        "phone":  "0386 213 3382 -"
+    },
+    {
+        "city":  "Kırşehir",
+        "district":  "Merkez",
+        "name":  "Kırşehir S Tipi Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Kuşdilli Mahallesi, Ekizağıl Sokak No:43",
+        "postalCode":  "",
+        "phone":  "0386 213 0144 - 0386 213 01 55"
+    },
+    {
+        "city":  "Kırşehir",
+        "district":  "Merkez",
+        "name":  "Kırşehir Y Tipi Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Kuşdilli Mahallesi, Ekizağıl Sokak No:43 Kırşehir Kampüs Ceza İnfaz Kurumları",
+        "postalCode":  "",
+        "phone":  "0386 212 1711 - 0386 212 1714"
+    },
+    {
+        "city":  "Kırşehir",
+        "district":  "Merkez",
+        "name":  "Kırşehir Yüksek Güvenlikli Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Kuşdilli Mahallesi, Ekizağıl Sokak No:43",
+        "postalCode":  "",
+        "phone":  "0386 213 6013 - 0386 213 6020"
+    },
+    {
+        "city":  "Kilis",
+        "district":  "Merkez",
+        "name":  "Kilis Açık Ceza İnfaz Kurumu (L Tipi)",
+        "addressLine":  "Cumhuriyet Meydanı Kilis Adliyesi Giriş Kat.",
+        "postalCode":  "",
+        "phone":  "0348 822 1154 - 0507 820 0079"
+    },
+    {
+        "city":  "Kocaeli",
+        "district":  "Gebze",
+        "name":  "Gebze Kadın Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Arapçeşme Mah. Şehitonbaşı Ontay Cd. N:2",
+        "postalCode":  "",
+        "phone":  "0262 641 1164 -"
+    },
+    {
+        "city":  "Kocaeli",
+        "district":  "İzmit",
+        "name":  "Kocaeli 1 Nolu F Tipi Yüksek Güvenlikli Ceza İnfaz Kurumu",
+        "addressLine":  "Kandıra Yolu 20. Km. Çal Mevkii",
+        "postalCode":  "",
+        "phone":  "0262 5815623 - 0262 5815624"
+    },
+    {
+        "city":  "Kocaeli",
+        "district":  "İzmit",
+        "name":  "Kocaeli 1 Nolu T Tipi Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Kandıra Yolu 20. Km. Çal Mevkii",
+        "postalCode":  "41600",
+        "phone":  "0262 581 5053 - 0262 581 5044"
+    },
+    {
+        "city":  "Kocaeli",
+        "district":  "İzmit",
+        "name":  "Kocaeli 2 Nolu F Tipi Yüksek Güvenlikli Ceza İnfaz Kurumu",
+        "addressLine":  "Kandıra Yolu 20. Km. Çal Mevkii",
+        "postalCode":  "41600",
+        "phone":  "0262 581 5642 - 0262 581 5643"
+    },
+    {
+        "city":  "Kocaeli",
+        "district":  "Kandıra",
+        "name":  "Kocaeli 2 Nolu T Tipi Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Kandıra Yolu Üzeri 22. km Çal Mevkii",
+        "postalCode":  "",
+        "phone":  "0262 581 59 19 - 0262 581 5920"
+    },
+    {
+        "city":  "Kocaeli",
+        "district":  "İzmit",
+        "name":  "Kocaeli Açık Ceza İnfaz Kurumu",
+        "addressLine":  "Mehmetalipaşa Mah. Turan Güneş Cad. No:244/2 (Üçyol Mevkii Vakıfbanak Üstü)",
+        "postalCode":  "",
+        "phone":  "0262 325 5766 - 0538 395 2247"
+    },
+    {
+        "city":  "Konya",
+        "district":  "Akşehir",
+        "name":  "Akşehir Açık Ceza İnfaz Kurumu (T Tipi)",
+        "addressLine":  "Yeni Mah. 34003. Sok. PTT Karşısı Kat:2-3, No:1",
+        "postalCode":  "",
+        "phone":  "0332 812 1473 - 0507 820 0082"
+    },
+    {
+        "city":  "Konya",
+        "district":  "Akşehir",
+        "name":  "Akşehir T Tipi Kapalı ve Açık Ceza İnfaz Kurumu",
+        "addressLine":  "Kozağaç mahallesi 31333 sokak 3.toplu konut no:25",
+        "postalCode":  "",
+        "phone":  "0 332 813 63 21 -"
+    },
+    {
+        "city":  "Konya",
+        "district":  "Ereğli",
+        "name":  "Ereğli (Konya) 2 Nolu Y Tipi Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Sarıtopallı Mahallesi, Konya Ereğli Caddesi, 1690/C",
+        "postalCode":  "",
+        "phone":  "0332 717 0436 - 0332 717 0425"
+    },
+    {
+        "city":  "Konya",
+        "district":  "Ereğli",
+        "name":  "Ereğli (Konya) Açık Ceza İnfaz Kurumu (T Tipi)",
+        "addressLine":  "Toros Mah. Yurt Cad. No:17",
+        "postalCode":  "",
+        "phone":  "0332 710 2023 -"
+    },
+    {
+        "city":  "Konya",
+        "district":  "Ereğli",
+        "name":  "Ereğli (Konya) Kampüs Açık Ceza İnfaz Kurumu Müdürlüğü",
+        "addressLine":  "Sarıtopallı Mahallesi Konya Ereğli Caddesi 10.Km No:1690 Organize Sanayi Bölgesi Kavşağı",
+        "postalCode":  "",
+        "phone":  "0332 717 0064 -"
+    },
+    {
+        "city":  "Konya",
+        "district":  "Ereğli",
+        "name":  "Ereğli (Konya) T Tipi Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Toros Mah. Yurt Cad. No:17",
+        "postalCode":  "",
+        "phone":  "0332 710 2031 - 0332 710 2032"
+    },
+    {
+        "city":  "Konya",
+        "district":  "Ereğli",
+        "name":  "Ereğli 1 Nolu Y Tipi Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Hıdırlı Mahallesi 90704. No: 10",
+        "postalCode":  "",
+        "phone":  "0332 713 59 84 -"
+    },
+    {
+        "city":  "Konya",
+        "district":  "Ereğli",
+        "name":  "Ereğli Yüksek Güvenlikli Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Sarıtopallı Mahallesi Konya Ereğli Caddesi 1690/A",
+        "postalCode":  "",
+        "phone":  "0332 717 0453 - 0332 717 0463"
+    },
+    {
+        "city":  "Konya",
+        "district":  "Selçuklu",
+        "name":  "Konya Açık Ceza İnfaz Kurumu",
+        "addressLine":  "İhsaniye Mahallesi Müneccimbaşı Sokak No.5-C",
+        "postalCode":  "",
+        "phone":  "0332 355 8860 -"
+    },
+    {
+        "city":  "Konya",
+        "district":  "Karatay",
+        "name":  "Konya E Tipi Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Akabe Mahallesi Alaaddin Kab Cad. No:140",
+        "postalCode":  "",
+        "phone":  "0332 355 1332 - 0332 355 1334"
+    },
+    {
+        "city":  "Konya",
+        "district":  "Seydişehir",
+        "name":  "Seydişehir Açık Ceza İnfaz Kurumu (T Tipi)",
+        "addressLine":  "Hacıseyitali Mahallesi Atatürk Caddesi No:2 Kat:4",
+        "postalCode":  "",
+        "phone":  "0332 582 8798 - 0332 582 3618"
+    },
+    {
+        "city":  "Konya",
+        "district":  "Seydişehir",
+        "name":  "Seydişehir T Tipi Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Kurtuluş Caddesi Saadetler Mah. No:9",
+        "postalCode":  "",
+        "phone":  "0332 582 4014 - 0332 582 3014"
+    },
+    {
+        "city":  "Kütahya",
+        "district":  "Domaniç",
+        "name":  "Domaniç Açık Ceza İnfaz Kurumu",
+        "addressLine":  "Hisar Mahallesi Kalınharman Caddesi No:54/3",
+        "postalCode":  "",
+        "phone":  "0274 661 35 11 -"
+    },
+    {
+        "city":  "Kütahya",
+        "district":  "Merkez",
+        "name":  "Kütahya Açık Ceza İnfaz Kurumu (T Tipi)",
+        "addressLine":  "30 Ağustos Mh. Pilot Cd. Azot Sitesi E-2 Blok No: 17",
+        "postalCode":  "",
+        "phone":  "0 274 216 30 60 -"
+    },
+    {
+        "city":  "Kütahya",
+        "district":  "Merkez",
+        "name":  "Kütahya T Tipi Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Hilalkent Mh. Ceza İnfaz Kurumu Yerleşkesi No:1",
+        "postalCode":  "",
+        "phone":  "0274 225 6678 - 0274 225 6679"
+    },
+    {
+        "city":  "Kütahya",
+        "district":  "Tavşanlı",
+        "name":  "Tavşanlı Açık Ceza İnfaz Kurumu (T Tipi)",
+        "addressLine":  "Yeni Mahalle. Emet Caddesi. No:27/3",
+        "postalCode":  "",
+        "phone":  "0274 615 2521 - 0507 820 0143"
+    },
+    {
+        "city":  "Kütahya",
+        "district":  "Tavşanlı",
+        "name":  "Tavşanlı T Tipi Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Çukurköy Mahallesi Yeni Sanayi Leblebiciler Sitesi Küme Evleri No:24",
+        "postalCode":  "",
+        "phone":  "0274 616 1143 -"
+    },
+    {
+        "city":  "Malatya",
+        "district":  "Akçadağ",
+        "name":  "Akçadağ Açık Ceza İnfaz Kurumu",
+        "addressLine":  "Kotangölü Mahallesi Kotangölü Sokak No:112/4",
+        "postalCode":  "",
+        "phone":  "0422 503 3030 - 0422 503 3031"
+    },
+    {
+        "city":  "Malatya",
+        "district":  "Akçadağ",
+        "name":  "Akçadağ T Tipi Kapalı ve Açık Ceza İnfaz Kurumu",
+        "addressLine":  "Kotangölü Mahallesi ,Kotangölü Sokak No:112/4",
+        "postalCode":  "",
+        "phone":  "0422 504 3030 -"
+    },
+    {
+        "city":  "Malatya",
+        "district":  "Doğanşehir",
+        "name":  "Doğanşehir Açık Ceza İnfaz Kurumu",
+        "addressLine":  "Yolkoru Mahallesi Yolkoru Küme Evleri Sokak No:10",
+        "postalCode":  "",
+        "phone":  "0422 517 3032 -"
+    },
+    {
+        "city":  "Malatya",
+        "district":  "Battalgazi",
+        "name":  "Malatya Açık Ceza İnfaz Kurumu",
+        "addressLine":  "Halefettin Mah. Adliye Sk. No:10",
+        "postalCode":  "",
+        "phone":  "0422 324 1676 - 0 422 324 16 77"
+    },
+    {
+        "city":  "Manisa",
+        "district":  "Akhisar",
+        "name":  "Akhisar Açık Ceza İnfaz Kurumu",
+        "addressLine":  "Hürriyet Mahallesi 223 Sokak No:51",
+        "postalCode":  "",
+        "phone":  "0236 412 6029 - 0507 820 0145"
+    },
+    {
+        "city":  "Manisa",
+        "district":  "Alaşehir",
+        "name":  "Akhisar T Tipi Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Sakarya Mah. İsmetpaşa Cad. No: 44 Kat:3 Adliye Ek Bina",
+        "postalCode":  "",
+        "phone":  "0236 653 6371 -"
+    },
+    {
+        "city":  "Manisa",
+        "district":  "Alaşehir",
+        "name":  "Alaşehir M Tipi Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Barış Mah.Yıldırım Beyazıt Cad,No:95",
+        "postalCode":  "",
+        "phone":  "0236 653 1502 -"
+    },
+    {
+        "city":  "Manisa",
+        "district":  "Demirci",
+        "name":  "Demirci Açık Ceza İnfaz Kurumu Müdürlüğü",
+        "addressLine":  "Şehreküstü Mahallesi Anadolu_1 Caddesi No:27/1",
+        "postalCode":  "",
+        "phone":  "0236 462 1023 - 0236 462 1123"
+    },
+    {
+        "city":  "Manisa",
+        "district":  "Şehzadeler",
+        "name":  "Manisa 1 Nolu T Tipi Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Çınarlıkuyu Mah. Çınarlıkuyu Sok. No:224/C",
+        "postalCode":  "",
+        "phone":  "0236 265 7232 - 0236 265 7233"
+    },
+    {
+        "city":  "Manisa",
+        "district":  "",
+        "name":  "Manisa 2 Nolu T Tipi Kapalı Ceza İnfaz Kurumu Müdürlüğü",
+        "addressLine":  "",
+        "postalCode":  "",
+        "phone":  "-"
+    },
+    {
+        "city":  "Manisa",
+        "district":  "Şehzadeler",
+        "name":  "Manisa Açık Ceza İnfaz Kurumu",
+        "addressLine":  "Çınarlıkuyu Mah. Çınarlıkuyu Sok. No:224/D",
+        "postalCode":  "",
+        "phone":  "0236 265 7236 -"
+    },
+    {
+        "city":  "Manisa",
+        "district":  "Yunusemre",
+        "name":  "Manisa Açık Ceza İnfaz Kurumu (E Tipi)",
+        "addressLine":  "Merkezefendi Mh. 3819 Sok. No:80/5-6",
+        "postalCode":  "",
+        "phone":  "0236 236 3301 - 0236 250 0144"
+    },
+    {
+        "city":  "Manisa",
+        "district":  "Şehzadeler",
+        "name":  "Manisa E Tipi Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Turgut Özal Mah. Turgutlu Caddesi No: 98",
+        "postalCode":  "45040",
+        "phone":  "0236 231 5791 - 0236 231 6302"
+    },
+    {
+        "city":  "Manisa",
+        "district":  "",
+        "name":  "Manisa L Tipi Kapalı Ceza İnfaz Kurumu Müdürlüğü",
+        "addressLine":  "",
+        "postalCode":  "",
+        "phone":  "-"
+    },
+    {
+        "city":  "Manisa",
+        "district":  "Salihli",
+        "name":  "Salihli Açık Ceza İnfaz Kurumu (T Tipi)",
+        "addressLine":  "Eskicami Mahallesi 23. Sok. No:11 Adliye Ek Hizmet Binası",
+        "postalCode":  "",
+        "phone":  "0236 714 9818 -"
+    },
+    {
+        "city":  "Manisa",
+        "district":  "Turgutlu",
+        "name":  "Salihli T Tipi Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Selvilitepe Mahallesi, Irlamaz Yolu Caddesi, No:54",
+        "postalCode":  "",
+        "phone":  "0236 312 10 70 -"
+    },
+    {
+        "city":  "Mardin",
+        "district":  "Artuklu",
+        "name":  "Mardin E Tipi Kapalı / Açık Ceza İnfaz Kurumu",
+        "addressLine":  "Kotek Mahallesi Nusaybin Caddesi No: 114",
+        "postalCode":  "",
+        "phone":  "0482 212 1377 -"
+    },
+    {
+        "city":  "Mardin",
+        "district":  "Midyat",
+        "name":  "Midyat Açık Ceza İnfaz Kurumu (M Tipi)",
+        "addressLine":  "Seyitler Mahallesi Cumhuriyet Bulvarı No 87 Midyat Adalet Sarayı 1. Kat",
+        "postalCode":  "",
+        "phone":  "0482 462 6564 - 0507 820 0147"
+    },
+    {
+        "city":  "Mardin",
+        "district":  "Midyat",
+        "name":  "Midyat M Tipi Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Bahçelievler mah. Nusaybin Cad. No:75",
+        "postalCode":  "",
+        "phone":  "0482 462 1149 -"
+    },
+    {
+        "city":  "Mersin",
+        "district":  "Anamur",
+        "name":  "Anamur Açık Ceza İnfaz Kurumu (T Tipi)",
+        "addressLine":  "",
+        "postalCode":  "",
+        "phone":  "-"
+    },
+    {
+        "city":  "Mersin",
+        "district":  "Anamur",
+        "name":  "Anamur T Tipi Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Malaklar Mahallesi Güzeller Sk. No: 49/1",
+        "postalCode":  "",
+        "phone":  "0324 814 8439 -"
+    },
+    {
+        "city":  "Mersin",
+        "district":  "Erdemli",
+        "name":  "Erdemli K2 Tipi Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Koyuncu Mah. Cezaevi Sokak Dışkapı No: 32/A",
+        "postalCode":  "",
+        "phone":  "0324 515 1991 -"
+    },
+    {
+        "city":  "Mersin",
+        "district":  "Akdeniz",
+        "name":  "Mersin Açık Ceza İnfaz Kurumu (E Tipi)",
+        "addressLine":  "Uray Caddesi Yeni Mahalle No:1",
+        "postalCode":  "",
+        "phone":  "0324 238 5547 - 0507 820 0033"
+    },
+    {
+        "city":  "Mersin",
+        "district":  "Akdeniz",
+        "name":  "Mersin E Tipi Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Çilek Mah. 134 Cad. No: 76",
+        "postalCode":  "",
+        "phone":  "0324 221 7319 - 0324 221 7332"
+    },
+    {
+        "city":  "Mersin",
+        "district":  "Silifke",
+        "name":  "Silifke Açık Ceza İnfaz Kurumu (M Tipi)",
+        "addressLine":  "Saray Mahallesi 120. Sokak 2/3",
+        "postalCode":  "",
+        "phone":  "0324 713 0327 - 0507 820 0133"
+    },
+    {
+        "city":  "Mersin",
+        "district":  "Silifke",
+        "name":  "Silifke M Tipi Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Sarıcalar Mahallesi 543.Sokak No:26",
+        "postalCode":  "",
+        "phone":  "0324 714 1609 - 0324 714 9044"
+    },
+    {
+        "city":  "Mersin",
+        "district":  "Tarsus",
+        "name":  "Tarsus 1 Nolu T Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Alifakı Mahallesi Alifakı sokak Tarsus Ceza İnfaz Kurumları Kampüsü No:246",
+        "postalCode":  "",
+        "phone":  "0324 644 6317 - 0324 644 6445"
+    },
+    {
+        "city":  "Mersin",
+        "district":  "Tarsus",
+        "name":  "Tarsus 2 Nolu T Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Alifakı Mahallesi Alifakı sokak Tarsus Ceza İnfaz Kurumları Kampüsü No:246",
+        "postalCode":  "",
+        "phone":  "0324 644 6280 -"
+    },
+    {
+        "city":  "Mersin",
+        "district":  "Tarsus",
+        "name":  "Tarsus 3 Nolu T Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Alifakı Mahallesi Alifakı sokak Tarsus Ceza İnfaz Kurumları Kampüsü No:246",
+        "postalCode":  "",
+        "phone":  "0324 644 6386 -"
+    },
+    {
+        "city":  "Mersin",
+        "district":  "Tarsus",
+        "name":  "Tarsus Açık Ceza İnfaz Kurumu",
+        "addressLine":  "Alifakı Mahallesi Alifakı sokak Tarsus Ceza İnfaz Kurumları Kampüsü No:246",
+        "postalCode":  "",
+        "phone":  "0324 644 6118 -"
+    },
+    {
+        "city":  "Mersin",
+        "district":  "Tarsus",
+        "name":  "Tarsus Çocuk ve Gençlik Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Tozkoparan Zahit Mah . Kasım Gülek Bulvarı Belediye Yanı",
+        "postalCode":  "",
+        "phone":  "0324 613 0349 - 0507 820 0183"
+    },
+    {
+        "city":  "Mersin",
+        "district":  "Tarsus",
+        "name":  "Tarsus Kadın Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Alifakı Mahallesi Alifakı sokak Tarsus Ceza İnfaz Kurumları Kampüsü No:246",
+        "postalCode":  "",
+        "phone":  "0324 644 6174 -"
+    },
+    {
+        "city":  "Muğla",
+        "district":  "Bodrum",
+        "name":  "Bodrum A1 Tipi Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Umurça Mahallesi Cevat Şakir Cad. No:106",
+        "postalCode":  "",
+        "phone":  "0252 316 3010 -"
+    },
+    {
+        "city":  "Muğla",
+        "district":  "Bodrum",
+        "name":  "Bodrum Açık Ceza İnfaz Kurumu ( S Tipi )",
+        "addressLine":  "Cumhuriyet Mahallesi Kıbrıs Şehitleri Caddesi No:244",
+        "postalCode":  "",
+        "phone":  "0252 319 3544 - 0538 545 5432"
+    },
+    {
+        "city":  "Muğla",
+        "district":  "Bodrum",
+        "name":  "Bodrum S Tipi Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Çamarası Mah. Çamarası Kümeevleri Cad. No:305",
+        "postalCode":  "",
+        "phone":  "0(252) 373 58 17 - 0(252) 373 60 17"
+    },
+    {
+        "city":  "Muğla",
+        "district":  "Dalaman",
+        "name":  "Dalaman Açık Ceza İnfaz Kurumu",
+        "addressLine":  "",
+        "postalCode":  "",
+        "phone":  "-"
+    },
+    {
+        "city":  "Muğla",
+        "district":  "Menteşe",
+        "name":  "Muğla Açık Ceza İnfaz Kurumu",
+        "addressLine":  "Orhaniye mahallesi Şehit Asteğmen Yıldıray Çeltiklioğlu caddesi No:5/9",
+        "postalCode":  "",
+        "phone":  "0252 212 9735 - 0 252 212 9736"
+    },
+    {
+        "city":  "Muğla",
+        "district":  "",
+        "name":  "Muğla E Tipi Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Düğerek Mah. Yaraş Yolu Üzeri 3/3",
+        "postalCode":  "",
+        "phone":  "0252 216 0103 - 0252 216 0133"
+    },
+    {
+        "city":  "Muğla",
+        "district":  "Seydikemer",
+        "name":  "Seydikemer-Eşen Açık Ceza İnfaz Kurumu (T Tipi)",
+        "addressLine":  "Eşen Mahallesi",
+        "postalCode":  "",
+        "phone":  "0252 637 1505 -"
+    },
+    {
+        "city":  "Muğla",
+        "district":  "Seydikemer",
+        "name":  "Seydikemer-Eşen T Tipi Kapalı ve Açık Ceza İnfaz Kurumu",
+        "addressLine":  "Eşen Mahallesi Önüş Caddesi No: 1",
+        "postalCode":  "",
+        "phone":  "0252 637 1501 - 0252 637 1502"
+    },
+    {
+        "city":  "Muş",
+        "district":  "Merkez",
+        "name":  "Muş E Tipi Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Yeni mahalle Recep Tayyip Erdoğan caddesi No:80/1",
+        "postalCode":  "",
+        "phone":  "0436 215 1226 - 0436 215 1228"
+    },
+    {
+        "city":  "Nevşehir",
+        "district":  "Merkez",
+        "name":  "Nevşehir Açık Ceza İnfaz Kurumu",
+        "addressLine":  "350 Evler Mahallesi Ali Dirikoç Bulvarı N:1 K:3",
+        "postalCode":  "",
+        "phone":  "0 384 213 13 42 -"
+    },
+    {
+        "city":  "Nevşehir",
+        "district":  "Merkez",
+        "name":  "Nevşehir E Tipi Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Yukarı Mah. İnönü Mevkii 4/1 Uçhisar",
+        "postalCode":  "",
+        "phone":  "0384 219 2597 - 0384 219 2789"
+    },
+    {
+        "city":  "Niğde",
+        "district":  "Merkez",
+        "name":  "Niğde Açık Ceza İnfaz Kurumu",
+        "addressLine":  "Şahsüleyman Mahallesi Emin Erişingil Caddesi No:35",
+        "postalCode":  "",
+        "phone":  "0 (388) 232 45 47 -"
+    },
+    {
+        "city":  "Niğde",
+        "district":  "Merkez",
+        "name":  "Niğde E Tipi Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "İlhanlı Mahallesi Hacı Sabancı Bulvarı no:25",
+        "postalCode":  "",
+        "phone":  "0388 232 33 79 - 0388 233 5203"
+    },
+    {
+        "city":  "Ordu",
+        "district":  "Fatsa",
+        "name":  "Akkuş Açık Ceza İnfaz Kurumu",
+        "addressLine":  "Mustafakemalpaşa Mah. Plevne Meydanı No:6",
+        "postalCode":  "",
+        "phone":  "0452 424 2200 -"
+    },
+    {
+        "city":  "Ordu",
+        "district":  "Altınordu",
+        "name":  "Ordu Açık Ceza İnfaz Kurumu (E Tipi)",
+        "addressLine":  "Akyazı Mah. Atatürk Blv. No:265",
+        "postalCode":  "",
+        "phone":  "0452 234 51 31 -"
+    },
+    {
+        "city":  "Ordu",
+        "district":  "Perşembe",
+        "name":  "Ordu E Tipi Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Efirli Mahallesi Akçaova Mücavir Sokak No:35:1/2",
+        "postalCode":  "",
+        "phone":  "0452 522 2179 -"
+    },
+    {
+        "city":  "Ordu",
+        "district":  "Ünye",
+        "name":  "Ünye Açık Ceza İnfaz Kurumu (M Tipi)",
+        "addressLine":  "Kaledere Mahallesi Fidan Sokak No:26/B",
+        "postalCode":  "",
+        "phone":  "0452 310 20 22 -"
+    },
+    {
+        "city":  "Ordu",
+        "district":  "Ünye",
+        "name":  "Ünye M Tipi Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Yüceler Köyü Hendek Suyu Mevkii No: 85",
+        "postalCode":  "",
+        "phone":  "0452 346 3872 - 0452 346 3873"
+    },
+    {
+        "city":  "Osmaniye",
+        "district":  "Toprakkale",
+        "name":  "Osmaniye 1 Nolu T Tipi Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Büyüktüysüz Mahallesi, T Tipi Sokak, No:1/C Türkmen",
+        "postalCode":  "",
+        "phone":  "0328 826 8731 - 0328 826 8732"
+    },
+    {
+        "city":  "Osmaniye",
+        "district":  "Toprakkale",
+        "name":  "Osmaniye 2 Nolu T Tipi Kapalı / Açık Ceza İnfaz Kurumu",
+        "addressLine":  "Büyük Tüysüz Mahallesi Kısıkyağankaş Sokak No: 6 Türkmen Beldesi",
+        "postalCode":  "",
+        "phone":  "0328 825 66 10 - 0328 825 61 11"
+    },
+    {
+        "city":  "Osmaniye",
+        "district":  "Merkez",
+        "name":  "Osmaniye Açık Ceza İnfaz Kurumu(2T Tipi)",
+        "addressLine":  "Fakıuşağı Mahallesi 45018 Sokak Mahalle Muhtarlığı Yanı No: 5/1",
+        "postalCode":  "80100",
+        "phone":  "0328 826 1868 -"
+    },
+    {
+        "city":  "Osmaniye",
+        "district":  "Toprakkale",
+        "name":  "Toprakkale Açık Ceza İnfaz Kurumu",
+        "addressLine":  "Sayhüyük Köyü Köyün Kendisi Mevkii Tasarım Yapıldı 16 Sokak No 3",
+        "postalCode":  "",
+        "phone":  "0328 633 3134 - 0328 633 3135"
+    },
+    {
+        "city":  "Rize",
+        "district":  "Kalkandere",
+        "name":  "Kalkandere Açık Ceza İnfaz Kurumu",
+        "addressLine":  "Müftü Mahallesi Adalet Sarayı 3. Kat",
+        "postalCode":  "",
+        "phone":  "0464 213 0544 -"
+    },
+    {
+        "city":  "Rize",
+        "district":  "Kalkandere",
+        "name":  "Rize L Tipi Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Aksu Mahallesi Merkez Küme evler No: 80",
+        "postalCode":  "",
+        "phone":  "0464 331 5009 - 0 464 331 30 09"
+    },
+    {
+        "city":  "Sakarya",
+        "district":  "Geyve",
+        "name":  "Geyve Açık Ceza İnfaz Kurumu",
+        "addressLine":  "Tepecikler Mahallesi Şaban Dişli sokak No:4/A",
+        "postalCode":  "",
+        "phone":  "0264 517 5233 -"
+    },
+    {
+        "city":  "Sakarya",
+        "district":  "Hendek",
+        "name":  "Hendek Kadın Açık Ceza İnfaz Kurumu",
+        "addressLine":  "Akpınar Mahallesi-4060 Sokak-No:23",
+        "postalCode":  "",
+        "phone":  "0264 502 2231 - 0264 502 2232"
+    },
+    {
+        "city":  "Sakarya",
+        "district":  "Ferizli",
+        "name":  "Sakarya 1 Nolu L Tipi Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Değirmenci Mah. 301 Nolu Sok. Fatihsultan Mehmet Cad. No: 7",
+        "postalCode":  "",
+        "phone":  "0264 781 3824 - 0264 781 3825"
+    },
+    {
+        "city":  "Sakarya",
+        "district":  "Ferizli",
+        "name":  "Sakarya 2 Nolu L Tipi Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "DAMLIK MAHALLESİ 367. SOKAK NUMARA 49",
+        "postalCode":  "",
+        "phone":  "0264 781 2071 - 0264 781 2072"
+    },
+    {
+        "city":  "Sakarya",
+        "district":  "Ferizli",
+        "name":  "Sakarya 3 Nolu L Tipi Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Esentepe mahallesi 367. Sokak No:45",
+        "postalCode":  "",
+        "phone":  "0264 781 7032 - 0264 781 7033"
+    },
+    {
+        "city":  "Sakarya",
+        "district":  "Erenler",
+        "name":  "Sakarya Açık Ceza İnfaz Kurumu",
+        "addressLine":  "Küpçüler Mahallesi Petek Sokak No:9",
+        "postalCode":  "",
+        "phone":  "0264 251 37 61 - 0264 251 37 62"
+    },
+    {
+        "city":  "Samsun",
+        "district":  "Bafra",
+        "name":  "Bafra Açık Ceza İnfaz Kurumu",
+        "addressLine":  "Cumhuriyet Mah. Hükümet Cad. No:4 Kat:5",
+        "postalCode":  "",
+        "phone":  "0362 543 7735 -"
+    },
+    {
+        "city":  "Samsun",
+        "district":  "Bafra",
+        "name":  "Bafra T Tipi Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Sarıçevre Mahallesi No:107/A",
+        "postalCode":  "",
+        "phone":  "0362 595 5050 - 0362 595 5052"
+    },
+    {
+        "city":  "Samsun",
+        "district":  "Çarşamba",
+        "name":  "Çarşamba Açık Ceza İnfaz Kurumu Müdürlüğü",
+        "addressLine":  "Orta Mahallesi, Cumhuriyet Meydanı, Çarşamba Belediye Binası 6. Katı",
+        "postalCode":  "55500",
+        "phone":  "0362 832 0235 - 0507 820 0084"
+    },
+    {
+        "city":  "Samsun",
+        "district":  "Çarşamba",
+        "name":  "Çarşamba Kadın Kapalı Ceza İnfaz Kurumu Müdürlüğü",
+        "addressLine":  "Alibeyli Mah. Salıpazarı Cad. No:201/G",
+        "postalCode":  "",
+        "phone":  "0 362 502 62 63 -"
+    },
+    {
+        "city":  "Samsun",
+        "district":  "Çarşamba",
+        "name":  "Çarşamba S Tipi Kapalı Ceza İnfaz Kurumu Müdürlüğü",
+        "addressLine":  "Alibeyli Mahallesi, Salıpazarı Caddesi, No: 201/F",
+        "postalCode":  "",
+        "phone":  "0 (362) 823 41 41 -"
+    },
+    {
+        "city":  "Samsun",
+        "district":  "Kavak",
+        "name":  "Kavak Açık Ceza İnfaz Kurumu",
+        "addressLine":  "Muratbeyli Mah. Muratbeyli Sk. 46/2",
+        "postalCode":  "",
+        "phone":  "0362 504 1166 -"
+    },
+    {
+        "city":  "Samsun",
+        "district":  "Kavak",
+        "name":  "Kavak Çocuk ve Gençlik Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Muratbeyli Mh.Muratbeyli sk. 46/4",
+        "postalCode":  "",
+        "phone":  "0362 504 1064 -"
+    },
+    {
+        "city":  "Samsun",
+        "district":  "İlkadım",
+        "name":  "Kavak S Tipi Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "19 Mayıs Mahallesi Cumhuriyet Caddesi No:17/A Eski Adliye Binası Kat:4",
+        "postalCode":  "",
+        "phone":  "0 362 435 37 26 -"
+    },
+    {
+        "city":  "Samsun",
+        "district":  "",
+        "name":  "Samsun T Kapalı / Açık Ceza İnfaz Kurumu",
+        "addressLine":  "Esentepe Mahallesi 405. Sokak No:2 Adalet Sarayı Kat:5",
+        "postalCode":  "",
+        "phone":  "0362 647 04 35 -"
+    },
+    {
+        "city":  "Samsun",
+        "district":  "Vezirköprü",
+        "name":  "Vezirköprü M Tipi Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Hıdırlık Mahallesi Muhtar Kenanlı Caddesi",
+        "postalCode":  "",
+        "phone":  "0362 646 1418 - 0362 647 2004"
+    },
+    {
+        "city":  "Sinop",
+        "district":  "Durağan",
+        "name":  "Durağan Açık Ceza İnfaz Kurumu",
+        "addressLine":  "Beybükü Köyü, Kurt Hasan Mahallesi Baraj Yolu Mevkii",
+        "postalCode":  "",
+        "phone":  "0368 427 1122 -"
+    },
+    {
+        "city":  "Sinop",
+        "district":  "Merkez",
+        "name":  "Sinop Açık Ceza İnfaz Kurumu (E Tipi)",
+        "addressLine":  "Gelincik Mah. Fatih Cad. No: 129 / 1-A Adliye Ek Bina Zemin Kat",
+        "postalCode":  "",
+        "phone":  "0368 261 5305 - 0507 820 0057"
+    },
+    {
+        "city":  "Sinop",
+        "district":  "Merkez",
+        "name":  "Sinop E Tipi Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "OSMANİYE KÖYÜ KARAGÖL MEVKİ NO:34",
+        "postalCode":  "",
+        "phone":  "0368 271 4446 - 0368 271 5340"
+    },
+    {
+        "city":  "Sivas",
+        "district":  "Merkez",
+        "name":  "Sivas E Tipi Kapalı / Açık Ceza İnfaz Kurumu",
+        "addressLine":  "AHMET TURAN GAZİ MH. ŞEHİT SONER MÜŞTERİ CD. NO:1/2",
+        "postalCode":  "",
+        "phone":  "0346 211 0185 -"
+    },
+    {
+        "city":  "Sivas",
+        "district":  "Hafik",
+        "name":  "Sivas Kadın Açık Ceza İnfaz Kurumu",
+        "addressLine":  "Yeni Mahalle Sivas Caddesi No.22",
+        "postalCode":  "",
+        "phone":  "0346 841 2080 -"
+    },
+    {
+        "city":  "Şanlıurfa",
+        "district":  "Akçakale",
+        "name":  "Akçakale Açık Ceza İnfaz Kurumu",
+        "addressLine":  "Akçakale-Şanlıurfa Yolu 10. Km. Bolatlar Mevkii",
+        "postalCode":  "",
+        "phone":  "0414 417 60 66 -"
+    },
+    {
+        "city":  "Şanlıurfa",
+        "district":  "Siverek",
+        "name":  "Siverek 1 Nolu T Tipi Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Gözelek Köyü Mevkii Siverek 1 Nolu T Tipi Kapalı Ceza İnfaz Kurumu",
+        "postalCode":  "",
+        "phone":  "0414 552 1129 - 0414 552 5494"
+    },
+    {
+        "city":  "Şanlıurfa",
+        "district":  "Siverek",
+        "name":  "Siverek 2 Nolu T Tipi Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Gözelek köyü Mevkii Siverek 2 Nolu T Tipi Kapalı Ceza İnfaz Kurumu",
+        "postalCode":  "",
+        "phone":  "0414 552 5472 - 0414 552 3895"
+    },
+    {
+        "city":  "Şanlıurfa",
+        "district":  "Siverek",
+        "name":  "Siverek Açık Ceza İnfaz Kurumu",
+        "addressLine":  "Hasan Çelebi Mahallesi 70. Sokak No:3 Eski Adalet Sarayı Kat:2",
+        "postalCode":  "",
+        "phone":  "0414 553 2641 -"
+    },
+    {
+        "city":  "Şanlıurfa",
+        "district":  "Karaköprü",
+        "name":  "Şanlıurfa 1 Nolu T Tipi Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Gölgen Mahallesi Karaköprü-Hilvan Bulvarı Şanlıurfa Ceza İnfaz Kurumları Kampüsü",
+        "postalCode":  "",
+        "phone":  "0414 378 1292 - 0414 378 12 93"
+    },
+    {
+        "city":  "Şanlıurfa",
+        "district":  "Karaköprü",
+        "name":  "Şanlıurfa 2 Nolu T Tipi Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Gölgen Mahallesi Karaköprü-Hilvan Bulvarı",
+        "postalCode":  "",
+        "phone":  "0414 378 1291 - 0414 378 1295"
+    },
+    {
+        "city":  "Şanlıurfa",
+        "district":  "Haliliye",
+        "name":  "Şanlıurfa Açık Ceza İnfaz Kurumu",
+        "addressLine":  "Paşabağı Mahallesi Zafer Caddesi No: 13",
+        "postalCode":  "",
+        "phone":  "0414 314 99 69 -"
+    },
+    {
+        "city":  "Şanlıurfa",
+        "district":  "Viranşehir",
+        "name":  "Viranşehir A3 Tipi Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Kışla Mahallesi Ptt Caddesi No: 5/1",
+        "postalCode":  "",
+        "phone":  "0414 511 6139 -"
+    },
+    {
+        "city":  "Şırnak",
+        "district":  "Merkez",
+        "name":  "Şırnak Açık Ceza İnfaz Kurumu (T Tipi)",
+        "addressLine":  "Yeni Mah. Şırnak Devlet Hastanesi Karşısı Mehmet TAŞAR Apt.",
+        "postalCode":  "",
+        "phone":  "0486 216 6014 -"
+    },
+    {
+        "city":  "Şırnak",
+        "district":  "Merkez",
+        "name":  "Şırnak T Tipi Kapalı ve Açık Ceza İnfaz Kurumu",
+        "addressLine":  "Yeşilyurt mahallesi Rezuk caddesi No: 17",
+        "postalCode":  "73100",
+        "phone":  "0486 216 2702 - 0486 216 2705"
+    },
+    {
+        "city":  "Tekirdağ",
+        "district":  "Çorlu",
+        "name":  "Karatepe 1 Nolu Y Tipi Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Hatip Mah. Mimar Sinan Cad. No:173 Karatepe 1 Nolu Y Tipi Kapalı Ceza İnfaz Kurumu",
+        "postalCode":  "",
+        "phone":  "0282 651 89 14 -"
+    },
+    {
+        "city":  "Tekirdağ",
+        "district":  "Çorlu",
+        "name":  "Karatepe Açık Ceza İnfaz Kurumu",
+        "addressLine":  "Hatip Mah. Mimar Sinan Cad. No:173",
+        "postalCode":  "",
+        "phone":  "0282 651 2140 - 0282 651 2141"
+    },
+    {
+        "city":  "Tekirdağ",
+        "district":  "Çorlu",
+        "name":  "Karatepe Çocuk ve Gençlik Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Hatip Mahallesi Mimar Sinan Caddesi No :173",
+        "postalCode":  "",
+        "phone":  "0282 653 7596 - 0282 652 7504"
+    },
+    {
+        "city":  "Tekirdağ",
+        "district":  "Çorlu",
+        "name":  "Karatepe Kadın Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Hatip Mah. Mimar Sinan Cad.No: 173/15",
+        "postalCode":  "",
+        "phone":  "0282 651 40 50 - 0282 651 40 51"
+    },
+    {
+        "city":  "Tekirdağ",
+        "district":  "Çorlu",
+        "name":  "Karatepe Yüksek Güvenlikli Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Hatip Mah. Mimar Sinan Cad. No:173",
+        "postalCode":  "",
+        "phone":  "0282 651 4765 - 0282 654 6092"
+    },
+    {
+        "city":  "Tekirdağ",
+        "district":  "Süleymanpaşa",
+        "name":  "Tekirdağ 1 Nolu F Tipi Yüksek Güvenlikli Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Gündüzlü Mah. Muratlı Cad. No: 346",
+        "postalCode":  "",
+        "phone":  "0282 234 1236 - 0282 234 1238"
+    },
+    {
+        "city":  "Tekirdağ",
+        "district":  "Süleymanpaşa",
+        "name":  "Tekirdağ 1 Nolu T Tipi Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Gündüzlü Mah. Muratlı Cad. No: 348/10",
+        "postalCode":  "",
+        "phone":  "0282 234 1243 - 0282 234 1245"
+    },
+    {
+        "city":  "Tekirdağ",
+        "district":  "Süleymanpaşa",
+        "name":  "Tekirdağ 2 Nolu F Tipi Yüksek Güvenlikli Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Gündüzlü Mah Muratlı caddesi No:344",
+        "postalCode":  "",
+        "phone":  "0282 234 1281 - 0282 234 1283"
+    },
+    {
+        "city":  "Tekirdağ",
+        "district":  "Muratlı",
+        "name":  "Tekirdağ 2 Nolu T Tipi Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Gündüzlü Mah. Muratlı Cad. No:348",
+        "postalCode":  "",
+        "phone":  "0282 234 1263 - 0282 234 1265"
+    },
+    {
+        "city":  "Tekirdağ",
+        "district":  "Süleymanpaşa",
+        "name":  "Tekirdağ Açık Ceza İnfaz Kurumu",
+        "addressLine":  "Tekirdağ Adalet Sarayı 100.Yıl Mah.Barbaros Yalı Mevkii",
+        "postalCode":  "",
+        "phone":  "0282 263 8416 - 0282 262 39 76"
+    },
+    {
+        "city":  "Tekirdağ",
+        "district":  "Süleymanpaşa",
+        "name":  "Tekirdağ Y Tipi Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Gündüzlü Mah. Muratlı Cad. No: 350/2",
+        "postalCode":  "",
+        "phone":  "0282 341 1303 - 0282 341 1304"
+    },
+    {
+        "city":  "Tokat",
+        "district":  "Niksar",
+        "name":  "Niksar K2 Tipi Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "50. Yıl Mahallesi Atatürk Bulvarı No:205/A Niksar –",
+        "postalCode":  "",
+        "phone":  "0356 527 2102 -"
+    },
+    {
+        "city":  "Tokat",
+        "district":  "Merkez",
+        "name":  "Tokat Açık Ceza İnfaz Kurumu (T Tipi)",
+        "addressLine":  "Parakende Mahallesi Tokat Adalet Sarayı 2. Kat",
+        "postalCode":  "",
+        "phone":  "0356 214 29 92 -"
+    },
+    {
+        "city":  "Tokat",
+        "district":  "Merkez",
+        "name":  "Tokat T Tipi Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Karasu Mah. Sivas Cad. Çamlıbel Mevki No: 52",
+        "postalCode":  "",
+        "phone":  "0356 243 2156 - 0356 243 2157"
+    },
+    {
+        "city":  "Tokat",
+        "district":  "Zile",
+        "name":  "Zile Açık Ceza İnfaz Kurumu (M Tipi)",
+        "addressLine":  "Dutlupınar Mah. Yozgat Cad. No: 46 Özel İdare Hanı B Blok Kat: 3",
+        "postalCode":  "",
+        "phone":  "0356 317 5543 -"
+    },
+    {
+        "city":  "Tokat",
+        "district":  "Zile",
+        "name":  "Zile M Tipi Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Şeyh Ali mh. Kızılelma Cad.",
+        "postalCode":  "",
+        "phone":  "0356 317 1383 -"
+    },
+    {
+        "city":  "Trabzon",
+        "district":  "Araklı",
+        "name":  "Araklı Açık Ceza İnfaz Kurumu (E Tipi)",
+        "addressLine":  "Merkez Mah.Mevlana Cad.No: 68",
+        "postalCode":  "61700",
+        "phone":  "0462 721 6748 - 0462 721 4678"
+    },
+    {
+        "city":  "Trabzon",
+        "district":  "Beşikdüzü",
+        "name":  "Beşikdüzü Açık Ceza İnfaz Kurumu (T Tipi)",
+        "addressLine":  "Anbarlı Mahallesi Orta Küme Evleri No: 61/2",
+        "postalCode":  "",
+        "phone":  "0462 871 1000 -"
+    },
+    {
+        "city":  "Trabzon",
+        "district":  "Yomra",
+        "name":  "Beşikdüzü T Tipi Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Kaşüstü Mah. Devlet Karayolları Cad. Adil Yazar Sk. No:10 Trabzon Adalet Sarayı",
+        "postalCode":  "",
+        "phone":  "0462 326 12 36 -"
+    },
+    {
+        "city":  "Trabzon",
+        "district":  "Ortahisar",
+        "name":  "Trabzon E Tipi Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Şehit Refik Cesur Cad. Kiraz Boğazı sok.d: 68 i: 1 61040 Bahçeçik",
+        "postalCode":  "61040",
+        "phone":  "0462 323 1606 - 0462 326 3245"
+    },
+    {
+        "city":  "Tunceli",
+        "district":  "Merkez",
+        "name":  "Tunceli A3 Tipi Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Atatürk Mahallesi Hatice Beyaztaş Cad. Esnaf ve Sanatkar Binası Kat:3",
+        "postalCode":  "",
+        "phone":  "0428 213 30 05 -"
+    },
+    {
+        "city":  "Uşak",
+        "district":  "Merkez",
+        "name":  "Uşak Açık Ceza İnfaz Kurumu (E Tipi)",
+        "addressLine":  "İslice Mahallesi 1. Dere Sokak No:23",
+        "postalCode":  "",
+        "phone":  "0276 223 1622 - 0507 820 0064"
+    },
+    {
+        "city":  "Uşak",
+        "district":  "Merkez",
+        "name":  "Uşak E Tipi Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Muharemşah Köyü Hacım Sultan Caddesi No:2",
+        "postalCode":  "",
+        "phone":  "0276 234 0234 - 0276 234 02 35"
+    },
+    {
+        "city":  "Van",
+        "district":  "Erciş",
+        "name":  "Erciş Açık Ceza İnfaz Kurumu Müdürlüğü (T Tipi)",
+        "addressLine":  "Camikebir Mahallesi Lütfü Güvenir Caddesi 806. Sokak No:1",
+        "postalCode":  "",
+        "phone":  "0432 351 6442 - 0507 820 0165"
+    },
+    {
+        "city":  "Van",
+        "district":  "Erciş",
+        "name":  "Erciş T Tipi Kapalı Ceza İnfaz Kurumu Müdürlüğü",
+        "addressLine":  "Haydarbey Mahallesi Haydarbaba/1 cad. Cezaevi",
+        "postalCode":  "",
+        "phone":  "0432 388 24 65 -"
+    },
+    {
+        "city":  "Van",
+        "district":  "İpekyolu",
+        "name":  "Van Açık Ceza İnfaz Kurumu",
+        "addressLine":  "Selimbey Mah.İpekyolu Bulvarı Van Bölge Adliye Mahkemesi Hizmet Binası Zemin Kat No:20",
+        "postalCode":  "",
+        "phone":  "0432 214 3772 -"
+    },
+    {
+        "city":  "Van",
+        "district":  "Tuşba",
+        "name":  "Van F Tipi Yüksek Güvenlikli Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Erciş Yolu üzeri 25. km Van Ceza İnfaz Kurumları Kampüsü",
+        "postalCode":  "",
+        "phone":  "0432 226 3011 - 0432 226 30 14"
+    },
+    {
+        "city":  "Van",
+        "district":  "Tuşba",
+        "name":  "Van M Tipi Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "İskele Mahallesi Cezaevi 1.Sokak No:40",
+        "postalCode":  "",
+        "phone":  "0432 223 0446 - 0432 223 6779"
+    },
+    {
+        "city":  "Van",
+        "district":  "Tuşba",
+        "name":  "Van T Tipi Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Yumrutepe, Erciş Yolu Üzeri No:25",
+        "postalCode":  "65090",
+        "phone":  "0432 225 11 47 -"
+    },
+    {
+        "city":  "Van",
+        "district":  "Tuşba",
+        "name":  "Van Yüksek Güvenlikli Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Tevekli Mah. İkinci Kümeevler Cezaevi sk. Van Ceza İnfaz Kurumları Kampüsü",
+        "postalCode":  "",
+        "phone":  "0432 225 11 53 - 0432 225 11 55"
+    },
+    {
+        "city":  "Yalova",
+        "district":  "Çiftlikköy",
+        "name":  "Yalova A3 Tipi Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Sahil Mah. İnönü Cad.No.56/9",
+        "postalCode":  "",
+        "phone":  "0226 352 0354 - 0507 820 0077"
+    },
+    {
+        "city":  "Yozgat",
+        "district":  "Akdağmadeni",
+        "name":  "Akdağmadeni Açık Ceza İnfaz Kurumu",
+        "addressLine":  "Çamlık Mh. Lütfullah Kayalar Cd. No:130",
+        "postalCode":  "",
+        "phone":  "0354 314 1215 -"
+    },
+    {
+        "city":  "Yozgat",
+        "district":  "Akdağmadeni",
+        "name":  "Akdağmadeni K1 Tipi Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Akdağmadeni Kapalı Ceza infaz kurumu",
+        "postalCode":  "",
+        "phone":  "0354 314 1285 -"
+    },
+    {
+        "city":  "Yozgat",
+        "district":  "Boğazlıyan",
+        "name":  "Boğazlıyan Açık Ceza İnfaz Kurumu (T Tipi)",
+        "addressLine":  "Aşağı Mahalle Şevket Hokkaömeroğlu Bulvarı No:56",
+        "postalCode":  "",
+        "phone":  "0354 645 3730 - 0507 820 0166"
+    },
+    {
+        "city":  "Yozgat",
+        "district":  "Boğazlıyan",
+        "name":  "Boğazlıyan T Tipi Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Kemaliye Mahallesi Yozgat Caddesi (Yoğunhisar Köyü Yolu Üzeri) No:266/G",
+        "postalCode":  "",
+        "phone":  "0354 667 3115 - 0354 667 3192"
+    },
+    {
+        "city":  "Yozgat",
+        "district":  "Merkez",
+        "name":  "Yozgat 1 Nolu T Tipi Kapalı Ceza İnfaz Kurumu Müdürlüğü",
+        "addressLine":  "Tayip Köyü Mevki Musabeyli Köyü Yolu 7. KM",
+        "postalCode":  "",
+        "phone":  "0354 212 2577 -"
+    },
+    {
+        "city":  "Yozgat",
+        "district":  "Merkez",
+        "name":  "Yozgat 2 Nolu T Tipi Kapalı Ceza İnfaz Kurumu Müdürlüğü",
+        "addressLine":  "Musabeyli Köyü Yolu 7. KM",
+        "postalCode":  "",
+        "phone":  "0354 212 2677 -"
+    },
+    {
+        "city":  "Yozgat",
+        "district":  "Merkez",
+        "name":  "Yozgat Açık Ceza İnfaz Kurumu (E Tipi)",
+        "addressLine":  "Mehmet Hulusu Efendi Mah. Entegre Cad. 1/A",
+        "postalCode":  "",
+        "phone":  "0354 212 5821 -"
+    },
+    {
+        "city":  "Yozgat",
+        "district":  "Merkez",
+        "name":  "Yozgat Açık Ceza İnfaz Kurumu Müdürlüğü",
+        "addressLine":  "Tekke Mahallesi,Mehmet Akif Ersoy Caddesi, Şehit Ahmet Kılıçarslan Sokak, No: 13",
+        "postalCode":  "",
+        "phone":  "0354 212 0023 -"
+    },
+    {
+        "city":  "Yozgat",
+        "district":  "Merkez",
+        "name":  "Yozgat E Tipi Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Mehmet Hulusu Efendi Mah. Entegre Cad. 1/A",
+        "postalCode":  "",
+        "phone":  "0354 212 5821 -"
+    },
+    {
+        "city":  "Zonguldak",
+        "district":  "Ereğli",
+        "name":  "Devrek Açık Ceza İnfaz Kurumu",
+        "addressLine":  "Süleymanlar Mah. Kavakdibi Cad. Karadeniz Ereğli Adalet Sarayı No:34 Z/50 Karadeniz",
+        "postalCode":  "",
+        "phone":  "0 372 315 06 67 -"
+    },
+    {
+        "city":  "Zonguldak",
+        "district":  "Ereğli",
+        "name":  "KDZ.Ereğli A2 Tipi Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Murtaza Mah. Suphi Konak Cad. No:98 K.",
+        "postalCode":  "",
+        "phone":  "0372 323 8961 -"
+    },
+    {
+        "city":  "Zonguldak",
+        "district":  "Merkez",
+        "name":  "Zonguldak Açık Ceza İnfaz Kurumu (M Tipi)",
+        "addressLine":  "Ontemmuz Mahallesi Belediye Bulvarı No:34/4 Kat 1-3",
+        "postalCode":  "",
+        "phone":  "0372 251 88 65 - 0372 251 58 65"
+    },
+    {
+        "city":  "Zonguldak",
+        "district":  "Merkez",
+        "name":  "Zonguldak M Tipi Kapalı Ceza İnfaz Kurumu",
+        "addressLine":  "Beycuma Beldesi Cezaevi Cd. No: 2",
+        "postalCode":  "",
+        "phone":  "0372 211 3141 -"
+    }
+]

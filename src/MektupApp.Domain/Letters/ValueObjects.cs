@@ -11,31 +11,43 @@ public sealed partial record PostalAddress
     public string City { get; }
     public string PostalCode { get; }
 
-    public PostalAddress(string line, string district, string city, string postalCode)
+    /// <param name="postalCode">İsteğe bağlı (formlarda şimdilik gizli); girilirse 5 haneli olmalıdır. Boşsa "" saklanır.</param>
+    public PostalAddress(string line, string district, string city, string? postalCode)
     {
         Line = Guard.Required(line, "Adres", 250);
         District = Guard.Required(district, "İlçe", 60);
         City = Guard.Required(city, "İl", 60);
-        PostalCode = Guard.Required(postalCode, "Posta kodu", 5);
-        if (!PostalCodeRegex().IsMatch(PostalCode))
+        PostalCode = postalCode?.Trim() ?? string.Empty;
+        if (PostalCode.Length > 0 && !PostalCodeRegex().IsMatch(PostalCode))
             throw new DomainException("Posta kodu 5 haneli olmalıdır.");
     }
 
-    public override string ToString() => $"{Line}, {District} / {City} {PostalCode}";
+    public override string ToString() =>
+        PostalCode.Length == 0 ? $"{Line}, {District} / {City}" : $"{Line}, {District} / {City} {PostalCode}";
 
     [GeneratedRegex(@"^\d{5}$")]
     private static partial Regex PostalCodeRegex();
 }
 
 /// <summary>
-/// Alıcı. Asker ve cezaevi alıcıları için ek bilgi (birlik / kurum, koğuş vb.) zorunludur.
+/// Alıcı. Askere giden mektupta birlik bilgisi (<see cref="Detail"/>) zorunludur. Cezaevine giden mektupta
+/// alıcının baba adı ve koğuş numarası isteğe bağlıdır ama tavsiye edilir (mektubun doğru kişiye ulaşmasını kolaylaştırır).
+/// Cezaevinde <see cref="Detail"/> kurum adıdır (seçilen cezaevinden gelir).
 /// </summary>
 public sealed record Recipient
 {
+    public const int FatherNameMax = 60;
+    public const int WardMax = 30;
+
     public string FullName { get; }
     public RecipientType Type { get; }
+    /// <summary>Asker: birlik bilgisi. Cezaevi: kurum adı. Diğer: boş.</summary>
     public string? Detail { get; }
-    public PostalAddress Address { get; }
+    /// <summary>Cezaevi alıcısının baba adı (kurumlar aynı adlı hükümlüleri ayırt etmek için ister).</summary>
+    public string? FatherName { get; }
+    /// <summary>Cezaevi alıcısının koğuş numarası (ör. "B-12").</summary>
+    public string? Ward { get; }
+    public PostalAddress Address { get; private init; }
 
     // EF Core, iç içe complex type'ları constructor üzerinden bağlayamadığı için gerekli.
     private Recipient()
@@ -44,17 +56,35 @@ public sealed record Recipient
         Address = null!;
     }
 
-    public Recipient(string fullName, RecipientType type, string? detail, PostalAddress address)
+    public Recipient(string fullName, RecipientType type, string? detail, PostalAddress address,
+        string? fatherName = null, string? ward = null)
     {
         FullName = Guard.Required(fullName, "Alıcı adı", 100);
         Type = type;
         Detail = Guard.Optional(detail, "Alıcı ek bilgisi", 200);
         Address = address ?? throw new DomainException("Alıcı adresi zorunludur.");
+        // Baba adı ve koğuş yalnızca cezaevi alıcısında anlamlıdır.
+        FatherName = type == RecipientType.Inmate ? Guard.Optional(fatherName, "Baba adı", FatherNameMax) : null;
+        Ward = type == RecipientType.Inmate ? Guard.Optional(ward, "Koğuş numarası", WardMax) : null;
 
         if (type == RecipientType.Soldier && Detail is null)
             throw new DomainException("Askere gönderilen mektuplarda birlik bilgisi zorunludur.");
-        if (type == RecipientType.Inmate && Detail is null)
-            throw new DomainException("Cezaevine gönderilen mektuplarda kurum ve koğuş bilgisi zorunludur.");
+    }
+
+    /// <summary>Yalnızca adresi değişen alıcı (diğer bilgiler aynen korunur, eski kayıtlarda kural yeniden işletilmez).</summary>
+    public Recipient WithAddress(PostalAddress address) =>
+        this with { Address = address ?? throw new DomainException("Alıcı adresi zorunludur.") };
+
+    /// <summary>Zarfta ve PTT kaydında adın altına yazılan ek bilgiler (ör. "Baba adı: Ali · Koğuş: B-12").</summary>
+    public string? Note
+    {
+        get
+        {
+            var parts = new List<string>();
+            if (FatherName is not null) parts.Add($"Baba adı: {FatherName}");
+            if (Ward is not null) parts.Add($"Koğuş: {Ward}");
+            return parts.Count == 0 ? null : string.Join(" · ", parts);
+        }
     }
 }
 
