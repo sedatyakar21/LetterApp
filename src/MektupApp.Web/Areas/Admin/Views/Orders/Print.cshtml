@@ -19,13 +19,22 @@
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/order-print.css" asp-append-version="true" />
 </head>
-<body class="print-body">
+<body class="print-body env-z1318">
     <div class="print-toolbar no-print">
         <div class="d-flex flex-wrap align-items-center gap-3">
             <a href="@(single ? Url.Action("Details", new { id = Model[0].Id }) : Url.Action("Index"))" class="small">← @(single ? "Sipariş" : "Siparişler")</a>
             <strong>@(single ? $"{Model[0].RecipientName} {OrderNo(Model[0])}" : $"{Model.Count} sipariş")</strong>
             <span class="text-muted small">Basılacaklar:</span>
-            <label class="form-check form-check-inline mb-0"><input class="form-check-input" type="checkbox" data-part="label" checked /> Adres etiketi</label>
+            <label class="form-check form-check-inline mb-0"><input class="form-check-input" type="checkbox" data-part="label" checked /> Zarf</label>
+            <label class="small mb-0">
+                <span class="visually-hidden">Zarf boyutu</span>
+                <select class="form-select form-select-sm d-inline-block w-auto" id="envelopeSize" title="Zarf boyutu">
+                    <option value="z1318">13×18 cm (yatay 180×130 mm)</option>
+                    <option value="dl">DL · 220×110 mm</option>
+                    <option value="c5">C5 · 229×162 mm</option>
+                    <option value="c4">C4 · 324×229 mm</option>
+                </select>
+            </label>
             <label class="form-check form-check-inline mb-0"><input class="form-check-input" type="checkbox" data-part="letter" checked /> Mektup</label>
             <label class="form-check form-check-inline mb-0"><input class="form-check-input" type="checkbox" data-part="photos" checked /> Fotoğraflar</label>
             <label class="form-check form-check-inline mb-0"><input class="form-check-input" type="checkbox" data-part="documents" checked /> Belgeler</label>
@@ -33,7 +42,8 @@
             <button type="button" class="btn btn-primary" id="printButton" disabled>🖨️ Yazdır</button>
         </div>
         <div class="small text-muted mt-1">
-            Her bölüm yeni sayfadan başlar. Renkli kâğıt seçilen mektuplarda arka plan basılmaz; yazıcıya o renkte kâğıt koyun.
+            Her bölüm yeni sayfadan başlar. Zarf, seçilen zarf boyutunda basılır; zarfları ayrı basmak için yalnızca "Zarf"ı işaretleyin.
+            Renkli kâğıt seçilen mektuplarda arka plan basılmaz; yazıcıya o renkte kâğıt koyun.
         </div>
     </div>
 
@@ -43,31 +53,14 @@
             var photoCount = l.Photos.Count;
             var docCount = l.Documents.Count;
 
-            @* 1. Adres etiketi ve zarf kontrol listesi *@
-            <section class="sheet part-label">
-                <div class="d-flex justify-content-between align-items-baseline mb-3">
-                    <div class="fs-5 fw-semibold">BiMektup · Sipariş @OrderNo(l)</div>
-                    <div class="small text-muted">@(l.TrackingCode is { } tc ? $"Takip: {tc}" : l.Status.DisplayName())</div>
+            @* 1a. Zarflama kontrol listesi: yalnızca ekranda (zarfa basılmaz). *@
+            <div class="envelope-checklist part-label no-print">
+                <div class="d-flex justify-content-between align-items-baseline">
+                    <strong>Sipariş @OrderNo(l) · @l.RecipientName</strong>
+                    <span class="small text-muted">@(l.TrackingCode is { } tc ? $"Takip: {tc}" : l.Status.DisplayName())</span>
                 </div>
-                <div class="row g-4">
-                    <div class="col-6">
-                        <div class="label-caption">GÖNDEREN</div>
-                        <div class="fw-semibold">@l.SenderName</div>
-                        <div>@l.SenderAddress.Line</div>
-                        <div>@l.SenderAddress.District / @l.SenderAddress.City @l.SenderAddress.PostalCode</div>
-                    </div>
-                    <div class="col-6">
-                        <div class="label-caption">ALICI</div>
-                        <div class="fs-5 fw-bold">@l.RecipientName</div>
-                        @if (l.RecipientNote is not null) { <div>@l.RecipientNote</div> }
-                        @if (l.RecipientDetail is not null) { <div>@l.RecipientDetail</div> }
-                        <div>@l.RecipientAddress.Line</div>
-                        <div class="fw-semibold">@l.RecipientAddress.District / @l.RecipientAddress.City @l.RecipientAddress.PostalCode</div>
-                    </div>
-                </div>
-                <hr />
-                <div class="label-caption mb-1">ZARFA KONACAKLAR</div>
-                <ul class="checklist">
+                <div class="label-caption mt-1 mb-1">ZARFA KONACAKLAR</div>
+                <ul class="checklist small">
                     <li>Mektup — @l.PageCount sayfa · @l.Style.Paper.DisplayName() kâğıt · @l.Style.Font.DisplayName() / @l.Style.Ink.DisplayName()</li>
                     @if (photoCount > 0) { <li>Fotoğraf × @photoCount</li> }
                     @if (docCount > 0) { <li>Belge × @docCount: @string.Join(", ", l.Documents.Select(d => d.OriginalFileName))</li> }
@@ -75,6 +68,29 @@
                     @if (l.Scent != Scent.None) { <li>Koku: @l.Scent.DisplayName()</li> }
                     <li>Zarf: @l.Style.Envelope.DisplayName()</li>
                 </ul>
+            </div>
+
+            @* 1b. Zarf çıktısı: sol üst aracı firma + gönderen, sağ alt alıcı, sol alt logo. Zarf boyutunda sayfa. *@
+            <section class="sheet part-label envelope-sheet">
+                <div class="env-from">
+                    <div class="label-caption">GÖNDEREN</div>
+                    <div class="fw-semibold">@l.SenderName</div>
+                    <div>@l.SenderAddress.Line</div>
+                    <div>@l.SenderAddress.District / @l.SenderAddress.City @l.SenderAddress.PostalCode</div>
+                </div>
+                <div class="env-to">
+                    <div class="label-caption">ALICI</div>
+                    <div class="env-to-name">@l.RecipientName</div>
+                    @if (l.RecipientNote is not null) { <div>@l.RecipientNote</div> }
+                    @if (l.RecipientDetail is not null) { <div>@l.RecipientDetail</div> }
+                    <div>@l.RecipientAddress.Line</div>
+                    <div class="fw-semibold">@l.RecipientAddress.District / @l.RecipientAddress.City @l.RecipientAddress.PostalCode</div>
+                </div>
+                @* Sol alt: aracı firma yazısı ve hemen altında logo. *@
+                <div class="env-brand">
+                    <div class="envelope-intermediary">@EnvelopeText.Intermediary</div>
+                    <img class="env-logo" src="~/img/bimektup-logo.png" alt="BiMektup.net" data-wait />
+                </div>
             </section>
 
             @* 2. Mektup (uzunsa kendiliğinden birden çok sayfaya taşar) *@

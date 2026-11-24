@@ -100,6 +100,23 @@
         markFirstVisible();
     }
 
+    // ---------------- Zarf boyutu ----------------
+
+    const sizeSelect = document.getElementById("envelopeSize");
+    const sizeKey = "orderPrint.envelopeSize";
+    function applyEnvelopeSize() {
+        [...sizeSelect.options].map(o => o.value).forEach(s => document.body.classList.toggle("env-" + s, sizeSelect.value === s));
+        try { localStorage.setItem(sizeKey, sizeSelect.value); } catch { /* önemsiz */ }
+    }
+    if (sizeSelect) {
+        try {
+            const saved = localStorage.getItem(sizeKey);
+            if (saved && [...sizeSelect.options].some(o => o.value === saved)) sizeSelect.value = saved;
+        } catch { /* yok say */ }
+        sizeSelect.addEventListener("change", applyEnvelopeSize);
+        applyEnvelopeSize();
+    }
+
     // ---------------- PDF → görüntü ----------------
 
     const pdfjs = window.pdfjsLib;

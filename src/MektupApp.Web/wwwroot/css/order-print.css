@@ -23,6 +23,59 @@
     box-shadow: 0 2px 10px rgba(0, 0, 0, .12);
 }
 
+/* ---------- Zarf çıktısı ----------
+   Sol üst: aracı firma + gönderen · sağ alt: alıcı · sol alt: logo.
+   Zarf kendi boyutunda bir sayfaya basılır (kenar boşluğu yok); boyut araç çubuğundan seçilir. */
+@page envelope-z1318 { size: 180mm 130mm; margin: 0; } /* 13×18 cm zarf, yatay (varsayılan) */
+@page envelope-dl { size: 220mm 110mm; margin: 0; }
+@page envelope-c5 { size: 229mm 162mm; margin: 0; }
+@page envelope-c4 { size: 324mm 229mm; margin: 0; }
+
+.envelope-sheet {
+    position: relative; overflow: hidden;
+    padding: 0; min-height: 0;
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    font-size: 10pt; line-height: 1.3; color: #000;
+}
+.env-z1318 .envelope-sheet { page: envelope-z1318; width: 180mm; height: 130mm; }
+.env-dl .envelope-sheet { page: envelope-dl; width: 220mm; height: 110mm; }
+.env-c5 .envelope-sheet { page: envelope-c5; width: 229mm; height: 162mm; }
+.env-c4 .envelope-sheet { page: envelope-c4; width: 324mm; height: 229mm; font-size: 12pt; }
+
+.env-from { position: absolute; top: 8mm; left: 10mm; max-width: 45%; overflow-wrap: anywhere; }
+.env-to {
+    position: absolute; right: 15mm; bottom: 12mm; max-width: 55%;
+    font-size: 1.2em; line-height: 1.35; overflow-wrap: anywhere;
+}
+.env-to-name { font-size: 1.3em; font-weight: 700; }
+/* Sol alt: aracı firma yazısı, altında logo. */
+.env-brand { position: absolute; left: 10mm; bottom: 8mm; max-width: 40%; }
+.env-brand .envelope-intermediary { margin-bottom: 1.5mm; white-space: nowrap; }
+.env-logo { display: block; height: 28mm; width: auto; }
+.env-z1318 .env-logo { height: 32mm; }
+.env-z1318 .env-to { right: 12mm; max-width: 60%; }
+.env-c5 .env-logo { height: 40mm; }
+.env-c4 .env-brand { left: 15mm; bottom: 12mm; }
+.env-c4 .env-logo { height: 55mm; }
+.env-c4 .env-from { top: 12mm; left: 15mm; }
+.env-c4 .env-to { right: 25mm; bottom: 25mm; }
+
+.envelope-intermediary { font-weight: 700; margin-bottom: 2mm; }
+
+/* Zarftaki başlıklar logo renklerinde: GÖNDEREN lacivert ("Mektup"), ALICI bordo ("Bi"). */
+.envelope-sheet .label-caption {
+    font-size: .8em; font-weight: 700; letter-spacing: .1em;
+    -webkit-print-color-adjust: exact; print-color-adjust: exact;
+}
+.envelope-sheet .env-from .label-caption { color: var(--navy, #26304E); }
+.envelope-sheet .env-to .label-caption { color: var(--burgundy, #8E2235); }
+
+/* Zarflama kontrol listesi (yalnızca ekranda, zarfın üstünde). */
+.envelope-checklist {
+    width: 210mm; margin: 0 auto .5rem; padding: .5rem .75rem;
+    background: #fffbea; border: 1px solid #f1d9a6; border-radius: 6px;
+}
+
 .label-caption { font-size: .75rem; letter-spacing: .08em; color: #6c757d; font-weight: 600; }
 
 .checklist { list-style: none; padding-left: 0; margin: 0; }
