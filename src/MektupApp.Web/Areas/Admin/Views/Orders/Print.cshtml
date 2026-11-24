@@ -4,7 +4,7 @@
     Layout = null;
     var single = Model.Count == 1;
     var title = single ? $"Yazdır — {Model[0].RecipientName}" : $"Yazdır — {Model.Count} sipariş";
-    string OrderNo(LetterDetailsDto l) => "#" + l.Id.ToString()[..8].ToUpperInvariant();
+    string OrderNo(LetterDetailsDto l) => "#" + OrderNumber.Format(l.Id);
 }
 <!DOCTYPE html>
 <html lang="tr">

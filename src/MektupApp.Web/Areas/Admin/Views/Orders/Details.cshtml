@@ -8,7 +8,8 @@
     <div>
         <a asp-action="Index" class="small">← Siparişler</a>
         <h1 class="h4 mb-0 mt-1">@l.RecipientName <partial name="_StatusBadge" model="l.Status" /></h1>
-        <div class="text-muted small font-monospace">#@l.Id</div>
+        <div class="small"><span class="text-muted">Sipariş No:</span> <strong class="font-monospace">#@OrderNumber.Format(l.Id)</strong>
+            <span class="text-muted font-monospace ms-2" title="Tam kimlik">@l.Id</span></div>
     </div>
     <a class="btn btn-outline-secondary btn-sm" asp-action="Print" asp-route-id="@l.Id" target="_blank">🖨️ Yazdır</a>
 </div>

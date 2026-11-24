@@ -20,7 +20,7 @@
     <form method="get" class="d-flex gap-2" role="search">
         @if (Model.Status is not null) { <input type="hidden" name="status" value="@Model.Status" /> }
         <input type="search" name="q" value="@Model.Query" class="form-control form-control-sm" style="min-width:240px"
-               placeholder="Alıcı, gönderen, il veya takip kodu" aria-label="Siparişlerde ara" />
+               placeholder="Sipariş no, alıcı, gönderen, il veya takip kodu" aria-label="Siparişlerde ara" />
         <button class="btn btn-sm btn-primary" type="submit">Ara</button>
     </form>
 </div>
@@ -66,6 +66,7 @@
                         {
                             <th style="width:1%"><input type="checkbox" class="form-check-input" id="selectAll" aria-label="Tümünü seç" /></th>
                         }
+                        <th>Sipariş No</th>
                         <th>Durum</th>
                         <th>Alıcı</th>
                         <th>Gönderen</th>
@@ -85,6 +86,7 @@
                             {
                                 <td><input type="checkbox" class="form-check-input row-check" name="ids" value="@o.Id" aria-label="Seç: @o.RecipientName" /></td>
                             }
+                            <td class="font-monospace small text-nowrap"><a asp-action="Details" asp-route-id="@o.Id" class="text-reset">#@OrderNumber.Format(o.Id)</a></td>
                             <td><partial name="_StatusBadge" model="o.Status" /></td>
                             <td>
                                 <a asp-action="Details" asp-route-id="@o.Id" class="fw-semibold">@o.RecipientName</a>
@@ -104,7 +106,7 @@
                     }
                     @if (Model.Result.Items.Count == 0)
                     {
-                        <tr><td colspan="10" class="text-center text-muted py-4">Kayıt bulunamadı.</td></tr>
+                        <tr><td colspan="11" class="text-center text-muted py-4">Kayıt bulunamadı.</td></tr>
                     }
                 </tbody>
             </table>

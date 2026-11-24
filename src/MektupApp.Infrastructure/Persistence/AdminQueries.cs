@@ -117,11 +117,14 @@ internal sealed class AdminQueries(AppDbContext db) : IAdminQueries
         {
             var q = c.Query.Trim();
             var code = q.ToUpperInvariant().Replace(" ", "");
+            // Sipariş no (#04F731B2): kimliğin metin halinin başıyla eşleşir.
+            var orderNo = OrderNumber.AsSearchPrefix(q);
             query = query.Where(l =>
                 l.Recipient.FullName.Contains(q) ||
                 l.SenderName.Contains(q) ||
                 l.Recipient.Address.City.Contains(q) ||
-                l.TrackingCode == code);
+                l.TrackingCode == code ||
+                (orderNo != null && l.Id.ToString().StartsWith(orderNo)));
         }
 
         // Operasyon kuyruklarında en eski ödeme önce (ilk giren ilk çıkar); diğerlerinde en yeni önce.
