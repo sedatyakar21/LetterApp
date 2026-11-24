@@ -1,4 +1,5 @@
 using MektupApp.Application.Admin;
+using MektupApp.Application.Customers;
 using MektupApp.Application.Notifications;
 using MektupApp.Domain.Notifications;
 using Microsoft.AspNetCore.Mvc;
@@ -11,11 +12,27 @@ public sealed class NotificationsIndexViewModel
     public required PagedResult<NotificationRowDto> History { get; init; }
     public NotificationChannel? Channel { get; init; }
     public NotificationStatus? Status { get; init; }
+    public required PasswordResetOptionsDto PasswordReset { get; init; }
 }
 
-/// <summary>SMS / e-posta bildirim ayarları, gönderim geçmişi ve test gönderimi.</summary>
-public class NotificationsController(NotificationAdminService notifications) : AdminControllerBase
+/// <summary>SMS / e-posta bildirim ayarları, şifremi unuttum yöntemleri, gönderim geçmişi ve test gönderimi.</summary>
+public class NotificationsController(NotificationAdminService notifications, PasswordResetService passwordResets) : AdminControllerBase
 {
+    /// <summary>Şifremi unuttum: e-posta bağlantısı ve SMS kodu ayrı ayrı açılıp kapatılır.</summary>
+    [HttpPost]
+    public async Task<IActionResult> PasswordReset(bool emailEnabled, bool smsEnabled, CancellationToken ct)
+    {
+        await passwordResets.UpdateSettingsAsync(emailEnabled, smsEnabled, User.Identity?.Name ?? "yönetici", ct);
+        var state = (emailEnabled, smsEnabled) switch
+        {
+            (true, true) => "e-posta ve SMS açık",
+            (true, false) => "yalnızca e-posta açık",
+            (false, true) => "yalnızca SMS açık",
+            _ => "kapalı (üyeler şifrelerini sıfırlayamaz)"
+        };
+        return BackWith($"Şifremi unuttum ayarı kaydedildi: {state}.", Url.Action(nameof(Index))!);
+    }
+
     private const int PageSize = 25;
 
     /// <summary>Ayarlarda gösterilen türler (sıra ekrandaki sıradır).</summary>
@@ -31,7 +48,8 @@ public class NotificationsController(NotificationAdminService notifications) : A
             Settings = await notifications.GetSettingsAsync(ct),
             History = await notifications.SearchAsync(kanal, durum, page, PageSize, ct),
             Channel = kanal,
-            Status = durum
+            Status = durum,
+            PasswordReset = await passwordResets.GetOptionsAsync(ct)
         });
 
     /// <param name="sms">İşaretli SMS türleri (bayrak değerleri).</param>

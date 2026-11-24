@@ -1,0 +1,55 @@
+@model ForgotPasswordViewModel
+@using MektupApp.Domain.Customers
+@{
+    ViewData["Title"] = "Şifremi Unuttum";
+    var both = Model.EmailEnabled && Model.SmsEnabled;
+}
+<div class="container py-4" style="max-width: 440px">
+    <h1 class="h3 mb-4">Şifremi Unuttum</h1>
+    <div class="card card-body">
+        @if (!Model.EmailEnabled && !Model.SmsEnabled)
+        {
+            <p class="mb-2">Şifre sıfırlama şu an kullanılamıyor.</p>
+            <p class="small text-muted mb-0">Hesabınız Google'a bağlıysa <a asp-controller="Account" asp-action="Login">giriş sayfasındaki</a> "Google ile devam et" düğmesini kullanabilir ya da destek ekibimize yazabilirsiniz.</p>
+        }
+        else
+        {
+            <form asp-action="Forgot" method="post">
+                <div asp-validation-summary="ModelOnly" class="text-danger small"></div>
+                <p class="small text-muted">
+                    @if (both) { <text>Üyelikte kullandığınız e-posta adresini girin ve yeni şifreyi nasıl belirlemek istediğinizi seçin.</text> }
+                    else if (Model.EmailEnabled) { <text>Üyelikte kullandığınız e-posta adresini girin; size yeni şifre belirleme bağlantısı gönderelim.</text> }
+                    else { <text>Üyelikte kullandığınız e-posta adresini girin; kayıtlı cep telefonunuza doğrulama kodu gönderelim.</text> }
+                </p>
+                <div class="mb-3">
+                    <label asp-for="Email" class="form-label"></label>
+                    <input asp-for="Email" class="form-control" autocomplete="username" autofocus />
+                    <span asp-validation-for="Email" class="text-danger small"></span>
+                </div>
+                @if (both)
+                {
+                    <fieldset class="mb-3">
+                        <legend class="form-label fs-6 mb-1">Nasıl sıfırlamak istersiniz?</legend>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" asp-for="Method" value="@PasswordResetMethod.Email" id="methodEmail" />
+                            <label class="form-check-label" for="methodEmail">✉️ E-postama bağlantı gönder</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" asp-for="Method" value="@PasswordResetMethod.Sms" id="methodSms" />
+                            <label class="form-check-label" for="methodSms">📱 Kayıtlı telefonuma SMS kodu gönder</label>
+                        </div>
+                    </fieldset>
+                }
+                else
+                {
+                    <input type="hidden" asp-for="Method" />
+                }
+                <button type="submit" class="btn btn-primary w-100">
+                    @(Model.Method == PasswordResetMethod.Sms && !both ? "Kod Gönder" : "Gönder")
+                </button>
+            </form>
+        }
+        <p class="text-center small mt-3 mb-0"><a asp-controller="Account" asp-action="Login">← Giriş sayfasına dön</a></p>
+    </div>
+</div>
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }

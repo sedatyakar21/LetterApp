@@ -32,6 +32,23 @@ class BiMektupApi {
         'acceptTerms': acceptTerms,
       }));
 
+  // ---------------- Şifremi unuttum ----------------
+
+  Future<PasswordResetOptions> passwordResetOptions() async =>
+      PasswordResetOptions.fromJson(await client.get('/api/mobile/auth/password-reset/options'));
+
+  /// [method]: 'Email' (bağlantı e-postayla gelir, sitede açılır) veya 'Sms' (kod uygulamada girilir). Bilgi mesajı döner.
+  Future<String> requestPasswordReset(String email, String method) async {
+    final j = await client.post('/api/mobile/auth/password-reset/request', {'email': email, 'method': method});
+    return (j as Map<String, dynamic>)['message'] as String;
+  }
+
+  Future<String> confirmPasswordReset(String email, String code, String newPassword) async {
+    final j = await client.post('/api/mobile/auth/password-reset/confirm',
+        {'email': email, 'code': code, 'newPassword': newPassword});
+    return (j as Map<String, dynamic>)['message'] as String;
+  }
+
   Future<AppSettings> config() async => AppSettings.fromJson(await client.get('/api/mobile/config'));
 
   Future<Locations> locations() async => Locations.fromJson(await client.get('/api/mobile/locations') as List);

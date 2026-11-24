@@ -60,7 +60,7 @@ public sealed class ActiveCustomerFilterAttribute : Attribute, IAsyncAuthorizati
         var access = Guid.TryParse(user.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value, out var id)
             ? await accounts.GetAccessAsync(id, context.HttpContext.RequestAborted)
             : null;
-        if (access is not { IsActive: true })
+        if (access is null || !access.AllowsSessionFrom(user.SignedInAt()))
             context.Result = new UnauthorizedObjectResult(new ApiError("Oturumunuz sona erdi. Lütfen tekrar giriş yapın."));
     }
 }

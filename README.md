@@ -85,6 +85,15 @@ dotnet user-secrets set "Notifications:Email:Smtp:Password" "xxxx" --project src
 
 Canlıda ortam değişkeni adları `Notifications__Sms__Netgsm__Password` ve `Notifications__Email__Smtp__Password` şeklindedir. Netgsm entegrasyonu, Netgsm'in XML POST API'sine (`https://api.netgsm.com.tr/sms/send/xml`) göre yazıldı ve birim testleriyle doğrulandı; gerçek hesapla ilk gönderimde **Test SMS'i gönder** ile denenmelidir.
 
+### Şifremi unuttum (`/sifremi-unuttum`)
+
+Giriş sayfasındaki **Şifremi unuttum** bağlantısıyla üye, kayıtlı e-postasını girip yöntemi seçer. İki yöntem **Yönetim → Bildirimler → 🔑 Şifremi unuttum** kartından ayrı ayrı açılıp kapatılır (varsayılan: e-posta açık, SMS kapalı; ikisi de kapalıysa bağlantı görünmez):
+
+- **E-posta:** `/sifre-sifirla?token=...` bağlantısı gider; 60 dakika geçerli, tek kullanımlık. Bağlantı adresi `Notifications:SiteUrl`'den üretilir (isteğin Host başlığına güvenilmez).
+- **SMS:** kayıtlı cep telefonuna 6 haneli kod gider; 10 dakika geçerli, en çok 5 yanlış deneme.
+
+Güvenlik: bağlantı anahtarı / kod veritabanında yalnızca SHA-256 özeti olarak tutulur ve bildirim geçmişine yazılmaz (doğrudan gönderilir); yeni talep öncekileri iptal eder; üye başına saatte 3 talep, IP başına 15 dakikada 10 istek sınırı vardır; kayıtlı olmayan adres için de aynı mesaj gösterilir. Şifre değişince üyenin **tüm açık oturumları** (site çerezi ve mobil token'lar) kapanır. Mobil uygulama aynı akışı `/api/mobile/auth/password-reset/{options,request,confirm}` ile kullanır; e-posta bağlantısı sitede açılır. Simülasyon modunda bağlantı / kod log'a yazılır.
+
 ### Google ile giriş
 
 Giriş ve kayıt sayfalarında "Google ile devam et" butonu vardır.
@@ -323,4 +332,5 @@ Bağımlılık yönü: `Web → Application → Domain`, `Infrastructure → App
 - `LoggingSmsSender` → gerçek SMS sağlayıcısı.
 - Açılışta otomatik migration yerine, yayın sürecinde `dotnet ef database update` veya migration script'i kullanın.
 - Üyelik sözleşmesi, mesafeli satış sözleşmesi, KVKK metinleri (şu an yer tutucu).
-- Şifre sıfırlama, e-posta doğrulama.
+- E-posta doğrulama.
+- Uygulama Nginx / yük dengeleyici arkasındaysa proxy adresini `ForwardedHeadersOptions.KnownProxies`'e ekleyin; aksi halde şifremi unuttum hız sınırı (IP başına) tüm kullanıcılar için ortak sayılır.

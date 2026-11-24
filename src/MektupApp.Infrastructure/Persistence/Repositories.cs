@@ -51,6 +51,29 @@ internal sealed class WeightSettingsRepository(AppDbContext db) : IWeightSetting
     public void Add(WeightSettings settings) => db.Set<WeightSettings>().Add(settings);
 }
 
+internal sealed class PasswordResetRepository(AppDbContext db) : IPasswordResetRepository
+{
+    // Varsayılan ayar aynı istekte eklenmiş ama henüz kaydedilmemiş olabilir: önce bellekteki kayda bakılır.
+    public async Task<PasswordResetSettings?> GetSettingsAsync(CancellationToken ct = default) =>
+        db.Set<PasswordResetSettings>().Local.FirstOrDefault(s => s.Id == PasswordResetSettings.SingletonId)
+        ?? await db.Set<PasswordResetSettings>().FirstOrDefaultAsync(s => s.Id == PasswordResetSettings.SingletonId, ct);
+
+    public void AddSettings(PasswordResetSettings settings) => db.Set<PasswordResetSettings>().Add(settings);
+
+    public Task<PasswordResetRequest?> GetBySecretHashAsync(string secretHash, CancellationToken ct = default) =>
+        db.Set<PasswordResetRequest>().FirstOrDefaultAsync(r => r.SecretHash == secretHash, ct);
+
+    public async Task<IReadOnlyList<PasswordResetRequest>> ListOpenAsync(Guid customerId, DateTime now, CancellationToken ct = default) =>
+        await db.Set<PasswordResetRequest>()
+            .Where(r => r.CustomerId == customerId && r.ClosedAt == null && r.ExpiresAt > now)
+            .ToListAsync(ct);
+
+    public Task<int> CountSinceAsync(Guid customerId, DateTime since, CancellationToken ct = default) =>
+        db.Set<PasswordResetRequest>().CountAsync(r => r.CustomerId == customerId && r.CreatedAt >= since, ct);
+
+    public void Add(PasswordResetRequest request) => db.Set<PasswordResetRequest>().Add(request);
+}
+
 internal sealed class PricingSettingsRepository(AppDbContext db) : IPricingSettingsRepository
 {
     public Task<PricingSettings?> GetAsync(CancellationToken ct = default) =>

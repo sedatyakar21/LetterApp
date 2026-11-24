@@ -24,7 +24,9 @@ public static class SessionValidator
         var access = await accounts.GetAccessAsync(customerId, context.HttpContext.RequestAborted);
         var hasAdminClaim = context.Principal!.IsInRole("Admin");
 
-        if (access is null || !access.Value.IsActive || access.Value.IsAdmin != hasAdminClaim)
+        // Şifre (ör. "şifremi unuttum" ile) oturum açıldıktan sonra değiştiyse bu oturum da kapanır.
+        var signedInAt = context.Principal.SignedInAt() ?? context.Properties.IssuedUtc;
+        if (access is null || !access.AllowsSessionFrom(signedInAt) || access.IsAdmin != hasAdminClaim)
             await RejectAsync(context);
     }
 

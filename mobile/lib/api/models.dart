@@ -36,6 +36,19 @@ class Support {
   final String? hours;
 }
 
+/// Şifremi unuttum: yönetim panelinden açılan yöntemler.
+class PasswordResetOptions {
+  PasswordResetOptions(this.emailEnabled, this.smsEnabled, this.codeLength);
+  PasswordResetOptions.fromJson(Map<String, dynamic> j)
+      : emailEnabled = j['emailEnabled'] as bool? ?? false,
+        smsEnabled = j['smsEnabled'] as bool? ?? false,
+        codeLength = j['codeLength'] as int? ?? 6;
+  final bool emailEnabled;
+  final bool smsEnabled;
+  final int codeLength;
+  bool get anyEnabled => emailEnabled || smsEnabled;
+}
+
 /// Formdaki seçenekler, fiyatlar ve sınırlar (/api/mobile/config).
 class AppSettings {
   AppSettings.fromJson(Map<String, dynamic> j)

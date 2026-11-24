@@ -1,0 +1,17 @@
+@model ResetPasswordViewModel
+@{
+    ViewData["Title"] = "Yeni Şifre";
+}
+<div class="container py-4" style="max-width: 440px">
+    <h1 class="h3 mb-4">Yeni şifre belirleyin</h1>
+    <div class="card card-body">
+        <form asp-action="Reset" method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger small"></div>
+            <input type="hidden" asp-for="Token" />
+            <partial name="_NewPasswordFields" />
+            <button type="submit" class="btn btn-primary w-100">Şifremi Değiştir</button>
+        </form>
+        <p class="small text-muted mt-3 mb-0">Şifreniz değişince diğer cihazlardaki oturumlarınız kapanır.</p>
+    </div>
+</div>
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }

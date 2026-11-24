@@ -203,6 +203,9 @@ namespace MektupApp.Infrastructure.Persistence.Migrations
                     b.Property<bool>("IsAdmin")
                         .HasColumnType("bit");
 
+                    b.Property<DateTime?>("PasswordChangedAt")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("PasswordHash")
                         .IsRequired()
                         .HasMaxLength(500)
@@ -238,6 +241,70 @@ namespace MektupApp.Infrastructure.Persistence.Migrations
                     b.HasIndex("ReferredByCustomerId");
 
                     b.ToTable("Customers", (string)null);
+                });
+
+            modelBuilder.Entity("MektupApp.Domain.Customers.PasswordResetRequest", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("ClosedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("CustomerId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("ExpiresAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("FailedAttempts")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Method")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)");
+
+                    b.Property<string>("SecretHash")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .IsUnicode(false)
+                        .HasColumnType("varchar(64)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("SecretHash");
+
+                    b.HasIndex("CustomerId", "CreatedAt");
+
+                    b.ToTable("PasswordResetRequests", (string)null);
+                });
+
+            modelBuilder.Entity("MektupApp.Domain.Customers.PasswordResetSettings", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool>("EmailEnabled")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("SmsEnabled")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("PasswordResetSettings", (string)null);
                 });
 
             modelBuilder.Entity("MektupApp.Domain.Letters.Letter", b =>
@@ -1191,6 +1258,15 @@ namespace MektupApp.Infrastructure.Persistence.Migrations
                         .WithMany()
                         .HasForeignKey("ReferredByCustomerId")
                         .OnDelete(DeleteBehavior.NoAction);
+                });
+
+            modelBuilder.Entity("MektupApp.Domain.Customers.PasswordResetRequest", b =>
+                {
+                    b.HasOne("MektupApp.Domain.Customers.Customer", null)
+                        .WithMany()
+                        .HasForeignKey("CustomerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("MektupApp.Domain.Letters.LetterDocument", b =>

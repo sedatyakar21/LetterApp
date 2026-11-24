@@ -38,6 +38,13 @@ public static class CustomerSignIn
             CreatePrincipal(customer, CookieAuthenticationDefaults.AuthenticationScheme),
             new AuthenticationProperties { IsPersistent = true });
 
+    /// <summary>Oturumun açıldığı an (Unix ms). Şifre bundan sonra değiştiyse oturum geçersiz sayılır.</summary>
+    public const string SignedInAtClaim = "auth_time_ms";
+
+    /// <summary>Oturumun açıldığı an; claim'i olmayan eski oturumlarda null.</summary>
+    public static DateTimeOffset? SignedInAt(this ClaimsPrincipal? principal) =>
+        long.TryParse(principal?.FindFirstValue(SignedInAtClaim), out var ms) ? DateTimeOffset.FromUnixTimeMilliseconds(ms) : null;
+
     /// <summary>Üyenin kimlik bilgileri (site çerezi ve mobil uygulama token'ı aynı claim'leri taşır).</summary>
     public static ClaimsPrincipal CreatePrincipal(AuthenticatedCustomer customer, string authenticationType)
     {
@@ -45,7 +52,8 @@ public static class CustomerSignIn
         {
             new(ClaimTypes.NameIdentifier, customer.Id.ToString()),
             new(ClaimTypes.Name, customer.FullName),
-            new(ClaimTypes.Email, customer.Email)
+            new(ClaimTypes.Email, customer.Email),
+            new(SignedInAtClaim, DateTimeOffset.UtcNow.ToUnixTimeMilliseconds().ToString(System.Globalization.CultureInfo.InvariantCulture))
         };
         if (customer.IsAdmin) claims.Add(new Claim(ClaimTypes.Role, "Admin"));
         return new ClaimsPrincipal(new ClaimsIdentity(claims, authenticationType));

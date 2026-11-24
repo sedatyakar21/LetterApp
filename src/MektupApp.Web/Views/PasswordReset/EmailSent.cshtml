@@ -1,0 +1,15 @@
+@{
+    ViewData["Title"] = "E-postanızı Kontrol Edin";
+}
+<div class="container py-4" style="max-width: 440px">
+    <h1 class="h3 mb-4">E-postanızı kontrol edin</h1>
+    <div class="card card-body">
+        <p>
+            <strong>@ViewBag.Email</strong> adresiyle kayıtlı bir hesap varsa, yeni şifre belirleme bağlantısını bu adrese gönderdik.
+            Bağlantı <strong>60 dakika</strong> geçerlidir ve yalnızca bir kez kullanılabilir.
+        </p>
+        <p class="small text-muted mb-3">E-posta birkaç dakika içinde gelmezse gereksiz (spam) klasörünü kontrol edin. Yeni bağlantı isterseniz önceki bağlantı geçersiz olur.</p>
+        <a asp-action="Forgot" asp-route-email="@ViewBag.Email" class="btn btn-outline-secondary w-100">Tekrar gönder</a>
+        <p class="text-center small mt-3 mb-0"><a asp-controller="Account" asp-action="Login">← Giriş sayfasına dön</a></p>
+    </div>
+</div>

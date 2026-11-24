@@ -64,6 +64,7 @@ if (googleConfigured)
 }
 builder.Services.AddSingleton(new GoogleSignIn(googleConfigured, Simulation: !googleConfigured && builder.Environment.IsDevelopment()));
 builder.Services.AddAuthorization();
+builder.Services.AddPasswordResetRateLimit();
 builder.Services.AddSingleton(TurkeyLocations.Load(builder.Environment.WebRootPath));
 builder.Services.Configure<SupportOptions>(builder.Configuration.GetSection(SupportOptions.Section));
 
@@ -106,6 +107,7 @@ app.UseRequestLocalization(new RequestLocalizationOptions
 app.UseHttpsRedirection();
 app.UseRouting();
 app.UseCors();
+app.UseRateLimiter();
 app.UseAuthentication();
 app.UseAuthorization();
 

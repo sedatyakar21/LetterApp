@@ -4,6 +4,7 @@ import '../../state/session.dart';
 import '../../ui/common.dart';
 import '../../ui/theme.dart';
 import '../tracking_screen.dart';
+import 'forgot_password_screen.dart';
 import 'register_screen.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -47,6 +48,18 @@ class _LoginScreenState extends State<LoginScreen> {
     } finally {
       if (mounted) setState(() => _busy = false);
     }
+  }
+
+  /// Şifremi unuttum ekranı; SMS koduyla şifre değişince girilen e-posta giriş formuna geri gelir.
+  Future<void> _forgotPassword() async {
+    final email = await Navigator.of(context).push<String>(
+        MaterialPageRoute(builder: (_) => ForgotPasswordScreen(initialEmail: _email.text.trim())));
+    if (!mounted || email == null || email.isEmpty) return;
+    setState(() {
+      _email.text = email;
+      _password.clear();
+      _error = null;
+    });
   }
 
   @override
@@ -96,7 +109,14 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                       validator: (v) => (v ?? '').isEmpty ? 'Şifre zorunludur.' : null,
                     ),
-                    const SizedBox(height: 22),
+                    Align(
+                      alignment: Alignment.centerRight,
+                      child: TextButton(
+                        onPressed: _busy ? null : _forgotPassword,
+                        child: const Text('Şifremi unuttum'),
+                      ),
+                    ),
+                    const SizedBox(height: 8),
                     FilledButton(
                       onPressed: _busy ? null : _submit,
                       child: _busy

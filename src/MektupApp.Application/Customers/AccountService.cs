@@ -32,6 +32,15 @@ public sealed record GoogleRegisterCommand(
     string? ReferralCode = null,
     DateOnly? BirthDate = null);
 
+/// <param name="PasswordChangedAt">Şifre en son ne zaman değişti (UTC); bundan önce açılmış oturumlar geçersizdir.</param>
+public sealed record CustomerAccess(bool IsActive, bool IsAdmin, DateTime? PasswordChangedAt)
+{
+    /// <param name="signedInAt">Oturumun açıldığı an; bilinmiyorsa (eski oturum) şifre kontrolü yapılamaz.</param>
+    public bool AllowsSessionFrom(DateTimeOffset? signedInAt) =>
+        IsActive && (PasswordChangedAt is not { } changed || signedInAt is not { } at ||
+                     at.UtcDateTime >= DateTime.SpecifyKind(changed, DateTimeKind.Utc));
+}
+
 public sealed record ReferralInfoDto(string ReferralCode, int ReferredCount);
 
 public sealed class AccountService(ICustomerRepository customers, IPasswordHasher hasher, IUnitOfWork unitOfWork)
@@ -88,11 +97,11 @@ public sealed class AccountService(ICustomerRepository customers, IPasswordHashe
         return ToAuth(customer);
     }
 
-    /// <summary>Açık oturumların hâlâ geçerli olup olmadığını (engellenme / yetki değişimi) kontrol etmek için.</summary>
-    public async Task<(bool IsActive, bool IsAdmin)?> GetAccessAsync(Guid customerId, CancellationToken ct = default)
+    /// <summary>Açık oturumların hâlâ geçerli olup olmadığını (engellenme / yetki / şifre değişimi) kontrol etmek için.</summary>
+    public async Task<CustomerAccess?> GetAccessAsync(Guid customerId, CancellationToken ct = default)
     {
         var c = await customers.GetAsync(customerId, ct);
-        return c is null ? null : (c.IsActive, c.IsAdmin);
+        return c is null ? null : new CustomerAccess(c.IsActive, c.IsAdmin, c.PasswordChangedAt);
     }
 
     /// <summary>Aktif üyenin güncel kimlik bilgileri (mobil oturum yenilenirken); engellenmiş veya silinmişse null.</summary>

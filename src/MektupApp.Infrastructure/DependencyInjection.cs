@@ -35,6 +35,7 @@ public static class DependencyInjection
 
         services.AddScoped<ILetterRepository, LetterRepository>();
         services.AddScoped<ICustomerRepository, CustomerRepository>();
+        services.AddScoped<IPasswordResetRepository, PasswordResetRepository>();
         services.AddScoped<IPricingSettingsRepository, PricingSettingsRepository>();
         services.AddScoped<IWeightSettingsRepository, WeightSettingsRepository>();
         services.AddScoped<IAdminQueries, AdminQueries>();

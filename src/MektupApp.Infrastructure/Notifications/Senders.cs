@@ -65,7 +65,8 @@ internal sealed class LoggingEmailSender(ILogger<LoggingEmailSender> logger) : I
 
     public Task<SendResult> SendAsync(string to, string subject, string textBody, string htmlBody, CancellationToken ct = default)
     {
-        logger.LogInformation("E-posta (simülasyon) -> {To}: {Subject}", to, subject);
+        // SMS simülasyonunda olduğu gibi metin de yazılır (ör. geliştirmede şifre sıfırlama bağlantısını görebilmek için).
+        logger.LogInformation("E-posta (simülasyon) -> {To}: {Subject}\n{Body}", to, subject, textBody);
         return Task.FromResult(SendResult.Ok("sim-" + Guid.NewGuid().ToString("N")[..12]));
     }
 }

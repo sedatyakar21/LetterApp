@@ -1,0 +1,11 @@
+@{
+    ViewData["Title"] = "Bağlantı Geçersiz";
+}
+<div class="container py-4" style="max-width: 440px">
+    <h1 class="h3 mb-4">Bağlantı geçersiz</h1>
+    <div class="card card-body">
+        <p>Bu şifre sıfırlama bağlantısı geçersiz, daha önce kullanılmış ya da süresi dolmuş.</p>
+        <p class="small text-muted">Bağlantılar 60 dakika geçerlidir ve yeni bağlantı istendiğinde öncekiler iptal olur.</p>
+        <a asp-action="Forgot" class="btn btn-primary w-100">Yeni bağlantı iste</a>
+    </div>
+</div>

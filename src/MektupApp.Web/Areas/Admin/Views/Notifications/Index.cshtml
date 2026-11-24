@@ -58,6 +58,27 @@
             <div class="form-text mb-2">Bunlar sipariş ve hesap bilgilendirmeleridir (ticari ileti değildir). Her SMS ücretlidir; Türkçe karakterli SMS 155 karakteri aşınca iki mesaj sayılır.</div>
             <button class="btn btn-primary btn-sm">Kaydet</button>
         </form>
+
+        @* Şifremi unuttum: yöntemler ayrı ayrı açılıp kapatılır. Kod / bağlantı doğrudan gönderilir, geçmişe yazılmaz. *@
+        @{ var pr = Model.PasswordReset; }
+        <form asp-action="PasswordReset" method="post" class="admin-card p-3 mt-3" id="password-reset">
+            <div class="fw-semibold mb-2">🔑 Şifremi unuttum</div>
+            <div class="form-check form-switch mb-1">
+                <input class="form-check-input" type="checkbox" role="switch" name="emailEnabled" value="true" id="prEmail" @(pr.EmailEnabled ? "checked" : "") />
+                <label class="form-check-label" for="prEmail">E-posta ile sıfırlama bağlantısı <span class="text-muted small">(60 dk geçerli)</span></label>
+            </div>
+            <div class="form-check form-switch mb-2">
+                <input class="form-check-input" type="checkbox" role="switch" name="smsEnabled" value="true" id="prSms" @(pr.SmsEnabled ? "checked" : "") />
+                <label class="form-check-label" for="prSms">SMS ile doğrulama kodu <span class="text-muted small">(10 dk geçerli, 5 deneme)</span></label>
+            </div>
+            <div class="form-text mb-2">
+                İkisi de kapalıysa giriş sayfasında "Şifremi unuttum" bağlantısı görünmez. Her SMS ücretlidir.
+                Güvenlik için bu mesajlar aşağıdaki gönderim geçmişine yazılmaz; üye başına saatte en çok 3 talep yapılabilir.
+                @if (pr.EmailEnabled && s.EmailSimulation) { <br /><span class="text-warning-emphasis">E-posta simülasyonda: bağlantı yalnızca log'a yazılır.</span> }
+                @if (pr.SmsEnabled && s.SmsSimulation) { <br /><span class="text-warning-emphasis">SMS simülasyonda: kod yalnızca log'a yazılır.</span> }
+            </div>
+            <button class="btn btn-primary btn-sm">Kaydet</button>
+        </form>
     </div>
     <div class="col-lg-5">
         <div class="admin-card p-3 mb-3">

@@ -114,6 +114,26 @@ public sealed class NotificationTemplates(NotificationOptions options)
         paragraphs: ["Bu e-postayı aldıysanız e-posta ayarlarınız çalışıyor."],
         button: ("Siteye Git", Site));
 
+    /// <summary>Şifremi unuttum: sıfırlama bağlantısı (e-posta). SMS metni kullanılmaz.</summary>
+    public NotificationContent PasswordResetEmail(string name, string resetUrl, TimeSpan lifetime) => Build(NotificationType.None,
+        sms: "",
+        subject: $"{Brand} şifre sıfırlama",
+        heading: "Şifrenizi sıfırlayın",
+        paragraphs:
+        [
+            $"Merhaba {Esc(FirstName(name))}, hesabınız için şifre sıfırlama talebi aldık. Yeni şifrenizi belirlemek için aşağıdaki düğmeye tıklayın.",
+            $"Bağlantı <strong>{(int)lifetime.TotalMinutes} dakika</strong> geçerlidir ve yalnızca bir kez kullanılabilir.",
+            "Bu talebi siz yapmadıysanız bu e-postayı dikkate almayın; şifreniz değişmez."
+        ],
+        button: ("Yeni Şifre Belirle", resetUrl));
+
+    /// <summary>Şifremi unuttum: SMS doğrulama kodu.</summary>
+    public string PasswordResetSms(string code, TimeSpan lifetime) =>
+        $"{Brand} şifre sıfırlama kodunuz: {code}. {(int)lifetime.TotalMinutes} dakika geçerlidir. Bu kodu kimseyle paylaşmayın.";
+
+    /// <summary>Sıfırlama bağlantısının adresi (yapılandırılmış site adresiyle; isteğin Host başlığına güvenilmez).</summary>
+    public string PasswordResetUrl(string token) => $"{Site}/sifre-sifirla?token={Uri.EscapeDataString(token)}";
+
     // ---------------- yardımcılar ----------------
 
     private NotificationContent Build(NotificationType type, string sms, string subject, string heading,

@@ -137,6 +137,36 @@ internal sealed class CustomerConfiguration : IEntityTypeConfiguration<Customer>
     }
 }
 
+internal sealed class PasswordResetRequestConfiguration : IEntityTypeConfiguration<PasswordResetRequest>
+{
+    public void Configure(EntityTypeBuilder<PasswordResetRequest> b)
+    {
+        b.ToTable("PasswordResetRequests");
+        b.HasKey(r => r.Id);
+        b.Ignore(r => r.DomainEvents);
+        b.Ignore(r => r.RemainingAttempts);
+        b.Property(r => r.Method).HasConversion<string>().HasMaxLength(10);
+        b.Property(r => r.SecretHash).HasMaxLength(64).IsUnicode(false).IsRequired();
+        // Benzersiz değil: 6 haneli SMS kodlarının özeti zamanla tekrar edebilir (e-posta anahtarları 256 bit, çakışmaz).
+        b.HasIndex(r => r.SecretHash);
+        b.HasIndex(r => new { r.CustomerId, r.CreatedAt });
+        b.HasOne<Customer>().WithMany().HasForeignKey(r => r.CustomerId).OnDelete(DeleteBehavior.Cascade);
+    }
+}
+
+internal sealed class PasswordResetSettingsConfiguration : IEntityTypeConfiguration<PasswordResetSettings>
+{
+    public void Configure(EntityTypeBuilder<PasswordResetSettings> b)
+    {
+        b.ToTable("PasswordResetSettings");
+        b.HasKey(s => s.Id);
+        b.Property(s => s.Id).ValueGeneratedNever();
+        b.Ignore(s => s.DomainEvents);
+        b.Ignore(s => s.AnyEnabled);
+        b.Property(s => s.UpdatedBy).HasMaxLength(200);
+    }
+}
+
 internal sealed class PricingSettingsConfiguration : IEntityTypeConfiguration<PricingSettings>
 {
     public void Configure(EntityTypeBuilder<PricingSettings> b)

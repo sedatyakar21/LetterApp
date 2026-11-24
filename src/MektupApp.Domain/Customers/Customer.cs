@@ -122,8 +122,15 @@ public sealed class Customer : AggregateRoot
         GoogleSubject = null;
     }
 
-    public void ChangePasswordHash(string passwordHash) =>
+    /// <summary>Şifre en son ne zaman değiştirildi; bundan önce açılmış oturumlar geçersiz sayılır.</summary>
+    public DateTime? PasswordChangedAt { get; private set; }
+
+    /// <summary>Yeni şifre (Google ile açılmış hesaba da şifre eklenebilir). Açık oturumların kapanması için zaman damgası güncellenir.</summary>
+    public void ChangePasswordHash(string passwordHash)
+    {
         PasswordHash = Guard.Required(passwordHash, "Şifre", 500);
+        PasswordChangedAt = DateTime.UtcNow;
+    }
 
     /// <summary>Hesabı askıya alır; kullanıcı giriş yapamaz ve açık oturumu sonlanır.</summary>
     public void Block()

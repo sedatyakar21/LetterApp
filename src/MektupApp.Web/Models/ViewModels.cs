@@ -4,6 +4,42 @@ using MektupApp.Domain.Letters;
 
 namespace MektupApp.Web.Models;
 
+/// <summary>Şifremi unuttum: e-posta adresi ve gönderim yöntemi.</summary>
+public sealed class ForgotPasswordViewModel
+{
+    [Required(ErrorMessage = "E-posta zorunludur."), EmailAddress(ErrorMessage = "Geçerli bir e-posta girin.")]
+    [Display(Name = "Üyelikte kullandığınız e-posta")]
+    public string Email { get; set; } = string.Empty;
+
+    public MektupApp.Domain.Customers.PasswordResetMethod Method { get; set; }
+
+    public bool EmailEnabled { get; set; }
+    public bool SmsEnabled { get; set; }
+}
+
+/// <summary>Yeni şifre formu (e-posta bağlantısıyla veya SMS koduyla).</summary>
+public sealed class ResetPasswordViewModel
+{
+    /// <summary>E-posta bağlantısındaki anahtar (SMS akışında boş).</summary>
+    public string? Token { get; set; }
+
+    /// <summary>SMS akışında: kod gönderilen hesabın e-postası.</summary>
+    public string? Email { get; set; }
+
+    [Display(Name = "SMS ile gelen kod")]
+    public string? Code { get; set; }
+
+    [Required(ErrorMessage = "Yeni şifre zorunludur."), DataType(DataType.Password)]
+    [StringLength(100, MinimumLength = 8, ErrorMessage = "Şifre en az 8 karakter olmalıdır.")]
+    [Display(Name = "Yeni şifre")]
+    public string Password { get; set; } = string.Empty;
+
+    [Required(ErrorMessage = "Şifre tekrarı zorunludur."), DataType(DataType.Password)]
+    [Compare(nameof(Password), ErrorMessage = "Şifreler eşleşmiyor.")]
+    [Display(Name = "Yeni şifre (tekrar)")]
+    public string ConfirmPassword { get; set; } = string.Empty;
+}
+
 public sealed class LoginViewModel
 {
     [Required(ErrorMessage = "E-posta zorunludur."), EmailAddress(ErrorMessage = "Geçerli bir e-posta girin.")]
