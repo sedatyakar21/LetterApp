@@ -54,6 +54,8 @@ public class LettersController(LetterService letters, AccountService accounts, P
     [HttpPost("mektup/kaydet")]
     public async Task<IActionResult> Save(LetterFormViewModel model, string next, CancellationToken ct)
     {
+        // Taslak, iletişim bilgileri eksikken de kaydedilebilir; ödemeye geçerken hepsi zorunludur.
+        if (next != "checkout") IgnoreMissingContacts();
         if (!ModelState.IsValid) return await FormViewAsync(model);
 
         Guid id;
@@ -90,9 +92,17 @@ public class LettersController(LetterService letters, AccountService accounts, P
     [RequestSizeLimit(6 * 1024 * 1024)]
     public async Task<IActionResult> AddPhoto(Guid id, IFormFile? photo, CancellationToken ct)
     {
-        if (photo is null) throw new AppException("Lütfen bir fotoğraf seçin.");
-        await using var stream = photo.OpenReadStream();
-        await letters.AddPhotoAsync(id, CustomerId, stream, photo.FileName, photo.Length, ct);
+        if (photo is null) return Fail("Lütfen bir fotoğraf seçin.");
+        try
+        {
+            await using var stream = photo.OpenReadStream();
+            await letters.AddPhotoAsync(id, CustomerId, stream, photo.FileName, photo.Length, ct);
+        }
+        catch (Exception ex) when (WantsJson && ex is DomainException or AppException)
+        {
+            return Fail(ex.Message);
+        }
+        if (WantsJson) return await AttachmentsJsonAsync(id, ct);
         TempData["Success"] = "Fotoğraf eklendi.";
         return RedirectToAction(nameof(Details), null, new { id }, "photos");
     }
@@ -100,8 +110,36 @@ public class LettersController(LetterService letters, AccountService accounts, P
     [HttpPost("mektup/{id:guid}/fotograf/{photoId:guid}/sil")]
     public async Task<IActionResult> RemovePhoto(Guid id, Guid photoId, CancellationToken ct)
     {
-        await letters.RemovePhotoAsync(id, CustomerId, photoId, ct);
+        try { await letters.RemovePhotoAsync(id, CustomerId, photoId, ct); }
+        catch (Exception ex) when (WantsJson && ex is DomainException or AppException) { return Fail(ex.Message); }
+        if (WantsJson) return await AttachmentsJsonAsync(id, ct);
         return RedirectToAction(nameof(Details), null, new { id }, "photos");
+    }
+
+    // ---------------- Mektup Yaz ekranından (Ekstralar sekmesi) sayfa içinde yükleme ----------------
+
+    /// <summary>İstek JSON yanıt bekliyor mu (Mektup Yaz ekranındaki sayfa içi yükleme / silme).</summary>
+    private bool WantsJson => Request.Headers.Accept.ToString().Contains("application/json", StringComparison.OrdinalIgnoreCase);
+
+    private IActionResult Fail(string message)
+    {
+        if (WantsJson) return BadRequest(new { message });
+        throw new AppException(message);
+    }
+
+    /// <summary>Mektubun güncel fotoğraf ve belge listesi.</summary>
+    private async Task<IActionResult> AttachmentsJsonAsync(Guid id, CancellationToken ct)
+    {
+        var l = await letters.GetAsync(id, CustomerId, ct);
+        return Ok(new
+        {
+            photos = l.Photos.Select(p => new { id = p.Id, name = p.OriginalFileName, url = Url.Action(nameof(Photo), new { id, photoId = p.Id }) }),
+            documents = l.Documents.Select(d => new
+            {
+                id = d.Id, name = d.OriginalFileName, isPdf = d.IsPdf, pageCount = d.PageCount,
+                url = Url.Action(nameof(Document), new { id, documentId = d.Id })
+            })
+        });
     }
 
     [HttpGet("mektup/{id:guid}/fotograf/{photoId:guid}")]
@@ -118,9 +156,17 @@ public class LettersController(LetterService letters, AccountService accounts, P
     [RequestFormLimits(MultipartBodyLengthLimit = 11 * 1024 * 1024)]
     public async Task<IActionResult> AddDocument(Guid id, IFormFile? document, CancellationToken ct)
     {
-        if (document is null) throw new AppException("Lütfen bir belge seçin.");
-        await using var stream = document.OpenReadStream();
-        await letters.AddDocumentAsync(id, CustomerId, stream, document.FileName, document.Length, ct);
+        if (document is null) return Fail("Lütfen bir belge seçin.");
+        try
+        {
+            await using var stream = document.OpenReadStream();
+            await letters.AddDocumentAsync(id, CustomerId, stream, document.FileName, document.Length, ct);
+        }
+        catch (Exception ex) when (WantsJson && ex is DomainException or AppException)
+        {
+            return Fail(ex.Message);
+        }
+        if (WantsJson) return await AttachmentsJsonAsync(id, ct);
         TempData["Success"] = "Belge eklendi. Mektubunuzla birlikte basılıp zarfa konacak.";
         return RedirectToAction(nameof(Details), null, new { id }, "documents");
     }
@@ -128,7 +174,9 @@ public class LettersController(LetterService letters, AccountService accounts, P
     [HttpPost("mektup/{id:guid}/belge/{documentId:guid}/sil")]
     public async Task<IActionResult> RemoveDocument(Guid id, Guid documentId, CancellationToken ct)
     {
-        await letters.RemoveDocumentAsync(id, CustomerId, documentId, ct);
+        try { await letters.RemoveDocumentAsync(id, CustomerId, documentId, ct); }
+        catch (Exception ex) when (WantsJson && ex is DomainException or AppException) { return Fail(ex.Message); }
+        if (WantsJson) return await AttachmentsJsonAsync(id, ct);
         return RedirectToAction(nameof(Details), null, new { id }, "documents");
     }
 
@@ -267,6 +315,40 @@ public class LettersController(LetterService letters, AccountService accounts, P
         return RedirectToAction(nameof(Details), new { id });
     }
 
+    /// <summary>
+    /// Mektup sekmesindeki "Devam et": taslağı sayfadan ayrılmadan kaydeder (iletişim bilgileri henüz girilmemiş olabilir).
+    /// Yanıt: { id, editUrl } — sayfa sonraki kayıtlarda aynı taslağı günceller.
+    /// </summary>
+    [HttpPost("mektup/taslak")]
+    public async Task<IActionResult> SaveDraft(LetterFormViewModel model, CancellationToken ct)
+    {
+        IgnoreMissingContacts();
+        if (!ModelState.IsValid)
+            return BadRequest(new { message = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage).FirstOrDefault() ?? "Taslak kaydedilemedi." });
+        try
+        {
+            var id = await letters.SaveDraftAsync(model.ToCommand(CustomerId), ct);
+            return Ok(new { id, editUrl = Url.Action(nameof(Edit), new { id }) });
+        }
+        catch (Exception ex) when (ex is DomainException or AppException)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+    }
+
+    /// <summary>Taslak kaydında alıcı / gönderen alanlarının "zorunlu" hatalarını yok sayar (uzunluk vb. kurallar kalır).</summary>
+    private void IgnoreMissingContacts()
+    {
+        string[] prefixes = [nameof(LetterFormViewModel.SenderName), nameof(LetterFormViewModel.RecipientName),
+            nameof(LetterFormViewModel.SenderAddress) + ".", nameof(LetterFormViewModel.RecipientAddress) + "."];
+        foreach (var (key, entry) in ModelState.Where(e => prefixes.Any(p => e.Key.StartsWith(p, StringComparison.Ordinal))).ToList())
+        {
+            var required = entry.Errors.Where(e => e.ErrorMessage.Contains("zorunlu", StringComparison.OrdinalIgnoreCase)).ToList();
+            foreach (var error in required) entry.Errors.Remove(error);
+            if (entry.Errors.Count == 0) ModelState.MarkFieldValid(key);
+        }
+    }
+
     private IActionResult Saved(Guid id)
     {
         TempData["Success"] = "Taslak kaydedildi. Dilediğiniz zaman kaldığınız yerden devam edebilirsiniz.";
@@ -275,6 +357,15 @@ public class LettersController(LetterService letters, AccountService accounts, P
 
     private async Task<ViewResult> FormViewAsync(LetterFormViewModel model)
     {
+        // Fotoğraf / belge listesi formla gönderilmez: hata sonrası yeniden gösterimde kayıttan okunur.
+        if (model.Id is { } letterId && model.Photos.Count == 0 && model.Documents.Count == 0)
+        {
+            var current = await letters.GetAsync(letterId, CustomerId, HttpContext.RequestAborted);
+            model.Photos = current.Photos;
+            model.Documents = current.Documents;
+            model.PhotoCount = current.Photos.Count;
+            model.DocumentCount = current.Documents.Count;
+        }
         ViewBag.Prices = await pricing.GetCurrentAsync(HttpContext.RequestAborted);
         ViewBag.Postcards = await postcards.ListActiveAsync(HttpContext.RequestAborted);
         ViewBag.Scents = await scents.ListActiveAsync(HttpContext.RequestAborted);

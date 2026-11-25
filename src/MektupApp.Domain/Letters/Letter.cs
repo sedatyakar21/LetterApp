@@ -81,7 +81,8 @@ public sealed class Letter : AggregateRoot
         var letter = new Letter
         {
             CustomerId = customerId,
-            SenderName = Guard.Required(senderName, "Gönderen adı", 100),
+            // Taslakta gönderen / alıcı henüz eksik olabilir; ödemeden önce EnsureReadyForCheckout tamamlığını arar.
+            SenderName = Guard.Optional(senderName, "Gönderen adı", 100) ?? string.Empty,
             SenderAddress = senderAddress ?? throw new DomainException("Gönderen adresi zorunludur."),
             Recipient = recipient ?? throw new DomainException("Alıcı zorunludur."),
             Status = LetterStatus.Draft,
@@ -97,7 +98,7 @@ public sealed class Letter : AggregateRoot
     public void UpdateEnvelope(string senderName, PostalAddress senderAddress, Recipient recipient)
     {
         EnsureEditable();
-        SenderName = Guard.Required(senderName, "Gönderen adı", 100);
+        SenderName = Guard.Optional(senderName, "Gönderen adı", 100) ?? string.Empty;
         SenderAddress = senderAddress ?? throw new DomainException("Gönderen adresi zorunludur.");
         Recipient = recipient ?? throw new DomainException("Alıcı zorunludur.");
         Touch();
@@ -195,7 +196,19 @@ public sealed class Letter : AggregateRoot
         EnsureEditable();
         if (string.IsNullOrWhiteSpace(Content))
             throw new DomainException("Boş bir mektup gönderilemez.");
+        if (!Recipient.IsComplete)
+            throw new DomainException(Recipient.Type == RecipientType.Soldier && Recipient.Detail is null && Recipient.FullName.Length > 0 && Recipient.Address.IsComplete
+                ? "Askere gönderilen mektuplarda birlik bilgisi zorunludur."
+                : "Ödemeden önce alıcının adını ve adresini eksiksiz girin.");
+        if (!HasCompleteSender)
+            throw new DomainException("Ödemeden önce gönderen adını ve adresini eksiksiz girin.");
     }
+
+    /// <summary>Gönderen adı ve iade adresi eksiksiz mi (taslakta eksik olabilir).</summary>
+    public bool HasCompleteSender => SenderName.Length > 0 && SenderAddress.IsComplete;
+
+    /// <summary>Alıcı ve gönderen bilgileri ödemeye hazır mı.</summary>
+    public bool HasCompleteContacts => Recipient.IsComplete && HasCompleteSender;
 
     /// <summary>
     /// Kart ödemesi başladı: sonuç gelene kadar mektup kilitlenir (içerik / fotoğraf değişip

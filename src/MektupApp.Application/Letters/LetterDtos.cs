@@ -6,6 +6,8 @@ namespace MektupApp.Application.Letters;
 public sealed record AddressDto(string Line, string District, string City, string? PostalCode = null)
 {
     public PostalAddress ToDomain() => new(Line, District, City, PostalCode);
+    /// <summary>Taslak için: alanlar boş olabilir.</summary>
+    public PostalAddress ToDraftDomain() => PostalAddress.Draft(Line, District, City, PostalCode);
     public static AddressDto From(PostalAddress a) => new(a.Line, a.District, a.City, a.PostalCode);
 }
 

@@ -21,12 +21,14 @@ public sealed class LetterService(
     public const long MaxPhotoBytes = 5 * 1024 * 1024;
     public const long MaxDocumentBytes = 10 * 1024 * 1024;
     public static readonly IReadOnlyList<string> AllowedDocumentExtensions = [".pdf", ".jpg", ".jpeg", ".png"];
+    /// <summary>Alıcısı henüz girilmemiş taslağın listede görünen adı.</summary>
+    public const string NoRecipientYet = "Alıcı henüz girilmedi";
 
     public async Task<IReadOnlyList<LetterSummaryDto>> ListMineAsync(Guid customerId, CancellationToken ct = default)
     {
         var list = await letters.ListByCustomerAsync(customerId, ct);
         return list.Select(l => new LetterSummaryDto(
-                l.Id, l.Recipient.FullName, l.Recipient.Type, l.Status,
+                l.Id, l.Recipient.FullName.Length > 0 ? l.Recipient.FullName : NoRecipientYet, l.Recipient.Type, l.Status,
                 l.Content.Length > 120 ? l.Content[..120] + "…" : l.Content,
                 l.UpdatedAt, l.TrackingCode))
             .ToList();
@@ -40,7 +42,7 @@ public sealed class LetterService(
     {
         if (type == RecipientType.Standard) return null;
         var last = (await letters.ListByCustomerAsync(customerId, ct))
-            .Where(l => !l.IsDeleted && l.Recipient.Type == type)
+            .Where(l => !l.IsDeleted && l.Recipient.Type == type && l.HasCompleteContacts)
             .OrderByDescending(l => l.CreatedAt)
             .FirstOrDefault();
         if (last is null) return null;
@@ -54,9 +56,11 @@ public sealed class LetterService(
 
     public async Task<Guid> SaveDraftAsync(SaveLetterCommand cmd, CancellationToken ct = default)
     {
-        var recipient = new Recipient(cmd.RecipientName, cmd.RecipientType, cmd.RecipientDetail, cmd.RecipientAddress.ToDomain(),
+        // Taslak, alıcı / gönderen bilgileri eksikken de kaydedilebilir (ör. mektup yazılır yazılmaz);
+        // eksiksiz olmaları ödemeye geçerken (Letter.EnsureReadyForCheckout) aranır.
+        var recipient = Recipient.Draft(cmd.RecipientName, cmd.RecipientType, cmd.RecipientDetail, cmd.RecipientAddress.ToDraftDomain(),
             cmd.RecipientFatherName, cmd.RecipientWard);
-        var senderAddress = cmd.SenderAddress.ToDomain();
+        var senderAddress = cmd.SenderAddress.ToDraftDomain();
 
         Letter letter;
         if (cmd.LetterId is { } id)

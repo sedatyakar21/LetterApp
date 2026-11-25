@@ -178,6 +178,10 @@ public sealed class LetterFormViewModel
 
     public int DocumentCount { get; set; }
 
+    /// <summary>Ekstralar sekmesinde listelenen fotoğraf ve belgeler (yalnızca gösterim; sayfa içinde yüklenir / silinir).</summary>
+    public IReadOnlyList<LetterPhotoDto> Photos { get; set; } = [];
+    public IReadOnlyList<LetterDocumentDto> Documents { get; set; } = [];
+
     public SaveLetterCommand ToCommand(Guid customerId) => new(
         Id, customerId, SenderName, SenderAddress.ToDto(),
         RecipientName, RecipientType, RecipientDetail, RecipientAddress.ToDto(),
@@ -219,7 +223,9 @@ public sealed class LetterFormViewModel
         CurrentPostcards = d.Postcards.Where(p => p.DesignId is not null)
             .Select(p => new PostcardChoice { Id = p.DesignId!.Value, Title = p.Title, Category = p.Category }).ToList(),
         PhotoCount = d.Photos.Count,
-        DocumentCount = d.Documents.Count
+        DocumentCount = d.Documents.Count,
+        Photos = d.Photos,
+        Documents = d.Documents
     };
 }
 

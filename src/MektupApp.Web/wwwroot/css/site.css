@@ -417,7 +417,62 @@ a:hover { color: var(--burgundy); }
 .ink-Navy { color: #1f3a68; }
 .ink-Burgundy { color: #7a1f33; }
 
-.letter-textarea { font-family: "Lora", Georgia, serif; }
+/* Mektup Yaz adımları (sekmeler): 1 Mektup → 2 Ekstralar → 3 İletişim → 4 Ödeme. */
+.wizard-tabs { list-style: none; padding: 0; margin: 0 0 1rem; display: grid; grid-template-columns: repeat(4, 1fr); gap: .5rem; scroll-margin-top: 1rem; }
+.wizard-tab {
+    width: 100%; display: flex; align-items: center; gap: .5rem; padding: .55rem .75rem;
+    border: 1px solid var(--bs-border-color, #dee2e6); border-radius: .5rem; background: #fff;
+    color: var(--bs-secondary-color, #6c757d); font-weight: 600; text-align: left; cursor: pointer;
+}
+.wizard-tab-no {
+    flex: none; width: 1.6rem; height: 1.6rem; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center;
+    background: var(--bs-secondary-bg, #e9ecef); color: inherit; font-size: .85rem;
+}
+.wizard-tab.active { border-color: var(--brand); color: var(--brand); box-shadow: 0 0 0 3px rgba(142,34,53,.12); }
+.wizard-tab.active .wizard-tab-no { background: var(--brand); color: #fff; }
+.wizard-tab.done { color: var(--bs-body-color, #212529); }
+.wizard-tab.done .wizard-tab-no { background: #2e7d4f; color: #fff; }
+.wizard-tab:focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; }
+.wizard-nav { display: flex; justify-content: space-between; align-items: center; gap: .5rem; margin-bottom: 1rem; }
+@media (max-width: 575.98px) {
+    .wizard-tabs { gap: .25rem; }
+    .wizard-tab { flex-direction: column; gap: .2rem; padding: .4rem .25rem; text-align: center; font-size: .72rem; }
+}
+
+/* Ekstralar sekmesi: sayfa içinde yüklenen fotoğraflar (küçük görsel + kaldır) ve belge listesi. */
+.attach-list { display: flex; flex-wrap: wrap; gap: .5rem; }
+.attach-photo, .attach-add { position: relative; width: 88px; height: 88px; border-radius: .5rem; overflow: hidden; }
+.attach-photo { border: 1px solid var(--bs-border-color, #dee2e6); background: #f3f1ea; }
+.attach-photo img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.attach-photo.uploading { opacity: .5; }
+.attach-remove {
+    position: absolute; top: 3px; right: 3px; width: 24px; height: 24px; border-radius: 50%; border: 0;
+    background: rgba(0,0,0,.6); color: #fff; font-size: 1rem; line-height: 1; display: flex; align-items: center; justify-content: center;
+}
+.attach-remove:hover, .attach-remove:focus-visible { background: var(--brand); }
+.attach-add {
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: .1rem; cursor: pointer;
+    border: 2px dashed var(--bs-border-color, #ced4da); color: var(--bs-secondary-color, #6c757d); font-size: 1.4rem;
+}
+.attach-add .small { font-size: .7rem; line-height: 1.1; text-align: center; }
+.attach-add:hover, .attach-add:focus-within { border-color: var(--brand); color: var(--brand); }
+.attach-add.disabled, #documentAdd.disabled { opacity: .45; pointer-events: none; }
+
+/* Mektup editörü: araç çubuğu (yazı stili, mürekkep) metin alanına bitişik; metin seçilen kâğıt / yazı / mürekkeple görünür. */
+.letter-editor { border: 1px solid var(--bs-border-color, #dee2e6); border-radius: .5rem; overflow: hidden; }
+.letter-editor:focus-within { border-color: var(--brand); box-shadow: 0 0 0 3px rgba(142,34,53,.15); }
+.letter-editor-toolbar {
+    display: flex; flex-wrap: wrap; gap: .5rem; align-items: center;
+    padding: .4rem .5rem; background: #f7f6f0; border-bottom: 1px solid var(--bs-border-color, #dee2e6);
+}
+.letter-editor-tool { display: inline-flex; align-items: center; gap: .35rem; margin: 0; cursor: pointer; }
+.letter-editor-tool .form-select { width: auto; min-width: 8.5rem; }
+.letter-editor .letter-textarea { border: 0; border-radius: 0; box-shadow: none; line-height: 1.6; resize: vertical; }
+.letter-editor .letter-textarea:focus { box-shadow: none; }
+.ink-dot { width: 14px; height: 14px; border-radius: 50%; display: inline-block; border: 1px solid rgba(0,0,0,.2); }
+.ink-dot-Black { background: #222; }
+.ink-dot-Navy { background: #1f3a68; }
+.ink-dot-Burgundy { background: #7a1f33; }
 
 /* ---------- Zarf ---------- */
 .envelope {

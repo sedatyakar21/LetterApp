@@ -10,6 +10,8 @@
     var scents = ((IReadOnlyList<MektupApp.Application.Scents.ScentDto>?)ViewBag.Scents ?? []).ToList();
     if (Model.ScentId is { } scentId && Model.ScentName is not null && scents.All(s => s.Id != scentId))
         scents.Add(new(scentId, Model.ScentName, false, int.MaxValue));
+    // Adımlar (mobil uygulamadakiyle aynı): mektup → ekstralar → iletişim bilgileri → ödeme.
+    var steps = new[] { "Mektup", "Ekstralar", "İletişim Bilgileri", "Ödeme" };
 }
 
 <div class="container py-4">
@@ -21,178 +23,287 @@
         }
     </div>
 
-    <form asp-action="Save" method="post" id="letterForm">
+    <form asp-action="Save" method="post" id="letterForm" data-draft-url="@Url.Action("SaveDraft")">
         <input type="hidden" asp-for="Id" />
         <div asp-validation-summary="All" class="alert alert-danger" style="display:@(ViewData.ModelState.IsValid ? "none" : "block")"></div>
 
+        @* Sekmeler: ileri adımlara yalnızca önceki adımlar tamamsa geçilir; geri her zaman dönülebilir. *@
+        <ol class="wizard-tabs" role="tablist" aria-label="Mektup adımları">
+            @for (var i = 0; i < steps.Length; i++)
+            {
+                <li role="presentation">
+                    <button type="button" class="wizard-tab @(i == 0 ? "active" : "")" role="tab" id="wizardTab@(i + 1)"
+                            data-step-tab="@(i + 1)" aria-controls="wizardStep@(i + 1)" aria-selected="@(i == 0 ? "true" : "false")">
+                        <span class="wizard-tab-no">@(i + 1)</span><span class="wizard-tab-label">@steps[i]</span>
+                    </button>
+                </li>
+            }
+        </ol>
+
         <div class="row g-4">
-            <!-- SOL: form -->
-            <div class="col-lg-6">
-                <div class="card mb-3">
-                    <div class="card-header fw-semibold">1. Mektubun</div>
-                    <div class="card-body">
-                        <textarea asp-for="Content" class="form-control letter-textarea" rows="14"
-                                  placeholder="Sevgili ..., (emoji kullanabilirsiniz 😊)"></textarea>
-                        <div class="d-flex justify-content-between small text-muted mt-1">
-                            <span><span id="charCount">0</span> / @Letter.MaxContentLength karakter</span>
-                            <span>Tahmini <strong id="pageCount">1</strong> sayfa</span>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="card mb-3">
-                    <div class="card-header fw-semibold">2. Alıcı</div>
-                    <div class="card-body">
-                        <div class="row g-2 mb-2">
-                            <div class="col-sm-7">
-                                <label asp-for="RecipientName" class="form-label small"></label>
-                                <input asp-for="RecipientName" class="form-control" />
-                            </div>
-                            <div class="col-sm-5">
-                                <label asp-for="RecipientType" class="form-label small"></label>
-                                <select asp-for="RecipientType" asp-items="Html.GetEnumSelectList<RecipientType>()" class="form-select"></select>
-                            </div>
-                        </div>
-                        @* Asker: birlik bilgisi. Cezaevi: alan gizlidir ve seçilen kurumun adını taşır. *@
-                        <div class="mb-2" id="recipientDetailGroup">
-                            <label asp-for="RecipientDetail" class="form-label small">Birlik bilgisi (rütbe, birlik adı)</label>
-                            <input asp-for="RecipientDetail" class="form-control" />
-                        </div>
-                        <div class="row g-2 mb-2" id="inmateGroup">
-                            <div class="col-sm-7">
-                                <label asp-for="RecipientFatherName" class="form-label small"></label>
-                                <input asp-for="RecipientFatherName" class="form-control" autocomplete="off" />
-                            </div>
-                            <div class="col-sm-5">
-                                <label asp-for="RecipientWard" class="form-label small"></label>
-                                <input asp-for="RecipientWard" class="form-control" autocomplete="off" placeholder="Ör. B-12" />
-                            </div>
-                            <div class="col-12 form-text mt-1">
-                                💡 Zorunlu değil ama yazmanızı tavsiye ederiz: baba adı ve koğuş numarası, kurumun mektubu
-                                aynı adlı kişilerle karıştırmadan doğrudan alıcıya ulaştırmasını kolaylaştırır.
-                            </div>
-                        </div>
-                        <partial name="_AddressFields" model='new AddressFieldsModel(nameof(Model.RecipientAddress), Model.RecipientAddress,
-                            new PrisonPickerOptions(Model.RecipientType == RecipientType.Inmate, TypeSelector: "#RecipientType", DetailSelector: "#RecipientDetail"))' />
-                    </div>
-                </div>
-
-                <div class="card mb-3">
-                    <div class="card-header fw-semibold">3. Gönderen (iade adresi)</div>
-                    <div class="card-body">
-                        <div class="mb-2">
-                            <label asp-for="SenderName" class="form-label small"></label>
-                            <input asp-for="SenderName" class="form-control" />
-                        </div>
-                        <partial name="_AddressFields" model="new AddressFieldsModel(nameof(Model.SenderAddress), Model.SenderAddress)" />
-                    </div>
-                </div>
-
-                <div class="card mb-3">
-                    <div class="card-header fw-semibold">4. Görünüm ve Ekstralar</div>
-                    @* Sıra: mektup, alıcı, gönderen, görünüm (mobil uygulamadaki adımlarla aynı). *@
-                    <div class="card-body">
-                        <div class="row g-2">
-                            <div class="col-6">
-                                <label asp-for="Paper" class="form-label small"></label>
-                                <select asp-for="Paper" asp-items="Html.GetEnumSelectList<PaperColor>()" class="form-select"></select>
-                            </div>
-                            <div class="col-6">
-                                <label asp-for="Envelope" class="form-label small"></label>
-                                <select asp-for="Envelope" asp-items="Html.GetEnumSelectList<EnvelopeColor>()" class="form-select"></select>
-                            </div>
-                            <div class="col-6">
-                                <label asp-for="Font" class="form-label small"></label>
-                                <select asp-for="Font" asp-items="Html.GetEnumSelectList<LetterFont>()" class="form-select"></select>
-                            </div>
-                            <div class="col-6">
-                                <label asp-for="Ink" class="form-label small"></label>
-                                <select asp-for="Ink" asp-items="Html.GetEnumSelectList<InkColor>()" class="form-select"></select>
-                            </div>
-                            <div class="col-12">
-                                <label asp-for="ScentId" class="form-label small"></label>
-                                @* Yönetim → Kokular'dan gelen aktif kokular; mektuptaki koku pasife alındıysa yine listelenir. *@
-                                <select asp-for="ScentId" class="form-select">
-                                    <option value="">Kokusuz</option>
-                                    @foreach (var s in scents)
-                                    {
-                                        <option value="@s.Id" selected="@(Model.ScentId == s.Id)">@s.Name</option>
-                                    }
-                                </select>
-                                @if (Model.ScentName is not null) { <input type="hidden" asp-for="ScentName" /> }
-                            </div>
-                        </div>
-
-                        @* Yönetim panelinden eklenen aktif kartpostallar, kategoriye göre; birden fazla seçilebilir (her biri ayrı ücretli). *@
-                        @for (var i = 0; i < Model.CurrentPostcards.Count; i++)
-                        {
-                            <input type="hidden" name="CurrentPostcards[@i].Id" value="@Model.CurrentPostcards[i].Id" />
-                            <input type="hidden" name="CurrentPostcards[@i].Title" value="@Model.CurrentPostcards[i].Title" />
-                            <input type="hidden" name="CurrentPostcards[@i].Category" value="@Model.CurrentPostcards[i].Category" />
-                        }
-                        @if (postcards.Count > 0)
-                        {
-                            <fieldset class="mt-3" id="postcardPicker" data-max="@Letter.MaxPostcards">
-                                <legend class="form-label small mb-0">Kartpostal <span class="text-muted">(her biri +@prices.Postcard.ToString("N2") ₺)</span></legend>
-                                <div class="form-text mt-0 mb-1">
-                                    Birden fazla seçebilirsiniz (en fazla @Letter.MaxPostcards). İstemiyorsanız hiçbirini seçmeyin.
-                                    <span id="postcardCount" class="fw-semibold"></span>
+            <!-- SOL: adımlar (Mektup sekmesinde daha geniş: önizleme gizlidir, editörün kendisi önizlemedir) -->
+            <div class="col-lg-8" id="wizardMain">
+                @* ---------------- 1. Mektup ---------------- *@
+                <section class="wizard-step" id="wizardStep1" data-step="1" role="tabpanel" aria-labelledby="wizardTab1">
+                    <div class="card mb-3">
+                        <div class="card-header fw-semibold">1. Mektubun</div>
+                        <div class="card-body">
+                            @* Kağıt ve zarf rengi mektubun hemen üstünde: yazarken önizlemede renk birlikte görülür. *@
+                            <div class="row g-2 mb-3">
+                                <div class="col-6">
+                                    <label asp-for="Paper" class="form-label small"></label>
+                                    <select asp-for="Paper" asp-items="Html.GetEnumSelectList<PaperColor>()" class="form-select"></select>
                                 </div>
-                                <div class="postcard-picker">
-                                    @foreach (var group in postcards.GroupBy(p => p.Category))
+                                <div class="col-6">
+                                    <label asp-for="Envelope" class="form-label small"></label>
+                                    <select asp-for="Envelope" asp-items="Html.GetEnumSelectList<EnvelopeColor>()" class="form-select"></select>
+                                </div>
+                            </div>
+                            @* Editör: üstte yazı stili ve mürekkep araç çubuğu; metin seçilen kâğıt rengi, yazı stili ve mürekkeple görünür. *@
+                            <div class="letter-editor">
+                                <div class="letter-editor-toolbar" role="toolbar" aria-label="Yazı biçimi">
+                                    <label for="Font" class="letter-editor-tool" title="Yazı stili">
+                                        <span aria-hidden="true">✒️</span>
+                                        <span class="visually-hidden">@Html.DisplayNameFor(m => m.Font)</span>
+                                        <select asp-for="Font" asp-items="Html.GetEnumSelectList<LetterFont>()" class="form-select form-select-sm"></select>
+                                    </label>
+                                    <label for="Ink" class="letter-editor-tool" title="Mürekkep rengi">
+                                        <span class="ink-dot ink-dot-@Model.Ink" id="inkDot" aria-hidden="true"></span>
+                                        <span class="visually-hidden">@Html.DisplayNameFor(m => m.Ink)</span>
+                                        <select asp-for="Ink" asp-items="Html.GetEnumSelectList<InkColor>()" class="form-select form-select-sm"></select>
+                                    </label>
+                                </div>
+                                <textarea asp-for="Content" class="form-control letter-textarea paper-@Model.Paper font-@Model.Font ink-@Model.Ink" rows="14"
+                                          placeholder="Sevgili ..., (emoji kullanabilirsiniz 😊)" aria-describedby="contentError"></textarea>
+                            </div>
+                            <div class="d-flex justify-content-between small text-muted mt-1">
+                                <span><span id="charCount">0</span> / @Letter.MaxContentLength karakter</span>
+                                <span>Tahmini <strong id="pageCount">1</strong> sayfa</span>
+                            </div>
+                            <div class="text-danger small mt-1" id="contentError" hidden>Devam etmek için önce mektubunuzu yazın.</div>
+                        </div>
+                    </div>
+                    <div class="wizard-nav">
+                        <span id="draftStatus" class="small text-muted" role="status">"Devam et" ile mektubunuz taslak olarak kaydedilir.</span>
+                        <button type="button" class="btn btn-primary" data-step-next>Devam et: Ekstralar →</button>
+                    </div>
+                </section>
+
+                @* ---------------- 2. Ekstralar ---------------- *@
+                <section class="wizard-step d-none" id="wizardStep2" data-step="2" role="tabpanel" aria-labelledby="wizardTab2">
+                    <div class="card mb-3">
+                        <div class="card-header fw-semibold">2. Ekstralar</div>
+                        <div class="card-body">
+                            <label asp-for="ScentId" class="form-label small"></label>
+                            @* Yönetim → Kokular'dan gelen aktif kokular; mektuptaki koku pasife alındıysa yine listelenir. *@
+                            <select asp-for="ScentId" class="form-select">
+                                <option value="">Kokusuz</option>
+                                @foreach (var s in scents)
+                                {
+                                    <option value="@s.Id" selected="@(Model.ScentId == s.Id)">@s.Name</option>
+                                }
+                            </select>
+                            <div class="form-text">Koku +@prices.Scent.ToString("N2") ₺</div>
+                            @if (Model.ScentName is not null) { <input type="hidden" asp-for="ScentName" /> }
+
+                            @* Yönetim panelinden eklenen aktif kartpostallar, kategoriye göre; birden fazla seçilebilir (her biri ayrı ücretli). *@
+                            @for (var i = 0; i < Model.CurrentPostcards.Count; i++)
+                            {
+                                <input type="hidden" name="CurrentPostcards[@i].Id" value="@Model.CurrentPostcards[i].Id" />
+                                <input type="hidden" name="CurrentPostcards[@i].Title" value="@Model.CurrentPostcards[i].Title" />
+                                <input type="hidden" name="CurrentPostcards[@i].Category" value="@Model.CurrentPostcards[i].Category" />
+                            }
+                            @if (postcards.Count > 0)
+                            {
+                                <fieldset class="mt-3" id="postcardPicker" data-max="@Letter.MaxPostcards">
+                                    <legend class="form-label small mb-0">Kartpostal <span class="text-muted">(her biri +@prices.Postcard.ToString("N2") ₺)</span></legend>
+                                    <div class="form-text mt-0 mb-1">
+                                        Birden fazla seçebilirsiniz (en fazla @Letter.MaxPostcards). İstemiyorsanız hiçbirini seçmeyin.
+                                        <span id="postcardCount" class="fw-semibold"></span>
+                                    </div>
+                                    <div class="postcard-picker">
+                                        @foreach (var group in postcards.GroupBy(p => p.Category))
+                                        {
+                                            <div class="postcard-group-title">@group.Key</div>
+                                            <div class="d-flex gap-2 flex-wrap">
+                                                @foreach (var p in group)
+                                                {
+                                                    <label class="postcard-option" title="@p.Title">
+                                                        <input type="checkbox" name="PostcardIds" value="@p.Id" checked="@Model.PostcardIds.Contains(p.Id)" data-title="@p.Title" />
+                                                        <span class="postcard-tile">
+                                                            <img src="@PostcardsController.ImageUrl(Url, p.Id, p.UpdatedAt)" alt="" loading="lazy" />
+                                                            <span class="postcard-name">@p.Title</span>
+                                                            <span class="postcard-check" aria-hidden="true">✓</span>
+                                                        </span>
+                                                    </label>
+                                                }
+                                            </div>
+                                        }
+                                    </div>
+                                </fieldset>
+                            }
+                            else
+                            {
+                                @foreach (var id in Model.PostcardIds) { <input type="hidden" name="PostcardIds" value="@id" /> }
+                            }
+
+                            @* Fotoğraf ve belgeler bu sekmede yüklenir / silinir (sayfadan ayrılmadan). Taslak "Devam et" ile kaydedildiği için
+                               mektubun kimliği vardır; yoksa yüklemeden önce taslak kaydedilir. *@
+                            <div class="mt-3 pt-3 border-top" id="attachments"
+                                 data-max-photos="@Letter.MaxPhotos" data-max-documents="@Letter.MaxDocuments"
+                                 data-max-photo-bytes="@MektupApp.Application.Letters.LetterService.MaxPhotoBytes"
+                                 data-max-document-bytes="@MektupApp.Application.Letters.LetterService.MaxDocumentBytes">
+                                <div class="d-flex justify-content-between align-items-baseline">
+                                    <div class="form-label small mb-1">📷 Fotoğraflar <span class="text-muted">(her biri +@prices.Photo.ToString("N2") ₺ · en fazla @Letter.MaxPhotos · JPG, PNG, WEBP, 5 MB)</span></div>
+                                </div>
+                                <div class="attach-list" id="photoList" aria-live="polite">
+                                    @foreach (var p in Model.Photos)
                                     {
-                                        <div class="postcard-group-title">@group.Key</div>
-                                        <div class="d-flex gap-2 flex-wrap">
-                                            @foreach (var p in group)
-                                            {
-                                                <label class="postcard-option" title="@p.Title">
-                                                    <input type="checkbox" name="PostcardIds" value="@p.Id" checked="@Model.PostcardIds.Contains(p.Id)" />
-                                                    <span class="postcard-tile">
-                                                        <img src="@PostcardsController.ImageUrl(Url, p.Id, p.UpdatedAt)" alt="" loading="lazy" />
-                                                        <span class="postcard-name">@p.Title</span>
-                                                        <span class="postcard-check" aria-hidden="true">✓</span>
-                                                    </span>
-                                                </label>
-                                            }
+                                        <div class="attach-photo" data-id="@p.Id">
+                                            <img src="@Url.Action("Photo", new { id = Model.Id, photoId = p.Id })" alt="@p.OriginalFileName" loading="lazy" />
+                                            <button type="button" class="attach-remove" data-remove-photo="@p.Id" aria-label="@p.OriginalFileName fotoğrafını kaldır">×</button>
                                         </div>
                                     }
+                                    <label class="attach-add" id="photoAdd" title="Fotoğraf ekle">
+                                        <input type="file" accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp" multiple id="photoInput" class="visually-hidden" />
+                                        <span aria-hidden="true">＋</span><span class="small">Fotoğraf ekle</span>
+                                    </label>
                                 </div>
-                            </fieldset>
-                        }
-                        else
-                        {
-                            @foreach (var id in Model.PostcardIds) { <input type="hidden" name="PostcardIds" value="@id" /> }
-                        }
+
+                                <div class="form-label small mb-1 mt-3">📄 Belgeler <span class="text-muted">(her biri +@prices.Document.ToString("N2") ₺ · en fazla @Letter.MaxDocuments · PDF, JPG, PNG, 10 MB; basılıp zarfa konur)</span></div>
+                                <ul class="list-group list-group-flush attach-docs" id="documentList" aria-live="polite">
+                                    @foreach (var d in Model.Documents)
+                                    {
+                                        <li class="list-group-item d-flex align-items-center gap-2 px-0" data-id="@d.Id">
+                                            <span aria-hidden="true">@(d.IsPdf ? "📄" : "🖼️")</span>
+                                            <a href="@Url.Action("Document", new { id = Model.Id, documentId = d.Id })" target="_blank" rel="noopener" class="text-truncate">@d.OriginalFileName</a>
+                                            @if (d.IsPdf) { <span class="text-muted small flex-shrink-0">@d.PageCount sayfa</span> }
+                                            <button type="button" class="btn btn-sm btn-link text-danger ms-auto" data-remove-document="@d.Id">Kaldır</button>
+                                        </li>
+                                    }
+                                </ul>
+                                <label class="btn btn-outline-secondary btn-sm mt-1" id="documentAdd">
+                                    <input type="file" accept=".pdf,.jpg,.jpeg,.png,application/pdf,image/jpeg,image/png" multiple id="documentInput" class="visually-hidden" />
+                                    ＋ Belge ekle
+                                </label>
+                                <div class="small mt-2" id="attachStatus" role="status"></div>
+                            </div>
+                        </div>
                     </div>
-                </div>
+                    <div class="wizard-nav">
+                        <button type="button" class="btn btn-outline-secondary" data-step-prev>← Geri</button>
+                        <button type="button" class="btn btn-primary" data-step-next>Devam et: İletişim Bilgileri →</button>
+                    </div>
+                </section>
+
+                @* ---------------- 3. İletişim bilgileri ---------------- *@
+                <section class="wizard-step d-none" id="wizardStep3" data-step="3" role="tabpanel" aria-labelledby="wizardTab3">
+                    <div class="card mb-3">
+                        <div class="card-header fw-semibold">3. Alıcı</div>
+                        <div class="card-body">
+                            <div class="row g-2 mb-2">
+                                <div class="col-sm-7">
+                                    <label asp-for="RecipientName" class="form-label small"></label>
+                                    <input asp-for="RecipientName" class="form-control" />
+                                    <span asp-validation-for="RecipientName" class="text-danger small"></span>
+                                </div>
+                                <div class="col-sm-5">
+                                    <label asp-for="RecipientType" class="form-label small"></label>
+                                    <select asp-for="RecipientType" asp-items="Html.GetEnumSelectList<RecipientType>()" class="form-select"></select>
+                                </div>
+                            </div>
+                            @* Asker: birlik bilgisi. Cezaevi: alan gizlidir ve seçilen kurumun adını taşır. *@
+                            <div class="mb-2" id="recipientDetailGroup">
+                                <label asp-for="RecipientDetail" class="form-label small">Birlik bilgisi (rütbe, birlik adı)</label>
+                                <input asp-for="RecipientDetail" class="form-control" />
+                            </div>
+                            <div class="row g-2 mb-2" id="inmateGroup">
+                                <div class="col-sm-7">
+                                    <label asp-for="RecipientFatherName" class="form-label small"></label>
+                                    <input asp-for="RecipientFatherName" class="form-control" autocomplete="off" />
+                                </div>
+                                <div class="col-sm-5">
+                                    <label asp-for="RecipientWard" class="form-label small"></label>
+                                    <input asp-for="RecipientWard" class="form-control" autocomplete="off" placeholder="Ör. B-12" />
+                                </div>
+                                <div class="col-12 form-text mt-1">
+                                    💡 Zorunlu değil ama yazmanızı tavsiye ederiz: baba adı ve koğuş numarası, kurumun mektubu
+                                    aynı adlı kişilerle karıştırmadan doğrudan alıcıya ulaştırmasını kolaylaştırır.
+                                </div>
+                            </div>
+                            <partial name="_AddressFields" model='new AddressFieldsModel(nameof(Model.RecipientAddress), Model.RecipientAddress,
+                                new PrisonPickerOptions(Model.RecipientType == RecipientType.Inmate, TypeSelector: "#RecipientType", DetailSelector: "#RecipientDetail"))' />
+                        </div>
+                    </div>
+
+                    <div class="card mb-3">
+                        <div class="card-header fw-semibold">Gönderen (iade adresi)</div>
+                        <div class="card-body">
+                            <div class="mb-2">
+                                <label asp-for="SenderName" class="form-label small"></label>
+                                <input asp-for="SenderName" class="form-control" />
+                                <span asp-validation-for="SenderName" class="text-danger small"></span>
+                            </div>
+                            <partial name="_AddressFields" model="new AddressFieldsModel(nameof(Model.SenderAddress), Model.SenderAddress)" />
+                        </div>
+                    </div>
+                    <div class="wizard-nav">
+                        <button type="button" class="btn btn-outline-secondary" data-step-prev>← Geri</button>
+                        <button type="button" class="btn btn-primary" data-step-next>Devam et: Ödeme →</button>
+                    </div>
+                </section>
+
+                @* ---------------- 4. Ödeme ---------------- *@
+                <section class="wizard-step d-none" id="wizardStep4" data-step="4" role="tabpanel" aria-labelledby="wizardTab4">
+                    <div class="card mb-3">
+                        <div class="card-header fw-semibold">4. Özet ve Ödeme</div>
+                        <div class="card-body">
+                            <dl class="row small mb-2">
+                                <dt class="col-4">Alıcı</dt><dd class="col-8" id="sumRecipient">—</dd>
+                                <dt class="col-4">Gönderen</dt><dd class="col-8" id="sumSender">—</dd>
+                                <dt class="col-4">Seçimler</dt><dd class="col-8" id="sumChoices">—</dd>
+                            </dl>
+                            <table class="table table-sm mb-2">
+                                <tbody id="sumLines"></tbody>
+                                <tfoot><tr class="fw-semibold"><td>Tahmini toplam <span class="text-muted small fw-normal">(kart ile)</span></td><td class="text-end" id="sumTotal">—</td></tr></tfoot>
+                            </table>
+                            <div class="form-text mb-3">Kampanya indirimi, MektupPuan ve ödeme yöntemi bir sonraki ekranda uygulanır; kesin tutar orada gösterilir.</div>
+                            <div class="d-grid gap-2">
+                                <button type="submit" name="next" value="checkout" class="btn btn-primary btn-lg">🔒 Kaydet ve Ödemeye Geç</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="wizard-nav">
+                        <button type="button" class="btn btn-outline-secondary" data-step-prev>← Geri</button>
+                        <span></span>
+                    </div>
+                </section>
             </div>
 
-            <!-- SAĞ: canlı önizleme -->
-            <div class="col-lg-6">
+            <!-- SAĞ: canlı önizleme (Mektup sekmesinde gizli) ve tahmini tutar -->
+            <div class="col-lg-4" id="wizardSide">
                 <div class="sticky-lg-top" style="top: 1rem">
-                    <div class="envelope envelope-@Model.Envelope mb-3" id="envelopePreview">
-                        <div class="envelope-from small"><span id="pvSender">@Model.SenderName</span></div>
-                        <div class="envelope-to"><span id="pvRecipient">@Model.RecipientName</span></div>
-                    </div>
-                    <div class="paper paper-@Model.Paper font-@Model.Font ink-@Model.Ink" id="paperPreview">
-                        <div class="paper-content" id="pvContent">@Model.Content</div>
-                        <div class="paper-signature">— <span id="pvSignature">@Model.SenderName</span></div>
+                    <div id="letterPreview" class="d-none mb-3">
+                        <div class="envelope envelope-@Model.Envelope mb-3" id="envelopePreview">
+                            <div class="envelope-from small"><span id="pvSender">@Model.SenderName</span></div>
+                            <div class="envelope-to"><span id="pvRecipient">@Model.RecipientName</span></div>
+                        </div>
+                        <div class="paper paper-@Model.Paper font-@Model.Font ink-@Model.Ink" id="paperPreview">
+                            <div class="paper-content" id="pvContent">@Model.Content</div>
+                            <div class="paper-signature">— <span id="pvSignature">@Model.SenderName</span></div>
+                        </div>
                     </div>
 
-                    <div class="card mt-3">
+                    <div class="card">
                         <div class="card-body">
                             <div class="d-flex justify-content-between">
                                 <span>Tahmini tutar <span class="text-muted small">(kart ile)</span></span>
                                 <strong id="estimate">—</strong>
                             </div>
-                            <div class="text-muted small">Fotoğraf: @Model.PhotoCount adet · Belge: @Model.DocumentCount adet. Kesin tutar ödeme adımında gösterilir.</div>
-                            <div class="d-grid gap-2 mt-3">
-                                <button type="submit" name="next" value="checkout" class="btn btn-primary">Kaydet ve Ödemeye Geç</button>
+                            <div class="text-muted small">Fotoğraf: <span id="photoCountText">@Model.PhotoCount</span> adet · Belge: <span id="documentCountText">@Model.DocumentCount</span> adet. Kesin tutar ödeme adımında gösterilir.</div>
+                            @* Mektup sekmesinde gizli: orada taslak "Devam et" ile kaydedilir. *@
+                            <div class="d-grid mt-3 d-none" id="saveDraftBox">
                                 <button type="submit" name="next" value="save" class="btn btn-outline-secondary">Taslak Kaydet</button>
-                                <div class="d-flex gap-2">
-                                    <button type="submit" name="next" value="photos" class="btn btn-outline-secondary flex-fill">📷 Fotoğraf Ekle</button>
-                                    <button type="submit" name="next" value="documents" class="btn btn-outline-secondary flex-fill">📄 Belge Ekle</button>
-                                </div>
                             </div>
                         </div>
                     </div>
@@ -200,6 +311,47 @@
             </div>
         </div>
     </form>
+</div>
+
+@* Kaydedilmemiş değişiklikle sayfadan ayrılırken sorulur (sitedeki bağlantılarla ayrılırken; tarayıcı kapatılırken tarayıcının kendi uyarısı çıkar). *@
+<div class="modal fade" id="leaveModal" tabindex="-1" aria-labelledby="leaveModalTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title h5" id="leaveModalTitle">Değişiklikleriniz kaydedilmedi</h2>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Kapat"></button>
+            </div>
+            <div class="modal-body">
+                Yaptığınız değişiklikler kaydedilsin mi? Kaydederseniz mektubunuz taslak olarak saklanır, dilediğinizde devam edebilirsiniz.
+                <div class="text-danger small mt-2" id="leaveError" hidden></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-link text-muted me-auto" data-bs-dismiss="modal">Vazgeç</button>
+                <button type="button" class="btn btn-outline-danger" id="leaveDiscard">Kaydetme</button>
+                <button type="button" class="btn btn-primary" id="leaveSave">Kaydet</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@* Fotoğraf / belge kaldırmadan önce onay. *@
+<div class="modal fade" id="removeModal" tabindex="-1" aria-labelledby="removeModalTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-sm">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title h6" id="removeModalTitle">Kaldırılsın mı?</h2>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Kapat"></button>
+            </div>
+            <div class="modal-body small">
+                <div class="text-break fw-semibold" id="removeModalName"></div>
+                <div class="text-muted mt-1">Mektubunuzdan kaldırılacak ve tutardan düşülecek.</div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-dismiss="modal">Vazgeç</button>
+                <button type="button" class="btn btn-sm btn-danger" id="removeModalOk">Kaldır</button>
+            </div>
+        </div>
+    </div>
 </div>
 
 @section Scripts {

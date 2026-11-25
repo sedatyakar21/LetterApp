@@ -356,26 +356,24 @@ public sealed class MobileLettersController(
     private static string? ExternalFormUrl(string? formUrl) =>
         formUrl is null || formUrl.StartsWith('/') ? null : formUrl;
 
-    private SaveLetterCommand ToCommand(Guid? id, LetterSaveRequest r)
-    {
-        if (string.IsNullOrWhiteSpace(r.SenderName)) throw new AppException("Gönderen adı zorunludur.");
-        if (string.IsNullOrWhiteSpace(r.RecipientName)) throw new AppException("Alıcı adı zorunludur.");
-        return new SaveLetterCommand(id, CustomerId, r.SenderName.Trim(), Clean(r.SenderAddress, "Gönderen"),
-            r.RecipientName.Trim(), r.RecipientType, string.IsNullOrWhiteSpace(r.RecipientDetail) ? null : r.RecipientDetail.Trim(),
+    /// <summary>
+    /// Taslak, alıcı / gönderen bilgileri eksikken de kaydedilebilir (uygulama mektup adımında taslağı kaydeder);
+    /// eksiksiz olmaları ödemeye geçerken sunucuda aranır.
+    /// </summary>
+    private SaveLetterCommand ToCommand(Guid? id, LetterSaveRequest r) =>
+        new(id, CustomerId, r.SenderName?.Trim() ?? "", Clean(r.SenderAddress, "Gönderen"),
+            r.RecipientName?.Trim() ?? "", r.RecipientType, string.IsNullOrWhiteSpace(r.RecipientDetail) ? null : r.RecipientDetail.Trim(),
             Clean(r.RecipientAddress, "Alıcı"), r.Content, r.Paper, r.Envelope, r.Font, r.Ink, r.ScentId,
             r.PostcardIds,
             r.RecipientFatherName, r.RecipientWard);
-    }
 
-    /// <summary>Web formundaki doğrulamanın aynısı: boş alan; posta kodu isteğe bağlı, girilirse 5 haneli.</summary>
+    /// <summary>Boş alanlar kabul edilir (taslak); posta kodu isteğe bağlı, girilirse 5 haneli.</summary>
     private static AddressDto Clean(AddressDto? a, string who)
     {
-        if (a is null || string.IsNullOrWhiteSpace(a.Line) || string.IsNullOrWhiteSpace(a.District) || string.IsNullOrWhiteSpace(a.City))
-            throw new AppException($"Lütfen {who.ToLowerInvariant()} adresini eksiksiz girin (il, ilçe, adres).");
-        var postal = (a.PostalCode ?? "").Trim();
+        var postal = (a?.PostalCode ?? "").Trim();
         if (postal.Length > 0 && (postal.Length != 5 || !postal.All(char.IsAsciiDigit)))
             throw new AppException($"{who} posta kodu 5 haneli olmalıdır.");
-        return new AddressDto(a.Line.Trim(), a.District.Trim(), a.City.Trim(), postal);
+        return new AddressDto((a?.Line ?? "").Trim(), (a?.District ?? "").Trim(), (a?.City ?? "").Trim(), postal);
     }
 }
 

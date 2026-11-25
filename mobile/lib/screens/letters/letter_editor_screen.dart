@@ -1,4 +1,6 @@
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 
 import '../../api/models.dart';
 import '../../state/session.dart';
@@ -14,7 +16,7 @@ class EditorOutcome {
   final bool checkout;
 }
 
-/// Mektup Yaz / Düzenle: Alıcı → Mektup → Görünüm → Gönderen → Özet.
+/// Mektup Yaz / Düzenle: Mektup → Ekstralar → İletişim (alıcı + gönderen) → Ödeme (sitedeki sekmelerle aynı).
 class LetterEditorScreen extends StatefulWidget {
   const LetterEditorScreen({super.key, this.letter});
   final Letter? letter;
@@ -24,16 +26,21 @@ class LetterEditorScreen extends StatefulWidget {
 }
 
 class _LetterEditorScreenState extends State<LetterEditorScreen> {
-  // İlk adım mektup metni (sitedeki formla aynı sıra).
-  static const _steps = ['Mektup', 'Alıcı', 'Gönderen', 'Görünüm', 'Özet'];
-  static const _contentIndex = 0, _recipientIndex = 1, _senderIndex = 2;
+  // Sitedeki sekmelerle aynı sıra: mektup → ekstralar → iletişim bilgileri (alıcı + gönderen) → ödeme.
+  static const _steps = ['Mektup', 'Ekstralar', 'İletişim', 'Ödeme'];
+  static const _contentIndex = 0, _recipientIndex = 2, _senderIndex = 2;
 
-  final _forms = List.generate(5, (_) => GlobalKey<FormState>());
+  final _forms = List.generate(4, (_) => GlobalKey<FormState>());
   late final LetterDraft _draft;
   late final TextEditingController _recipientName, _recipientDetail, _fatherName, _ward, _content, _senderName;
   late final AddressControllers _recipientAddress, _senderAddress;
   int _step = 0;
   bool _busy = false;
+  /// Kaydedilen taslağın kimliği (yeni mektupta mektup adımındaki "Devam et" ile oluşur).
+  late String? _letterId = widget.letter?.id;
+  late List<Photo> _photos = widget.letter?.photos ?? const [];
+  late List<LetterDocument> _documents = widget.letter?.documents ?? const [];
+  bool _attachBusy = false;
   bool _dirty = false;
   // Önceki mektuptan doldurma: alıcı adı hâlâ otomatik gelen adsa tür değişince yeniden doldurulur.
   String? _autoName;
@@ -139,23 +146,71 @@ class _LetterEditorScreenState extends State<LetterEditorScreen> {
     return true;
   }
 
-  void _next() {
-    if (_forms[_step].currentState?.validate() == false) return;
-    setState(() => _step++);
+  /// Adımdan çıkmadan önce kontrol: mektup adımında metin boş olamaz, diğerlerinde form doğrulaması.
+  bool _canLeave(int step) {
+    if (step == _contentIndex && _content.text.trim().isEmpty) {
+      showMessage(context, 'Devam etmek için önce mektubunuzu yazın.', error: true);
+      return false;
+    }
+    return _forms[step].currentState?.validate() ?? true;
   }
 
-  Future<void> _save({required bool checkout}) async {
-    // Taslak olarak kaydederken de alıcı ve gönderen bilgileri zorunludur (sunucu kuralı).
-    final draft = _collect();
-    if (!_validateUpTo(_steps.length - 1)) return;
-    if (draft.recipientName.isEmpty || draft.recipientAddress.line.isEmpty) {
-      setState(() => _step = _recipientIndex);
+  Future<void> _next() => _goTo(_step + 1);
+
+  /// Sekmeye dokununca: geri her zaman; ileri, aradaki adımlar tamamsa.
+  /// Mektup adımından ileri geçilirken taslak kaydedilir (kayıt başarısız olsa da devam edilir, uyarı gösterilir).
+  Future<void> _goTo(int target) async {
+    if (target <= _step) {
+      setState(() => _step = target);
       return;
     }
-    if (draft.senderName.isEmpty || draft.senderAddress.line.isEmpty) {
-      setState(() => _step = _senderIndex);
-      showMessage(context, 'Lütfen gönderen bilgilerini doldurun.', error: true);
-      return;
+    final leavingLetter = _step == _contentIndex;
+    for (var i = _step; i < target; i++) {
+      if (!_canLeave(i)) {
+        setState(() => _step = i);
+        return;
+      }
+    }
+    if (leavingLetter) await _autosave();
+    if (mounted) setState(() => _step = target);
+  }
+
+  /// Mektup adımındaki "Devam et": taslağı ekrandan çıkmadan kaydeder (alıcı / gönderen henüz boş olabilir).
+  /// Yeni mektupta dönen kimlik saklanır; sonraki kayıtlar aynı taslağı günceller.
+  Future<bool> _autosave() async {
+    if (_busy) return false;
+    setState(() => _busy = true);
+    final session = AppScope.read(context);
+    try {
+      final saved = await session.api.saveLetter(_letterId, _collect());
+      _letterId = saved.id;
+      _dirty = false;
+      session.lettersChanged();
+      if (mounted) showMessage(context, 'Taslak kaydedildi.');
+      return true;
+    } catch (e) {
+      if (mounted) showMessage(context, 'Taslak kaydedilemedi: ${errorText(e)}', error: true);
+      return false;
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
+  /// [attachments]: "Fotoğraf / belge ekle" düğmesinden; kaydedip mektup ekranına (yükleme bölümlerine) döner.
+  Future<void> _save({required bool checkout, bool attachments = false}) async {
+    // Taslak, alıcı / gönderen bilgileri eksikken de kaydedilebilir; ödemeye geçerken hepsi zorunludur.
+    final draft = _collect();
+    if (checkout) {
+      if (!_validateUpTo(_steps.length - 1)) return;
+      if (draft.recipientName.isEmpty || draft.recipientAddress.line.isEmpty) {
+        setState(() => _step = _recipientIndex);
+        return;
+      }
+      if (draft.senderName.isEmpty || draft.senderAddress.line.isEmpty) {
+        setState(() => _step = _senderIndex);
+        showMessage(context, 'Lütfen gönderen bilgilerini doldurun.', error: true);
+        return;
+      }
     }
     if (checkout && draft.content.trim().isEmpty) {
       setState(() => _step = _contentIndex);
@@ -165,11 +220,15 @@ class _LetterEditorScreenState extends State<LetterEditorScreen> {
     setState(() => _busy = true);
     final session = AppScope.read(context);
     try {
-      final saved = await session.api.saveLetter(widget.letter?.id, draft);
+      final saved = await session.api.saveLetter(_letterId, draft);
+      _letterId = saved.id;
       session.lettersChanged();
       _dirty = false;
       if (!mounted) return;
-      if (!checkout) showMessage(context, 'Taslak kaydedildi.');
+      if (!checkout) {
+        showMessage(context,
+            attachments ? 'Taslak kaydedildi. Fotoğraf ve belgeleri mektup ekranından ekleyebilirsiniz.' : 'Taslak kaydedildi.');
+      }
       Navigator.of(context).pop(EditorOutcome(saved, checkout: checkout));
     } catch (e) {
       if (mounted) showMessage(context, errorText(e), error: true);
@@ -178,13 +237,31 @@ class _LetterEditorScreenState extends State<LetterEditorScreen> {
     }
   }
 
+  /// Kaydedilmemiş değişiklikle çıkarken: "Yaptığınız değişiklikler kaydedilsin mi?" (Kaydet / Kaydetme / Vazgeç).
+  /// Kaydet seçilirse taslak kaydedilip ekran kapanır (_save kendisi kapatır); false: ekranda kal.
   Future<bool> _confirmLeave() async {
     if (!_dirty) return true;
-    return confirm(context,
-        title: 'Değişiklikler kaydedilmedi',
-        message: 'Çıkarsanız yazdıklarınız kaybolacak. Önce "Taslak kaydet" ile kaydedebilirsiniz.',
-        ok: 'Çık',
-        danger: true);
+    final choice = await showDialog<String>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Değişiklikleriniz kaydedilmedi'),
+        content: const Text('Yaptığınız değişiklikler kaydedilsin mi? Kaydederseniz mektubunuz taslak olarak saklanır.'),
+        actions: [
+          TextButton(onPressed: () => Navigator.of(ctx).pop('cancel'), child: const Text('Vazgeç')),
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop('discard'),
+            style: TextButton.styleFrom(foregroundColor: Theme.of(ctx).colorScheme.error),
+            child: const Text('Kaydetme'),
+          ),
+          FilledButton(onPressed: () => Navigator.of(ctx).pop('save'), child: const Text('Kaydet')),
+        ],
+      ),
+    );
+    if (choice == 'save') {
+      await _save(checkout: false);
+      return false;
+    }
+    return choice == 'discard';
   }
 
   @override
@@ -203,20 +280,24 @@ class _LetterEditorScreenState extends State<LetterEditorScreen> {
       child: Scaffold(
         appBar: AppBar(
           title: Text(widget.letter == null ? 'Mektup Yaz' : 'Mektubu Düzenle'),
+          // Mektup adımında "Taslak kaydet" yok: taslak "Devam et" ile kaydedilir.
           actions: [
-            TextButton(onPressed: _busy ? null : () => _save(checkout: false), child: const Text('Taslak kaydet')),
+            if (_step != _contentIndex)
+              TextButton(onPressed: _busy ? null : () => _save(checkout: false), child: const Text('Taslak kaydet')),
           ],
-          bottom: PreferredSize(preferredSize: const Size.fromHeight(56), child: _StepBar(steps: _steps, current: _step, onTap: (i) {
-            if (i < _step || (_forms[_step].currentState?.validate() ?? true)) setState(() => _step = i);
-          })),
+          bottom: PreferredSize(
+              preferredSize: const Size.fromHeight(56), child: _StepBar(steps: _steps, current: _step, onTap: _goTo)),
         ),
         body: SafeArea(
           child: IndexedStack(index: _step, children: [
             _page(0, _contentStep(settings)),
-            _page(1, _recipientStep(settings)),
-            _page(2, _senderStep()),
-            _page(3, _styleStep(settings)),
-            _page(4, _summaryStep(settings)),
+            _page(1, _styleStep(settings)),
+            _page(2, Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+              _recipientStep(settings),
+              const SizedBox(height: 16),
+              _senderStep(),
+            ])),
+            _page(3, _summaryStep(settings)),
           ]),
         ),
         bottomNavigationBar: SafeArea(
@@ -231,7 +312,12 @@ class _LetterEditorScreenState extends State<LetterEditorScreen> {
               Expanded(
                 flex: 2,
                 child: _step < _steps.length - 1
-                    ? FilledButton(onPressed: _next, child: Text('Devam: ${_steps[_step + 1]}'))
+                    ? FilledButton(
+                        onPressed: _busy ? null : _next,
+                        child: _busy && _step == _contentIndex
+                            ? const SizedBox(
+                                width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+                            : Text('Devam et: ${_steps[_step + 1]}'))
                     : FilledButton.icon(
                         onPressed: _busy ? null : () => _save(checkout: true),
                         icon: _busy
@@ -252,7 +338,7 @@ class _LetterEditorScreenState extends State<LetterEditorScreen> {
         child: ListView(padding: const EdgeInsets.all(16), children: [child]),
       );
 
-  // ---------------- 1. Alıcı ----------------
+  // ---------------- 3. İletişim: alıcı ----------------
 
   Widget _recipientStep(AppSettings s) {
     final type = _draft.recipientType;
@@ -346,11 +432,27 @@ class _LetterEditorScreenState extends State<LetterEditorScreen> {
     ]);
   }
 
-  // ---------------- 2. Mektup ----------------
+  // ---------------- 1. Mektup ----------------
 
   Widget _contentStep(AppSettings s) {
     final pages = s.pageCount(_content.text);
+    final p = s.prices;
     return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+      // Kağıt ve zarf rengi mektubun hemen üstünde (sitedeki formla aynı): kâğıdın rengi yazarken görülür.
+      SectionCard(
+        title: 'Kâğıt rengi',
+        trailing: Text('Renkli: +${money(p.coloredPaper)}', style: const TextStyle(color: Brand.muted, fontSize: 12)),
+        child: _chips(s.paperColors, _draft.paper, (v) => _draft.paper = v,
+            avatar: (v) => Swatch(LetterLook.paperColor(v))),
+      ),
+      const SizedBox(height: 12),
+      SectionCard(
+        title: 'Zarf rengi',
+        trailing: Text('Renkli: +${money(p.coloredEnvelope)}', style: const TextStyle(color: Brand.muted, fontSize: 12)),
+        child: _chips(s.envelopeColors, _draft.envelope, (v) => _draft.envelope = v,
+            avatar: (v) => Swatch(LetterLook.envelope[v] ?? Colors.white)),
+      ),
+      const SizedBox(height: 16),
       Container(
         decoration: BoxDecoration(
           color: LetterLook.paperColor(_draft.paper),
@@ -358,8 +460,36 @@ class _LetterEditorScreenState extends State<LetterEditorScreen> {
           border: Border.all(color: Brand.line),
           boxShadow: const [BoxShadow(color: Color(0x14000000), blurRadius: 12, offset: Offset(0, 4))],
         ),
-        padding: const EdgeInsets.fromLTRB(18, 18, 18, 8),
+        clipBehavior: Clip.antiAlias,
         child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+          // Editörün araç çubuğu: yazı stili ve mürekkep (sitedeki editörle aynı); metin seçime göre hemen değişir.
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+            decoration: const BoxDecoration(
+              color: Color(0xCCF7F6F0),
+              border: Border(bottom: BorderSide(color: Brand.line)),
+            ),
+            child: Wrap(spacing: 12, crossAxisAlignment: WrapCrossAlignment.center, children: [
+              _toolbarMenu(
+                tooltip: 'Yazı stili',
+                icon: const Icon(Icons.text_fields, size: 18, color: Brand.muted),
+                options: s.fonts,
+                value: _draft.font,
+                onSelect: (v) => _draft.font = v,
+              ),
+              _toolbarMenu(
+                tooltip: 'Mürekkep rengi',
+                icon: Swatch(LetterLook.inkColor(_draft.ink), size: 16),
+                options: s.inks,
+                value: _draft.ink,
+                onSelect: (v) => _draft.ink = v,
+                itemIcon: (v) => Swatch(LetterLook.inkColor(v), size: 14),
+              ),
+            ]),
+          ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(18, 14, 18, 8),
+            child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
           TextFormField(
             controller: _content,
             minLines: 14,
@@ -383,6 +513,8 @@ class _LetterEditorScreenState extends State<LetterEditorScreen> {
             child: Text('— ${_senderName.text.isEmpty ? 'Adınız' : _senderName.text}',
                 style: LetterLook.textStyle(_draft.font, _draft.ink)),
           ),
+            ]),
+          ),
         ]),
       ),
       const SizedBox(height: 10),
@@ -401,34 +533,48 @@ class _LetterEditorScreenState extends State<LetterEditorScreen> {
     ]);
   }
 
-  // ---------------- 3. Görünüm ve ekstralar ----------------
+  /// Editör araç çubuğundaki açılır seçim (seçili değerin adı + simge; dokununca liste açılır).
+  Widget _toolbarMenu({
+    required String tooltip,
+    required Widget icon,
+    required List<Option> options,
+    required String value,
+    required void Function(String) onSelect,
+    Widget Function(String)? itemIcon,
+  }) {
+    final label = options.firstWhere((o) => o.value == value, orElse: () => Option(value, value)).label;
+    return PopupMenuButton<String>(
+      tooltip: tooltip,
+      initialValue: value,
+      onSelected: (v) => _change(() => onSelect(v)),
+      itemBuilder: (_) => [
+        for (final o in options)
+          PopupMenuItem(
+            value: o.value,
+            child: Row(children: [
+              if (itemIcon != null) ...[itemIcon(o.value), const SizedBox(width: 8)],
+              Text(o.label),
+              if (o.value == value) ...[const Spacer(), const Icon(Icons.check, size: 18)],
+            ]),
+          ),
+      ],
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 6),
+        child: Row(mainAxisSize: MainAxisSize.min, children: [
+          icon,
+          const SizedBox(width: 6),
+          Text(label, style: const TextStyle(fontWeight: FontWeight.w600, color: Brand.ink)),
+          const Icon(Icons.arrow_drop_down, color: Brand.muted),
+        ]),
+      ),
+    );
+  }
+
+  // ---------------- 2. Ekstralar ----------------
 
   Widget _styleStep(AppSettings s) {
     final p = s.prices;
     return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-      SectionCard(
-        title: 'Kâğıt rengi',
-        trailing: Text('Renkli: +${money(p.coloredPaper)}', style: const TextStyle(color: Brand.muted, fontSize: 12)),
-        child: _chips(s.paperColors, _draft.paper, (v) => _draft.paper = v,
-            avatar: (v) => Swatch(LetterLook.paperColor(v))),
-      ),
-      const SizedBox(height: 12),
-      SectionCard(
-        title: 'Zarf rengi',
-        trailing: Text('Renkli: +${money(p.coloredEnvelope)}', style: const TextStyle(color: Brand.muted, fontSize: 12)),
-        child: _chips(s.envelopeColors, _draft.envelope, (v) => _draft.envelope = v,
-            avatar: (v) => Swatch(LetterLook.envelope[v] ?? Colors.white)),
-      ),
-      const SizedBox(height: 12),
-      SectionCard(
-        title: 'Yazı stili ve mürekkep',
-        child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-          _chips(s.fonts, _draft.font, (v) => _draft.font = v),
-          const SizedBox(height: 10),
-          _chips(s.inks, _draft.ink, (v) => _draft.ink = v, avatar: (v) => Swatch(LetterLook.inkColor(v))),
-        ]),
-      ),
-      const SizedBox(height: 12),
       SectionCard(
         title: 'Koku',
         trailing: Text('+${money(p.scent)}', style: const TextStyle(color: Brand.muted, fontSize: 12)),
@@ -455,9 +601,213 @@ class _LetterEditorScreenState extends State<LetterEditorScreen> {
           child: _postcardPicker(s),
         ),
       ],
+      const SizedBox(height: 12),
+      _attachmentsCard(s),
     ]);
   }
 
+  // ---------------- Fotoğraf ve belge (Ekstralar adımında, ekrandan çıkmadan) ----------------
+
+  /// Yükleme için mektubun kaydedilmiş olması gerekir (yeni mektupta mektup adımındaki "Devam et" bunu yapar).
+  Future<String?> _ensureLetterId() async {
+    if (_letterId != null) return _letterId;
+    await _autosave();
+    return _letterId;
+  }
+
+  /// Sunucunun döndürdüğü güncel mektuptan fotoğraf / belge listesini alır.
+  void _takeAttachments(Letter l) => setState(() {
+        _photos = l.photos;
+        _documents = l.documents;
+      });
+
+  Future<void> _runAttachment(Future<void> Function(String id) action) async {
+    final id = await _ensureLetterId();
+    if (id == null || !mounted) return;
+    setState(() => _attachBusy = true);
+    try {
+      await action(id);
+    } catch (e) {
+      if (mounted) showMessage(context, errorText(e), error: true);
+    } finally {
+      if (mounted) setState(() => _attachBusy = false);
+    }
+  }
+
+  Future<void> _addPhoto(ImageSource source) async {
+    final settings = AppScope.read(context).settings!;
+    if (_photos.length >= settings.maxPhotos) {
+      showMessage(context, 'En fazla ${settings.maxPhotos} fotoğraf eklenebilir.', error: true);
+      return;
+    }
+    final file = await ImagePicker().pickImage(source: source, maxWidth: 2400, maxHeight: 2400, imageQuality: 85);
+    if (file == null || !mounted) return;
+    final bytes = await file.readAsBytes();
+    if (!mounted) return;
+    if (bytes.length > settings.maxPhotoBytes) {
+      showMessage(context, 'Fotoğraf boyutu en fazla ${settings.maxPhotoBytes ~/ (1024 * 1024)} MB olabilir.', error: true);
+      return;
+    }
+    var name = file.name;
+    if (!RegExp(r'\.(jpe?g|png|webp)$', caseSensitive: false).hasMatch(name)) name = '$name.jpg';
+    await _runAttachment((id) async {
+      _takeAttachments(await AppScope.read(context).api.addPhoto(id, bytes, name));
+      if (mounted) showMessage(context, 'Fotoğraf eklendi.');
+    });
+  }
+
+  Future<void> _removePhoto(Photo p) async {
+    if (!await confirm(context, title: 'Fotoğraf kaldırılsın mı?', message: p.fileName, ok: 'Kaldır', danger: true)) return;
+    if (!mounted) return;
+    await _runAttachment((id) async => _takeAttachments(await AppScope.read(context).api.removePhoto(id, p.id)));
+  }
+
+  static const _documentExtensions = ['pdf', 'jpg', 'jpeg', 'png'];
+
+  /// Dosyalardan PDF / JPG / PNG belge seçer.
+  Future<void> _pickDocumentFile() async {
+    if (!_canAddDocument()) return;
+    final PlatformFile? file;
+    try {
+      file = await FilePicker.pickFile(type: FileType.custom, allowedExtensions: _documentExtensions);
+    } catch (_) {
+      if (mounted) showMessage(context, 'Dosya seçilemedi.', error: true);
+      return;
+    }
+    if (file == null || !mounted) return;
+    if (!_documentExtensions.contains((file.extension ?? '').toLowerCase())) {
+      showMessage(context, 'Sadece PDF, JPG veya PNG belge yükleyebilirsiniz.', error: true);
+      return;
+    }
+    await _uploadDocument(await file.readAsBytes(), file.name);
+  }
+
+  /// Kâğıt belgeyi kamerayla çeker (JPG olarak yüklenir).
+  Future<void> _scanDocument() async {
+    if (!_canAddDocument()) return;
+    final photo = await ImagePicker().pickImage(source: ImageSource.camera, maxWidth: 2480, maxHeight: 3508, imageQuality: 90);
+    if (photo == null || !mounted) return;
+    var name = photo.name;
+    if (!RegExp(r'\.(jpe?g|png)$', caseSensitive: false).hasMatch(name)) name = '$name.jpg';
+    await _uploadDocument(await photo.readAsBytes(), name);
+  }
+
+  bool _canAddDocument() {
+    final settings = AppScope.read(context).settings!;
+    if (_documents.length < settings.maxDocuments) return true;
+    showMessage(context, 'En fazla ${settings.maxDocuments} belge eklenebilir.', error: true);
+    return false;
+  }
+
+  Future<void> _uploadDocument(List<int> bytes, String name) async {
+    if (!mounted) return;
+    final settings = AppScope.read(context).settings!;
+    if (bytes.length > settings.maxDocumentBytes) {
+      showMessage(context, 'Belge boyutu en fazla ${settings.maxDocumentBytes ~/ (1024 * 1024)} MB olabilir.', error: true);
+      return;
+    }
+    await _runAttachment((id) async {
+      _takeAttachments(await AppScope.read(context).api.addDocument(id, bytes, name));
+      if (mounted) showMessage(context, 'Belge eklendi. Mektubunuzla birlikte basılıp zarfa konacak.');
+    });
+  }
+
+  Future<void> _removeDocument(LetterDocument d) async {
+    if (!await confirm(context, title: 'Belge kaldırılsın mı?', message: d.fileName, ok: 'Kaldır', danger: true)) return;
+    if (!mounted) return;
+    await _runAttachment((id) async => _takeAttachments(await AppScope.read(context).api.removeDocument(id, d.id)));
+  }
+
+  /// Fotoğraf ve belge: bu adımda eklenir / kaldırılır (taslak gerekirse önce kaydedilir).
+  Widget _attachmentsCard(AppSettings s) {
+    final p = s.prices;
+    final client = AppScope.read(context).api.client;
+    final busy = _attachBusy || _busy;
+    return SectionCard(
+      title: 'Fotoğraf ve belge',
+      trailing: busy ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2)) : null,
+      child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+        Text('📷 Fotoğraflar · her biri +${money(p.photo)} · en fazla ${s.maxPhotos}',
+            style: const TextStyle(color: Brand.muted, fontSize: 13)),
+        const SizedBox(height: 8),
+        Wrap(spacing: 8, runSpacing: 8, children: [
+          for (final ph in _photos)
+            Stack(children: [
+              ClipRRect(
+                borderRadius: BorderRadius.circular(8),
+                child: Image.network(client.absolute(ph.url),
+                    headers: client.authHeaders,
+                    width: 76,
+                    height: 76,
+                    fit: BoxFit.cover,
+                    errorBuilder: (_, _, _) => Container(
+                        width: 76, height: 76, color: Brand.paper2, child: const Icon(Icons.broken_image_outlined))),
+              ),
+              Positioned(
+                top: 2,
+                right: 2,
+                child: InkWell(
+                  onTap: busy ? null : () => _removePhoto(ph),
+                  child: const CircleAvatar(
+                      radius: 11, backgroundColor: Color(0x99000000), child: Icon(Icons.close, size: 14, color: Colors.white)),
+                ),
+              ),
+            ]),
+        ]),
+        const SizedBox(height: 8),
+        Row(children: [
+          Expanded(
+            child: OutlinedButton.icon(
+              onPressed: busy || _photos.length >= s.maxPhotos ? null : () => _addPhoto(ImageSource.gallery),
+              icon: const Icon(Icons.photo_library_outlined, size: 18),
+              label: const Text('Galeriden'),
+            ),
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: OutlinedButton.icon(
+              onPressed: busy || _photos.length >= s.maxPhotos ? null : () => _addPhoto(ImageSource.camera),
+              icon: const Icon(Icons.photo_camera_outlined, size: 18),
+              label: const Text('Fotoğraf çek'),
+            ),
+          ),
+        ]),
+        const Divider(height: 24),
+        Text('📄 Belgeler · her biri +${money(p.document)} · en fazla ${s.maxDocuments} · PDF, JPG, PNG',
+            style: const TextStyle(color: Brand.muted, fontSize: 13)),
+        for (final d in _documents)
+          ListTile(
+            dense: true,
+            contentPadding: EdgeInsets.zero,
+            leading: Icon(d.isPdf ? Icons.picture_as_pdf_outlined : Icons.image_outlined),
+            title: Text(d.fileName, maxLines: 1, overflow: TextOverflow.ellipsis),
+            trailing: IconButton(
+              tooltip: 'Kaldır',
+              icon: const Icon(Icons.delete_outline),
+              onPressed: busy ? null : () => _removeDocument(d),
+            ),
+          ),
+        const SizedBox(height: 8),
+        Row(children: [
+          Expanded(
+            child: OutlinedButton.icon(
+              onPressed: busy || _documents.length >= s.maxDocuments ? null : _pickDocumentFile,
+              icon: const Icon(Icons.attach_file, size: 18),
+              label: const Text('Dosya seç'),
+            ),
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: OutlinedButton.icon(
+              onPressed: busy || _documents.length >= s.maxDocuments ? null : _scanDocument,
+              icon: const Icon(Icons.document_scanner_outlined, size: 18),
+              label: const Text('Fotoğrafını çek'),
+            ),
+          ),
+        ]),
+      ]),
+    );
+  }
   /// Yönetim panelindeki aktif kokular; düzenlenen mektuptaki koku sonradan pasife alındıysa o da listede kalır.
   List<ScentInfo> _scentOptions(AppSettings s) {
     final current = widget.letter?.scent;
@@ -581,7 +931,7 @@ class _LetterEditorScreenState extends State<LetterEditorScreen> {
     ]);
   }
 
-  // ---------------- 4. Gönderen ----------------
+  // ---------------- 3. İletişim: gönderen ----------------
 
   Widget _senderStep() {
     return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
@@ -605,14 +955,14 @@ class _LetterEditorScreenState extends State<LetterEditorScreen> {
     ]);
   }
 
-  // ---------------- 5. Özet ----------------
+  // ---------------- 4. Ödeme (özet) ----------------
 
   Widget _summaryStep(AppSettings s) {
     final d = _collect();
     final p = s.prices;
     final pages = s.pageCount(d.content);
-    final photos = widget.letter?.photos.length ?? 0;
-    final documents = widget.letter?.documents.length ?? 0;
+    final photos = _photos.length;
+    final documents = _documents.length;
     final lines = <(String, double)>[
       ('Mektup (1 sayfa, zarf ve kayıtlı posta)', p.basePrice),
       if (pages > 1) ('Ek sayfa × ${pages - 1}', p.extraPage * (pages - 1)),
@@ -664,7 +1014,7 @@ class _LetterEditorScreenState extends State<LetterEditorScreen> {
           const SizedBox(height: 6),
           const Text(
             'Kampanya indirimi, MektupPuan ve ödeme yöntemi bir sonraki ekranda uygulanır. '
-            'Fotoğraf ve belgeleri mektubu kaydettikten sonra detay ekranından ekleyebilirsiniz.',
+            'Fotoğraf ve belge eklemek için Ekstralar adımındaki "Fotoğraf ve belge" bölümünü kullanın.',
             style: TextStyle(color: Brand.muted, fontSize: 12),
           ),
         ]),

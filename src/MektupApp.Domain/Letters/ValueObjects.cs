@@ -3,13 +3,18 @@ using MektupApp.Domain.Common;
 
 namespace MektupApp.Domain.Letters;
 
-/// <summary>Posta adresi. Geçersiz bir adres oluşturulamaz.</summary>
+/// <summary>
+/// Posta adresi. Kurucu eksik adresi kabul etmez; yalnızca taslak mektupta <see cref="Draft"/> ile eksik adres tutulabilir
+/// (ödemeden önce <see cref="IsComplete"/> aranır).
+/// </summary>
 public sealed partial record PostalAddress
 {
-    public string Line { get; }
-    public string District { get; }
-    public string City { get; }
-    public string PostalCode { get; }
+    public string Line { get; private init; } = string.Empty;
+    public string District { get; private init; } = string.Empty;
+    public string City { get; private init; } = string.Empty;
+    public string PostalCode { get; private init; } = string.Empty;
+
+    private PostalAddress() { } // EF Core (taslakta eksik adres de yüklenebilsin) ve Draft
 
     /// <param name="postalCode">İsteğe bağlı (formlarda şimdilik gizli); girilirse 5 haneli olmalıdır. Boşsa "" saklanır.</param>
     public PostalAddress(string line, string district, string city, string? postalCode)
@@ -17,9 +22,28 @@ public sealed partial record PostalAddress
         Line = Guard.Required(line, "Adres", 250);
         District = Guard.Required(district, "İlçe", 60);
         City = Guard.Required(city, "İl", 60);
-        PostalCode = postalCode?.Trim() ?? string.Empty;
-        if (PostalCode.Length > 0 && !PostalCodeRegex().IsMatch(PostalCode))
+        PostalCode = NormalizePostalCode(postalCode);
+    }
+
+    /// <summary>Taslak için: alanlar boş olabilir (uzunluk ve posta kodu biçimi yine denetlenir).</summary>
+    public static PostalAddress Draft(string? line, string? district, string? city, string? postalCode) => new()
+    {
+        Line = Guard.Optional(line, "Adres", 250) ?? string.Empty,
+        District = Guard.Optional(district, "İlçe", 60) ?? string.Empty,
+        City = Guard.Optional(city, "İl", 60) ?? string.Empty,
+        PostalCode = NormalizePostalCode(postalCode)
+    };
+
+    public static PostalAddress Empty { get; } = new();
+
+    public bool IsComplete => Line.Length > 0 && District.Length > 0 && City.Length > 0;
+
+    private static string NormalizePostalCode(string? postalCode)
+    {
+        var code = postalCode?.Trim() ?? string.Empty;
+        if (code.Length > 0 && !PostalCodeRegex().IsMatch(code))
             throw new DomainException("Posta kodu 5 haneli olmalıdır.");
+        return code;
     }
 
     public override string ToString() =>
@@ -39,15 +63,34 @@ public sealed record Recipient
     public const int FatherNameMax = 60;
     public const int WardMax = 30;
 
-    public string FullName { get; }
-    public RecipientType Type { get; }
+    public string FullName { get; private init; }
+    public RecipientType Type { get; private init; }
     /// <summary>Asker: birlik bilgisi. Cezaevi: kurum adı. Diğer: boş.</summary>
-    public string? Detail { get; }
+    public string? Detail { get; private init; }
     /// <summary>Cezaevi alıcısının baba adı (kurumlar aynı adlı hükümlüleri ayırt etmek için ister).</summary>
-    public string? FatherName { get; }
+    public string? FatherName { get; private init; }
     /// <summary>Cezaevi alıcısının koğuş numarası (ör. "B-12").</summary>
-    public string? Ward { get; }
+    public string? Ward { get; private init; }
     public PostalAddress Address { get; private init; }
+
+    /// <summary>Gönderilebilir mi: ad, eksiksiz adres ve askerde birlik bilgisi (taslakta eksik olabilir).</summary>
+    public bool IsComplete =>
+        FullName.Length > 0 && Address.IsComplete && (Type != RecipientType.Soldier || Detail is not null);
+
+    /// <summary>
+    /// Taslak mektup için alıcı: ad / adres / birlik bilgisi henüz boş olabilir; uzunluklar yine denetlenir.
+    /// Ödemeden önce <see cref="IsComplete"/> aranır.
+    /// </summary>
+    public static Recipient Draft(string? fullName, RecipientType type, string? detail, PostalAddress? address,
+        string? fatherName = null, string? ward = null) => new()
+    {
+        FullName = Guard.Optional(fullName, "Alıcı adı", 100) ?? string.Empty,
+        Type = type,
+        Detail = Guard.Optional(detail, "Alıcı ek bilgisi", 200),
+        Address = address ?? PostalAddress.Empty,
+        FatherName = type == RecipientType.Inmate ? Guard.Optional(fatherName, "Baba adı", FatherNameMax) : null,
+        Ward = type == RecipientType.Inmate ? Guard.Optional(ward, "Koğuş numarası", WardMax) : null
+    };
 
     // EF Core, iç içe complex type'ları constructor üzerinden bağlayamadığı için gerekli.
     private Recipient()

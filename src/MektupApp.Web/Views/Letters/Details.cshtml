@@ -105,7 +105,8 @@
                                 <img class="photo-thumb" src="@Url.Action("Photo", new { id = Model.Id, photoId = p.Id })" alt="@p.OriginalFileName" />
                                 @if (Model.IsEditable)
                                 {
-                                    <form asp-action="RemovePhoto" asp-route-id="@Model.Id" asp-route-photoId="@p.Id" method="post">
+                                    <form asp-action="RemovePhoto" asp-route-id="@Model.Id" asp-route-photoId="@p.Id" method="post"
+                                          data-confirm="Fotoğraf kaldırılsın mı?&#10;@p.OriginalFileName" onsubmit="return confirm(this.dataset.confirm)">
                                         <button class="btn btn-link btn-sm text-danger p-0" type="submit">Kaldır</button>
                                     </form>
                                 }
@@ -142,7 +143,8 @@
                                        href="@Url.Action("Document", new { id = Model.Id, documentId = d.Id })">@(d.IsPdf ? "📄" : "🖼️") @d.OriginalFileName</a>
                                     @if (Model.IsEditable)
                                     {
-                                        <form asp-action="RemoveDocument" asp-route-id="@Model.Id" asp-route-documentId="@d.Id" method="post">
+                                        <form asp-action="RemoveDocument" asp-route-id="@Model.Id" asp-route-documentId="@d.Id" method="post"
+                                              data-confirm="Belge kaldırılsın mı?&#10;@d.OriginalFileName" onsubmit="return confirm(this.dataset.confirm)">
                                             <button class="btn btn-link btn-sm text-danger p-0" type="submit">Kaldır</button>
                                         </form>
                                     }

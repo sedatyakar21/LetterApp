@@ -72,7 +72,12 @@ class _LetterDetailScreenState extends State<LetterDetailScreen> {
   Future<void> _edit() async {
     final outcome = await Navigator.of(context)
         .push<EditorOutcome>(MaterialPageRoute(builder: (_) => LetterEditorScreen(letter: _letter)));
-    if (outcome == null || !mounted) return;
+    if (!mounted) return;
+    // Kaydetmeden çıkılsa da düzenleyicide fotoğraf / belge eklenmiş ya da taslak kaydedilmiş olabilir: yeniden yükle.
+    if (outcome == null) {
+      _load();
+      return;
+    }
     setState(() => _letter = outcome.letter);
     if (outcome.checkout) await _checkout();
   }
