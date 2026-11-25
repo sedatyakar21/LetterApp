@@ -1,0 +1,19 @@
+@* Fotoğraf büyütme: [data-gallery] içindeki bir görsele tıklanınca tam ekrana yakın açılır (önceki / sonraki, ok tuşları, kaydırma).
+   Sayfaya bir kez eklenir; görseller sonradan eklense de çalışır (olay yetkilendirme). *@
+<div class="modal fade photo-viewer" id="photoViewer" tabindex="-1" aria-label="Fotoğraf" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-xl">
+        <div class="modal-content">
+            <div class="modal-header py-2">
+                <span class="small text-truncate" id="photoViewerTitle"></span>
+                <span class="small text-muted ms-2 flex-shrink-0" id="photoViewerCount"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Kapat"></button>
+            </div>
+            <div class="modal-body p-0 position-relative">
+                <img id="photoViewerImg" alt="" />
+                <button type="button" class="photo-viewer-nav prev" id="photoViewerPrev" aria-label="Önceki fotoğraf">‹</button>
+                <button type="button" class="photo-viewer-nav next" id="photoViewerNext" aria-label="Sonraki fotoğraf">›</button>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="~/js/photo-viewer.js" asp-append-version="true" defer></script>

@@ -2,18 +2,28 @@
 @using MektupApp.Domain.Common
 @{
     ViewData["Title"] = "Ödeme (Simülasyon)";
+    // Mektup Yaz ekranındaki Ödeme sekmesinde çerçeve içinde: site menüsü olmadan, kart formu gibi sade.
+    var embedded = ViewBag.Embedded is true;
+    if (embedded) Layout = null;
 }
-<div class="container py-5" style="max-width: 520px">
+@if (embedded)
+{
+    @:<!DOCTYPE html><html lang="tr"><head><meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    @:</head><body class="p-2 bg-white">
+}
+<div class="@(embedded ? "" : "container py-5")" style="@(embedded ? "" : "max-width: 520px")">
     <div class="card border-warning">
         <div class="card-header bg-warning-subtle fw-semibold">Ödeme Simülasyonu</div>
         <div class="card-body">
-            <p class="mb-1">Gerçek PayTR formu yerine bu sayfa gösterilir; kart bilgisi istenmez, tahsilat yapılmaz.</p>
+            <p class="mb-1">Gerçek PayTR kart formu yerine bu kutu gösterilir; kart bilgisi istenmez, tahsilat yapılmaz.</p>
             <p class="small text-muted mb-3">Sipariş no: <span class="font-monospace">@Model.MerchantOid</span></p>
             <div class="fs-3 fw-semibold mb-3">@(new Money(Model.Amount))</div>
 
             @if (Model.Status == MektupApp.Domain.Payments.PaymentStatus.Pending)
             {
                 <form method="post" class="d-flex gap-2">
+                    @if (embedded) { <input type="hidden" name="cerceve" value="1" /> }
                     <button name="result" value="success" class="btn btn-success flex-fill">Ödeme Başarılı</button>
                     <button name="result" value="fail" class="btn btn-outline-danger flex-fill">Kart Reddedildi</button>
                 </form>
@@ -26,3 +36,7 @@
         </div>
     </div>
 </div>
+@if (embedded)
+{
+    @:</body></html>
+}

@@ -58,31 +58,6 @@
 
     const selectedText = (name) => { const s = field(name); return s?.selectedOptions[0]?.text ?? ""; };
 
-    // Ödeme adımındaki özet (alıcı, gönderen, seçimler ve fiyat kalemleri).
-    function renderSummary(pages) {
-        const address = (prefix) => [field(prefix + ".Line")?.value, [field(prefix + ".District")?.value, field(prefix + ".City")?.value].filter(Boolean).join(" / ")]
-            .filter(Boolean).join(", ");
-        const person = (name, prefix) => [field(name).value.trim(), address(prefix)].filter(Boolean).join(" — ") || "—";
-        $("sumRecipient").textContent = person("RecipientName", "RecipientAddress");
-        $("sumSender").textContent = person("SenderName", "SenderAddress");
-        const cards = selectedPostcards().map(c => c.dataset.title);
-        $("sumChoices").textContent = [
-            `${selectedText("Paper")} kâğıt`, `${selectedText("Envelope")} zarf`, `${selectedText("Font")} / ${selectedText("Ink")}`,
-            field("ScentId").value ? `${selectedText("ScentId")} kokusu` : "Kokusuz",
-            cards.length ? `Kartpostal: ${cards.join(", ")}` : null,
-            `${pages} sayfa`
-        ].filter(Boolean).join(" · ");
-        const body = $("sumLines");
-        body.replaceChildren(...priceLines(pages).map(([label, amount]) => {
-            const tr = document.createElement("tr");
-            const a = document.createElement("td"); a.textContent = label;
-            const b = document.createElement("td"); b.className = "text-end"; b.textContent = money(amount);
-            tr.append(a, b);
-            return tr;
-        }));
-        $("sumTotal").textContent = money(estimate(pages));
-    }
-
     // Asker: birlik bilgisi. Cezaevi: baba adı + koğuş (kurum adı gizli alanda, seçilen cezaevinden gelir).
     function updateRecipientDetail() {
         const type = field("RecipientType").value;
@@ -126,9 +101,6 @@
         const content = field("Content").value;
         const pages = pageCount(content);
         $("pvContent").textContent = content || "Mektubunuz burada görünecek…";
-        $("pvSignature").textContent = field("SenderName").value;
-        $("pvSender").textContent = field("SenderName").value;
-        $("pvRecipient").textContent = field("RecipientName").value || "Alıcı";
         $("charCount").textContent = content.length.toLocaleString("tr-TR");
         $("pageCount").textContent = pages;
         $("estimate").textContent = money(estimate(pages));
@@ -137,7 +109,7 @@
         swapClass(paper, "paper-", enumNames.Paper[field("Paper").value]);
         swapClass(paper, "font-", enumNames.Font[field("Font").value]);
         swapClass(paper, "ink-", enumNames.Ink[field("Ink").value]);
-        swapClass($("envelopePreview"), "envelope-", enumNames.Envelope[field("Envelope").value]);
+        swapClass($("envelopePreview"), "env-color-", enumNames.Envelope[field("Envelope").value]);
 
         // Editörün kendisi de seçilen kâğıt rengi, yazı stili ve mürekkeple görünür.
         const editor = field("Content");
@@ -148,11 +120,86 @@
 
         updateRecipientDetail();
         updatePostcards();
-        renderSummary(pages);
+        renderReview();
+    }
+
+    // ---------------- Kontrol sekmesi: zarf adresleri ve ekstralar ----------------
+    // Aynı adlı birden fazla alan olabilir (ör. cezaevi seçilince kilitlenen ilçe ve onun gizli kopyası): dolu olan alınır.
+    function valueOf(name) {
+        return [...form.querySelectorAll(`[name="${name}"]`)].map(el => el.value?.trim()).find(Boolean) ?? "";
+    }
+
+    function addressText(prefix) {
+        const place = [valueOf(prefix + ".District"), valueOf(prefix + ".City")].filter(Boolean).join(" / ");
+        return [valueOf(prefix + ".Line"), place].filter(Boolean).join(", ");
+    }
+
+    // Tahmini ağırlık (domain'deki LetterWeightPolicy ile aynı): zarf + mektup sayfaları + fotoğraflar + kartpostallar
+    // + belge yaprakları (PDF'in sayfa sayısı, görsel 1); yukarı yuvarlanır.
+    function estimateWeight() {
+        const w = cfg.weights;
+        const docSheets = [...document.querySelectorAll("#documentList li")].reduce((sum, li) => sum + (Number(li.dataset.pages) || 1), 0);
+        const grams = w.envelope + pageCount(field("Content").value) * w.letterSheet + cfg.photoCount * w.photo
+            + selectedPostcards().length * w.postcard + docSheets * w.documentSheet;
+        return Math.ceil(grams - 1e-9);
+    }
+
+    const dash = () => { const s = document.createElement("span"); s.className = "text-muted"; s.textContent = "Yok"; return s; };
+
+    function renderReview() {
+        if (!$("rvScent")) return;
+        // Zarf: yönetim panelindeki zarf çıktısıyla aynı satırlar.
+        const place = (prefix) => [[valueOf(prefix + ".District"), valueOf(prefix + ".City")].filter(Boolean).join(" / "), valueOf(prefix + ".PostalCode")]
+            .filter(Boolean).join(" ");
+        $("pvSender").textContent = field("SenderName").value.trim() || "Gönderen adı";
+        $("pvSenderLine").textContent = valueOf("SenderAddress.Line");
+        $("pvSenderPlace").textContent = place("SenderAddress");
+        $("pvRecipient").textContent = field("RecipientName").value.trim() || "Alıcı adı";
+        const type = field("RecipientType").value; // 0 standart, 1 asker, 2 cezaevi
+        const note = type === "2"
+            ? [valueOf("RecipientFatherName") && `Baba adı: ${valueOf("RecipientFatherName")}`, valueOf("RecipientWard") && `Koğuş: ${valueOf("RecipientWard")}`].filter(Boolean).join(" · ")
+            : "";
+        $("pvRecipientNote").textContent = note;
+        $("pvRecipientDetail").textContent = type === "0" ? "" : valueOf("RecipientDetail");
+        $("pvRecipientLine").textContent = valueOf("RecipientAddress.Line");
+        $("pvRecipientPlace").textContent = place("RecipientAddress");
+        $("pvWeight").textContent = cfg.weights ? `${estimateWeight()} g` : "—";
+
+        $("rvScent").textContent = field("ScentId").value ? selectedText("ScentId") : "Kokusuz";
+
+        const cards = selectedPostcards().map(input => {
+            const tile = input.closest(".postcard-option");
+            const box = document.createElement("div");
+            box.className = "review-postcard";
+            const img = document.createElement("img");
+            img.src = tile?.querySelector("img")?.src ?? ""; img.alt = "";
+            const name = document.createElement("div");
+            name.className = "text-truncate"; name.textContent = input.dataset.title ?? "";
+            box.append(img, name);
+            return box;
+        });
+        $("rvPostcards").replaceChildren(...(cards.length ? cards : [dash()]));
+
+        // Fotoğraflar Ekstralar'daki listeden alınır; burada da tıklayınca büyür (data-gallery).
+        const photos = [...document.querySelectorAll("#photoList .attach-photo img")].map(src => {
+            const img = document.createElement("img");
+            img.src = src.src; img.alt = src.alt; img.loading = "lazy";
+            return img;
+        });
+        $("rvPhotos").replaceChildren(...(photos.length ? photos : [dash()]));
+
+        const docs = [...document.querySelectorAll("#documentList li a")].map(a => {
+            const li = document.createElement("li");
+            const link = document.createElement("a");
+            link.href = a.href; link.target = "_blank"; link.rel = "noopener"; link.textContent = `📄 ${a.textContent}`;
+            li.append(link);
+            return li;
+        });
+        $("rvDocuments").replaceChildren(...(docs.length ? docs : [Object.assign(document.createElement("li"), { textContent: "Yok", className: "text-muted" })]));
     }
 
     // ---------------- Adımlar (sekmeler) ----------------
-    // 1 Mektup → 2 Ekstralar → 3 İletişim bilgileri → 4 Ödeme. "Devam et" o adımı doğrular; geri her zaman dönülebilir.
+    // 1 Mektup → 2 Ekstralar → 3 İletişim bilgileri → 4 Kontrol → 5 Ödeme. "Devam et" o adımı doğrular; geri her zaman dönülebilir.
     const stepEls = [...form.querySelectorAll(".wizard-step")];
     const tabEls = [...form.querySelectorAll("[data-step-tab]")];
     let current = 1;
@@ -167,6 +214,8 @@
         }
         const fields = [...stepEls[n - 1].querySelectorAll("input, select, textarea")]
             .filter(el => el.type !== "hidden" && !el.disabled && el.offsetParent !== null);
+        // Alanı olmayan adım (Kontrol) her zaman geçerlidir; jQuery doğrulama boş listede hata verir.
+        if (fields.length === 0) return true;
         const invalid = fields.find(el => !el.checkValidity());
         if (invalid) { invalid.reportValidity(); return false; }
         if (window.jQuery?.fn.valid && !window.jQuery(fields).valid()) {
@@ -185,15 +234,13 @@
             t.classList.toggle("done", i < n);
             t.setAttribute("aria-selected", i === n ? "true" : "false");
         });
-        // Mektup sekmesinde sağdaki zarf / kâğıt önizlemesi gizlenir ve editör genişler (editörün kendisi önizlemedir).
-        const writing = n === 1;
-        $("letterPreview").classList.toggle("d-none", writing);
-        // Mektup sekmesinde "Taslak Kaydet" yok: taslak "Devam et" ile kaydedilir.
-        $("saveDraftBox").classList.toggle("d-none", writing);
-        $("wizardMain").classList.toggle("col-lg-8", writing);
-        $("wizardMain").classList.toggle("col-lg-6", !writing);
-        $("wizardSide").classList.toggle("col-lg-4", writing);
-        $("wizardSide").classList.toggle("col-lg-6", !writing);
+        // Mektup sekmesinde "Taslak Kaydet" yok (taslak "Devam et" ile kaydedilir); Kontrol sekmesinde de gereksiz.
+        $("saveDraftBox").classList.toggle("d-none", n === 1 || n === 4);
+        // Ödeme sekmesi iki sütunlu (kalemler + kart formu): sağdaki tahmini tutar kartı gizlenir, alan genişler.
+        const paying = n === 5;
+        $("wizardSide").classList.toggle("d-none", paying);
+        $("wizardMain").classList.toggle("col-lg-8", !paying);
+        $("wizardMain").classList.toggle("col-lg-12", paying);
         render();
         if (focusTop) form.querySelector(".wizard-tabs").scrollIntoView({ behavior: "smooth", block: "start" });
     }
@@ -296,6 +343,7 @@
             const li = document.createElement("li");
             li.className = "list-group-item d-flex align-items-center gap-2 px-0";
             li.dataset.id = d.id;
+            li.dataset.pages = d.pageCount || 1;
             const icon = document.createElement("span"); icon.textContent = d.isPdf ? "📄" : "🖼️"; icon.setAttribute("aria-hidden", "true");
             const link = document.createElement("a");
             link.href = d.url; link.target = "_blank"; link.rel = "noopener"; link.className = "text-truncate"; link.textContent = d.name;
@@ -373,19 +421,203 @@
     // İleri bir sekmeye atlarken aradaki adımların hepsi doğrulanır; ilk eksik adımda durulur.
     // Mektup sekmesinden ileri geçilirken taslak kaydedilir (kayıt başarısız olsa da devam edilir, uyarı gösterilir).
     async function goTo(n) {
+        // Ödeme sekmesinden geri dönülürken başlamış ödeme denemesi kapatılır (mektup yeniden düzenlenebilir).
+        if (current === 5 && n < 5 && !(await leavePayment())) return;
         if (n <= current) return showStep(n);
         const leavingLetter = current === 1;
         for (let i = current; i < n; i++) {
             if (i !== current) showStep(i, false);
             if (!validateStep(i)) return;
         }
-        if (leavingLetter) await saveDraft();
+        if (leavingLetter || n === 5) await saveDraft();
         showStep(n);
+        if (n === 5) await startCheckout();
     }
 
     tabEls.forEach(t => t.addEventListener("click", () => goTo(Number(t.dataset.stepTab))));
     form.querySelectorAll("[data-step-next]").forEach(b => b.addEventListener("click", () => goTo(current + 1)));
-    form.querySelectorAll("[data-step-prev]").forEach(b => b.addEventListener("click", () => showStep(current - 1)));
+    form.querySelectorAll("[data-step-prev]").forEach(b => b.addEventListener("click", () => goTo(current - 1)));
+    // Kontrol sekmesindeki "Düzenle" bağlantıları ilgili sekmeye döner.
+    form.querySelectorAll("[data-goto-step]").forEach(b => b.addEventListener("click", () => goTo(Number(b.dataset.gotoStep))));
+
+    // ---------------- Ödeme sekmesi ----------------
+    // Solda sunucudan gelen kesin döküm (kampanya, kupon, MektupPuan); sağda PayTR'nin güvenli kart formu (çerçeve).
+    // Ödeme başlatılınca mektup kilitlenir; kupon / puan / yöntem değişirse deneme kapatılıp yenisi başlatılır.
+    const pay = { method: "Card", usePoints: false, coupon: null, oid: null, quote: null, busy: false };
+    const letterId = () => field("Id").value;
+    const jsonHeaders = { "Accept": "application/json" };
+
+    function payStatus(text, kind = "muted") {
+        $("payStatus").className = `small text-${kind}`;
+        $("payStatus").textContent = text;
+        $("payStatus").hidden = !text;
+    }
+
+    async function fetchQuote() {
+        const qs = new URLSearchParams({ method: pay.method, usePoints: pay.usePoints });
+        if (pay.coupon) qs.set("kupon", pay.coupon);
+        const res = await fetch(`/mektup/${letterId()}/odeme/teklif?${qs}`, { headers: jsonHeaders });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) throw new Error(data.message || "Tutar hesaplanamadı.");
+        return data;
+    }
+
+    function renderQuote(q) {
+        pay.quote = q;
+        pay.method = q.method;
+        $("payRecipient").textContent = [field("RecipientName").value.trim(), addressText("RecipientAddress")].filter(Boolean).join(" — ");
+        $("payMethods").classList.toggle("d-none", !q.mobilePaymentAvailable);
+        $("payMethods").querySelectorAll("[data-method]").forEach(b => {
+            b.classList.toggle("btn-primary", b.dataset.method === q.method);
+            b.classList.toggle("btn-outline-primary", b.dataset.method !== q.method);
+        });
+        const row = (label, amount, cls = "") => {
+            const tr = document.createElement("tr");
+            if (cls) tr.className = cls;
+            const a = document.createElement("td"); a.textContent = label;
+            const b = document.createElement("td"); b.className = "text-end"; b.textContent = amount;
+            tr.append(a, b);
+            return tr;
+        };
+        const rows = q.lines.map(l => row(l.description, money(l.amount)));
+        if (q.campaign) rows.push(row(`🎉 Kampanya: ${q.campaign.title}${q.couponApplied ? ` (kupon ${q.couponCode})` : ""}`, `−${money(q.campaign.discount)}`, "text-success"));
+        if (q.pointsUsed > 0) rows.push(row(`MektupPuan (${q.pointsUsed.toLocaleString("tr-TR")} puan)`, `−${money(q.pointsDiscount)}`, "text-success"));
+        $("payLines").replaceChildren(...rows);
+        $("paySubtotalRow").classList.toggle("d-none", !(q.campaign || q.pointsUsed > 0));
+        $("paySubtotal").textContent = money(q.total);
+        $("payTotal").textContent = money(q.amountToPay);
+
+        const message = $("payCouponMessage");
+        $("payCoupon").classList.toggle("is-valid", q.couponApplied);
+        $("payCoupon").classList.toggle("is-invalid", !!q.couponMessage);
+        $("payCouponRemove").classList.toggle("d-none", !q.couponCode);
+        message.className = `small mt-1 ${q.couponMessage ? "text-danger" : q.couponApplied ? "text-success" : ""}`;
+        message.textContent = q.couponMessage ?? (q.couponApplied ? "Kupon uygulandı." : "Kodsuz kampanyalar otomatik uygulanır.");
+
+        $("payPointsBox").classList.toggle("d-none", !(q.pointsBalance > 0));
+        $("payUsePoints").checked = q.usePoints;
+        $("payPointsLabel").textContent = `MektupPuan kullan — bakiye ${q.pointsBalance.toLocaleString("tr-TR")} puan (= ${money(q.balanceValue)})`;
+        $("payEarn").classList.toggle("d-none", !(q.pointsToEarn > 0));
+        $("payEarn").textContent = `🎁 Bu mektup postaya verildiğinde ${q.pointsToEarn.toLocaleString("tr-TR")} MektupPuan (= ${money(q.pointsToEarnValue)}) kazanacaksınız.`;
+        $("paySimulation").classList.toggle("d-none", !q.providerIsSimulation);
+        $("payNote").classList.toggle("d-none", q.providerIsSimulation);
+    }
+
+    async function postPayment(url, body) {
+        const data = body ?? new FormData();
+        data.append("__RequestVerificationToken", token());
+        const res = await fetch(url, { method: "POST", body: data, headers: jsonHeaders });
+        const json = await res.json().catch(() => ({}));
+        if (!res.ok) throw new Error(json.message || "Ödeme başlatılamadı.");
+        return json;
+    }
+
+    // PayTR formu çerçeve yüksekliğini kendisi bildirir (iframeResizer); test modunda gerekmez.
+    let resizerLoaded = null;
+    function loadResizer() {
+        resizerLoaded ??= new Promise(resolve => {
+            const script = document.createElement("script");
+            script.src = "https://www.paytr.com/js/iframeResizer.min.js";
+            script.onload = resolve; script.onerror = resolve;
+            document.head.append(script);
+        });
+        return resizerLoaded;
+    }
+
+    function resetPaymentPanel() {
+        $("payFrameBox").classList.add("d-none");
+        $("payFreeBox").classList.add("d-none");
+        $("payFrame").removeAttribute("src");
+    }
+
+    async function abandonPayment() {
+        if (!pay.oid) return true;
+        try {
+            await postPayment(`/mektup/${letterId()}/odeme/vazgec`);
+            pay.oid = null;
+            return true;
+        } catch {
+            payStatus("Önceki ödeme denemesi kapatılamadı; lütfen sayfayı yenileyin.", "danger");
+            return false;
+        }
+    }
+
+    // Tutarı alır ve ödemeyi başlatır: tutar varsa kart formu açılır, yoksa (puan / kampanya) "Siparişi Tamamla".
+    async function startCheckout() {
+        if (pay.busy) return;
+        pay.busy = true;
+        resetPaymentPanel();
+        payStatus("Ödeme formu hazırlanıyor…");
+        try {
+            if (!(await abandonPayment())) return;
+            const q = await fetchQuote();
+            renderQuote(q);
+            if (q.amountToPay <= 0) {
+                payStatus("");
+                $("payFreeText").textContent = q.pointsUsed > 0
+                    ? "Tutarın tamamı MektupPuan ile karşılanıyor; kart bilgisi gerekmez."
+                    : "Kampanya indirimiyle ödenecek tutar yok; kart bilgisi gerekmez.";
+                $("payFreeButton").textContent = q.pointsUsed > 0 ? "Puanla Öde ve Gönder" : "Ücretsiz Gönder";
+                $("payFreeBox").classList.remove("d-none");
+                return;
+            }
+            const body = new FormData();
+            body.append("method", pay.method);
+            body.append("usePoints", pay.usePoints);
+            if (q.couponApplied && q.couponCode) body.append("coupon", q.couponCode);
+            const started = await postPayment(`/mektup/${letterId()}/odeme`, body);
+            if (started.completed) { dirty = false; location.href = started.redirectUrl; return; }
+            pay.oid = started.merchantOid;
+            const frame = $("payFrame");
+            if (!started.formUrl.startsWith("/")) {
+                await loadResizer();
+                frame.addEventListener("load", () => window.iFrameResize?.({}, "#payFrame"), { once: true });
+            }
+            frame.src = started.formUrl;
+            $("payFrameBox").classList.remove("d-none");
+            payStatus("");
+        } catch (e) {
+            payStatus(e.message, "danger");
+        } finally {
+            pay.busy = false;
+        }
+    }
+
+    // Geri dönerken: kart bilgileri girilmiş olabilir; ödeme tamamlandıysa vazgeçilmemeli.
+    async function leavePayment() {
+        if (!pay.oid) return true;
+        if (!window.confirm("Ödeme formu kapatılacak ve mektubunuz yeniden düzenlenebilir olacak.\nÖdemeyi tamamladıysanız geri dönmeyin; sonuç birkaç saniye içinde gelir.")) return false;
+        const ok = await abandonPayment();
+        if (ok) resetPaymentPanel();
+        return ok;
+    }
+
+    $("payMethods").addEventListener("click", (e) => {
+        const b = e.target.closest("[data-method]");
+        if (!b || b.dataset.method === pay.method || pay.busy) return;
+        pay.method = b.dataset.method;
+        startCheckout();
+    });
+    $("payUsePoints").addEventListener("change", (e) => { pay.usePoints = e.target.checked; startCheckout(); });
+    const applyCoupon = () => { pay.coupon = $("payCoupon").value.trim().toUpperCase() || null; startCheckout(); };
+    $("payCouponApply").addEventListener("click", applyCoupon);
+    $("payCoupon").addEventListener("keydown", (e) => { if (e.key === "Enter") { e.preventDefault(); applyCoupon(); } });
+    $("payCouponRemove").addEventListener("click", () => { pay.coupon = null; $("payCoupon").value = ""; startCheckout(); });
+    $("payFreeButton").addEventListener("click", async () => {
+        $("payFreeButton").disabled = true;
+        try {
+            const body = new FormData();
+            body.append("method", pay.method);
+            body.append("usePoints", pay.usePoints);
+            if (pay.quote?.couponApplied && pay.quote.couponCode) body.append("coupon", pay.quote.couponCode);
+            const done = await postPayment(`/mektup/${letterId()}/odeme`, body);
+            dirty = false;
+            location.href = done.redirectUrl ?? `/mektup/${letterId()}`;
+        } catch (e) {
+            $("payFreeButton").disabled = false;
+            payStatus(e.message, "danger");
+        }
+    });
     field("Content").addEventListener("input", () => { if (field("Content").value.trim()) $("contentError").hidden = true; });
 
     // Sunucu doğrulama hatasıyla dönülürse hatalı alanın bulunduğu adım açılır.
@@ -399,10 +631,12 @@
 
     // Kaydedilmemiş değişiklik uyarısı
     let dirty = false;
-    form.addEventListener("input", () => dirty = true);
+    // Ödeme sekmesindeki alanlar (kupon, puan, yöntem) mektuba kaydedilecek veri değildir.
+    form.addEventListener("input", (e) => { if (!e.target.closest("#wizardStep5")) dirty = true; });
     form.addEventListener("submit", () => dirty = false);
     // Tarayıcı kapatılır / yenilenirse tarayıcının kendi uyarısı çıkar (özel metin gösterilemez).
-    window.addEventListener("beforeunload", (e) => { if (dirty) e.preventDefault(); });
+    // Ödeme sekmesinde uyarı yok: taslak bu sekmeye girerken kaydedilir, burada kaydedilecek veri olmaz.
+    window.addEventListener("beforeunload", (e) => { if (dirty && current !== 5) e.preventDefault(); });
 
     // Sitedeki bir bağlantıyla ayrılırken: "Yaptığınız değişiklikler kaydedilsin mi?" (Kaydet / Kaydetme / Vazgeç).
     const leaveModalEl = $("leaveModal");
@@ -410,7 +644,7 @@
     let leaveTo = null;
 
     document.addEventListener("click", (e) => {
-        if (!dirty || !leaveModal || e.defaultPrevented || e.button !== 0 || e.ctrlKey || e.metaKey || e.shiftKey || e.altKey) return;
+        if (!dirty || current === 5 || !leaveModal || e.defaultPrevented || e.button !== 0 || e.ctrlKey || e.metaKey || e.shiftKey || e.altKey) return;
         const a = e.target.closest("a[href]");
         if (!a || a.target === "_blank" || a.hasAttribute("download") || a.closest("#leaveModal")) return;
         const url = new URL(a.href, location.href);
@@ -441,4 +675,7 @@
 
     if (errorStep) showStep(Number(errorStep.dataset.step), false);
     else render();
+    // "#odeme" ile açılınca (mektup sayfasındaki "Ödemeye Geç", başarısız ödemede "Tekrar Dene") doğrudan Ödeme sekmesi;
+    // aradaki adımlar yine doğrulanır, eksik varsa o adımda kalınır.
+    if (!errorStep && location.hash === "#odeme" && field("Id").value) goTo(5);
 })();

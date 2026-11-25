@@ -159,7 +159,7 @@ Kurum seçiliyken ilçe ve adres **düzenlenemez**. Listede olmayan kurumlar iç
 Dilekçe, vekaletname, okul belgesi gibi evraklar mektuba eklenir; basılıp mektupla aynı zarfa konur.
 
 - **Nereden:** mektup detay sayfasındaki "Belgeler" kartı (sitede ve mobilde). Mobilde dosya seçilir veya kâğıt belgenin fotoğrafı çekilir.
-- **Kurallar:** PDF, JPG veya PNG; en fazla 10 MB; mektup başına en fazla 5 belge (`Letter.MaxDocuments`). Yalnızca taslakta eklenip kaldırılabilir.
+- **Kurallar:** PDF, JPG veya PNG; en fazla 10 MB; mektup başına en fazla 20 belge (`Letter.MaxDocuments`). Yalnızca taslakta eklenip kaldırılabilir.
 - **Güvenlik:** dosyanın ilk baytları uzantısıyla karşılaştırılır (`DocumentSignature`); adı .pdf yapılmış HTML veya program dosyası reddedilir. Dosya `nosniff` ile, yalnızca sahibine ve yöneticiye sunulur.
 - **Ücret:** belge başı, varsayılan 25 ₺ (`Pricing:Document`); yönetim panelindeki Fiyatlar sayfasından değiştirilir. Ödeme özetinde "Belge × n" satırı olarak görünür.
 - **Basım:** yönetici sipariş detayında belgeleri listeler; baskı sayfası aşağıda.
@@ -269,6 +269,8 @@ flutter test
 3. **Vazgeçme / süre dolumu:** müşteri vazgeçebilir; sonucu gelmeyen denemeler `Payment:ExpireAfterMinutes` sonra arka planda kapatılır (puan iade). Kapanmış denemeye sonradan "başarılı" bildirimi gelirse tutar otomatik iade edilir.
 4. **İade:** ödenmiş mektup iptal edilince PayTR `odeme/iade` ile kart iadesi yapılır; başarısız olursa admin sipariş detayında "elle iade edin" uyarısı çıkar.
 
+**Mektup Yaz → Ödeme sekmesi (site ve mobil):** solda kesin ödeme kalemleri, kampanya kuponu ve MektupPuan (`GET /mektup/{id}/odeme/teklif`), sağda PayTR'nin güvenli kart formu sayfa içinde gömülü (iFrame; mobilde uygulama içi WebView). Sekme açılınca taslak kaydedilip ödeme başlatılır; kupon / puan / yöntem değişince deneme kapatılıp yenisi başlar; geri dönülürse (onayla) deneme kapatılır ve mektup yeniden düzenlenebilir. Ödeme sonrası PayTR'nin açtığı dönüş adresi (`…/odeme/sonuc?cerceve=1`) çerçeveden çıkıp sonucu sayfanın tamamında gösterir. Kart bilgisi sunucumuza gelmez. Eski ayrı ödeme sayfası (`/mektup/{id}/odeme`) bekleyen ödemeler için kullanılmaya devam eder.
+
 `Payment:Provider = "Simulation"` (varsayılan) iken PayTR yerine uygulamanın simülasyon sayfası açılır, "Ödeme Başarılı / Kart Reddedildi" seçilerek bildirim taklit edilir. Dışarıdan gelen bildirimler simülasyonda kabul edilmez.
 
 **Canlıya geçiş:**
@@ -336,7 +338,7 @@ Bağımlılık yönü: `Web → Application → Domain`, `Infrastructure → App
 
 ### Öne çıkan DDD kararları
 
-- **Kurallar aggregate içinde:** "Ödenen mektup düzenlenemez", "postaya verilen mektubun adresi değişmez", "en fazla 10 fotoğraf", "askere giden mektupta birlik bilgisi zorunlu" gibi kurallar `Letter` / `Recipient` içinde; controller veya servis bunları tekrar kontrol etmez.
+- **Kurallar aggregate içinde:** "Ödenen mektup düzenlenemez", "postaya verilen mektubun adresi değişmez", "en fazla 30 fotoğraf", "askere giden mektupta birlik bilgisi zorunlu" gibi kurallar `Letter` / `Recipient` içinde; controller veya servis bunları tekrar kontrol etmez.
 - **Durum makinesi:** `Taslak → Ödendi → Basımda → Kargoda → Teslim Edildi` (+ `İptal`). Her geçiş bir metot (`MarkPaid`, `StartProduction`, `Ship`, `MarkDelivered`, `Cancel`) ve geçmişe kaydedilir.
 - **Value object'ler** EF Core complex type olarak aynı tabloda kolon şeklinde saklanır.
 - **Domain event'ler** `SaveChanges` sonrasında yayınlanır; SMS bildirimleri bu sayede ana iş akışından ayrıdır.

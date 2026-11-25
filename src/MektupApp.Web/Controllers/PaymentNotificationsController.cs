@@ -53,18 +53,20 @@ public class PaymentNotificationsController(
 
     // ---------------- Simülasyon (sadece Payment:Provider = Simulation) ----------------
 
+    /// <param name="cerceve">1: Mektup Yaz ekranının Ödeme sekmesinde çerçeve içinde (sade görünüm, sonuç çerçeveden çıkar).</param>
     [Authorize]
     [HttpGet("odeme/simulasyon/{oid}")]
-    public async Task<IActionResult> Simulation(string oid, CancellationToken ct)
+    public async Task<IActionResult> Simulation(string oid, int? cerceve, CancellationToken ct)
     {
         if (!provider.IsSimulation) return NotFound();
         var status = await payments.GetStatusAsync(oid, User.GetCustomerId(), ct);
+        ViewBag.Embedded = cerceve == 1;
         return status is null ? NotFound() : View(status);
     }
 
     [Authorize]
     [HttpPost("odeme/simulasyon/{oid}")]
-    public async Task<IActionResult> Simulation(string oid, string result, CancellationToken ct)
+    public async Task<IActionResult> Simulation(string oid, string result, int? cerceve, CancellationToken ct)
     {
         if (!provider.IsSimulation) return NotFound();
         var status = await payments.GetStatusAsync(oid, User.GetCustomerId(), ct);
@@ -75,6 +77,6 @@ public class PaymentNotificationsController(
         await payments.CompleteAsync(new PaymentNotification(oid, success, status.Amount,
             success ? null : "Simülasyon: banka işlemi reddetti (kod 0)", IsTest: true), ct);
 
-        return RedirectToAction("PaymentResult", "Letters", new { id = status.LetterId, oid });
+        return RedirectToAction("PaymentResult", "Letters", new { id = status.LetterId, oid, cerceve = cerceve == 1 ? 1 : (int?)null });
     }
 }

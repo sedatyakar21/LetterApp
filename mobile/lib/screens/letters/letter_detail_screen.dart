@@ -8,6 +8,7 @@ import '../../state/session.dart';
 import '../../ui/address_fields.dart';
 import '../../ui/common.dart';
 import '../../ui/letter_style.dart';
+import '../../ui/photo_viewer.dart';
 import '../../ui/theme.dart';
 import 'checkout_screen.dart';
 import 'letter_editor_screen.dart';
@@ -482,16 +483,28 @@ class _LetterDetailScreenState extends State<LetterDetailScreen> {
             mainAxisSpacing: 8,
             crossAxisSpacing: 8,
             children: [
-              for (final p in l.photos)
+              for (final (i, p) in l.photos.indexed)
                 Stack(fit: StackFit.expand, children: [
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(10),
-                    child: Image.network(
-                      client.absolute(p.url),
-                      headers: client.authHeaders,
-                      fit: BoxFit.cover,
-                      errorBuilder: (_, _, _) =>
-                          Container(color: Brand.paper2, child: const Icon(Icons.broken_image_outlined, color: Brand.muted)),
+                  // Dokununca tam ekran açılır (kaydırarak diğer fotoğraflar, iki parmakla yakınlaştırma).
+                  GestureDetector(
+                    onTap: () => showPhotoViewer(context,
+                        urls: [for (final x in l.photos) client.absolute(x.url)],
+                        titles: [for (final x in l.photos) x.fileName],
+                        initialIndex: i,
+                        headers: client.authHeaders),
+                    child: Semantics(
+                      button: true,
+                      label: '${p.fileName} fotoğrafını büyüt',
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(10),
+                        child: Image.network(
+                          client.absolute(p.url),
+                          headers: client.authHeaders,
+                          fit: BoxFit.cover,
+                          errorBuilder: (_, _, _) =>
+                              Container(color: Brand.paper2, child: const Icon(Icons.broken_image_outlined, color: Brand.muted)),
+                        ),
+                      ),
                     ),
                   ),
                   if (l.isEditable)
@@ -624,8 +637,6 @@ class _LetterPreview extends StatelessWidget {
         child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
           Text(l.content.isEmpty ? 'Mektup metni henüz yazılmadı.' : l.content,
               style: l.content.isEmpty ? style.copyWith(color: Brand.muted) : style),
-          const SizedBox(height: 12),
-          Align(alignment: Alignment.centerRight, child: Text('— ${l.senderName}', style: style)),
         ]),
       ),
       const SizedBox(height: 8),

@@ -16,7 +16,8 @@
             @if (Model.IsEditable)
             {
                 <a class="btn btn-outline-secondary" asp-action="Edit" asp-route-id="@Model.Id">Düzenle</a>
-                <a class="btn btn-primary" asp-action="Checkout" asp-route-id="@Model.Id">Ödemeye Geç</a>
+                @* Mektup Yaz ekranının Ödeme sekmesi (solda kalemler, sağda kart formu). *@
+                <a class="btn btn-primary" asp-action="Edit" asp-route-id="@Model.Id" asp-fragment="odeme">Ödemeye Geç</a>
             }
             else if (Model.Status == LetterStatus.AwaitingPayment)
             {
@@ -98,7 +99,7 @@
             <div class="card mb-3" id="photos">
                 <div class="card-header fw-semibold">Fotoğraflar (@Model.Photos.Count / @Letter.MaxPhotos)</div>
                 <div class="card-body">
-                    <div class="d-flex flex-wrap gap-2 mb-2">
+                    <div class="d-flex flex-wrap gap-2 mb-2" data-gallery>
                         @foreach (var p in Model.Photos)
                         {
                             <div class="text-center">
@@ -252,3 +253,5 @@
         </div>
     </div>
 </div>
+
+<partial name="_PhotoViewer" />

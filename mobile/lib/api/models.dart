@@ -49,6 +49,22 @@ class PasswordResetOptions {
   bool get anyEnabled => emailEnabled || smsEnabled;
 }
 
+/// Birim ağırlıklar (gram). Tahmini ağırlık sunucudaki LetterWeightPolicy ile aynı hesaplanır.
+class PaperWeights {
+  PaperWeights(this.json);
+  final Map<String, dynamic> json;
+  double get letterSheet => _d(json['letterSheet']);
+  double get photo => _d(json['photo']);
+  double get postcard => _d(json['postcard']);
+  double get documentSheet => _d(json['documentSheet']);
+  double get envelope => _d(json['envelope']);
+
+  /// Zarf + mektup sayfaları + fotoğraflar + kartpostallar + belge yaprakları; yukarı yuvarlanır.
+  int estimate({required int letterSheets, required int photos, required int postcards, required int documentSheets}) =>
+      (envelope + letterSheets * letterSheet + photos * photo + postcards * postcard + documentSheets * documentSheet - 1e-9)
+          .ceil();
+}
+
 /// Bir koku (yönetim panelindeki liste). Siparişte koku listeden silinmişse [id] boş olabilir.
 class ScentInfo {
   ScentInfo(this.id, this.name);
@@ -84,10 +100,11 @@ class AppSettings {
         scents = j['scents'] == null ? const [] : _list(j['scents'], ScentInfo.fromJson),
         postcards = j['postcards'] == null ? const [] : _list(j['postcards'], PostcardInfo.fromJson),
         maxPostcards = j['maxPostcards'] as int? ?? 5,
+        weights = j['weights'] == null ? null : PaperWeights(j['weights'] as Map<String, dynamic>),
         acquisitionChannels = _list(j['acquisitionChannels'], Option.fromJson),
         maxPhotos = j['maxPhotos'] as int,
         maxPhotoBytes = j['maxPhotoBytes'] as int,
-        maxDocuments = j['maxDocuments'] as int? ?? 5,
+        maxDocuments = j['maxDocuments'] as int? ?? 20,
         maxDocumentBytes = j['maxDocumentBytes'] as int? ?? 10 * 1024 * 1024,
         maxContentLength = j['maxContentLength'] as int,
         charsPerPage = j['charsPerPage'] as int,
@@ -110,6 +127,9 @@ class AppSettings {
 
   /// Bir mektuba en çok kaç kartpostal eklenebilir.
   final int maxPostcards;
+
+  /// Zarftaki tahmini ağırlık için birim ağırlıklar (eski sunucuda yok).
+  final PaperWeights? weights;
   final int maxPhotos, maxPhotoBytes, maxDocuments, maxDocumentBytes, maxContentLength, charsPerPage, charsPerLineBreak, minPasswordLength;
   final bool loyaltyEnabled, mobilePaymentAvailable, paymentSimulation;
   final Support support;
@@ -267,9 +287,13 @@ class LetterDocument {
       : id = j['id'] as String,
         fileName = j['fileName'] as String,
         isPdf = j['isPdf'] as bool,
-        url = j['url'] as String;
+        url = j['url'] as String,
+        pageCount = j['pageCount'] as int? ?? 1;
   final String id, fileName, url;
   final bool isPdf;
+
+  /// Basılacak yaprak sayısı (PDF sayfa sayısı, görsel 1).
+  final int pageCount;
 }
 
 class MyReview {

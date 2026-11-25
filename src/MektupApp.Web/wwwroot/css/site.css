@@ -417,8 +417,8 @@ a:hover { color: var(--burgundy); }
 .ink-Navy { color: #1f3a68; }
 .ink-Burgundy { color: #7a1f33; }
 
-/* Mektup Yaz adımları (sekmeler): 1 Mektup → 2 Ekstralar → 3 İletişim → 4 Ödeme. */
-.wizard-tabs { list-style: none; padding: 0; margin: 0 0 1rem; display: grid; grid-template-columns: repeat(4, 1fr); gap: .5rem; scroll-margin-top: 1rem; }
+/* Mektup Yaz adımları (sekmeler): 1 Mektup → 2 Ekstralar → 3 İletişim → 4 Kontrol → 5 Ödeme. */
+.wizard-tabs { list-style: none; padding: 0; margin: 0 0 1rem; display: grid; grid-template-columns: repeat(5, 1fr); gap: .5rem; scroll-margin-top: 1rem; }
 .wizard-tab {
     width: 100%; display: flex; align-items: center; gap: .5rem; padding: .55rem .75rem;
     border: 1px solid var(--bs-border-color, #dee2e6); border-radius: .5rem; background: #fff;
@@ -438,6 +438,20 @@ a:hover { color: var(--burgundy); }
     .wizard-tabs { gap: .25rem; }
     .wizard-tab { flex-direction: column; gap: .2rem; padding: .4rem .25rem; text-align: center; font-size: .72rem; }
 }
+
+/* Fotoğraf büyütme (_PhotoViewer). */
+[data-gallery] img { cursor: zoom-in; }
+.photo-viewer .modal-content { background: #111; color: #eee; border: 0; }
+.photo-viewer .modal-header { border-bottom: 0; }
+.photo-viewer .btn-close { filter: invert(1); }
+.photo-viewer #photoViewerImg { display: block; max-width: 100%; max-height: 80vh; margin: 0 auto; object-fit: contain; }
+.photo-viewer-nav {
+    position: absolute; top: 50%; transform: translateY(-50%); width: 44px; height: 64px; border: 0; border-radius: .5rem;
+    background: rgba(0,0,0,.45); color: #fff; font-size: 2rem; line-height: 1;
+}
+.photo-viewer-nav:hover, .photo-viewer-nav:focus-visible { background: rgba(0,0,0,.75); }
+.photo-viewer-nav.prev { left: .5rem; }
+.photo-viewer-nav.next { right: .5rem; }
 
 /* Ekstralar sekmesi: sayfa içinde yüklenen fotoğraflar (küçük görsel + kaldır) ve belge listesi. */
 .attach-list { display: flex; flex-wrap: wrap; gap: .5rem; }
@@ -488,7 +502,57 @@ a:hover { color: var(--burgundy); }
     background: linear-gradient(160deg, transparent 49.5%, rgba(0,0,0,.07) 50%, transparent 50.5%),
                 linear-gradient(20deg, transparent 49.5%, rgba(0,0,0,.07) 50%, transparent 50.5%);
 }
-.envelope-from { position: relative; opacity: .8; }
+.envelope-from { position: relative; opacity: .8; max-width: 55%; }
+/* Kontrol sekmesindeki zarfta ad altında adres satırı (küçük). */
+.envelope-address { font-size: .78rem; font-weight: 400; line-height: 1.3; opacity: .9; }
+.envelope-to .envelope-address { max-width: 260px; text-align: left; }
+/* Kontrol sekmesindeki zarf: yönetim panelindeki zarf çıktısının (order-print.css, 180×130 mm) birebir oranlı hali.
+   Ölçüler zarf genişliğine göre (cqw); 1 mm ≈ 0,556cqw. */
+.env-preview {
+    container-type: inline-size; position: relative; width: 100%; aspect-ratio: 180 / 130; overflow: hidden;
+    border-radius: 4px; box-shadow: 0 2px 10px rgba(0,0,0,.14); color: #000;
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+.env-preview > * { font-size: 1.96cqw; line-height: 1.3; } /* 10pt @ 180 mm */
+.env-color-White { background: #fff; border: 1px solid var(--line); }
+.env-color-Kraft { background: #d2b48c; }
+.env-color-Pink { background: #f4b6c6; }
+.env-color-Red { background: #b8323f; color: #fff; }
+.env-color-Navy { background: #1f2f55; color: #fff; }
+.envp-from, .envp-to {
+    position: absolute; overflow-wrap: anywhere;
+    border: .22cqw solid; border-radius: 2.78cqw 0 2.78cqw 0; padding: 1.11cqw 2.22cqw;
+}
+.envp-from > *, .envp-to > * { font-size: 1.1em; }
+.envp-from { top: 4.44cqw; left: 5.56cqw; max-width: 45%; border-color: #26304E; }
+.envp-to { right: 6.67cqw; bottom: 6.67cqw; max-width: 60%; border-color: #8E2235; }
+.envp-caption { font-size: .88em !important; font-weight: 700; letter-spacing: .1em; }
+.envp-from .envp-caption { color: #26304E; }
+.envp-to .envp-caption { color: #8E2235; }
+.env-color-Red .envp-caption, .env-color-Navy .envp-caption { color: #fff; }
+.env-color-Red .envp-from, .env-color-Red .envp-to, .env-color-Navy .envp-from, .env-color-Navy .envp-to { border-color: #fff; }
+.envp-name { font-weight: 600; }
+.envp-place { font-weight: 600; }
+.envp-weight { position: absolute; top: 4.44cqw; right: 5.56cqw; text-align: center; font-size: 1.76cqw !important; }
+.envp-barcode {
+    margin-top: .83cqw; width: 27.8cqw; padding: .8cqw 0; font-size: .8em; line-height: 1.25; opacity: .75;
+    border: .22cqw dashed currentColor; border-radius: 1cqw;
+}
+.envp-brand { position: absolute; left: 5.56cqw; bottom: 4.44cqw; max-width: 40%; }
+.envp-intermediary { font-weight: 700; margin-bottom: .83cqw; white-space: nowrap; }
+.envp-brand img { display: block; height: 17.8cqw; width: auto; } /* 32 mm */
+
+/* Ödeme sekmesi: sağdaki güvenli kart formu çerçevesi (PayTR iFrame / test modu). */
+.pay-frame { display: block; width: 100%; min-height: 560px; border: 0; }
+#payLines .text-success td:last-child { white-space: nowrap; }
+
+/* Kontrol sekmesi */
+.review-label { font-size: .8rem; font-weight: 600; text-transform: uppercase; letter-spacing: .04em; color: var(--bs-secondary-color, #6c757d); margin-bottom: .35rem; }
+#wizardStep4 .paper { min-height: 0; max-height: 460px; overflow-y: auto; }
+.review-photos .attach-photo, .review-photos img { width: 64px; height: 64px; }
+.review-photos img { object-fit: cover; border-radius: .4rem; border: 1px solid var(--bs-border-color, #dee2e6); }
+.review-postcard { width: 90px; text-align: center; font-size: .72rem; }
+.review-postcard img { width: 90px; aspect-ratio: 3 / 2; object-fit: cover; border-radius: .35rem; border: 1px solid var(--bs-border-color, #dee2e6); display: block; }
 .envelope-to { position: absolute; right: 1.5rem; bottom: 1.25rem; font-weight: 600; font-size: 1.1rem; }
 .envelope-White { background: #fff; color: #333; border: 1px solid var(--line); }
 .envelope-Kraft { background: #d2b48c; color: #3d2b16; }

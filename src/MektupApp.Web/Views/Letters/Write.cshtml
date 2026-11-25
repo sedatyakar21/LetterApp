@@ -10,17 +10,13 @@
     var scents = ((IReadOnlyList<MektupApp.Application.Scents.ScentDto>?)ViewBag.Scents ?? []).ToList();
     if (Model.ScentId is { } scentId && Model.ScentName is not null && scents.All(s => s.Id != scentId))
         scents.Add(new(scentId, Model.ScentName, false, int.MaxValue));
-    // Adımlar (mobil uygulamadakiyle aynı): mektup → ekstralar → iletişim bilgileri → ödeme.
-    var steps = new[] { "Mektup", "Ekstralar", "İletişim Bilgileri", "Ödeme" };
+    // Adımlar (mobil uygulamadakiyle aynı): mektup → ekstralar → iletişim bilgileri → kontrol → ödeme.
+    var steps = new[] { "Mektup", "Ekstralar", "İletişim Bilgileri", "Kontrol", "Ödeme" };
 }
 
 <div class="container py-4">
-    <div class="d-flex justify-content-between align-items-center mb-3">
+    <div class="mb-3">
         <h1 class="h3 mb-0">@ViewData["Title"]</h1>
-        @if (Model.Id is not null)
-        {
-            <a asp-action="Details" asp-route-id="@Model.Id" class="small">Fotoğraflar ve detaylar →</a>
-        }
     </div>
 
     <form asp-action="Save" method="post" id="letterForm" data-draft-url="@Url.Action("SaveDraft")">
@@ -41,7 +37,7 @@
         </ol>
 
         <div class="row g-4">
-            <!-- SOL: adımlar (Mektup sekmesinde daha geniş: önizleme gizlidir, editörün kendisi önizlemedir) -->
+            <!-- SOL: adımlar -->
             <div class="col-lg-8" id="wizardMain">
                 @* ---------------- 1. Mektup ---------------- *@
                 <section class="wizard-step" id="wizardStep1" data-step="1" role="tabpanel" aria-labelledby="wizardTab1">
@@ -156,7 +152,7 @@
                                 <div class="d-flex justify-content-between align-items-baseline">
                                     <div class="form-label small mb-1">📷 Fotoğraflar <span class="text-muted">(her biri +@prices.Photo.ToString("N2") ₺ · en fazla @Letter.MaxPhotos · JPG, PNG, WEBP, 5 MB)</span></div>
                                 </div>
-                                <div class="attach-list" id="photoList" aria-live="polite">
+                                <div class="attach-list" id="photoList" aria-live="polite" data-gallery>
                                     @foreach (var p in Model.Photos)
                                     {
                                         <div class="attach-photo" data-id="@p.Id">
@@ -174,7 +170,7 @@
                                 <ul class="list-group list-group-flush attach-docs" id="documentList" aria-live="polite">
                                     @foreach (var d in Model.Documents)
                                     {
-                                        <li class="list-group-item d-flex align-items-center gap-2 px-0" data-id="@d.Id">
+                                        <li class="list-group-item d-flex align-items-center gap-2 px-0" data-id="@d.Id" data-pages="@d.PageCount">
                                             <span aria-hidden="true">@(d.IsPdf ? "📄" : "🖼️")</span>
                                             <a href="@Url.Action("Document", new { id = Model.Id, documentId = d.Id })" target="_blank" rel="noopener" class="text-truncate">@d.OriginalFileName</a>
                                             @if (d.IsPdf) { <span class="text-muted small flex-shrink-0">@d.PageCount sayfa</span> }
@@ -249,51 +245,134 @@
                     </div>
                     <div class="wizard-nav">
                         <button type="button" class="btn btn-outline-secondary" data-step-prev>← Geri</button>
+                        <button type="button" class="btn btn-primary" data-step-next>Devam et: Kontrol →</button>
+                    </div>
+                </section>
+
+                @* ---------------- 4. Kontrol: zarf, mektup ve ekstralar son kez gözden geçirilir ---------------- *@
+                <section class="wizard-step d-none" id="wizardStep4" data-step="4" role="tabpanel" aria-labelledby="wizardTab4">
+                    <div class="card mb-3">
+                        <div class="card-header fw-semibold">4. Kontrol</div>
+                        <div class="card-body">
+                            <p class="small text-muted">Göndermeden önce zarfınızı, mektubunuzu ve eklediklerinizi kontrol edin. Değiştirmek için ilgili sekmeye dönebilirsiniz.</p>
+
+                            @* Zarf rengi Mektup sekmesinde seçilir. *@
+                            <div class="review-label">Zarf <button type="button" class="btn btn-link btn-sm p-0 ms-1" data-goto-step="1">Düzenle</button></div>
+                            @* Yönetim panelindeki zarf çıktısının aynısı (13×18 cm oranında): sol üst gönderen, sağ üst tahmini ağırlık
+                               ve barkod alanı, sağ alt alıcı, sol alt aracı firma + logo. Zarf renginde gösterilir. *@
+                            <div class="env-preview env-color-@Model.Envelope mb-3" id="envelopePreview" aria-label="Zarf önizlemesi">
+                                <div class="envp-from">
+                                    <div class="envp-caption">GÖNDEREN</div>
+                                    <div class="envp-name" id="pvSender">@Model.SenderName</div>
+                                    <div id="pvSenderLine"></div>
+                                    <div id="pvSenderPlace"></div>
+                                </div>
+                                <div class="envp-weight">
+                                    <div>Tahmini ağırlık: <strong id="pvWeight">—</strong></div>
+                                    <div class="envp-barcode">Barkod ve takip no<br />postaya verilince basılır</div>
+                                </div>
+                                <div class="envp-to">
+                                    <div class="envp-caption">ALICI</div>
+                                    <div class="envp-name" id="pvRecipient">@Model.RecipientName</div>
+                                    <div id="pvRecipientNote"></div>
+                                    <div id="pvRecipientDetail"></div>
+                                    <div id="pvRecipientLine"></div>
+                                    <div class="envp-place" id="pvRecipientPlace"></div>
+                                </div>
+                                <div class="envp-brand">
+                                    <div class="envp-intermediary">@MektupApp.Web.Infrastructure.EnvelopeText.Intermediary</div>
+                                    <img src="~/img/bimektup-logo.png" alt="BiMektup.net" />
+                                </div>
+                            </div>
+
+                            <div class="review-label">Mektup <button type="button" class="btn btn-link btn-sm p-0 ms-1" data-goto-step="1">Düzenle</button></div>
+                            <div class="paper paper-@Model.Paper font-@Model.Font ink-@Model.Ink mb-3" id="paperPreview">
+                                <div class="paper-content" id="pvContent">@Model.Content</div>
+                            </div>
+
+                            <div class="review-label">Ekstralar <button type="button" class="btn btn-link btn-sm p-0 ms-1" data-goto-step="2">Düzenle</button></div>
+                            <dl class="row small mb-0 review-extras">
+                                <dt class="col-sm-3">Koku</dt><dd class="col-sm-9" id="rvScent">—</dd>
+                                <dt class="col-sm-3">Kartpostal</dt><dd class="col-sm-9"><div class="d-flex flex-wrap gap-2" id="rvPostcards">—</div></dd>
+                                <dt class="col-sm-3">Fotoğraflar</dt><dd class="col-sm-9"><div class="attach-list review-photos" id="rvPhotos" data-gallery>—</div></dd>
+                                <dt class="col-sm-3">Belgeler</dt><dd class="col-sm-9"><ul class="list-unstyled mb-0" id="rvDocuments"><li>—</li></ul></dd>
+                            </dl>
+                        </div>
+                    </div>
+                    <div class="wizard-nav">
+                        <button type="button" class="btn btn-outline-secondary" data-step-prev>← Geri</button>
                         <button type="button" class="btn btn-primary" data-step-next>Devam et: Ödeme →</button>
                     </div>
                 </section>
 
-                @* ---------------- 4. Ödeme ---------------- *@
-                <section class="wizard-step d-none" id="wizardStep4" data-step="4" role="tabpanel" aria-labelledby="wizardTab4">
-                    <div class="card mb-3">
-                        <div class="card-header fw-semibold">4. Özet ve Ödeme</div>
-                        <div class="card-body">
-                            <dl class="row small mb-2">
-                                <dt class="col-4">Alıcı</dt><dd class="col-8" id="sumRecipient">—</dd>
-                                <dt class="col-4">Gönderen</dt><dd class="col-8" id="sumSender">—</dd>
-                                <dt class="col-4">Seçimler</dt><dd class="col-8" id="sumChoices">—</dd>
-                            </dl>
-                            <table class="table table-sm mb-2">
-                                <tbody id="sumLines"></tbody>
-                                <tfoot><tr class="fw-semibold"><td>Tahmini toplam <span class="text-muted small fw-normal">(kart ile)</span></td><td class="text-end" id="sumTotal">—</td></tr></tfoot>
-                            </table>
-                            <div class="form-text mb-3">Kampanya indirimi, MektupPuan ve ödeme yöntemi bir sonraki ekranda uygulanır; kesin tutar orada gösterilir.</div>
-                            <div class="d-grid gap-2">
-                                <button type="submit" name="next" value="checkout" class="btn btn-primary btn-lg">🔒 Kaydet ve Ödemeye Geç</button>
+                @* ---------------- 5. Ödeme: solda kalemler / kupon / MektupPuan, sağda PayTR'nin güvenli kart formu ----------------
+                   Sekmeye gelince taslak kaydedilir, fiyat sunucudan alınır ve ödeme başlatılır (mektup kilitlenir). Kart bilgileri
+                   PayTR'nin çerçevesine girilir; bizim sunucumuza gelmez. Kupon / puan / yöntem değişince ödeme yeniden başlatılır;
+                   geri dönülürse ödeme denemesi kapatılır (mektup yeniden düzenlenebilir). *@
+                <section class="wizard-step d-none" id="wizardStep5" data-step="5" role="tabpanel" aria-labelledby="wizardTab5"
+                         data-quote-url="@Url.Action("QuoteJson", new { id = Guid.Empty })">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <div class="card h-100">
+                                <div class="card-header fw-semibold">5. Ödeme</div>
+                                <div class="card-body">
+                                    <div class="small mb-2" id="payRecipient"></div>
+                                    <div class="btn-group w-100 mb-3 d-none" role="group" aria-label="Ödeme yöntemi" id="payMethods">
+                                        <button type="button" class="btn btn-sm btn-outline-primary" data-method="Card">💳 Kart</button>
+                                        <button type="button" class="btn btn-sm btn-outline-primary" data-method="Mobile">📱 Mobil ödeme</button>
+                                    </div>
+                                    <table class="table table-sm mb-2">
+                                        <tbody id="payLines"><tr><td class="text-muted">Hesaplanıyor…</td></tr></tbody>
+                                        <tfoot>
+                                            <tr class="text-muted small d-none" id="paySubtotalRow"><td>Ara toplam</td><td class="text-end text-decoration-line-through" id="paySubtotal"></td></tr>
+                                            <tr class="fw-bold fs-5"><td>Ödenecek tutar</td><td class="text-end" id="payTotal">—</td></tr>
+                                        </tfoot>
+                                    </table>
+
+                                    <label for="payCoupon" class="form-label small fw-semibold mb-1">Kupon kodu</label>
+                                    <div class="input-group input-group-sm">
+                                        <input type="text" id="payCoupon" maxlength="30" autocomplete="off" class="form-control font-monospace text-uppercase" placeholder="Varsa kampanya kodunuz" />
+                                        <button type="button" class="btn btn-outline-primary" id="payCouponApply">Uygula</button>
+                                        <button type="button" class="btn btn-outline-secondary d-none" id="payCouponRemove">Kaldır</button>
+                                    </div>
+                                    <div class="small mt-1" id="payCouponMessage"><span class="form-text">Kodsuz kampanyalar otomatik uygulanır.</span></div>
+
+                                    <div class="form-check form-switch mt-3 d-none" id="payPointsBox">
+                                        <input class="form-check-input" type="checkbox" role="switch" id="payUsePoints" />
+                                        <label class="form-check-label small" for="payUsePoints" id="payPointsLabel">MektupPuan kullan</label>
+                                    </div>
+                                    <div class="alert alert-success small mt-3 mb-0 d-none" id="payEarn"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card h-100">
+                                <div class="card-header fw-semibold">🔒 Kart bilgileri</div>
+                                <div class="card-body">
+                                    <div class="small text-muted mb-2" id="payNote">🔒 Kart bilgileriniz güvenli ödeme altyapısı <strong>PayTR</strong> üzerinden alınır; bizim sistemimizde saklanmaz.</div>
+                                    <div class="alert alert-warning small d-none" id="paySimulation"><strong>Test modu:</strong> gerçek tahsilat yapılmaz; aşağıda ödemenin sonucunu seçin.</div>
+                                    <div id="payStatus" class="small text-muted" role="status">Ödeme formu hazırlanıyor…</div>
+                                    <div id="payFrameBox" class="d-none">
+                                        <iframe id="payFrame" title="Güvenli ödeme formu" class="pay-frame"></iframe>
+                                    </div>
+                                    <div id="payFreeBox" class="d-none">
+                                        <p class="small mb-2" id="payFreeText"></p>
+                                        <button type="button" class="btn btn-primary btn-lg w-100" id="payFreeButton">Siparişi Tamamla</button>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
-                    <div class="wizard-nav">
+                    <div class="wizard-nav mt-3">
                         <button type="button" class="btn btn-outline-secondary" data-step-prev>← Geri</button>
                         <span></span>
                     </div>
                 </section>
             </div>
 
-            <!-- SAĞ: canlı önizleme (Mektup sekmesinde gizli) ve tahmini tutar -->
+            <!-- SAĞ: tahmini tutar (zarf ve mektup önizlemesi Kontrol sekmesinde) -->
             <div class="col-lg-4" id="wizardSide">
                 <div class="sticky-lg-top" style="top: 1rem">
-                    <div id="letterPreview" class="d-none mb-3">
-                        <div class="envelope envelope-@Model.Envelope mb-3" id="envelopePreview">
-                            <div class="envelope-from small"><span id="pvSender">@Model.SenderName</span></div>
-                            <div class="envelope-to"><span id="pvRecipient">@Model.RecipientName</span></div>
-                        </div>
-                        <div class="paper paper-@Model.Paper font-@Model.Font ink-@Model.Ink" id="paperPreview">
-                            <div class="paper-content" id="pvContent">@Model.Content</div>
-                            <div class="paper-signature">— <span id="pvSignature">@Model.SenderName</span></div>
-                        </div>
-                    </div>
-
                     <div class="card">
                         <div class="card-body">
                             <div class="d-flex justify-content-between">
@@ -334,6 +413,8 @@
     </div>
 </div>
 
+<partial name="_PhotoViewer" />
+
 @* Fotoğraf / belge kaldırmadan önce onay. *@
 <div class="modal fade" id="removeModal" tabindex="-1" aria-labelledby="removeModalTitle" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-sm">
@@ -362,6 +443,8 @@
             charsPerPage: @LetterPages.CharsPerPage,
             photoCount: @Model.PhotoCount,
             documentCount: @Model.DocumentCount,
+            // Zarftaki tahmini ağırlık için birim ağırlıklar (Yönetim → Ağırlıklar).
+            weights: @Json.Serialize(ViewBag.Weights),
             // Yeni mektupta, alıcı türüne göre (cezaevi / asker) o türdeki son mektubun alıcı ve gönderen bilgileri.
             isNew: @(Model.Id is null ? "true" : "false"),
             prefills: @Json.Serialize(ViewBag.Prefills ?? new Dictionary<string, LetterPrefillDto>())

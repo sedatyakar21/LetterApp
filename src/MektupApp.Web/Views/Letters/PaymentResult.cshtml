@@ -25,6 +25,7 @@
         <h1 class="h4">Ödeme tamamlanamadı</h1>
         <p class="text-muted">@(Model.FailureReason ?? "Ödeme onaylanmadı.")</p>
         <p class="small text-muted">Kartınızdan tahsilat yapılmadı. Ödemede puan kullandıysanız iade edildi.</p>
-        <a class="btn btn-primary mt-2" asp-action="Checkout" asp-route-id="@Model.LetterId">Tekrar Dene</a>
+        @* Başarısız deneme kapandı, mektup taslakta: Mektup Yaz ekranının Ödeme sekmesinden yeniden denenir. *@
+        <a class="btn btn-primary mt-2" asp-action="Edit" asp-route-id="@Model.LetterId" asp-fragment="odeme">Tekrar Dene</a>
     }
 </div>

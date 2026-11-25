@@ -46,11 +46,11 @@ class PaymentFlow {
     }
 
     if (!context.mounted) return (PaymentOutcome.pending, null);
-    return _waitForResult(context, merchantOid);
+    return waitForResult(context, merchantOid);
   }
 
   /// Sonuç sağlayıcının sunucu bildirimiyle kesinleşir; kısa süre sorgulanır.
-  static Future<(PaymentOutcome, String?)> _waitForResult(BuildContext context, String oid) async {
+  static Future<(PaymentOutcome, String?)> waitForResult(BuildContext context, String oid) async {
     final api = AppScope.read(context).api;
     final result = await showDialog<(PaymentOutcome, String?)>(
       context: context,

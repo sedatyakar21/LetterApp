@@ -32,7 +32,7 @@ Map<String, dynamic> _config() => {
         {'id': 's1', 'name': 'Manolya'},
         {'id': 's2', 'name': 'Lavanta'}
       ],
-      'maxPhotos': 10,
+      'maxPhotos': 30,
       'maxPhotoBytes': 5242880,
       'maxContentLength': 25000,
       'charsPerPage': 2200,
@@ -63,7 +63,7 @@ void main() {
       expect(s.scents.first.id, 's1');
     });
     test('eski sunucu belge sınırı göndermezse varsayılanlar kullanılır', () {
-      expect(s.maxDocuments, 5);
+      expect(s.maxDocuments, 20);
       expect(s.maxDocumentBytes, 10 * 1024 * 1024);
     });
   });

@@ -10,6 +10,8 @@ using MektupApp.Web.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.StaticFiles;
+using Microsoft.AspNetCore.WebUtilities;
+using System.Text.Json;
 
 namespace MektupApp.Web.Controllers;
 
@@ -83,6 +85,8 @@ public class LettersController(LetterService letters, AccountService accounts, P
     public async Task<IActionResult> Details(Guid id, [FromServices] MektupApp.Application.Reviews.ReviewService reviews, CancellationToken ct)
     {
         var letter = await letters.GetAsync(id, CustomerId, ct);
+        // Taslağın her şeyi (mektup, ekstralar, fotoğraf / belge, ödeme) düzenleme ekranında: ayrı mektup sayfası gösterilmez.
+        if (letter.IsEditable) return RedirectToAction(nameof(Edit), new { id });
         if (letter.Status == LetterStatus.Delivered)
             ViewBag.Review = await reviews.GetForLetterAsync(id, CustomerId, ct);
         return View(letter);
@@ -224,17 +228,84 @@ public class LettersController(LetterService letters, AccountService accounts, P
     }
 
     /// <summary>
+    /// Mektup Yaz ekranının Ödeme sekmesi için fiyat dökümü (JSON): kalemler, kampanya / kupon, MektupPuan ve ödenecek tutar.
+    /// </summary>
+    [HttpGet("mektup/{id:guid}/odeme/teklif")]
+    public async Task<IActionResult> QuoteJson(Guid id, PaymentMethod method, bool usePoints,
+        [FromQuery(Name = "kupon")] string? coupon, CancellationToken ct)
+    {
+        try
+        {
+            var q = await letters.GetQuoteAsync(id, CustomerId, method, usePoints, ct, coupon);
+            if (q.Method == PaymentMethod.Mobile && !q.MobilePaymentAvailable)
+                q = await letters.GetQuoteAsync(id, CustomerId, PaymentMethod.Card, usePoints, ct, coupon);
+            return Ok(new
+            {
+                method = q.Method.ToString(),
+                q.MobilePaymentAvailable,
+                lines = q.Lines.Select(l => new { description = l.Description, amount = l.Amount }),
+                campaign = q.Campaign is null ? null : new { title = q.Campaign.Title, discount = q.CampaignDiscount },
+                q.CouponCode, q.CouponApplied,
+                couponMessage = CouponMessage(q),
+                q.UsePoints, q.PointsBalance, q.BalanceValue, q.PointValue, q.PointsUsed, q.PointsDiscount,
+                q.Total, q.AmountToPay, q.PointsToEarn,
+                pointsToEarnValue = decimal.Round(q.PointsToEarn * q.PointValue, 2),
+                q.LoyaltyEnabled, q.ProviderIsSimulation
+            });
+        }
+        catch (Exception ex) when (ex is DomainException or AppException)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+    }
+
+    /// <summary>Girilen kupon uygulanmadıysa nedeni (ödeme sayfasındaki metinlerle aynı).</summary>
+    private static string? CouponMessage(QuoteDto q)
+    {
+        if (q.CouponCode is null || q.CouponApplied) return null;
+        if (!q.CouponRecognized) return "Kod geçerli değil ya da süresi dolmuş.";
+        if (q.CouponNotEligible) return "Bu kod size özel koşullara bağlı (yeni üye / doğum günü) ya da kullanım hakkınız doldu.";
+        if (q.Campaign is not null) return $"Bu kod siparişinize daha az indirim sağlıyor; daha avantajlı olan \"{q.Campaign.Title}\" kampanyası uygulandı.";
+        return "Kod geçerli ancak siparişiniz kampanya koşullarını sağlamıyor (ör. en düşük sepet tutarı).";
+    }
+
+    /// <summary>
     /// Ödemeyi başlatır. Tamamı puanla ödeniyorsa hemen tamamlanır; değilse müşteri ödeme formuna
     /// (PayTR iFrame) yönlendirilir ve kesin sonuç PayTR bildirimiyle gelir.
     /// </summary>
     [HttpPost("mektup/{id:guid}/odeme")]
     public async Task<IActionResult> Pay(Guid id, PaymentMethod method, bool usePoints, string? coupon, CancellationToken ct)
     {
-        var result = await payments.StartAsync(new StartPaymentCommand(
-            id, CustomerId, method, usePoints,
-            HttpContext.Connection.RemoteIpAddress?.ToString() ?? "127.0.0.1",
-            oid => Url.Action(nameof(PaymentResult), "Letters", new { id, oid }, Request.Scheme)!,
-            coupon), ct);
+        // Mektup Yaz ekranının Ödeme sekmesi (JSON): form sayfa içinde çerçevede açılır; ödeme sonrası dönüş
+        // adresi çerçeveden çıkıp sayfanın tamamını sonuca götürür (cerceve=1).
+        var embedded = WantsJson;
+        StartPaymentResult result;
+        try
+        {
+            result = await payments.StartAsync(new StartPaymentCommand(
+                id, CustomerId, method, usePoints,
+                HttpContext.Connection.RemoteIpAddress?.ToString() ?? "127.0.0.1",
+                oid => Url.Action(nameof(PaymentResult), "Letters", new { id, oid, cerceve = embedded ? 1 : (int?)null }, Request.Scheme)!,
+                coupon), ct);
+        }
+        catch (Exception ex) when (embedded && ex is DomainException or AppException)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+
+        if (embedded)
+        {
+            var successMessage = "Siparişiniz alındı! Mektubunuz ilk iş gününde basılıp postaya verilecek.";
+            if (result.Completed) TempData["Success"] = successMessage;
+            var formUrl = result.FormUrl is { } f && f.StartsWith('/') ? QueryHelpers.AddQueryString(f, "cerceve", "1") : result.FormUrl;
+            return Ok(new
+            {
+                completed = result.Completed,
+                merchantOid = result.MerchantOid,
+                formUrl,
+                redirectUrl = result.Completed ? Url.Action(nameof(Details), new { id }) : null
+            });
+        }
 
         if (result.Completed)
         {
@@ -267,8 +338,17 @@ public class LettersController(LetterService letters, AccountService accounts, P
     /// bildirim gelene kadar sayfa kendini yeniler.
     /// </summary>
     [HttpGet("mektup/{id:guid}/odeme/sonuc")]
-    public async Task<IActionResult> PaymentResult(Guid id, string oid, CancellationToken ct)
+    public async Task<IActionResult> PaymentResult(Guid id, string oid, int? cerceve, CancellationToken ct)
     {
+        // Ödeme formu Mektup Yaz ekranında çerçeve içindeyse: çerçeveden çıkıp sonucu sayfanın tamamında göster.
+        if (cerceve == 1)
+        {
+            var target = JsonSerializer.Serialize(Url.Action(nameof(PaymentResult), new { id, oid }));
+            return Content($"<!doctype html><meta charset=\"utf-8\"><title>Yönlendiriliyor…</title>" +
+                $"<p style=\"font-family:sans-serif\">Ödeme sonucu açılıyor…</p><script>window.top.location.replace({target});</script>",
+                "text/html; charset=utf-8");
+        }
+
         var status = await payments.GetStatusAsync(oid, CustomerId, ct);
         if (status is null || status.LetterId != id) return NotFound();
 
@@ -285,6 +365,7 @@ public class LettersController(LetterService letters, AccountService accounts, P
     public async Task<IActionResult> AbandonPayment(Guid id, CancellationToken ct)
     {
         await payments.AbandonAsync(id, CustomerId, ct);
+        if (WantsJson) return Ok(new { abandoned = true });
         TempData["Success"] = "Ödemeden vazgeçildi. Mektubunuzu düzenleyebilir veya tekrar ödeyebilirsiniz.";
         return RedirectToAction(nameof(Checkout), new { id });
     }
@@ -369,6 +450,7 @@ public class LettersController(LetterService letters, AccountService accounts, P
         ViewBag.Prices = await pricing.GetCurrentAsync(HttpContext.RequestAborted);
         ViewBag.Postcards = await postcards.ListActiveAsync(HttpContext.RequestAborted);
         ViewBag.Scents = await scents.ListActiveAsync(HttpContext.RequestAborted);
+        ViewBag.Weights = await HttpContext.RequestServices.GetRequiredService<WeightService>().GetCurrentAsync(HttpContext.RequestAborted);
         return View("Write", model);
     }
 }

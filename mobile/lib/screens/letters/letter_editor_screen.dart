@@ -6,8 +6,11 @@ import '../../api/models.dart';
 import '../../state/session.dart';
 import '../../ui/address_fields.dart';
 import '../../ui/common.dart';
+import '../../ui/envelope_preview.dart';
 import '../../ui/letter_style.dart';
+import '../../ui/photo_viewer.dart';
 import '../../ui/theme.dart';
+import 'payment_step.dart';
 
 /// Düzenleyiciden dönüş: kaydedilen mektup ve ödemeye geçilecek mi.
 class EditorOutcome {
@@ -16,7 +19,7 @@ class EditorOutcome {
   final bool checkout;
 }
 
-/// Mektup Yaz / Düzenle: Mektup → Ekstralar → İletişim (alıcı + gönderen) → Ödeme (sitedeki sekmelerle aynı).
+/// Mektup Yaz / Düzenle: Mektup → Ekstralar → İletişim (alıcı + gönderen) → Kontrol → Ödeme (sitedeki sekmelerle aynı).
 class LetterEditorScreen extends StatefulWidget {
   const LetterEditorScreen({super.key, this.letter});
   final Letter? letter;
@@ -26,11 +29,12 @@ class LetterEditorScreen extends StatefulWidget {
 }
 
 class _LetterEditorScreenState extends State<LetterEditorScreen> {
-  // Sitedeki sekmelerle aynı sıra: mektup → ekstralar → iletişim bilgileri (alıcı + gönderen) → ödeme.
-  static const _steps = ['Mektup', 'Ekstralar', 'İletişim', 'Ödeme'];
-  static const _contentIndex = 0, _recipientIndex = 2, _senderIndex = 2;
+  // Sitedeki sekmelerle aynı sıra: mektup → ekstralar → iletişim bilgileri (alıcı + gönderen) → kontrol → ödeme.
+  static const _steps = ['Mektup', 'Ekstralar', 'İletişim', 'Kontrol', 'Ödeme'];
+  static const _contentIndex = 0, _recipientIndex = 2, _senderIndex = 2, _reviewIndex = 3, _paymentIndex = 4;
+  final _paymentKey = GlobalKey<PaymentStepState>();
 
-  final _forms = List.generate(4, (_) => GlobalKey<FormState>());
+  final _forms = List.generate(5, (_) => GlobalKey<FormState>());
   late final LetterDraft _draft;
   late final TextEditingController _recipientName, _recipientDetail, _fatherName, _ward, _content, _senderName;
   late final AddressControllers _recipientAddress, _senderAddress;
@@ -160,6 +164,10 @@ class _LetterEditorScreenState extends State<LetterEditorScreen> {
   /// Sekmeye dokununca: geri her zaman; ileri, aradaki adımlar tamamsa.
   /// Mektup adımından ileri geçilirken taslak kaydedilir (kayıt başarısız olsa da devam edilir, uyarı gösterilir).
   Future<void> _goTo(int target) async {
+    // Ödeme adımından geri çıkarken açık ödeme denemesi kapatılır (sorulur; mektup yeniden düzenlenebilir olur).
+    if (_step == _paymentIndex && target < _paymentIndex) {
+      if (!(await _paymentKey.currentState?.leave() ?? true)) return;
+    }
     if (target <= _step) {
       setState(() => _step = target);
       return;
@@ -171,13 +179,44 @@ class _LetterEditorScreenState extends State<LetterEditorScreen> {
         return;
       }
     }
-    if (leavingLetter) await _autosave();
+    // Ödemeden önce son hal kaydedilir (ödeme sunucudaki kayda göre hesaplanır).
+    if (leavingLetter || target == _paymentIndex) {
+      final saved = await _autosave(quiet: target == _paymentIndex);
+      if (target == _paymentIndex && (!saved || _letterId == null)) return;
+    }
     if (mounted) setState(() => _step = target);
+  }
+
+  /// Ödeme tamamlandı: teşekkür penceresi, ardından mektup ekranı.
+  Future<void> _onPaid(bool free) async {
+    final session = AppScope.read(context);
+    session.lettersChanged();
+    session.refreshMe().catchError((_) {});
+    _dirty = false;
+    await showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (c) => AlertDialog(
+        icon: const Icon(Icons.mark_email_read_outlined, size: 48, color: Brand.success),
+        title: const Text('Siparişiniz alındı!'),
+        content: Text(free
+            ? 'Ödemeniz MektupPuan / kampanya indirimiyle tamamlandı. Mektubunuz ilk iş gününde basılıp postaya verilecek.'
+            : 'Ödemeniz alındı. Mektubunuz ilk iş gününde basılıp postaya verilecek.'),
+        actions: [FilledButton(onPressed: () => Navigator.pop(c), child: const Text('Harika'))],
+      ),
+    );
+    if (!mounted) return;
+    try {
+      final letter = await session.api.letter(_letterId!);
+      if (mounted) Navigator.of(context).pop(EditorOutcome(letter));
+    } catch (_) {
+      if (mounted) Navigator.of(context).pop();
+    }
   }
 
   /// Mektup adımındaki "Devam et": taslağı ekrandan çıkmadan kaydeder (alıcı / gönderen henüz boş olabilir).
   /// Yeni mektupta dönen kimlik saklanır; sonraki kayıtlar aynı taslağı günceller.
-  Future<bool> _autosave() async {
+  Future<bool> _autosave({bool quiet = false}) async {
     if (_busy) return false;
     setState(() => _busy = true);
     final session = AppScope.read(context);
@@ -186,7 +225,7 @@ class _LetterEditorScreenState extends State<LetterEditorScreen> {
       _letterId = saved.id;
       _dirty = false;
       session.lettersChanged();
-      if (mounted) showMessage(context, 'Taslak kaydedildi.');
+      if (mounted && !quiet) showMessage(context, 'Taslak kaydedildi.');
       return true;
     } catch (e) {
       if (mounted) showMessage(context, 'Taslak kaydedilemedi: ${errorText(e)}', error: true);
@@ -272,7 +311,7 @@ class _LetterEditorScreenState extends State<LetterEditorScreen> {
       onPopInvokedWithResult: (didPop, _) async {
         if (didPop) return;
         if (_step > 0) {
-          setState(() => _step--);
+          await _goTo(_step - 1);
           return;
         }
         if (await _confirmLeave() && context.mounted) Navigator.of(context).pop();
@@ -280,9 +319,9 @@ class _LetterEditorScreenState extends State<LetterEditorScreen> {
       child: Scaffold(
         appBar: AppBar(
           title: Text(widget.letter == null ? 'Mektup Yaz' : 'Mektubu Düzenle'),
-          // Mektup adımında "Taslak kaydet" yok: taslak "Devam et" ile kaydedilir.
+          // Mektup adımında "Taslak kaydet" yok (taslak "Devam et" ile kaydedilir); Kontrol adımında da gereksiz.
           actions: [
-            if (_step != _contentIndex)
+            if (_step != _contentIndex && _step != _reviewIndex)
               TextButton(onPressed: _busy ? null : () => _save(checkout: false), child: const Text('Taslak kaydet')),
           ],
           bottom: PreferredSize(
@@ -297,7 +336,11 @@ class _LetterEditorScreenState extends State<LetterEditorScreen> {
               const SizedBox(height: 16),
               _senderStep(),
             ])),
-            _page(3, _summaryStep(settings)),
+            _page(3, _reviewStep(settings)),
+            // Ödeme adımı yalnızca açıkken kurulur (kurulunca ödeme başlatılır).
+            _page(4, _step == _paymentIndex && _letterId != null
+                ? PaymentStep(key: _paymentKey, letterId: _letterId!, onPaid: _onPaid)
+                : const SizedBox.shrink()),
           ]),
         ),
         bottomNavigationBar: SafeArea(
@@ -306,25 +349,20 @@ class _LetterEditorScreenState extends State<LetterEditorScreen> {
             child: Row(children: [
               if (_step > 0)
                 Expanded(
-                  child: OutlinedButton(onPressed: _busy ? null : () => setState(() => _step--), child: const Text('Geri')),
+                  child: OutlinedButton(onPressed: _busy ? null : () => _goTo(_step - 1), child: const Text('Geri')),
                 ),
               if (_step > 0) const SizedBox(width: 12),
               Expanded(
                 flex: 2,
+                // Ödeme adımında ödeme, adımın içindeki kart formuyla yapılır (altta yalnızca "Geri").
                 child: _step < _steps.length - 1
                     ? FilledButton(
                         onPressed: _busy ? null : _next,
-                        child: _busy && _step == _contentIndex
+                        child: _busy && (_step == _contentIndex || _step == _reviewIndex)
                             ? const SizedBox(
                                 width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
                             : Text('Devam et: ${_steps[_step + 1]}'))
-                    : FilledButton.icon(
-                        onPressed: _busy ? null : () => _save(checkout: true),
-                        icon: _busy
-                            ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
-                            : const Icon(Icons.lock_outline),
-                        label: const Text('Kaydet ve Ödemeye Geç'),
-                      ),
+                    : const SizedBox.shrink(),
               ),
             ]),
           ),
@@ -507,11 +545,6 @@ class _LetterEditorScreenState extends State<LetterEditorScreen> {
               counterText: '',
               contentPadding: EdgeInsets.zero,
             ),
-          ),
-          Align(
-            alignment: Alignment.centerRight,
-            child: Text('— ${_senderName.text.isEmpty ? 'Adınız' : _senderName.text}',
-                style: LetterLook.textStyle(_draft.font, _draft.ink)),
           ),
             ]),
           ),
@@ -731,17 +764,29 @@ class _LetterEditorScreenState extends State<LetterEditorScreen> {
             style: const TextStyle(color: Brand.muted, fontSize: 13)),
         const SizedBox(height: 8),
         Wrap(spacing: 8, runSpacing: 8, children: [
-          for (final ph in _photos)
+          for (final (i, ph) in _photos.indexed)
             Stack(children: [
-              ClipRRect(
-                borderRadius: BorderRadius.circular(8),
-                child: Image.network(client.absolute(ph.url),
-                    headers: client.authHeaders,
-                    width: 76,
-                    height: 76,
-                    fit: BoxFit.cover,
-                    errorBuilder: (_, _, _) => Container(
-                        width: 76, height: 76, color: Brand.paper2, child: const Icon(Icons.broken_image_outlined))),
+              // Dokununca tam ekran açılır (kaydırarak diğer fotoğraflar, iki parmakla yakınlaştırma).
+              GestureDetector(
+                onTap: () => showPhotoViewer(context,
+                    urls: [for (final x in _photos) client.absolute(x.url)],
+                    titles: [for (final x in _photos) x.fileName],
+                    initialIndex: i,
+                    headers: client.authHeaders),
+                child: Semantics(
+                  button: true,
+                  label: '${ph.fileName} fotoğrafını büyüt',
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(8),
+                    child: Image.network(client.absolute(ph.url),
+                        headers: client.authHeaders,
+                        width: 76,
+                        height: 76,
+                        fit: BoxFit.cover,
+                        errorBuilder: (_, _, _) => Container(
+                            width: 76, height: 76, color: Brand.paper2, child: const Icon(Icons.broken_image_outlined))),
+                  ),
+                ),
               ),
               Positioned(
                 top: 2,
@@ -955,68 +1000,123 @@ class _LetterEditorScreenState extends State<LetterEditorScreen> {
     ]);
   }
 
-  // ---------------- 4. Ödeme (özet) ----------------
+  // ---------------- 4. Kontrol: zarf, mektup ve ekstralar ----------------
 
-  Widget _summaryStep(AppSettings s) {
+  Widget _reviewStep(AppSettings s) {
     final d = _collect();
-    final p = s.prices;
-    final pages = s.pageCount(d.content);
-    final photos = _photos.length;
-    final documents = _documents.length;
-    final lines = <(String, double)>[
-      ('Mektup (1 sayfa, zarf ve kayıtlı posta)', p.basePrice),
-      if (pages > 1) ('Ek sayfa × ${pages - 1}', p.extraPage * (pages - 1)),
-      if (photos > 0) ('Fotoğraf × $photos', p.photo * photos),
-      if (documents > 0) ('Belge × $documents', p.document * documents),
-      if (d.postcardIds.isNotEmpty)
-        (d.postcardIds.length == 1 ? 'Kartpostal' : 'Kartpostal × ${d.postcardIds.length}', p.postcard * d.postcardIds.length),
-      if (d.paper != 'White') ('Renkli kâğıt', p.coloredPaper),
-      if (d.envelope != 'White') ('Renkli zarf', p.coloredEnvelope),
-      if (d.scentId != null) ('Koku', p.scent),
-    ];
-    final total = lines.fold<double>(0, (sum, l) => sum + l.$2);
+    final client = AppScope.read(context).api.client;
+    // Zarftaki "ilçe / il posta kodu" satırı (yönetim panelindeki zarf çıktısıyla aynı).
+    String place(Address a) =>
+        [[a.district, a.city].where((x) => x.isNotEmpty).join(' / '), a.postalCode].where((x) => x.isNotEmpty).join(' ');
+    Widget label(String text, int step) => Row(children: [
+          Text(text.toUpperCase(),
+              style: const TextStyle(color: Brand.muted, fontSize: 12, fontWeight: FontWeight.w700, letterSpacing: .5)),
+          const Spacer(),
+          TextButton(onPressed: () => setState(() => _step = step), child: const Text('Düzenle')),
+        ]);
+    final postcards = _selectedPostcards(s);
+    final style = LetterLook.textStyle(d.font, d.ink);
+
     return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-      SectionCard(
-        title: 'Alıcı',
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Text(d.recipientName.isEmpty ? '—' : d.recipientName, style: const TextStyle(fontWeight: FontWeight.w700)),
-          if (d.recipientType != 'Standard' && d.recipientDetail != null) Text(d.recipientDetail!),
-          if (d.recipientType == 'Inmate' && (d.recipientFatherName != null || d.recipientWard != null))
-            Text([
-              if (d.recipientFatherName != null) 'Baba adı: ${d.recipientFatherName}',
-              if (d.recipientWard != null) 'Koğuş: ${d.recipientWard}',
-            ].join(' · ')),
-          Text(d.recipientAddress.isEmpty ? '—' : d.recipientAddress.toString(), style: const TextStyle(color: Brand.muted)),
+      const Text('Göndermeden önce zarfınızı, mektubunuzu ve eklediklerinizi kontrol edin.',
+          style: TextStyle(color: Brand.muted)),
+      const SizedBox(height: 8),
+      label('Zarf', 0), // zarf rengi mektup adımında seçilir
+      EnvelopePreview(
+        envelope: d.envelope,
+        senderName: d.senderName,
+        senderLine: d.senderAddress.line,
+        senderPlace: place(d.senderAddress),
+        recipientName: d.recipientName,
+        recipientNote: d.recipientType == 'Inmate'
+            ? [
+                if ((d.recipientFatherName ?? '').isNotEmpty) 'Baba adı: ${d.recipientFatherName}',
+                if ((d.recipientWard ?? '').isNotEmpty) 'Koğuş: ${d.recipientWard}',
+              ].join(' · ')
+            : null,
+        recipientDetail: d.recipientType == 'Standard' ? null : d.recipientDetail,
+        recipientLine: d.recipientAddress.line,
+        recipientPlace: place(d.recipientAddress),
+        weightGrams: s.weights?.estimate(
+          letterSheets: s.pageCount(d.content),
+          photos: _photos.length,
+          postcards: d.postcardIds.length,
+          documentSheets: _documents.fold(0, (sum, x) => sum + x.pageCount),
+        ),
+      ),
+      const SizedBox(height: 12),
+      label('Mektup', 0),
+      Container(
+        padding: const EdgeInsets.fromLTRB(18, 18, 18, 12),
+        decoration: BoxDecoration(
+          color: LetterLook.paperColor(d.paper),
+          borderRadius: BorderRadius.circular(6),
+          border: Border.all(color: Brand.line),
+          boxShadow: const [BoxShadow(color: Color(0x14000000), blurRadius: 12, offset: Offset(0, 4))],
+        ),
+        child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+          Text(d.content.isEmpty ? 'Mektup metni yazılmadı.' : d.content, style: style),
         ]),
       ),
       const SizedBox(height: 12),
+      label('Ekstralar', 1),
       SectionCard(
-        title: 'Seçimler',
-        child: Column(children: [
-          InfoRow('Kâğıt', s.label(s.paperColors, d.paper)),
-          InfoRow('Zarf', s.label(s.envelopeColors, d.envelope)),
-          InfoRow('Yazı', '${s.label(s.fonts, d.font)} · ${s.label(s.inks, d.ink)}'),
+        title: 'Eklenenler',
+        child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
           InfoRow('Koku', _scentName(s, d.scentId)),
-          InfoRow('Kartpostal', switch (_selectedPostcards(s)) {
-            [] => 'Yok',
-            final list => list.map((pc) => pc.title).join(', '),
-          }),
-          InfoRow('Sayfa', '$pages'),
-        ]),
-      ),
-      const SizedBox(height: 12),
-      SectionCard(
-        title: 'Tahmini tutar',
-        child: Column(children: [
-          for (final l in lines) InfoRow(l.$1, money(l.$2)),
-          const Divider(height: 20),
-          InfoRow('Toplam', money(total), bold: true),
-          const SizedBox(height: 6),
-          const Text(
-            'Kampanya indirimi, MektupPuan ve ödeme yöntemi bir sonraki ekranda uygulanır. '
-            'Fotoğraf ve belge eklemek için Ekstralar adımındaki "Fotoğraf ve belge" bölümünü kullanın.',
-            style: TextStyle(color: Brand.muted, fontSize: 12),
-          ),
+          const SizedBox(height: 8),
+          const Text('Kartpostal', style: TextStyle(color: Brand.muted)),
+          const SizedBox(height: 4),
+          if (postcards.isEmpty)
+            const Text('Yok')
+          else
+            Wrap(spacing: 8, runSpacing: 8, children: [
+              for (final pc in postcards)
+                SizedBox(
+                  width: 90,
+                  child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                    PostcardTile(imageUrl: pc.imageUrl == null ? null : client.absolute(pc.imageUrl!), width: 90),
+                    Text(pc.title, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(fontSize: 11)),
+                  ]),
+                ),
+            ]),
+          const SizedBox(height: 10),
+          Text('Fotoğraflar (${_photos.length})', style: const TextStyle(color: Brand.muted)),
+          const SizedBox(height: 4),
+          if (_photos.isEmpty)
+            const Text('Yok')
+          else
+            Wrap(spacing: 6, runSpacing: 6, children: [
+              for (final (i, ph) in _photos.indexed)
+                GestureDetector(
+                  onTap: () => showPhotoViewer(context,
+                      urls: [for (final x in _photos) client.absolute(x.url)],
+                      titles: [for (final x in _photos) x.fileName],
+                      initialIndex: i,
+                      headers: client.authHeaders),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(6),
+                    child: Image.network(client.absolute(ph.url),
+                        headers: client.authHeaders,
+                        width: 60,
+                        height: 60,
+                        fit: BoxFit.cover,
+                        errorBuilder: (_, _, _) => Container(width: 60, height: 60, color: Brand.paper2)),
+                  ),
+                ),
+            ]),
+          const SizedBox(height: 10),
+          Text('Belgeler (${_documents.length})', style: const TextStyle(color: Brand.muted)),
+          if (_documents.isEmpty) const Text('Yok'),
+          for (final doc in _documents)
+            Padding(
+              padding: const EdgeInsets.only(top: 4),
+              child: Row(children: [
+                Icon(doc.isPdf ? Icons.picture_as_pdf_outlined : Icons.image_outlined, size: 18, color: Brand.muted),
+                const SizedBox(width: 6),
+                Expanded(child: Text(doc.fileName, maxLines: 1, overflow: TextOverflow.ellipsis)),
+              ]),
+            ),
         ]),
       ),
     ]);

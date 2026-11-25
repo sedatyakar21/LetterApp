@@ -41,7 +41,8 @@ public sealed record MobileConfigDto(
     bool LoyaltyEnabled,
     bool MobilePaymentAvailable,
     bool PaymentSimulation,
-    SupportDto Support);
+    SupportDto Support,
+    PaperWeights? Weights = null);
 
 public sealed record CampaignCardApiDto(
     Guid Id, string Title, string Slug, string Summary, string? BadgeText, string? CouponCode,
@@ -73,6 +74,7 @@ public sealed class MobileContentController(
     IPaymentProvider paymentProvider,
     MektupApp.Application.Postcards.PostcardService postcards,
     MektupApp.Application.Scents.ScentService scents,
+    WeightService weights,
     IOptions<SupportOptions> support) : MobileApiController
 {
     /// <summary>Formdaki seçenekler, fiyatlar ve sınırlar. Uygulama açılışta bir kez okur.</summary>
@@ -95,7 +97,9 @@ public sealed class MobileContentController(
             LetterPages.CharsPerPage, LetterPages.CharsPerLineBreak, AccountService.MinPasswordLength,
             (await loyalty.GetSettingsAsync(ct)).IsEnabled,
             paymentProvider.SupportsMobilePayment, paymentProvider.IsSimulation,
-            new SupportDto(s.WhatsAppEnabled ? s.Digits : null, s.WhatsAppDisplay, s.Email, s.Hours));
+            new SupportDto(s.WhatsAppEnabled ? s.Digits : null, s.WhatsAppDisplay, s.Email, s.Hours),
+            // Kontrol adımındaki zarfa yazılan tahmini ağırlık için birim ağırlıklar (Yönetim → Ağırlıklar).
+            await weights.GetCurrentAsync(ct));
     }
 
     /// <summary>81 il ve ilçeleri (adres formundaki açılır listeler için), Türkçe alfabeye göre sıralı.</summary>

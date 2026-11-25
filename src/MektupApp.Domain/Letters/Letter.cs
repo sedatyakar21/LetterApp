@@ -10,8 +10,8 @@ namespace MektupApp.Domain.Letters;
 public sealed class Letter : AggregateRoot
 {
     public const int MaxContentLength = 25_000;
-    public const int MaxPhotos = 10;
-    public const int MaxDocuments = 5;
+    public const int MaxPhotos = 30;
+    public const int MaxDocuments = 20;
     public const int MaxPostcards = 5;
 
     private readonly List<Postcard> _postcards = [];

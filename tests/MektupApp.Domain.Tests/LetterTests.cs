@@ -155,12 +155,14 @@ public class LetterTests
         Assert.Equal(Letter.MaxDocuments - 1, letter.Documents.Count);
         Assert.Throws<DomainException>(() => letter.RemoveDocument(Guid.NewGuid()));
 
-        // 290 + 4 belge × 25 = 390
+        // 290 + (sınır − 1) belge × 25
+        var remaining = Letter.MaxDocuments - 1;
+        var total = 290m + remaining * 25m;
         var breakdown = new LetterPricingPolicy().Calculate(letter, PaymentMethod.Card, new PriceList());
-        Assert.Contains(breakdown.Lines, l => l.Description == "Belge × 4" && l.Amount.Amount == 100m);
-        Assert.Equal(390m, breakdown.Total.Amount);
+        Assert.Contains(breakdown.Lines, l => l.Description == $"Belge × {remaining}" && l.Amount.Amount == remaining * 25m);
+        Assert.Equal(total, breakdown.Total.Amount);
 
-        letter.MarkPaid(new Money(390), PaymentMethod.Card, "REF");
+        letter.MarkPaid(new Money(total), PaymentMethod.Card, "REF");
         Assert.Throws<DomainException>(() => letter.AddDocument("y.pdf", "y.pdf"));
     }
 

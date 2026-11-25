@@ -42,10 +42,33 @@ class _LettersScreenState extends State<LettersScreen> {
         .push(MaterialPageRoute(builder: (_) => LetterDetailScreen(letterId: id, openCheckout: checkout)));
   }
 
-  Future<void> _write() async {
-    final outcome =
-        await Navigator.of(context).push<EditorOutcome>(MaterialPageRoute(builder: (_) => const LetterEditorScreen()));
-    if (outcome != null && mounted) await _open(outcome.letter.id, checkout: outcome.checkout);
+  Future<void> _write() => _afterEditor(
+      Navigator.of(context).push<EditorOutcome>(MaterialPageRoute(builder: (_) => const LetterEditorScreen())));
+
+  /// Taslak doğrudan düzenleme ekranında açılır (ekstralar, fotoğraf / belge ve ödeme orada);
+  /// ödenmiş / postadaki mektuplar mektup ekranında (takip, iptal, yorum).
+  Future<void> _openLetter(LetterSummary summary) async {
+    if (summary.status != 'Draft') return _open(summary.id);
+    final Letter letter;
+    try {
+      letter = await AppScope.read(context).api.letter(summary.id);
+    } catch (e) {
+      if (mounted) showMessage(context, errorText(e), error: true);
+      return;
+    }
+    if (!mounted) return;
+    // Bu arada ödenmiş olabilir: düzenlenemiyorsa mektup ekranı.
+    if (!letter.isEditable) return _open(letter.id);
+    await _afterEditor(
+        Navigator.of(context).push<EditorOutcome>(MaterialPageRoute(builder: (_) => LetterEditorScreen(letter: letter))));
+  }
+
+  /// Düzenleyiciden dönülünce: ödeme yapıldıysa mektup ekranı açılır; taslak kaydedildiyse listede kalınır.
+  Future<void> _afterEditor(Future<EditorOutcome?> editor) async {
+    final outcome = await editor;
+    if (!mounted) return;
+    AppScope.read(context).lettersChanged();
+    if (outcome != null && !outcome.letter.isEditable) await _open(outcome.letter.id);
   }
 
   @override
@@ -84,7 +107,7 @@ class _LettersScreenState extends State<LettersScreen> {
               padding: const EdgeInsets.fromLTRB(16, 8, 16, 96),
               itemCount: letters.length,
               separatorBuilder: (_, _) => const SizedBox(height: 10),
-              itemBuilder: (context, i) => _LetterTile(letter: letters[i], onTap: () => _open(letters[i].id)),
+              itemBuilder: (context, i) => _LetterTile(letter: letters[i], onTap: () => _openLetter(letters[i])),
             );
           },
         ),

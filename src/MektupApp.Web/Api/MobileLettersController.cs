@@ -1,4 +1,4 @@
-using MektupApp.Application.Abstractions;
+﻿using MektupApp.Application.Abstractions;
 using MektupApp.Application.Letters;
 using MektupApp.Application.Payments;
 using MektupApp.Application.Reviews;
@@ -94,7 +94,8 @@ public sealed record LetterApiDto(
     string? RecipientNote,
     IReadOnlyList<DocumentApiDto> Documents);
 
-public sealed record DocumentApiDto(Guid Id, string FileName, bool IsPdf, string Url);
+/// <param name="PageCount">Basılacak yaprak sayısı (PDF sayfa sayısı, görsel 1).</param>
+public sealed record DocumentApiDto(Guid Id, string FileName, bool IsPdf, string Url, int PageCount = 1);
 
 public sealed record QuoteLineDto(string Description, decimal Amount);
 
@@ -349,7 +350,7 @@ public sealed class MobileLettersController(
             l.PointsUsed, l.PointsDiscount, l.PointsToEarn, l.CampaignTitle, l.CampaignDiscount, l.CreatedAt,
             l.Status == LetterStatus.Delivered && review is null, review, pending,
             l.RecipientFatherName, l.RecipientWard, l.RecipientNote,
-            l.Documents.Select(d => new DocumentApiDto(d.Id, d.OriginalFileName, d.IsPdf, $"/api/mobile/letters/{l.Id}/documents/{d.Id}")).ToList());
+            l.Documents.Select(d => new DocumentApiDto(d.Id, d.OriginalFileName, d.IsPdf, $"/api/mobile/letters/{l.Id}/documents/{d.Id}", d.PageCount)).ToList());
     }
 
     /// <summary>Simülasyon formu sitenin kendi sayfasıdır (çerez ister); uygulama onun yerine kendi ekranını gösterir.</summary>
