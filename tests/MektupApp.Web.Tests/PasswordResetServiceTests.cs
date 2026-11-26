@@ -21,7 +21,7 @@ public class PasswordResetServiceTests
     }
 
     private PasswordResetService Service() => new(_resets, _customers, new FakeHasher(), _sender, _sender,
-        new NotificationTemplates(new NotificationOptions { SiteUrl = "https://bimektup.net" }), new FakeUnitOfWork(),
+        new NotificationTemplates(new NotificationOptions { SiteUrl = "https://bimektubum.com" }), new FakeUnitOfWork(),
         NullLogger<PasswordResetService>.Instance);
 
     private void Enable(bool email = true, bool sms = true)

@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart';
 
 /// Sunucu adresi. Derlerken verilebilir:
-///   flutter run --dart-define=API_BASE_URL=https://bimektup.net
+///   flutter run --dart-define=API_BASE_URL=https://bimektubum.com
 /// Verilmezse geliştirme sunucusu kullanılır (Android emülatöründe bilgisayarın localhost'u 10.0.2.2'dir).
 class AppConfig {
   static const _fromBuild = String.fromEnvironment('API_BASE_URL');

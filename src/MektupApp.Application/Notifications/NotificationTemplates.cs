@@ -4,11 +4,11 @@ using MektupApp.Domain.Notifications;
 
 namespace MektupApp.Application.Notifications;
 
-/// <summary>Bildirimdeki bağlantılar için sitenin adresi (ör. https://bimektup.net).</summary>
+/// <summary>Bildirimdeki bağlantılar için sitenin adresi (ör. https://bimektubum.com).</summary>
 public sealed class NotificationOptions
 {
     public const string Section = "Notifications";
-    public string SiteUrl { get; set; } = "https://bimektup.net";
+    public string SiteUrl { get; set; } = "https://bimektubum.com";
     public string BrandName { get; set; } = "BiMektubum";
 }
 

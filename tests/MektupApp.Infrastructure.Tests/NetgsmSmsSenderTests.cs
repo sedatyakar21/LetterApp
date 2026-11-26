@@ -5,7 +5,7 @@ namespace MektupApp.Infrastructure.Tests;
 
 public class NetgsmSmsSenderTests
 {
-    private static readonly NetgsmOptions Options = new() { UserCode = "8501234567", Password = "p&ss<x>", Header = "BIMEKTUP" };
+    private static readonly NetgsmOptions Options = new() { UserCode = "8501234567", Password = "p&ss<x>", Header = "BIMEKTUBUM" };
 
     [Fact]
     public void Request_is_valid_xml_with_turkish_encoding_and_informational_filter()
@@ -17,7 +17,7 @@ public class NetgsmSmsSenderTests
         var header = doc.Root!.Element("header")!;
         Assert.Equal("TR", header.Element("company")!.Attribute("dil")!.Value);
         Assert.Equal("p&ss<x>", header.Element("password")!.Value);       // özel karakterler kaçışlanır
-        Assert.Equal("BIMEKTUP", header.Element("msgheader")!.Value);
+        Assert.Equal("BIMEKTUBUM", header.Element("msgheader")!.Value);
         Assert.Equal("0", header.Element("filter")!.Value);                // ticari değil (İYS dışı)
         Assert.Equal("1:n", header.Element("type")!.Value);
 

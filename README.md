@@ -71,9 +71,9 @@ Listeleme ekranları aggregate yüklemeden doğrudan okuma modeline projekte ede
 - **Ticari ileti değildir:** bunlar işlem bilgilendirmeleridir. Netgsm'de İYS filtresi `0` (bilgilendirme) ile gönderilir. Kampanya duyurusu gibi ticari SMS / e-posta gönderilecekse İYS onayı gerekir; bu özellik bunu kapsamaz.
 
 **Kurulum (şifreleri `appsettings.json` dosyasına yazmayın):**
-- **SMS (Netgsm):** `Notifications:Sms:Netgsm:UserCode`, `Header` (Netgsm'de onaylı gönderici adı) ve `Password`. Üçü de tanımlıysa Netgsm kullanılır, eksikse SMS simülasyonda (log) kalır.
+- **SMS (Netgsm):** `Notifications:Sms:Netgsm:UserCode`, `Header` (Netgsm'de onaylı gönderici adı; `appsettings.json`'da `BIMEKTUBUM`) ve `Password`. Üçü de tanımlıysa Netgsm kullanılır, eksikse SMS simülasyonda (log) kalır.
 - **E-posta (SMTP):** `Notifications:Email:Smtp:Host`, `Port` (587 / 465), `Security` (`StartTls` / `SslOnConnect`), `UserName`, `Password`, `FromAddress`, `FromName`. `Host` ve `FromAddress` tanımlıysa SMTP kullanılır.
-- **Bağlantılar:** `Notifications:SiteUrl` e-posta ve SMS'teki bağlantıların adresidir (canlı: `https://bimektup.net`).
+- **Bağlantılar:** `Notifications:SiteUrl` e-posta ve SMS'teki bağlantıların adresidir (canlı: `https://bimektubum.com`).
 
 ```bash
 dotnet user-secrets set "Notifications:Sms:Netgsm:Password" "xxxx" --project src/MektupApp.Web
@@ -237,17 +237,17 @@ API adresi varsayılan olarak geliştirme sunucusudur:
 Canlı sunucu için derlerken adres verilir:
 
 ```bash
-flutter build apk --release --dart-define=API_BASE_URL=https://bimektup.net
+flutter build apk --release --dart-define=API_BASE_URL=https://bimektubum.com
 ```
 
 ```bash
-flutter build ipa --release --dart-define=API_BASE_URL=https://bimektup.net
+flutter build ipa --release --dart-define=API_BASE_URL=https://bimektubum.com
 ```
 
 **Notlar:**
 - iOS derlemesi için macOS ve Xcode gerekir.
 - Mağazaya göndermeden önce şunlar ayarlanmalıdır:
-  - Uygulama kimliği `net.bimektup.bimektup` (Android `build.gradle.kts`, iOS Xcode projesi).
+  - Uygulama kimliği `com.bimektubum.bimektubum` (Android `build.gradle.kts`, iOS Xcode projesi).
   - Uygulama simgesi.
   - Android imza anahtarı.
 - Şifresiz HTTP yalnızca Android debug sürümünde ve iOS'ta yerel ağ için açıktır. Canlı API HTTPS olmalıdır.

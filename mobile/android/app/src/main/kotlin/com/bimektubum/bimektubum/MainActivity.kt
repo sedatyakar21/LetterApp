@@ -1,4 +1,4 @@
-package net.bimektup.bimektup
+package com.bimektubum.bimektubum
 
 import io.flutter.embedding.android.FlutterActivity
 

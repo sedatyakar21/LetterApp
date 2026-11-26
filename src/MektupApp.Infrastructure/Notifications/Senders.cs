@@ -19,7 +19,7 @@ public sealed class NetgsmOptions
     public const string Section = "Notifications:Sms:Netgsm";
     public string? UserCode { get; set; }
     public string? Password { get; set; }
-    /// <summary>Netgsm'de onaylı gönderici adı (mesaj başlığı), ör. "BIMEKTUP".</summary>
+    /// <summary>Netgsm'de onaylı gönderici adı (mesaj başlığı), ör. "BIMEKTUBUM".</summary>
     public string? Header { get; set; }
     public string Endpoint { get; set; } = "https://api.netgsm.com.tr/sms/send/xml";
     public int TimeoutSeconds { get; set; } = 15;

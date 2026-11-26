@@ -1,7 +1,7 @@
 import 'dart:convert';
 
-import 'package:bimektup/api/api_client.dart';
-import 'package:bimektup/api/models.dart';
+import 'package:bimektubum/api/api_client.dart';
+import 'package:bimektubum/api/models.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';

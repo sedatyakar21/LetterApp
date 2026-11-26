@@ -1,4 +1,4 @@
-# bimektup
+# bimektubum
 
 BiMektubum mobil uygulaması
 
