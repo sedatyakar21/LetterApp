@@ -221,13 +221,13 @@ class PaymentStepState extends State<PaymentStep> {
             Padding(
               padding: const EdgeInsets.only(top: 6),
               child: Text('Mobil ödemede operatör farkı (%${(settings.prices.mobileSurchargeRate * 100).round()}) eklenir.',
-                  style: const TextStyle(color: Brand.muted, fontSize: 12)),
+                  style: TextStyle(color: Brand.muted, fontSize: 12)),
             ),
           if (q.bankTransferAvailable && q.bankTransferPercent > 0 && _method != 'BankTransfer')
             Padding(
               padding: const EdgeInsets.only(top: 6),
               child: Text('Havale / EFT ile ödemede %${number(q.bankTransferPercent)} indirim.',
-                  style: const TextStyle(color: Brand.success, fontSize: 12, fontWeight: FontWeight.w600)),
+                  style: TextStyle(color: Brand.success, fontSize: 12, fontWeight: FontWeight.w600)),
             ),
           const SizedBox(height: 12),
         ],
@@ -248,7 +248,7 @@ class PaymentStepState extends State<PaymentStep> {
               Padding(
                 padding: const EdgeInsets.only(top: 6),
                 child: Text('Mektubunuz postaya verilince ${number(q.pointsToEarn)} MektupPuan kazanacaksınız.',
-                    style: const TextStyle(color: Brand.muted, fontSize: 12)),
+                    style: TextStyle(color: Brand.muted, fontSize: 12)),
               ),
           ]),
         ),
@@ -269,7 +269,7 @@ class PaymentStepState extends State<PaymentStep> {
               OutlinedButton(onPressed: _busy ? null : _applyCoupon, child: const Text('Uygula')),
             ]),
             if (q.couponApplied)
-              const Padding(
+              Padding(
                 padding: EdgeInsets.only(top: 6),
                 child: Text('✓ Kupon uygulandı', style: TextStyle(color: Brand.success, fontWeight: FontWeight.w600)),
               ),
@@ -310,7 +310,7 @@ class PaymentStepState extends State<PaymentStep> {
         OutlinedButton.icon(onPressed: _busy ? null : _start, icon: const Icon(Icons.refresh), label: const Text('Tekrar dene')),
       ]);
     }
-    if (q == null) return const Text('Ödeme formu hazırlanıyor…', style: TextStyle(color: Brand.muted));
+    if (q == null) return Text('Ödeme formu hazırlanıyor…', style: TextStyle(color: Brand.muted));
     if (q.amountToPay <= 0) {
       return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
         Text(q.pointsUsed > 0
@@ -334,7 +334,7 @@ class PaymentStepState extends State<PaymentStep> {
           BankInfo(bankName: b.bankName, accountHolder: b.accountHolder, iban: b.iban, amount: q.amountToPay, note: b.note),
         const SizedBox(height: 6),
         Text('Havale ${b?.validDays ?? ''} gün içinde hesabımıza geçmezse sipariş iptal olur ve mektubunuz taslaklarınıza döner.',
-            style: const TextStyle(color: Brand.muted, fontSize: 12)),
+            style: TextStyle(color: Brand.muted, fontSize: 12)),
         const SizedBox(height: 10),
         FilledButton.icon(
           onPressed: _busy ? null : _completeFree,
@@ -344,15 +344,15 @@ class PaymentStepState extends State<PaymentStep> {
       ]);
     }
     final s = _started;
-    if (s == null) return const Text('Ödeme formu hazırlanıyor…', style: TextStyle(color: Brand.muted));
+    if (s == null) return Text('Ödeme formu hazırlanıyor…', style: TextStyle(color: Brand.muted));
     if (s.formUrl == null && s.simulation) {
       // Test modu: gerçek form yerine sonuç seçilir (gerçek tahsilat yapılmaz).
       return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
         Container(
           padding: const EdgeInsets.all(10),
-          decoration: BoxDecoration(color: const Color(0xFFFFF1D6), borderRadius: BorderRadius.circular(10)),
+          decoration: BoxDecoration(color: Brand.warnBg, borderRadius: BorderRadius.circular(10)),
           child: Text('Test modu: gerçek ödeme alınmaz. ${money(q.amountToPay)} tutarındaki ödemenin sonucunu seçin.',
-              style: const TextStyle(color: Color(0xFF8A5A00))),
+              style: TextStyle(color: Brand.warnTitle)),
         ),
         const SizedBox(height: 10),
         FilledButton.icon(
@@ -383,7 +383,7 @@ class PaymentStepState extends State<PaymentStep> {
       );
     }
     return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-      const Text('Kart bilgileriniz güvenli ödeme altyapısı PayTR üzerinden alınır; bizim sistemimizde saklanmaz.',
+      Text('Kart bilgileriniz güvenli ödeme altyapısı PayTR üzerinden alınır; bizim sistemimizde saklanmaz.',
           style: TextStyle(color: Brand.muted, fontSize: 12)),
       const SizedBox(height: 8),
       SizedBox(
@@ -424,7 +424,7 @@ class BankInfo extends StatelessWidget {
     Widget row(String label, Widget value, [Widget? action]) => Padding(
           padding: const EdgeInsets.symmetric(vertical: 3),
           child: Row(crossAxisAlignment: CrossAxisAlignment.center, children: [
-            SizedBox(width: 82, child: Text(label, style: const TextStyle(color: Brand.muted))),
+            SizedBox(width: 82, child: Text(label, style: TextStyle(color: Brand.muted))),
             Expanded(child: value),
             ?action,
           ]),
@@ -436,7 +436,7 @@ class BankInfo extends StatelessWidget {
       row('Tutar', Text.rich(TextSpan(children: [
         TextSpan(text: money(amount), style: const TextStyle(fontWeight: FontWeight.w700)),
         if (discount > 0)
-          TextSpan(text: '  (havale indirimi −${money(discount)})', style: const TextStyle(color: Brand.success, fontSize: 12)),
+          TextSpan(text: '  (havale indirimi −${money(discount)})', style: TextStyle(color: Brand.success, fontSize: 12)),
       ]))),
       if (reference != null)
         row('Açıklama', Text(reference!, style: const TextStyle(fontFamily: 'monospace', fontWeight: FontWeight.w700)),

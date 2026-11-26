@@ -168,7 +168,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 InkWell(
                   onTap: () => launchUrl(Uri.parse('${AppScope.read(context).api.client.baseUrl}/uyelik-sozlesmesi'),
                       mode: LaunchMode.externalApplication),
-                  child: const Text('Üyelik sözleşmesini',
+                  child: Text('Üyelik sözleşmesini',
                       style: TextStyle(color: Brand.burgundy, decoration: TextDecoration.underline)),
                 ),
                 const Text(' okudum, onaylıyorum.'),

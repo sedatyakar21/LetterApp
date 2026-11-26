@@ -2,7 +2,7 @@
 
 Kod tabanı ve projeler `MektupApp.*` adını korur; kullanıcıya görünen marka **BiMektubum**'tur.
 
-**Tasarım:** Renkler logodan alınmıştır: lacivert `#26304E`, bordo `#8E2235`, kalp kırmızısı `#A8263A`, krem kağıt `#F7F6F0`. Başlık ve marka yazısında Lora serif kullanılır. Değişkenler `wwwroot/css/site.css` dosyasının başında tanımlıdır. Logo dosyaları `wwwroot/img/` klasöründedir: arka planı kaldırılmış `bimektubum-logo.png` ve küçük işaret `bimektubum-mark.svg`; favicon `wwwroot/favicon.svg`'dir.
+**Tasarım:** Renkler logodan alınmıştır: lacivert `#26304E`, bordo `#8E2235`, kalp kırmızısı `#A8263A`, krem kağıt `#F7F6F0`. Başlık ve marka yazısında Lora serif kullanılır. Değişkenler `wwwroot/css/site.css` dosyasının başında tanımlıdır. Logo dosyaları `wwwroot/img/` klasöründedir: arka planı kaldırılmış `bimektubum-logo.png` (yazılı logo) ve `bimektubum-mark.png` (yazısız zarf-kalem işareti); favicon `favicon.ico` / `favicon-32.png`, iOS ana ekran ikonu `apple-touch-icon.png`'dir. Mobil uygulama ikonları (Android `mipmap-*` ve uyarlanabilir `ic_launcher_foreground`, iOS `AppIcon`) aynı işaretten üretilmiştir.
 
 **Blog:** `/blog` (liste) ve `/blog/{adres}` (yazı). Yazılar admin → 📝 Blog'dan eklenir: Markdown içerik, canlı önizleme, kapak görseli, taslak / yayın. Yazı adresi başlıktan Türkçe karakterler sadeleştirilerek üretilir, çakışırsa sonuna `-2` eklenir. Taslaklar ziyaretçiye 404 döner; yönetici `?onizleme=1` ile görebilir. Güvenlik için Markdown içinde ham HTML kapalıdır, bağlantılarda sadece http(s), mailto ve site içi adreslere izin verilir (`MarkdownRenderer`, testleri `tests/MektupApp.Web.Tests`). Ana sayfada son 3 yazı gösterilir.
 
@@ -202,6 +202,9 @@ Dilekçe, vekaletname, okul belgesi gibi evraklar mektuba eklenir; basılıp mek
 ### Mobil uygulama (Flutter · iOS ve Android)
 
 `mobile/` klasöründeki Flutter uygulaması, sitenin üye tarafındaki işlevlerini telefona taşır.
+
+- **Koyu mod (web):** sitenin ve yönetim panelinin Hesabım sayfasında Görünüm: Sistem / Açık / Koyu. Seçim tarayıcıda (`localStorage` "bm-theme") saklanır; `Views/Shared/_ThemeInit.cshtml` sayfa çizilmeden önce `<html data-bs-theme>` değerini ayarlar. Koyu renkler `site.css` ve `admin.css` sonundaki `[data-bs-theme="dark"]` bloklarındadır.
+- **Koyu mod (mobil):** Hesabım → Görünüm'den "Sistem" (telefonun ayarı, varsayılan), "Açık" veya "Koyu" seçilir; seçim cihazda saklanır. Renkler `lib/ui/theme.dart`'taki `Brand` sınıfından okunur ve temaya göre değişir. Mektup kağıdı önizlemesi her temada gerçek kağıt rengindedir.
 
 - **Ekranlar:**
   - Giriş ve kayıt.

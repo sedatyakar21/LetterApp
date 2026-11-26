@@ -12,11 +12,24 @@
     --line: #E3DFD2;
     --ink: #232A3D;
     --muted: #686D7A;
-    --brand-gradient: linear-gradient(90deg, var(--navy) 0%, var(--burgundy) 100%);
+    /* Zemin olarak kullanÄ±lan sabit marka renkleri (Ã¼stÃ¼nde beyaz yazÄ±; koyu modda da aynÄ± kalÄ±r) */
+    --navy-solid: #26304E;
+    --burgundy-solid: #8E2235;
+    --burgundy-solid-dark: #6F1A29;
+    --brand-gradient: linear-gradient(90deg, var(--navy-solid) 0%, var(--burgundy-solid) 100%);
+
+    /* YÃ¼zeyler (kart, panel) ve yumuÅŸak tonlar */
+    --surface: #fff;
+    --surface-2: #fbfaf6;
+    --header-bg: rgba(247, 246, 240, .92);
+    --soft-navy: #E3E6EF;
+    --soft-burgundy: #f6eef0;
+    --soft-success: #edf5ee;
+    --soft-success-border: #cfe5d3;
 
     /* Eski adlar (görünümlerde kullanılıyor) */
-    --brand: var(--burgundy);
-    --brand-dark: var(--burgundy-dark);
+    --brand: var(--burgundy-solid);
+    --brand-dark: var(--burgundy-solid-dark);
     --muted-bg: var(--paper-2);
 
     --font-serif: "Lora", Georgia, "Times New Roman", serif;
@@ -54,20 +67,20 @@ a:hover { color: var(--burgundy); }
 
 /* Butonlar: ana eylem bordo, ikincil lacivert */
 .btn-primary {
-    --bs-btn-bg: var(--burgundy); --bs-btn-border-color: var(--burgundy);
-    --bs-btn-hover-bg: var(--burgundy-dark); --bs-btn-hover-border-color: var(--burgundy-dark);
-    --bs-btn-active-bg: var(--burgundy-dark); --bs-btn-active-border-color: var(--burgundy-dark);
-    --bs-btn-disabled-bg: var(--burgundy); --bs-btn-disabled-border-color: var(--burgundy);
+    --bs-btn-bg: var(--brand); --bs-btn-border-color: var(--brand);
+    --bs-btn-hover-bg: var(--brand-dark); --bs-btn-hover-border-color: var(--brand-dark);
+    --bs-btn-active-bg: var(--brand-dark); --bs-btn-active-border-color: var(--brand-dark);
+    --bs-btn-disabled-bg: var(--brand); --bs-btn-disabled-border-color: var(--brand);
     --bs-btn-focus-shadow-rgb: 142, 34, 53;
 }
 .btn-outline-primary {
     --bs-btn-color: var(--burgundy); --bs-btn-border-color: var(--burgundy);
-    --bs-btn-hover-bg: var(--burgundy); --bs-btn-hover-border-color: var(--burgundy); --bs-btn-hover-color: #fff;
-    --bs-btn-active-bg: var(--burgundy-dark); --bs-btn-active-border-color: var(--burgundy-dark);
+    --bs-btn-hover-bg: var(--brand); --bs-btn-hover-border-color: var(--brand); --bs-btn-hover-color: #fff;
+    --bs-btn-active-bg: var(--brand-dark); --bs-btn-active-border-color: var(--brand-dark); --bs-btn-active-color: #fff;
 }
 .btn-outline-secondary {
-    --bs-btn-color: var(--navy); --bs-btn-border-color: rgba(38, 48, 78, .35);
-    --bs-btn-hover-bg: var(--navy); --bs-btn-hover-border-color: var(--navy); --bs-btn-hover-color: #fff;
+    --bs-btn-color: var(--navy); --bs-btn-border-color: var(--outline-border, rgba(38, 48, 78, .35));
+    --bs-btn-hover-bg: var(--navy-solid); --bs-btn-hover-border-color: var(--navy-solid); --bs-btn-hover-color: #fff;
 }
 .btn-lg { font-weight: 600; }
 
@@ -76,20 +89,20 @@ a:hover { color: var(--burgundy); }
     border-color: rgba(142, 34, 53, .55);
     box-shadow: 0 0 0 .2rem rgba(142, 34, 53, .15);
 }
-.form-check-input:checked { background-color: var(--burgundy); border-color: var(--burgundy); }
+.form-check-input:checked { background-color: var(--brand); border-color: var(--brand); }
 
 /* Kartlar kağıt zeminde beyaz durur */
-.card { --bs-card-border-color: var(--line); --bs-card-cap-bg: #fbfaf6; border-radius: .75rem; }
+.card { --bs-card-border-color: var(--line); --bs-card-bg: var(--surface); --bs-card-cap-bg: var(--surface-2); border-radius: .75rem; }
 .list-group { --bs-list-group-border-color: var(--line); }
-.accordion { --bs-accordion-active-bg: #f6eef0; --bs-accordion-active-color: var(--burgundy); --bs-accordion-btn-focus-box-shadow: 0 0 0 .2rem rgba(142, 34, 53, .15); }
-.alert-success { --bs-alert-bg: #edf5ee; --bs-alert-border-color: #cfe5d3; }
+.accordion { --bs-accordion-bg: var(--surface); --bs-accordion-active-bg: var(--soft-burgundy); --bs-accordion-active-color: var(--burgundy); --bs-accordion-btn-focus-box-shadow: 0 0 0 .2rem rgba(142, 34, 53, .15); }
+.alert-success { --bs-alert-bg: var(--soft-success); --bs-alert-border-color: var(--soft-success-border); }
 
 /* Durum rozetleri: marka paleti */
-.badge-navy { background: var(--navy); color: #fff; }
-.badge-soft-navy { background: #E3E6EF; color: var(--navy); }
+.badge-navy { background: var(--navy-solid); color: #fff; }
+.badge-soft-navy { background: var(--soft-navy); color: var(--navy); }
 
 /* ---------- Üst menü ---------- */
-.site-header { background: rgba(247, 246, 240, .92); backdrop-filter: blur(6px); position: sticky; top: 0; z-index: 1030; }
+.site-header { background: var(--header-bg); backdrop-filter: blur(6px); position: sticky; top: 0; z-index: 1030; }
 .site-header::after { content: ""; display: block; height: 3px; background: var(--brand-gradient); }
 .site-header .nav-link { color: var(--navy); font-weight: 500; }
 .site-header .nav-link:hover, .site-header .nav-link:focus { color: var(--burgundy); }
@@ -126,7 +139,7 @@ a:hover { color: var(--burgundy); }
     border-radius: 50%; background: var(--brand-gradient); color: #fff; font-weight: 700;
     font-family: var(--font-serif); box-shadow: 0 4px 12px rgba(142, 34, 53, .2);
 }
-.feature { background: #fff; border: 1px solid var(--line); border-radius: .9rem; padding: 1.25rem; height: 100%; }
+.feature { background: var(--surface); border: 1px solid var(--line); border-radius: .9rem; padding: 1.25rem; height: 100%; }
 .feature-icon { font-size: 1.75rem; }
 .feature h3 { font-family: var(--font-serif); }
 .features-band { background: var(--paper-2); border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
@@ -193,10 +206,10 @@ a:hover { color: var(--burgundy); }
 .blog-hero h1 em { color: var(--burgundy); }
 .blog-meta { color: var(--muted); font-size: .85rem; }
 
-.blog-card { background: #fff; border: 1px solid var(--line); border-radius: .9rem; overflow: hidden; transition: transform .2s ease, box-shadow .2s ease; }
+.blog-card { background: var(--surface); border: 1px solid var(--line); border-radius: .9rem; overflow: hidden; transition: transform .2s ease, box-shadow .2s ease; }
 .blog-card:hover { transform: translateY(-3px); box-shadow: 0 12px 26px rgba(27, 34, 56, .1); }
 .blog-card-link { display: block; height: 100%; color: inherit; text-decoration: none; }
-.blog-card-cover { aspect-ratio: 16 / 9; background: linear-gradient(135deg, #F1EEE4, #F6EEF0); display: flex; align-items: center; justify-content: center; overflow: hidden; }
+.blog-card-cover { aspect-ratio: 16 / 9; background: linear-gradient(135deg, var(--paper-2), var(--soft-burgundy)); display: flex; align-items: center; justify-content: center; overflow: hidden; }
 .blog-card-cover img { width: 100%; height: 100%; object-fit: cover; }
 .blog-card-cover img.blog-card-placeholder { width: 34%; height: auto; object-fit: contain; opacity: .55; }
 .blog-card-body { padding: 1rem 1.1rem 1.2rem; }
@@ -210,17 +223,17 @@ a:hover { color: var(--burgundy); }
 .blog-content h2, .blog-content h3 { margin-top: 2rem; margin-bottom: .75rem; }
 .blog-content h2 { font-size: 1.6rem; }
 .blog-content h3 { font-size: 1.3rem; }
-.blog-content blockquote { font-family: var(--font-serif); font-style: italic; color: var(--navy); background: #fff; border-left: 4px solid var(--heart); padding: .9rem 1.2rem; border-radius: 0 .6rem .6rem 0; margin: 1.5rem 0; }
+.blog-content blockquote { font-family: var(--font-serif); font-style: italic; color: var(--navy); background: var(--surface); border-left: 4px solid var(--heart); padding: .9rem 1.2rem; border-radius: 0 .6rem .6rem 0; margin: 1.5rem 0; }
 .blog-content blockquote p:last-child { margin-bottom: 0; }
 .blog-content img { max-width: 100%; height: auto; border-radius: .6rem; }
 .blog-content a { color: var(--burgundy); }
-.blog-content table { width: 100%; margin: 1rem 0; border-collapse: collapse; background: #fff; }
+.blog-content table { width: 100%; margin: 1rem 0; border-collapse: collapse; background: var(--surface); }
 .blog-content th, .blog-content td { border: 1px solid var(--line); padding: .5rem .75rem; }
 .blog-content code { background: var(--paper-2); padding: .1rem .35rem; border-radius: .3rem; color: var(--navy); }
-.blog-cta { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 1rem; padding: 1.25rem 1.4rem; border-radius: 1rem; background: #fff; border: 1px solid var(--line); border-left: 4px solid var(--burgundy); }
+.blog-cta { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 1rem; padding: 1.25rem 1.4rem; border-radius: 1rem; background: var(--surface); border: 1px solid var(--line); border-left: 4px solid var(--burgundy); }
 
 /* ---------- Kampanyalar ---------- */
-.campaign-card { position: relative; background: #fff; border: 1px solid var(--line); border-radius: .9rem; overflow: hidden; transition: transform .2s ease, box-shadow .2s ease; }
+.campaign-card { position: relative; background: var(--surface); border: 1px solid var(--line); border-radius: .9rem; overflow: hidden; transition: transform .2s ease, box-shadow .2s ease; }
 .campaign-card:hover { transform: translateY(-3px); box-shadow: 0 12px 26px rgba(27, 34, 56, .1); }
 .campaign-card.is-ended { filter: grayscale(.7); opacity: .8; }
 .campaign-card-link { display: block; height: 100%; color: inherit; text-decoration: none; }
@@ -241,23 +254,23 @@ a:hover { color: var(--burgundy); }
     padding: .25rem .6rem; border-radius: 999px; box-shadow: 0 4px 10px rgba(168, 38, 58, .3);
 }
 .campaign-status { position: absolute; right: .75rem; bottom: .75rem; font-size: .75rem; font-weight: 600; padding: .2rem .55rem; border-radius: 999px; }
-.campaign-status-active { background: #e7f4ea; color: #1e6b35; }
-.campaign-status-urgent { background: #fff3cd; color: #7a4b00; }
-.campaign-status-upcoming { background: #E3E6EF; color: var(--navy); }
-.campaign-status-ended { background: #ececec; color: #555; }
+.campaign-status-active { background: var(--status-active-bg, #e7f4ea); color: var(--status-active-fg, #1e6b35); }
+.campaign-status-urgent { background: var(--status-urgent-bg, #fff3cd); color: var(--status-urgent-fg, #7a4b00); }
+.campaign-status-upcoming { background: var(--soft-navy); color: var(--navy); }
+.campaign-status-ended { background: var(--paper-2); color: var(--muted); }
 .campaign-card-body { padding: 1rem 1.1rem 1.2rem; }
 .campaign-card-title { font-family: var(--font-serif); color: var(--navy); margin: .35rem 0 .4rem; line-height: 1.3; }
 .campaign-card:hover .campaign-card-title { color: var(--burgundy); }
 .campaign-coupon-mini { font-size: .8rem; color: var(--burgundy); }
-.campaign-coupon-mini span { background: #f6eef0; padding: .1rem .4rem; border-radius: .3rem; border: 1px dashed rgba(142, 34, 53, .4); }
+.campaign-coupon-mini span { background: var(--soft-burgundy); padding: .1rem .4rem; border-radius: .3rem; border: 1px dashed rgba(142, 34, 53, .4); }
 
-.campaign-hero { background: #fff; border: 1px solid var(--line); border-radius: 1rem; overflow: hidden; }
+.campaign-hero { background: var(--surface); border: 1px solid var(--line); border-radius: 1rem; overflow: hidden; }
 .campaign-hero.is-ended { filter: grayscale(.6); }
 .campaign-hero-img { width: 100%; max-height: 420px; object-fit: cover; display: block; }
 .campaign-hero-body { padding: 1.5rem 1.6rem 1.7rem; }
 .campaign-coupon {
     display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 1rem;
-    padding: 1.1rem 1.4rem; border-radius: 1rem; background: #fff; border: 2px dashed rgba(142, 34, 53, .45);
+    padding: 1.1rem 1.4rem; border-radius: 1rem; background: var(--surface); border: 2px dashed rgba(142, 34, 53, .45);
 }
 .campaign-coupon-code { font-size: 1.6rem; font-weight: 700; color: var(--burgundy); letter-spacing: .08em; }
 .ended-campaigns summary { cursor: pointer; }
@@ -289,15 +302,15 @@ a:hover { color: var(--burgundy); }
 .stars .half { background: linear-gradient(90deg, #E0A526 50%, var(--line) 50%);
     -webkit-background-clip: text; background-clip: text; color: transparent; }
 
-.review-card { background: #fff; border: 1px solid var(--line); border-radius: 14px; padding: 1.25rem 1.35rem; margin: 0;
+.review-card { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 1.25rem 1.35rem; margin: 0;
     display: flex; flex-direction: column; box-shadow: 0 6px 18px rgba(38, 48, 78, .05); }
 .review-text { font-family: 'Lora', Georgia, serif; font-style: italic; color: var(--ink); flex: 1; overflow-wrap: anywhere; }
 .review-meta { display: flex; align-items: center; gap: .65rem; }
 .review-avatar { width: 2.25rem; height: 2.25rem; border-radius: 50%; display: inline-grid; place-items: center; flex-shrink: 0;
-    background: var(--burgundy); color: #fff; font-weight: 600; }
+    background: var(--brand); color: #fff; font-weight: 600; }
 
 .review-summary { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 2rem 3rem;
-    background: #fff; border: 1px solid var(--line); border-radius: 16px; padding: 1.5rem; max-width: 640px; margin-inline: auto; }
+    background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 1.5rem; max-width: 640px; margin-inline: auto; }
 .review-average { font-family: 'Lora', Georgia, serif; font-size: 3rem; font-weight: 700; color: var(--navy); line-height: 1; }
 .review-summary .stars { font-size: 1.25rem; }
 .review-bars { flex: 1; min-width: 220px; }
@@ -339,7 +352,7 @@ a:hover { color: var(--burgundy); }
 @keyframes wa-pulse { to { box-shadow: 0 0 0 14px rgba(37, 211, 102, 0); } }
 
 .wa-panel {
-    width: min(340px, calc(100vw - 2rem)); background: #fff; border-radius: 1rem; overflow: hidden;
+    width: min(340px, calc(100vw - 2rem)); background: var(--surface); border-radius: 1rem; overflow: hidden;
     box-shadow: 0 18px 40px rgba(27, 34, 56, .22); border: 1px solid var(--line);
     transform-origin: bottom right; animation: wa-open .22s cubic-bezier(.2, .7, .2, 1);
     /* Kısa ekranlarda üstten taşmasın: başlık ve alt bilgi sabit, konular kendi içinde kayar */
@@ -352,17 +365,17 @@ a:hover { color: var(--burgundy); }
 .wa-avatar img { border-radius: 50%; background: #fff; }
 .wa-close { margin-left: auto; background: transparent; border: 0; color: #fff; font-size: 1.5rem; line-height: 1; opacity: .85; }
 .wa-close:hover { opacity: 1; }
-.wa-panel-body { padding: .9rem; background: #ECE5DD; overflow-y: auto; min-height: 0; flex: 1 1 auto; }
-.wa-bubble { background: #fff; border-radius: 0 .75rem .75rem .75rem; padding: .6rem .75rem; font-size: .92rem; box-shadow: 0 1px 1px rgba(0,0,0,.08); margin-bottom: .75rem; }
+.wa-panel-body { padding: .9rem; background: var(--wa-chat-bg, #ECE5DD); overflow-y: auto; min-height: 0; flex: 1 1 auto; }
+.wa-bubble { background: var(--surface); border-radius: 0 .75rem .75rem .75rem; padding: .6rem .75rem; font-size: .92rem; box-shadow: 0 1px 1px rgba(0,0,0,.08); margin-bottom: .75rem; }
 .wa-topics { list-style: none; margin: 0; padding: 0; display: grid; gap: .4rem; }
 .wa-topics a {
     display: flex; align-items: center; gap: .6rem; padding: .6rem .75rem; border-radius: .6rem;
-    background: #fff; color: var(--ink); text-decoration: none; font-size: .93rem; border: 1px solid transparent;
+    background: var(--surface); color: var(--ink); text-decoration: none; font-size: .93rem; border: 1px solid transparent;
 }
 .wa-topics a:hover, .wa-topics a:focus-visible { border-color: #25D366; color: #075E54; }
 .wa-topic-icon { width: 1.4rem; text-align: center; }
 .wa-topic-arrow { margin-left: auto; color: #128C4C; font-size: 1.2rem; }
-.wa-panel-foot { padding: .6rem 1rem; color: var(--muted); background: #fff; border-top: 1px solid var(--line); display: flex; flex-wrap: wrap; gap: .25rem; }
+.wa-panel-foot { padding: .6rem 1rem; color: var(--muted); background: var(--surface); border-top: 1px solid var(--line); display: flex; flex-wrap: wrap; gap: .25rem; }
 
 @media (max-width: 575.98px) {
     .wa-fab-label { display: none; }
@@ -378,7 +391,7 @@ a:hover { color: var(--burgundy); }
 }
 
 /* ---------- Alt bilgi ---------- */
-.site-footer { background: var(--navy); color: rgba(255, 255, 255, .75); padding: 2rem 0 1.5rem; font-size: .9rem; }
+.site-footer { background: var(--footer-bg, var(--navy-solid)); color: rgba(255, 255, 255, .75); padding: 2rem 0 1.5rem; font-size: .9rem; }
 .site-footer a { color: #fff; text-decoration-color: rgba(255, 255, 255, .35); }
 .site-footer a:hover { color: #f3c6cd; }
 .site-footer .footer-brand { font-family: var(--font-serif); font-size: 1.25rem; color: #fff; font-weight: 700; }
@@ -395,27 +408,30 @@ a:hover { color: var(--burgundy); }
     line-height: 32px;
 }
 .paper-content { white-space: pre-wrap; word-wrap: break-word; }
+.paper { color: #232A3D; }
 .paper-signature { text-align: right; margin-top: 1.5rem; }
 
-.paper-White { background-color: #fff; }
-.paper-Cream { background-color: #fbf3df; }
-.paper-Pink  { background-color: #fde4ea; }
-.paper-Blue  { background-color: #e3eefb; }
-.paper-Green { background-color: #e5f4e3; }
+/* Kağıt ve mürekkep renkleri değişkenle de verilir: editördeki yazı alanı (form-control) odaklanınca
+   Bootstrap'ın odak stili zemin / yazı rengini sayfa rengine çevirmesin (açık ve koyu temada). */
+.paper-White { --paper-color: #fff; background-color: #fff; }
+.paper-Cream { --paper-color: #fbf3df; background-color: #fbf3df; }
+.paper-Pink  { --paper-color: #fde4ea; background-color: #fde4ea; }
+.paper-Blue  { --paper-color: #e3eefb; background-color: #e3eefb; }
+.paper-Green { --paper-color: #e5f4e3; background-color: #e5f4e3; }
 
 .font-Serif { font-family: "Lora", Georgia, serif; font-size: 1.05rem; }
 .font-Sans { font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; font-size: 1rem; }
 .font-Handwriting { font-family: "Caveat", "Segoe Script", cursive; font-size: 1.5rem; }
 
-.ink-Black { color: #222; }
-.ink-Navy { color: #1f3a68; }
-.ink-Burgundy { color: #7a1f33; }
+.ink-Black { --ink-color: #222; color: #222; }
+.ink-Navy { --ink-color: #1f3a68; color: #1f3a68; }
+.ink-Burgundy { --ink-color: #7a1f33; color: #7a1f33; }
 
 /* Mektup Yaz adımları (sekmeler): 1 Mektup → 2 Ekstralar → 3 İletişim → 4 Kontrol → 5 Ödeme. */
 .wizard-tabs { list-style: none; padding: 0; margin: 0 0 1rem; display: grid; grid-template-columns: repeat(5, 1fr); gap: .5rem; scroll-margin-top: 1rem; }
 .wizard-tab {
     width: 100%; display: flex; align-items: center; gap: .5rem; padding: .55rem .75rem;
-    border: 1px solid var(--bs-border-color, #dee2e6); border-radius: .5rem; background: #fff;
+    border: 1px solid var(--bs-border-color, #dee2e6); border-radius: .5rem; background: var(--surface);
     color: var(--bs-secondary-color, #6c757d); font-weight: 600; text-align: left; cursor: pointer;
 }
 .wizard-tab-no {
@@ -450,7 +466,7 @@ a:hover { color: var(--burgundy); }
 /* Ekstralar sekmesi: sayfa içinde yüklenen fotoğraflar (küçük görsel + kaldır) ve belge listesi. */
 .attach-list { display: flex; flex-wrap: wrap; gap: .5rem; }
 .attach-photo, .attach-add { position: relative; width: 88px; height: 88px; border-radius: .5rem; overflow: hidden; }
-.attach-photo { border: 1px solid var(--bs-border-color, #dee2e6); background: #f3f1ea; }
+.attach-photo { border: 1px solid var(--bs-border-color, #dee2e6); background: var(--paper-2); }
 .attach-photo img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .attach-photo.uploading { opacity: .5; }
 .attach-remove {
@@ -471,12 +487,19 @@ a:hover { color: var(--burgundy); }
 .letter-editor:focus-within { border-color: var(--brand); box-shadow: 0 0 0 3px rgba(142,34,53,.15); }
 .letter-editor-toolbar {
     display: flex; flex-wrap: wrap; gap: .5rem; align-items: center;
-    padding: .4rem .5rem; background: #f7f6f0; border-bottom: 1px solid var(--bs-border-color, #dee2e6);
+    padding: .4rem .5rem; background: var(--surface-2); border-bottom: 1px solid var(--bs-border-color, #dee2e6);
 }
 .letter-editor-tool { display: inline-flex; align-items: center; gap: .35rem; margin: 0; cursor: pointer; }
 .letter-editor-tool .form-select { width: auto; min-width: 8.5rem; }
 .letter-editor .letter-textarea { border: 0; border-radius: 0; box-shadow: none; line-height: 1.6; resize: vertical; }
 .letter-editor .letter-textarea:focus { box-shadow: none; }
+.letter-editor .letter-textarea,
+.letter-editor .letter-textarea:focus {
+    background-color: var(--paper-color, #fff);
+    color: var(--ink-color, #222);
+    caret-color: var(--ink-color, #222);
+}
+.letter-editor .letter-textarea::placeholder { color: rgba(35, 42, 61, .45); }
 .ink-dot { width: 14px; height: 14px; border-radius: 50%; display: inline-block; border: 1px solid rgba(0,0,0,.2); }
 .ink-dot-Black { background: #222; }
 .ink-dot-Navy { background: #1f3a68; }
@@ -566,10 +589,10 @@ a:hover { color: var(--burgundy); }
 .postcard-option input { position: absolute; opacity: 0; }
 .postcard-tile {
     display: flex; flex-direction: column; align-items: stretch;
-    width: 104px; border-radius: 8px; overflow: hidden; background: #fff;
+    width: 104px; border-radius: 8px; overflow: hidden; background: var(--surface);
     border: 2px solid var(--bs-border-color, #dee2e6); cursor: pointer; font-size: .72rem; line-height: 1.2;
 }
-.postcard-tile img { width: 100%; aspect-ratio: 3 / 2; object-fit: cover; display: block; background: #f3f1ea; }
+.postcard-tile img { width: 100%; aspect-ratio: 3 / 2; object-fit: cover; display: block; background: var(--paper-2); }
 .postcard-tile .postcard-name { padding: 3px 5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .postcard-tile { position: relative; }
 /* Seçili kartpostalın köşesinde onay işareti (çoklu seçim). */
@@ -587,7 +610,7 @@ a:hover { color: var(--burgundy); }
 
 /* ---------- Durum zaman çizelgesi ---------- */
 .timeline { list-style: none; padding-left: 0; margin: 0; }
-.timeline li { position: relative; padding: 0 0 1rem 1.5rem; border-left: 2px solid #e5e5e5; margin-left: .4rem; }
+.timeline li { position: relative; padding: 0 0 1rem 1.5rem; border-left: 2px solid var(--line); margin-left: .4rem; }
 .timeline li:last-child { border-left-color: transparent; }
 .timeline li::before {
     content: ""; position: absolute; left: -7px; top: 4px; width: 12px; height: 12px;
@@ -600,3 +623,64 @@ a:hover { color: var(--burgundy); }
     header, footer, .no-print { display: none !important; }
     .paper { box-shadow: none; background-image: none; }
 }
+
+/* ==========================================================================
+   Koyu mod: <html data-bs-theme="dark"> (Hesabım → Görünüm; "Sistem" seçiliyse cihazın ayarı).
+   Mektup kağıdı, zarf ve kartpostal önizlemeleri gerçek renklerinde kalır.
+   ========================================================================== */
+:root[data-bs-theme="dark"] {
+    color-scheme: dark;
+    --navy: #B7C1E4;
+    --navy-dark: #D7DCF0;
+    --burgundy: #E8899A;
+    --burgundy-dark: #F0A7B3;
+    --heart: #E26A7F;
+    --paper: #13151C;
+    --paper-2: #222634;
+    --line: #343A4B;
+    --ink: #E5E7EE;
+    --muted: #A2A7B4;
+    --brand: #B83A50;
+    --brand-dark: #9C2C41;
+
+    --surface: #1B1E28;
+    --surface-2: #20242F;
+    --header-bg: rgba(19, 21, 28, .92);
+    --soft-navy: #2A3150;
+    --soft-burgundy: #3A2230;
+    --soft-success: #17301F;
+    --soft-success-border: #24502F;
+    --status-active-bg: #17301F; --status-active-fg: #8FD3A6;
+    --status-urgent-bg: #3A2F18; --status-urgent-fg: #F2CF7E;
+    --outline-border: rgba(183, 193, 228, .35);
+    --footer-bg: #0D0F15;
+    --wa-chat-bg: #1A1F1E;
+
+    --bs-body-color: var(--ink);
+    --bs-body-bg: var(--paper);
+    --bs-emphasis-color: #fff;
+    --bs-secondary-color: var(--muted);
+    --bs-secondary-bg: #222634;
+    --bs-tertiary-bg: #1E2230;
+    --bs-border-color: var(--line);
+    --bs-link-color-rgb: 183, 193, 228;
+    --bs-link-hover-color-rgb: 232, 137, 154;
+}
+[data-bs-theme="dark"] a { text-decoration-color: rgba(183, 193, 228, .35); }
+[data-bs-theme="dark"] .site-header.scrolled { box-shadow: 0 6px 18px rgba(0, 0, 0, .35); }
+[data-bs-theme="dark"] .bg-white,
+[data-bs-theme="dark"] .bg-light { background-color: var(--surface) !important; }
+[data-bs-theme="dark"] .text-dark { color: var(--ink) !important; }
+[data-bs-theme="dark"] .table { --bs-table-bg: transparent; }
+[data-bs-theme="dark"] .blog-card:hover,
+[data-bs-theme="dark"] .campaign-card:hover { box-shadow: 0 12px 26px rgba(0, 0, 0, .4); }
+[data-bs-theme="dark"] .wizard-tab.done .wizard-tab-no { background: #3f9d68; }
+/* Lacivert-bordo çizgili logo koyu zeminde okunsun diye açık kağıt zemin üzerinde */
+[data-bs-theme="dark"] .hero-art,
+[data-bs-theme="dark"] .brand-mark { background: #F7F6F0; border-radius: .9rem; padding: .5rem; }
+[data-bs-theme="dark"] .brand-mark { border-radius: .45rem; padding: .15rem .25rem; }
+[data-bs-theme="dark"] .blog-card-placeholder { filter: brightness(1.6) saturate(.8); }
+
+/* Görünüm seçimi (Hesabım) */
+.theme-choice .btn { min-width: 6.5rem; }
+.theme-choice .btn-check:checked + .btn { background: var(--brand); border-color: var(--brand); color: #fff; }

@@ -157,15 +157,15 @@ class _LetterTile extends StatelessWidget {
                     letter.preview.isEmpty
                         ? '(Mektup metni henüz yazılmadı)'
                         : letter.preview.replaceAll(RegExp(r'\s+'), ' '),
-                    maxLines: 2, overflow: TextOverflow.ellipsis, style: const TextStyle(color: Brand.muted)),
+                    maxLines: 2, overflow: TextOverflow.ellipsis, style: TextStyle(color: Brand.muted)),
                 const SizedBox(height: 6),
                 Row(children: [
-                  Text(dateText(letter.updatedAt), style: const TextStyle(color: Brand.muted, fontSize: 12)),
+                  Text(dateText(letter.updatedAt), style: TextStyle(color: Brand.muted, fontSize: 12)),
                   if (letter.trackingCode != null) ...[
                     const Spacer(),
-                    const Icon(Icons.local_shipping_outlined, size: 14, color: Brand.muted),
+                    Icon(Icons.local_shipping_outlined, size: 14, color: Brand.muted),
                     const SizedBox(width: 4),
-                    Text(letter.trackingCode!, style: const TextStyle(color: Brand.muted, fontSize: 12)),
+                    Text(letter.trackingCode!, style: TextStyle(color: Brand.muted, fontSize: 12)),
                   ],
                 ]),
               ]),

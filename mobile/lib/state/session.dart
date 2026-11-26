@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart' show ThemeMode;
 import 'package:flutter/widgets.dart';
 
 import '../api/api_client.dart';
@@ -26,7 +27,22 @@ class Session extends ChangeNotifier {
   /// Mektup listesi gibi ekranların yenilenmesi için sayaç (ödeme / kayıt sonrası artar).
   int lettersVersion = 0;
 
+  /// Görünüm: telefonun ayarı (varsayılan), her zaman açık veya her zaman koyu. Cihazda saklanır.
+  ThemeMode themeMode = ThemeMode.system;
+  bool _themeLoaded = false;
+
+  Future<void> setThemeMode(ThemeMode mode) async {
+    themeMode = mode;
+    notifyListeners();
+    await api.client.writePreference('theme', mode.name);
+  }
+
   Future<void> start() async {
+    if (!_themeLoaded) {
+      _themeLoaded = true;
+      final saved = await api.client.readPreference('theme');
+      themeMode = ThemeMode.values.firstWhere((m) => m.name == saved, orElse: () => ThemeMode.system);
+    }
     _set(SessionStatus.loading);
     try {
       final results = await Future.wait([api.config(), api.locations()]);

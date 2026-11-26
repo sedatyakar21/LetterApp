@@ -120,7 +120,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
       context: context,
       barrierDismissible: false,
       builder: (c) => AlertDialog(
-        icon: const Icon(Icons.mark_email_read_outlined, size: 48, color: Brand.success),
+        icon: Icon(Icons.mark_email_read_outlined, size: 48, color: Brand.success),
         title: const Text('Siparişiniz alındı!'),
         content: Text(free
             ? 'Ödemeniz MektupPuan / kampanya indirimiyle tamamlandı. Mektubunuz ilk iş gününde basılıp postaya verilecek.'
@@ -147,11 +147,11 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                     padding: const EdgeInsets.only(bottom: 12),
                     child: Container(
                       padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(color: const Color(0xFFFFF1D6), borderRadius: BorderRadius.circular(12)),
-                      child: const Row(children: [
-                        Icon(Icons.science_outlined, color: Color(0xFF8A5A00)),
-                        SizedBox(width: 8),
-                        Expanded(child: Text('Test modu: gerçek ödeme alınmaz.', style: TextStyle(color: Color(0xFF8A5A00)))),
+                      decoration: BoxDecoration(color: Brand.warnBg, borderRadius: BorderRadius.circular(12)),
+                      child: Row(children: [
+                        Icon(Icons.science_outlined, color: Brand.warnTitle),
+                        const SizedBox(width: 8),
+                        Expanded(child: Text('Test modu: gerçek ödeme alınmaz.', style: TextStyle(color: Brand.warnTitle))),
                       ]),
                     ),
                   ),
@@ -178,7 +178,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                         padding: const EdgeInsets.only(top: 8),
                         child: Text(
                           'Mobil ödemede operatör farkı (%${(settings.prices.mobileSurchargeRate * 100).round()}) eklenir.',
-                          style: const TextStyle(color: Brand.muted, fontSize: 12)),
+                          style: TextStyle(color: Brand.muted, fontSize: 12)),
                       ),
                   ]),
                 ),
@@ -216,7 +216,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                       OutlinedButton(onPressed: _applyCoupon, child: const Text('Uygula')),
                     ]),
                     if (q.couponApplied)
-                      const Padding(
+                      Padding(
                         padding: EdgeInsets.only(top: 8),
                         child: Text('✓ Kupon uygulandı', style: TextStyle(color: Brand.success, fontWeight: FontWeight.w600)),
                       ),
@@ -244,7 +244,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                       Padding(
                         padding: const EdgeInsets.only(top: 6),
                         child: Text('Mektubunuz postaya verilince ${number(q.pointsToEarn)} MektupPuan kazanacaksınız.',
-                            style: const TextStyle(color: Brand.muted, fontSize: 12)),
+                            style: TextStyle(color: Brand.muted, fontSize: 12)),
                       ),
                   ]),
                 ),

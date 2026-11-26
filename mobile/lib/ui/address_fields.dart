@@ -178,7 +178,7 @@ class _AddressFieldsState extends State<AddressFields> {
             c.city.text.isNotEmpty && !_loadingPrisons && _prisons.isEmpty
                 ? 'Bu ilde kayıtlı cezaevi yok; adresi elle girin.'
                 : 'Seçince ilçe ve adres otomatik dolar.',
-            style: const TextStyle(color: Brand.muted, fontSize: 12),
+            style: TextStyle(color: Brand.muted, fontSize: 12),
           ),
         ),
       ],
@@ -207,7 +207,7 @@ class _AddressFieldsState extends State<AddressFields> {
         maxLength: 250,
         textCapitalization: TextCapitalization.sentences,
         autofillHints: const [AutofillHints.streetAddressLevel1],
-        style: lineLocked ? const TextStyle(color: Brand.muted) : null,
+        style: lineLocked ? TextStyle(color: Brand.muted) : null,
         decoration: InputDecoration(
           labelText: 'Adres',
           hintText: 'Mahalle, cadde/sokak, bina ve daire no',
@@ -318,7 +318,7 @@ class _PickerSheetState extends State<_PickerSheet> {
           ),
           Expanded(
             child: filtered.isEmpty
-                ? const Center(child: Text('Sonuç yok', style: TextStyle(color: Brand.muted)))
+                ? Center(child: Text('Sonuç yok', style: TextStyle(color: Brand.muted)))
                 : ListView.builder(
                     itemCount: filtered.length,
                     itemBuilder: (_, i) {
@@ -329,7 +329,7 @@ class _PickerSheetState extends State<_PickerSheet> {
                             style: TextStyle(
                                 fontWeight: selected ? FontWeight.w700 : FontWeight.w400,
                                 color: selected ? Brand.burgundy : Brand.ink)),
-                        trailing: selected ? const Icon(Icons.check, color: Brand.burgundy) : null,
+                        trailing: selected ? Icon(Icons.check, color: Brand.burgundy) : null,
                         onTap: () => Navigator.pop(context, item),
                       );
                     },

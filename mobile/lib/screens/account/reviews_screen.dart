@@ -55,11 +55,11 @@ class _ReviewsScreenState extends State<ReviewsScreen> {
               SectionCard(
                 child: Row(children: [
                   Text(last.average.toStringAsFixed(1).replaceAll('.', ','),
-                      style: const TextStyle(fontSize: 36, fontWeight: FontWeight.w800, color: Brand.navy)),
+                      style: TextStyle(fontSize: 36, fontWeight: FontWeight.w800, color: Brand.navy)),
                   const SizedBox(width: 12),
                   Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                     Stars(rating: last.average, size: 22),
-                    Text('${last.count} değerlendirme', style: const TextStyle(color: Brand.muted)),
+                    Text('${last.count} değerlendirme', style: TextStyle(color: Brand.muted)),
                   ]),
                 ]),
               ),
@@ -72,13 +72,13 @@ class _ReviewsScreenState extends State<ReviewsScreen> {
                     Row(children: [
                       Stars(rating: r.rating.toDouble()),
                       const Spacer(),
-                      Text(dateText(r.createdAt), style: const TextStyle(color: Brand.muted, fontSize: 12)),
+                      Text(dateText(r.createdAt), style: TextStyle(color: Brand.muted, fontSize: 12)),
                     ]),
                     const SizedBox(height: 8),
                     Text(r.comment),
                     const SizedBox(height: 8),
                     Text('${r.authorName}${r.recipientCity == null ? '' : ' · 📍 Alıcı: ${r.recipientCity}'}',
-                        style: const TextStyle(color: Brand.muted, fontSize: 13, fontWeight: FontWeight.w600)),
+                        style: TextStyle(color: Brand.muted, fontSize: 13, fontWeight: FontWeight.w600)),
                   ]),
                 ),
                 const SizedBox(height: 10),

@@ -155,7 +155,7 @@ class _SimulationSheet extends StatelessWidget {
         padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
         child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.stretch, children: [
           Row(children: [
-            const Icon(Icons.science_outlined, color: Brand.burgundy),
+            Icon(Icons.science_outlined, color: Brand.burgundy),
             const SizedBox(width: 8),
             Text('Test ödemesi', style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700)),
           ]),
@@ -163,7 +163,7 @@ class _SimulationSheet extends StatelessWidget {
           Text(
             'Ödeme sağlayıcısı simülasyon modunda; gerçek para çekilmez. '
             '${money(amount)} tutarındaki ödemenin sonucunu seçin.',
-            style: const TextStyle(color: Brand.muted),
+            style: TextStyle(color: Brand.muted),
           ),
           const SizedBox(height: 20),
           FilledButton.icon(

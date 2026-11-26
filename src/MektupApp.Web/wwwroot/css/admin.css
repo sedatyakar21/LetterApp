@@ -54,7 +54,7 @@ a.stat-tile:hover { border-color: var(--brand); }
 
 /* Günlük ciro çubuk grafiği: tek seri, tek renk, taban çizgisine bağlı ince çubuklar */
 .bar-chart { position: relative; height: 200px; display: flex; align-items: flex-end; gap: 2px;
-             border-bottom: 1px solid #c9c5d1; padding-top: 1.25rem; }
+             border-bottom: 1px solid var(--admin-axis, #c9c5d1); padding-top: 1.25rem; }
 .bar-chart .gridline { position: absolute; left: 0; right: 0; border-top: 1px dashed var(--chart-grid); }
 .bar-chart .gridline span { position: absolute; right: 0; top: -1.1em; font-size: .7rem; color: var(--admin-muted); background: var(--admin-surface); padding-left: .25rem; }
 .bar-col { flex: 1; height: 100%; display: flex; align-items: flex-end; justify-content: center; position: relative; outline: none; cursor: default; }
@@ -72,7 +72,7 @@ a.stat-tile:hover { border-color: var(--brand); }
 
 .status-tabs .nav-link { color: var(--admin-muted); }
 .status-tabs .nav-link.active { color: var(--brand); border-bottom: 2px solid var(--brand); font-weight: 600; }
-.status-tabs .count { font-size: .75rem; background: var(--chart-grid); border-radius: 1rem; padding: 0 .45rem; margin-left: .25rem; color: #555; }
+.status-tabs .count { font-size: .75rem; background: var(--chart-grid); border-radius: 1rem; padding: 0 .45rem; margin-left: .25rem; color: var(--admin-muted); }
 
 .table-admin { background: var(--admin-surface); margin-bottom: 0; }
 .table-admin th { font-size: .78rem; text-transform: uppercase; color: var(--admin-muted); font-weight: 600; white-space: nowrap; }
@@ -88,7 +88,21 @@ a.stat-tile:hover { border-color: var(--brand); }
 .acq-value { text-align: right; font-size: .85rem; font-variant-numeric: tabular-nums; }
 
 /* Kartpostallar: liste kartlarında ve düzenleme önizlemesinde görsel (oran korunur, kırpılmaz). */
-.postcard-admin-thumb { display: block; background: #f3f1ea; aspect-ratio: 3 / 2; }
+.postcard-admin-thumb { display: block; background: var(--paper-2); aspect-ratio: 3 / 2; }
 .postcard-admin-thumb img { width: 100%; height: 100%; object-fit: contain; display: block; }
-.postcard-admin-preview { background: #f3f1ea; border-radius: 6px; min-height: 160px; display: flex; align-items: center; justify-content: center; padding: .5rem; }
+.postcard-admin-preview { background: var(--paper-2); border-radius: 6px; min-height: 160px; display: flex; align-items: center; justify-content: center; padding: .5rem; }
 .postcard-admin-preview img { max-width: 100%; max-height: 360px; object-fit: contain; border-radius: 4px; box-shadow: 0 2px 8px rgba(0,0,0,.12); }
+
+/* Koyu mod */
+:root[data-bs-theme="dark"] {
+    --admin-sidebar: #0F1219;
+    --admin-surface: #1B1E28;
+    --admin-bg: #13151C;
+    --admin-border: #343A4B;
+    --admin-muted: #A2A7B4;
+    --chart-bar: #C9475E;
+    --chart-bar-hover: #E06A7F;
+    --chart-grid: #2A2F3D;
+    --admin-axis: #4A5063;
+}
+[data-bs-theme="dark"] .admin-sidebar { background: linear-gradient(180deg, #1B2238 0%, var(--admin-sidebar) 100%); }

@@ -57,7 +57,7 @@ class _TrackingScreenState extends State<TrackingScreen> {
           child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
             const Text('Mektubun takip numarasını girin', style: TextStyle(fontWeight: FontWeight.w700)),
             const SizedBox(height: 4),
-            const Text('Takip numarası mektup postaya verildiğinde SMS / e-posta ile gönderilir.',
+            Text('Takip numarası mektup postaya verildiğinde SMS / e-posta ile gönderilir.',
                 style: TextStyle(color: Brand.muted, fontSize: 13)),
             const SizedBox(height: 12),
             TextField(

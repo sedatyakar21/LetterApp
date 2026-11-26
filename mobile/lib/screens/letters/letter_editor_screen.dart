@@ -13,6 +13,10 @@ import '../../ui/theme.dart';
 import 'payment_step.dart';
 
 /// Düzenleyiciden dönüş: kaydedilen mektup ve ödemeye geçilecek mi.
+/// Kağıt önizlemesi her temada açık renklidir; üstündeki araç çubuğu da açık temadaki renkleri kullanır.
+const _paperInk = Color(0xFF232A3D);
+const _paperMuted = Color(0xFF686D7A);
+
 class EditorOutcome {
   const EditorOutcome(this.letter, {this.checkout = false});
   final Letter letter;
@@ -498,14 +502,14 @@ class _LetterEditorScreenState extends State<LetterEditorScreen> {
       // Kağıt ve zarf rengi mektubun hemen üstünde (sitedeki formla aynı): kâğıdın rengi yazarken görülür.
       SectionCard(
         title: 'Kâğıt rengi',
-        trailing: Text('Renkli: +${money(p.coloredPaper)}', style: const TextStyle(color: Brand.muted, fontSize: 12)),
+        trailing: Text('Renkli: +${money(p.coloredPaper)}', style: TextStyle(color: Brand.muted, fontSize: 12)),
         child: _chips(s.paperColors, _draft.paper, (v) => _draft.paper = v,
             avatar: (v) => Swatch(LetterLook.paperColor(v))),
       ),
       const SizedBox(height: 12),
       SectionCard(
         title: 'Zarf rengi',
-        trailing: Text('Renkli: +${money(p.coloredEnvelope)}', style: const TextStyle(color: Brand.muted, fontSize: 12)),
+        trailing: Text('Renkli: +${money(p.coloredEnvelope)}', style: TextStyle(color: Brand.muted, fontSize: 12)),
         child: _chips(s.envelopeColors, _draft.envelope, (v) => _draft.envelope = v,
             avatar: (v) => Swatch(LetterLook.envelope[v] ?? Colors.white)),
       ),
@@ -522,14 +526,14 @@ class _LetterEditorScreenState extends State<LetterEditorScreen> {
           // Editörün araç çubuğu: yazı stili ve mürekkep (sitedeki editörle aynı); metin seçime göre hemen değişir.
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-            decoration: const BoxDecoration(
-              color: Color(0xCCF7F6F0),
+            decoration: BoxDecoration(
+              color: const Color(0xCCF7F6F0),
               border: Border(bottom: BorderSide(color: Brand.line)),
             ),
             child: Wrap(spacing: 12, crossAxisAlignment: WrapCrossAlignment.center, children: [
               _toolbarMenu(
                 tooltip: 'Yazı stili',
-                icon: const Icon(Icons.text_fields, size: 18, color: Brand.muted),
+                icon: const Icon(Icons.text_fields, size: 18, color: _paperMuted),
                 options: s.fonts,
                 value: _draft.font,
                 onSelect: (v) => _draft.font = v,
@@ -556,6 +560,7 @@ class _LetterEditorScreenState extends State<LetterEditorScreen> {
             textCapitalization: TextCapitalization.sentences,
             style: LetterLook.textStyle(_draft.font, _draft.ink),
             decoration: const InputDecoration(
+              hintStyle: TextStyle(color: Color(0x99686D7A)),
               hintText: 'Sevgili ...\n\nBuraya yazdıklarınız kâğıda basılıp zarflanacak.',
               filled: false,
               border: InputBorder.none,
@@ -573,15 +578,15 @@ class _LetterEditorScreenState extends State<LetterEditorScreen> {
       Row(children: [
         Icon(Icons.description_outlined, size: 16, color: Brand.muted.withValues(alpha: 0.9)),
         const SizedBox(width: 6),
-        Text('$pages sayfa', style: const TextStyle(color: Brand.muted)),
+        Text('$pages sayfa', style: TextStyle(color: Brand.muted)),
         if (pages > 1)
-          Text(' (+${money((pages - 1) * s.prices.extraPage)})', style: const TextStyle(color: Brand.muted)),
+          Text(' (+${money((pages - 1) * s.prices.extraPage)})', style: TextStyle(color: Brand.muted)),
         const Spacer(),
-        Text('${_content.text.length} / ${s.maxContentLength}', style: const TextStyle(color: Brand.muted, fontSize: 12)),
+        Text('${_content.text.length} / ${s.maxContentLength}', style: TextStyle(color: Brand.muted, fontSize: 12)),
       ]),
       const SizedBox(height: 4),
       Text('İlk sayfa fiyata dahildir; her ek sayfa ${money(s.prices.extraPage)}.',
-          style: const TextStyle(color: Brand.muted, fontSize: 12)),
+          style: TextStyle(color: Brand.muted, fontSize: 12)),
     ]);
   }
 
@@ -615,8 +620,9 @@ class _LetterEditorScreenState extends State<LetterEditorScreen> {
         child: Row(mainAxisSize: MainAxisSize.min, children: [
           icon,
           const SizedBox(width: 6),
-          Text(label, style: const TextStyle(fontWeight: FontWeight.w600, color: Brand.ink)),
-          const Icon(Icons.arrow_drop_down, color: Brand.muted),
+          // Araç çubuğu kağıdın üstünde: koyu modda da açık zemin, koyu yazı.
+          Text(label, style: const TextStyle(fontWeight: FontWeight.w600, color: _paperInk)),
+          const Icon(Icons.arrow_drop_down, color: _paperMuted),
         ]),
       ),
     );
@@ -629,7 +635,7 @@ class _LetterEditorScreenState extends State<LetterEditorScreen> {
     return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
       SectionCard(
         title: 'Koku',
-        trailing: Text('+${money(p.scent)}', style: const TextStyle(color: Brand.muted, fontSize: 12)),
+        trailing: Text('+${money(p.scent)}', style: TextStyle(color: Brand.muted, fontSize: 12)),
         child: Wrap(spacing: 8, runSpacing: 8, children: [
           ChoiceChip(
             label: const Text('Kokusuz'),
@@ -649,7 +655,7 @@ class _LetterEditorScreenState extends State<LetterEditorScreen> {
       if (_postcardOptions(s).isNotEmpty) ...[
         SectionCard(
           title: 'Kartpostal',
-          trailing: Text('her biri +${money(p.postcard)}', style: const TextStyle(color: Brand.muted, fontSize: 12)),
+          trailing: Text('her biri +${money(p.postcard)}', style: TextStyle(color: Brand.muted, fontSize: 12)),
           child: _postcardPicker(s),
         ),
       ],
@@ -780,7 +786,7 @@ class _LetterEditorScreenState extends State<LetterEditorScreen> {
       trailing: busy ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2)) : null,
       child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
         Text('📷 Fotoğraflar · her biri +${money(p.photo)} · en fazla ${s.maxPhotos}',
-            style: const TextStyle(color: Brand.muted, fontSize: 13)),
+            style: TextStyle(color: Brand.muted, fontSize: 13)),
         const SizedBox(height: 8),
         Wrap(spacing: 8, runSpacing: 8, children: [
           for (final (i, ph) in _photos.indexed)
@@ -838,7 +844,7 @@ class _LetterEditorScreenState extends State<LetterEditorScreen> {
         ]),
         const Divider(height: 24),
         Text('📄 Belgeler · her biri +${money(p.document)} · en fazla ${s.maxDocuments} · PDF, JPG, PNG',
-            style: const TextStyle(color: Brand.muted, fontSize: 13)),
+            style: TextStyle(color: Brand.muted, fontSize: 13)),
         for (final d in _documents)
           ListTile(
             dense: true,
@@ -945,7 +951,7 @@ class _LetterEditorScreenState extends State<LetterEditorScreen> {
         ),
       for (final g in groups.entries) ...[
         const SizedBox(height: 10),
-        Text(g.key, style: const TextStyle(color: Brand.muted, fontSize: 13)),
+        Text(g.key, style: TextStyle(color: Brand.muted, fontSize: 13)),
         const SizedBox(height: 6),
         Wrap(spacing: 10, runSpacing: 10, children: [
           for (final p in g.value)
@@ -964,7 +970,7 @@ class _LetterEditorScreenState extends State<LetterEditorScreen> {
                           selected: _draft.postcardIds.contains(p.id),
                           width: 104),
                       if (_draft.postcardIds.contains(p.id))
-                        const Positioned(
+                        Positioned(
                           top: 4,
                           right: 4,
                           child: CircleAvatar(
@@ -1014,7 +1020,7 @@ class _LetterEditorScreenState extends State<LetterEditorScreen> {
         ]),
       ),
       const SizedBox(height: 10),
-      const Text('Alıcı cevap yazmak isterse zarfın üzerindeki gönderen adresini kullanır.',
+      Text('Alıcı cevap yazmak isterse zarfın üzerindeki gönderen adresini kullanır.',
           style: TextStyle(color: Brand.muted, fontSize: 13)),
     ]);
   }
@@ -1029,7 +1035,7 @@ class _LetterEditorScreenState extends State<LetterEditorScreen> {
         [[a.district, a.city].where((x) => x.isNotEmpty).join(' / '), a.postalCode].where((x) => x.isNotEmpty).join(' ');
     Widget label(String text, int step) => Row(children: [
           Text(text.toUpperCase(),
-              style: const TextStyle(color: Brand.muted, fontSize: 12, fontWeight: FontWeight.w700, letterSpacing: .5)),
+              style: TextStyle(color: Brand.muted, fontSize: 12, fontWeight: FontWeight.w700, letterSpacing: .5)),
           const Spacer(),
           TextButton(onPressed: () => setState(() => _step = step), child: const Text('Düzenle')),
         ]);
@@ -1037,7 +1043,7 @@ class _LetterEditorScreenState extends State<LetterEditorScreen> {
     final style = LetterLook.textStyle(d.font, d.ink);
 
     return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-      const Text('Göndermeden önce zarfınızı, mektubunuzu ve eklediklerinizi kontrol edin.',
+      Text('Göndermeden önce zarfınızı, mektubunuzu ve eklediklerinizi kontrol edin.',
           style: TextStyle(color: Brand.muted)),
       const SizedBox(height: 8),
       label('Zarf', 0), // zarf rengi mektup adımında seçilir
@@ -1084,7 +1090,7 @@ class _LetterEditorScreenState extends State<LetterEditorScreen> {
         child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
           InfoRow('Koku', _scentName(s, d.scentId)),
           const SizedBox(height: 8),
-          const Text('Kartpostal', style: TextStyle(color: Brand.muted)),
+          Text('Kartpostal', style: TextStyle(color: Brand.muted)),
           const SizedBox(height: 4),
           if (postcards.isEmpty)
             const Text('Yok')
@@ -1100,7 +1106,7 @@ class _LetterEditorScreenState extends State<LetterEditorScreen> {
                 ),
             ]),
           const SizedBox(height: 10),
-          Text('Fotoğraflar (${_photos.length})', style: const TextStyle(color: Brand.muted)),
+          Text('Fotoğraflar (${_photos.length})', style: TextStyle(color: Brand.muted)),
           const SizedBox(height: 4),
           if (_photos.isEmpty)
             const Text('Yok')
@@ -1125,7 +1131,7 @@ class _LetterEditorScreenState extends State<LetterEditorScreen> {
                 ),
             ]),
           const SizedBox(height: 10),
-          Text('Belgeler (${_documents.length})', style: const TextStyle(color: Brand.muted)),
+          Text('Belgeler (${_documents.length})', style: TextStyle(color: Brand.muted)),
           if (_documents.isEmpty) const Text('Yok'),
           for (final doc in _documents)
             Padding(
@@ -1200,7 +1206,7 @@ class _StepBarState extends State<_StepBar> {
         padding: const EdgeInsets.symmetric(horizontal: 12),
         alignment: Alignment.center,
         decoration: BoxDecoration(
-          color: active ? Brand.burgundy : (done ? Brand.burgundy.withValues(alpha: 0.1) : Colors.white),
+          color: active ? Theme.of(context).colorScheme.primary : (done ? Brand.burgundy.withValues(alpha: 0.12) : Brand.card),
           borderRadius: BorderRadius.circular(20),
           border: Border.all(color: active ? Brand.burgundy : Brand.line),
         ),

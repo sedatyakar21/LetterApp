@@ -75,9 +75,9 @@ class _LoginScreenState extends State<LoginScreen> {
                 key: _form,
                 child: AutofillGroup(
                   child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-                    Image.asset('assets/images/logo.png', height: 150),
+                    const BrandLogo(height: 150),
                     const SizedBox(height: 8),
-                    const Text('Sevdiklerinize gerçek mektup gönderin',
+                    Text('Sevdiklerinize gerçek mektup gönderin',
                         textAlign: TextAlign.center, style: TextStyle(color: Brand.muted, fontSize: 15)),
                     const SizedBox(height: 28),
                     if (_error != null) ...[

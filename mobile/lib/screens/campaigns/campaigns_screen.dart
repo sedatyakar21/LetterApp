@@ -86,13 +86,13 @@ class CampaignTile extends StatelessWidget {
                 if (c.couponCode != null) _CouponPill(code: c.couponCode!),
               ]),
               const SizedBox(height: 8),
-              Text(c.title, style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w700, color: Brand.navy)),
+              Text(c.title, style: TextStyle(fontSize: 17, fontWeight: FontWeight.w700, color: Brand.navy)),
               const SizedBox(height: 4),
-              Text(c.summary, style: const TextStyle(color: Brand.ink)),
+              Text(c.summary, style: TextStyle(color: Brand.ink)),
               const SizedBox(height: 8),
-              Text(c.dateRange, style: const TextStyle(color: Brand.muted, fontSize: 12)),
+              Text(c.dateRange, style: TextStyle(color: Brand.muted, fontSize: 12)),
               if (c.audienceText != null)
-                Text(c.audienceText!, style: const TextStyle(color: Brand.burgundy, fontSize: 12, fontWeight: FontWeight.w600)),
+                Text(c.audienceText!, style: TextStyle(color: Brand.burgundy, fontSize: 12, fontWeight: FontWeight.w600)),
             ]),
           ),
         ]),
@@ -115,28 +115,28 @@ class CampaignDetailScreen extends StatelessWidget {
         builder: (context, c) => ListView(padding: const EdgeInsets.all(16), children: [
           ClipRRect(borderRadius: BorderRadius.circular(16), child: _Cover(campaign: c, height: 180)),
           const SizedBox(height: 14),
-          Row(children: [_StatusBadge(campaign: c), const SizedBox(width: 8), Expanded(child: Text(c.dateRange, style: const TextStyle(color: Brand.muted)))]),
+          Row(children: [_StatusBadge(campaign: c), const SizedBox(width: 8), Expanded(child: Text(c.dateRange, style: TextStyle(color: Brand.muted)))]),
           const SizedBox(height: 10),
           Text(c.title, style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w700, color: Brand.navy)),
           const SizedBox(height: 6),
           Text(c.summary, style: const TextStyle(fontSize: 16)),
           if (c.audienceText != null) ...[
             const SizedBox(height: 8),
-            Text(c.audienceText!, style: const TextStyle(color: Brand.burgundy, fontWeight: FontWeight.w600)),
+            Text(c.audienceText!, style: TextStyle(color: Brand.burgundy, fontWeight: FontWeight.w600)),
           ],
           if (c.minOrderAmount != null) ...[
             const SizedBox(height: 4),
-            Text('En az ${money(c.minOrderAmount!)} tutarındaki siparişlerde geçerlidir.', style: const TextStyle(color: Brand.muted)),
+            Text('En az ${money(c.minOrderAmount!)} tutarındaki siparişlerde geçerlidir.', style: TextStyle(color: Brand.muted)),
           ],
           if (c.couponCode != null) ...[
             const SizedBox(height: 16),
             SectionCard(
               child: Row(children: [
-                const Icon(Icons.confirmation_number_outlined, color: Brand.burgundy),
+                Icon(Icons.confirmation_number_outlined, color: Brand.burgundy),
                 const SizedBox(width: 10),
                 Expanded(
                   child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                    const Text('Kupon kodu', style: TextStyle(color: Brand.muted, fontSize: 12)),
+                    Text('Kupon kodu', style: TextStyle(color: Brand.muted, fontSize: 12)),
                     Text(c.couponCode!, style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 18, letterSpacing: 1)),
                   ]),
                 ),
@@ -152,7 +152,7 @@ class CampaignDetailScreen extends StatelessWidget {
             ),
           ] else if (c.isActive) ...[
             const SizedBox(height: 12),
-            const Text('Kod gerekmez: koşulları sağlayan siparişlerde indirim ödeme ekranında otomatik uygulanır.',
+            Text('Kod gerekmez: koşulları sağlayan siparişlerde indirim ödeme ekranında otomatik uygulanır.',
                 style: TextStyle(color: Brand.success)),
           ],
           if ((c.description ?? '').trim().isNotEmpty) ...[
@@ -195,7 +195,7 @@ class SimpleMarkdown extends StatelessWidget {
         widgets.add(Padding(
           padding: const EdgeInsets.only(top: 6, bottom: 4),
           child: Text(line.replaceFirst(RegExp(r'^#+\s*'), ''),
-              style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w700, color: Brand.navy)),
+              style: TextStyle(fontSize: 17, fontWeight: FontWeight.w700, color: Brand.navy)),
         ));
       } else if (RegExp(r'^\s*([-*]|\d+\.)\s+').hasMatch(line)) {
         final bullet = RegExp(r'^\s*(\d+\.)').firstMatch(line)?.group(1) ?? '•';
@@ -224,13 +224,13 @@ class _Cover extends StatelessWidget {
   Widget build(BuildContext context) {
     final placeholder = Container(
       height: height,
-      decoration: const BoxDecoration(
-          gradient: LinearGradient(colors: [Color(0xFFF1EEE4), Color(0xFFF6EEF0)], begin: Alignment.topLeft, end: Alignment.bottomRight)),
+      decoration: BoxDecoration(
+          gradient: LinearGradient(colors: Brand.dark ? [Brand.paper2, const Color(0xFF2E2230)] : const [Color(0xFFF1EEE4), Color(0xFFF6EEF0)], begin: Alignment.topLeft, end: Alignment.bottomRight)),
       alignment: Alignment.center,
       child: campaign.badgeText != null
           ? Text(campaign.badgeText!,
-              textAlign: TextAlign.center, style: const TextStyle(fontSize: 26, fontWeight: FontWeight.w800, color: Brand.burgundy))
-          : const Icon(Icons.local_offer_outlined, size: 40, color: Brand.burgundy),
+              textAlign: TextAlign.center, style: TextStyle(fontSize: 26, fontWeight: FontWeight.w800, color: Brand.burgundy))
+          : Icon(Icons.local_offer_outlined, size: 40, color: Brand.burgundy),
     );
     if (campaign.coverUrl == null) return placeholder;
     return Image.network(campaign.coverUrl!,
@@ -245,9 +245,10 @@ class _StatusBadge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final urgent = campaign.isActive && (campaign.statusText.startsWith('Son') || campaign.statusText.startsWith('Bugün'));
-    final (bg, fg) = campaign.isActive
+    final (light, fg) = campaign.isActive
         ? (urgent ? (const Color(0xFFF8E1E4), Brand.burgundy) : (const Color(0xFFE3F2E6), Brand.success))
         : (const Color(0xFFE3E6EF), Brand.navy);
+    final bg = Brand.dark ? fg.withValues(alpha: 0.18) : light;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(color: bg, borderRadius: BorderRadius.circular(20)),
@@ -267,6 +268,6 @@ class _CouponPill extends StatelessWidget {
           border: Border.all(color: Brand.burgundy, style: BorderStyle.solid),
           borderRadius: BorderRadius.circular(6),
         ),
-        child: Text(code, style: const TextStyle(color: Brand.burgundy, fontWeight: FontWeight.w700, fontSize: 12, letterSpacing: 0.5)),
+        child: Text(code, style: TextStyle(color: Brand.burgundy, fontWeight: FontWeight.w700, fontSize: 12, letterSpacing: 0.5)),
       );
 }

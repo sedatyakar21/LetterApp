@@ -148,7 +148,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
               : o.emailEnabled
                   ? 'Üyelikte kullandığınız e-posta adresini girin; size yeni şifre belirleme bağlantısı gönderelim.'
                   : 'Üyelikte kullandığınız e-posta adresini girin; kayıtlı cep telefonunuza doğrulama kodu gönderelim.',
-          style: const TextStyle(color: Brand.muted),
+          style: TextStyle(color: Brand.muted),
         ),
         const SizedBox(height: 16),
         TextFormField(
@@ -189,11 +189,11 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   }
 
   Widget _emailSentView() => Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-        const Icon(Icons.mark_email_read_outlined, size: 56, color: Brand.navy),
+        Icon(Icons.mark_email_read_outlined, size: 56, color: Brand.navy),
         const SizedBox(height: 12),
         _MessageBox(_info ?? ''),
         const SizedBox(height: 12),
-        const Text(
+        Text(
           'E-postadaki "Yeni Şifre Belirle" bağlantısına dokunun; yeni şifrenizi web sitesinde belirledikten sonra '
           'uygulamaya yeni şifrenizle giriş yapın. E-posta gelmezse gereksiz (spam) klasörüne bakın.',
           style: TextStyle(color: Brand.muted),

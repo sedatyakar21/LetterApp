@@ -19,7 +19,7 @@ void showMessage(BuildContext context, String text, {bool error = false}) {
     ..hideCurrentSnackBar()
     ..showSnackBar(SnackBar(
       content: Text(text),
-      backgroundColor: error ? Theme.of(context).colorScheme.error : Brand.navy,
+      backgroundColor: error ? const Color(0xFFB3261E) : Brand.navyBase,
     ));
 }
 
@@ -43,6 +43,26 @@ Future<bool> confirm(BuildContext context, {required String title, required Stri
 }
 
 /// Yükleniyor / hata (tekrar dene) / içerik.
+/// Logo (lacivert-bordo çizgiler). Koyu modda okunabilmesi için açık "kağıt" zemin üzerinde gösterilir.
+class BrandLogo extends StatelessWidget {
+  const BrandLogo({super.key, this.height, this.width});
+  final double? height;
+  final double? width;
+
+  @override
+  Widget build(BuildContext context) {
+    final image = Image.asset('assets/images/logo.png', height: height, width: width);
+    if (!Brand.dark) return image;
+    return Center(
+      child: Container(
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(color: const Color(0xFFF7F6F0), borderRadius: BorderRadius.circular(20)),
+        child: image,
+      ),
+    );
+  }
+}
+
 class AsyncView<T> extends StatelessWidget {
   const AsyncView({super.key, required this.future, required this.builder, this.onRetry});
   final Future<T>? future;
@@ -75,9 +95,9 @@ class ErrorView extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.all(32),
         child: Column(mainAxisSize: MainAxisSize.min, children: [
-          const Icon(Icons.cloud_off_outlined, size: 48, color: Brand.muted),
+          Icon(Icons.cloud_off_outlined, size: 48, color: Brand.muted),
           const SizedBox(height: 12),
-          Text(message, textAlign: TextAlign.center, style: const TextStyle(color: Brand.muted)),
+          Text(message, textAlign: TextAlign.center, style: TextStyle(color: Brand.muted)),
           if (onRetry != null) ...[
             const SizedBox(height: 16),
             OutlinedButton.icon(onPressed: onRetry, icon: const Icon(Icons.refresh), label: const Text('Tekrar dene')),
@@ -106,7 +126,7 @@ class EmptyView extends StatelessWidget {
           Text(title, textAlign: TextAlign.center, style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700)),
           if (message != null) ...[
             const SizedBox(height: 8),
-            Text(message!, textAlign: TextAlign.center, style: const TextStyle(color: Brand.muted)),
+            Text(message!, textAlign: TextAlign.center, style: TextStyle(color: Brand.muted)),
           ],
           if (action != null) ...[const SizedBox(height: 20), action!],
         ]),
@@ -133,7 +153,7 @@ class SectionCard extends StatelessWidget {
             Row(children: [
               Expanded(
                 child: Text(title!,
-                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: Brand.navy)),
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: Brand.navy)),
               ),
               ?trailing,
             ]),
@@ -152,15 +172,19 @@ class StatusChip extends StatelessWidget {
   final String status;
   final String label;
 
-  static (Color, Color) colors(String status) => switch (status) {
-        'Draft' => (const Color(0xFFECEAE3), Brand.muted),
-        'AwaitingPayment' => (const Color(0xFFFFF1D6), const Color(0xFF8A5A00)),
-        'Paid' || 'InProduction' => (const Color(0xFFE3E6EF), Brand.navy),
-        'Shipped' => (const Color(0xFFE1EEFB), const Color(0xFF1F4F8A)),
-        'Delivered' => (const Color(0xFFE3F2E6), Brand.success),
-        'Cancelled' => (const Color(0xFFF8E1E4), Brand.burgundy),
-        _ => (Brand.paper2, Brand.muted),
-      };
+  /// (zemin, yazı). Koyu modda zemin, yazı renginin saydam tonudur.
+  static (Color, Color) colors(String status) {
+    final (light, fg) = switch (status) {
+      'Draft' => (const Color(0xFFECEAE3), Brand.muted),
+      'AwaitingPayment' => (const Color(0xFFFFF1D6), Brand.warnTitle),
+      'Paid' || 'InProduction' => (const Color(0xFFE3E6EF), Brand.navy),
+      'Shipped' => (const Color(0xFFE1EEFB), Brand.tint(const Color(0xFF1F4F8A), const Color(0xFF8DB8EA))),
+      'Delivered' => (const Color(0xFFE3F2E6), Brand.success),
+      'Cancelled' => (const Color(0xFFF8E1E4), Brand.burgundy),
+      _ => (const Color(0xFFEFECE2), Brand.muted),
+    };
+    return (Brand.dark ? fg.withValues(alpha: 0.18) : light, fg);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -215,7 +239,7 @@ class Timeline extends StatelessWidget {
                   margin: const EdgeInsets.only(top: 3),
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: i == 0 ? StatusChip.colors(items[i].status).$2 : Colors.white,
+                    color: i == 0 ? StatusChip.colors(items[i].status).$2 : Brand.card,
                     border: Border.all(color: StatusChip.colors(items[i].status).$2, width: 2),
                   ),
                 ),
@@ -228,8 +252,8 @@ class Timeline extends StatelessWidget {
                 padding: const EdgeInsets.only(bottom: 16),
                 child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                   Text(items[i].title, style: const TextStyle(fontWeight: FontWeight.w700)),
-                  if (items[i].note.isNotEmpty) Text(items[i].note, style: const TextStyle(color: Brand.ink)),
-                  Text(dateTimeText(items[i].at), style: const TextStyle(color: Brand.muted, fontSize: 12)),
+                  if (items[i].note.isNotEmpty) Text(items[i].note, style: TextStyle(color: Brand.ink)),
+                  Text(dateTimeText(items[i].at), style: TextStyle(color: Brand.muted, fontSize: 12)),
                 ]),
               ),
             ),

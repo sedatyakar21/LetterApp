@@ -33,7 +33,7 @@ class PointsScreen extends StatelessWidget {
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Text(p.earnRule ?? 'Puan kazanımı şu an kapalı. Mevcut puanlarınızı kullanmaya devam edebilirsiniz.'),
               const SizedBox(height: 6),
-              const Text('Puanlar mektubunuz postaya verildiğinde hesabınıza geçer; ödeme ekranında kullanabilirsiniz.',
+              Text('Puanlar mektubunuz postaya verildiğinde hesabınıza geçer; ödeme ekranında kullanabilirsiniz.',
                   style: TextStyle(color: Brand.muted, fontSize: 13)),
             ]),
           ),
@@ -54,7 +54,7 @@ class PointsScreen extends StatelessWidget {
                       border: Border.all(color: Brand.line),
                     ),
                     child: SelectableText(p.referralCode,
-                        style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w800, letterSpacing: 2, color: Brand.navy)),
+                        style: TextStyle(fontSize: 20, fontWeight: FontWeight.w800, letterSpacing: 2, color: Brand.navy)),
                   ),
                 ),
                 const SizedBox(width: 10),
@@ -68,14 +68,14 @@ class PointsScreen extends StatelessWidget {
                 ),
               ]),
               const SizedBox(height: 6),
-              Text('Davet ettiğiniz üye: ${p.referredCount}', style: const TextStyle(color: Brand.muted, fontSize: 13)),
+              Text('Davet ettiğiniz üye: ${p.referredCount}', style: TextStyle(color: Brand.muted, fontSize: 13)),
             ]),
           ),
           const SizedBox(height: 12),
           SectionCard(
             title: 'Hareketler',
             child: p.transactions.isEmpty
-                ? const Text('Henüz puan hareketi yok.', style: TextStyle(color: Brand.muted))
+                ? Text('Henüz puan hareketi yok.', style: TextStyle(color: Brand.muted))
                 : Column(children: [
                     for (final t in p.transactions)
                       ListTile(

@@ -70,7 +70,7 @@ class AccountScreen extends StatelessWidget {
           Card(
             child: Column(children: [
               ListTile(
-                leading: const Icon(Icons.stars_outlined, color: Brand.burgundy),
+                leading: Icon(Icons.stars_outlined, color: Brand.burgundy),
                 title: const Text('MektupPuan'),
                 subtitle: Text('${number(me.pointsBalance)} puan · ${money(me.pointsBalance * me.pointValue)} değerinde'),
                 trailing: const Icon(Icons.chevron_right),
@@ -78,7 +78,7 @@ class AccountScreen extends StatelessWidget {
               ),
               const Divider(height: 1, indent: 16, endIndent: 16),
               ListTile(
-                leading: const Icon(Icons.card_giftcard_outlined, color: Brand.burgundy),
+                leading: Icon(Icons.card_giftcard_outlined, color: Brand.burgundy),
                 title: const Text('Referans numaram'),
                 subtitle: Text('${me.referralCode} · ${me.referredCount} arkadaş davet ettiniz'),
                 trailing: IconButton(
@@ -92,7 +92,7 @@ class AccountScreen extends StatelessWidget {
               ),
               const Divider(height: 1, indent: 16, endIndent: 16),
               ListTile(
-                leading: const Icon(Icons.cake_outlined, color: Brand.burgundy),
+                leading: Icon(Icons.cake_outlined, color: Brand.burgundy),
                 title: const Text('Doğum tarihi'),
                 subtitle: Text(me.birthDate == null ? 'Girilmedi · doğum günü kampanyaları için ekleyin' : dateText(me.birthDate!)),
                 trailing: me.birthDate == null ? const Icon(Icons.add) : null,
@@ -100,7 +100,7 @@ class AccountScreen extends StatelessWidget {
               ),
               if (me.googleLinked) ...[
                 const Divider(height: 1, indent: 16, endIndent: 16),
-                const ListTile(
+                ListTile(
                   leading: Icon(Icons.verified_user_outlined, color: Brand.success),
                   title: Text('Google hesabı bağlı'),
                   subtitle: Text('Bağlantıyı web sitesindeki Hesabım sayfasından yönetebilirsiniz.'),
@@ -110,9 +110,38 @@ class AccountScreen extends StatelessWidget {
           ),
           const SizedBox(height: 12),
           Card(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(16, 12, 16, 14),
+              child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+                Row(children: [
+                  Icon(Icons.dark_mode_outlined, color: Brand.navy),
+                  const SizedBox(width: 12),
+                  const Text('Görünüm', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16)),
+                ]),
+                const SizedBox(height: 10),
+                SegmentedButton<ThemeMode>(
+                  showSelectedIcon: false,
+                  segments: const [
+                    ButtonSegment(value: ThemeMode.system, icon: Icon(Icons.brightness_auto_outlined), label: Text('Sistem')),
+                    ButtonSegment(value: ThemeMode.light, icon: Icon(Icons.light_mode_outlined), label: Text('Açık')),
+                    ButtonSegment(value: ThemeMode.dark, icon: Icon(Icons.dark_mode_outlined), label: Text('Koyu')),
+                  ],
+                  selected: {session.themeMode},
+                  onSelectionChanged: (v) => session.setThemeMode(v.first),
+                ),
+                if (session.themeMode == ThemeMode.system)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 6),
+                    child: Text('Telefonunuzun açık / koyu ayarına göre değişir.', style: TextStyle(color: Brand.muted, fontSize: 12)),
+                  ),
+              ]),
+            ),
+          ),
+          const SizedBox(height: 12),
+          Card(
             child: Column(children: [
               ListTile(
-                leading: const Icon(Icons.reviews_outlined, color: Brand.navy),
+                leading: Icon(Icons.reviews_outlined, color: Brand.navy),
                 title: const Text('Müşteri yorumları'),
                 trailing: const Icon(Icons.chevron_right),
                 onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const ReviewsScreen())),
@@ -130,7 +159,7 @@ class AccountScreen extends StatelessWidget {
               if (support.email != null) ...[
                 const Divider(height: 1, indent: 16, endIndent: 16),
                 ListTile(
-                  leading: const Icon(Icons.mail_outline, color: Brand.navy),
+                  leading: Icon(Icons.mail_outline, color: Brand.navy),
                   title: const Text('E-posta'),
                   subtitle: Text(support.email!),
                   onTap: () => _open(context, Uri(scheme: 'mailto', path: support.email)),
@@ -138,14 +167,14 @@ class AccountScreen extends StatelessWidget {
               ],
               const Divider(height: 1, indent: 16, endIndent: 16),
               ListTile(
-                leading: const Icon(Icons.help_outline, color: Brand.navy),
+                leading: Icon(Icons.help_outline, color: Brand.navy),
                 title: const Text('Sıkça sorulan sorular'),
                 trailing: const Icon(Icons.open_in_new, size: 18),
                 onTap: () => _open(context, Uri.parse('$base/sss')),
               ),
               const Divider(height: 1, indent: 16, endIndent: 16),
               ListTile(
-                leading: const Icon(Icons.description_outlined, color: Brand.navy),
+                leading: Icon(Icons.description_outlined, color: Brand.navy),
                 title: const Text('Üyelik sözleşmesi'),
                 trailing: const Icon(Icons.open_in_new, size: 18),
                 onTap: () => _open(context, Uri.parse('$base/uyelik-sozlesmesi')),

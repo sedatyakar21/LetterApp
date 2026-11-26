@@ -151,7 +151,7 @@ class _LetterDetailScreenState extends State<LetterDetailScreen> {
             child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.stretch, children: [
               Text('Alıcı adresini değiştir', style: Theme.of(c).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700)),
               const SizedBox(height: 4),
-              const Text('Mektup postaya verilmeden önce değiştirilebilir.', style: TextStyle(color: Brand.muted)),
+              Text('Mektup postaya verilmeden önce değiştirilebilir.', style: TextStyle(color: Brand.muted)),
               const SizedBox(height: 16),
               AddressFields(controllers: controllers, prisonMode: _letter!.recipientType == 'Inmate'),
               const SizedBox(height: 16),
@@ -259,7 +259,7 @@ class _LetterDetailScreenState extends State<LetterDetailScreen> {
           Flexible(
             child: InteractiveViewer(
               child: Image.network(client.absolute(d.url), headers: client.authHeaders, fit: BoxFit.contain,
-                  errorBuilder: (_, _, _) => const Padding(
+                  errorBuilder: (_, _, _) => Padding(
                       padding: EdgeInsets.all(24), child: Icon(Icons.broken_image_outlined, color: Brand.muted, size: 48))),
             ),
           ),
@@ -335,16 +335,16 @@ class _LetterDetailScreenState extends State<LetterDetailScreen> {
           Row(children: [
             StatusChip(status: l.status, label: l.statusLabel),
             const Spacer(),
-            Text(dateText(l.createdAt), style: const TextStyle(color: Brand.muted, fontSize: 12)),
+            Text(dateText(l.createdAt), style: TextStyle(color: Brand.muted, fontSize: 12)),
           ]),
           const SizedBox(height: 10),
-          Text(_statusHint(l), style: const TextStyle(color: Brand.ink)),
+          Text(_statusHint(l), style: TextStyle(color: Brand.ink)),
           if (l.trackingCode != null) ...[
             const SizedBox(height: 12),
             Row(children: [
-              const Icon(Icons.local_shipping_outlined, size: 18, color: Brand.navy),
+              Icon(Icons.local_shipping_outlined, size: 18, color: Brand.navy),
               const SizedBox(width: 6),
-              Text('${l.carrier ?? 'PTT'} takip no: ', style: const TextStyle(color: Brand.muted)),
+              Text('${l.carrier ?? 'PTT'} takip no: ', style: TextStyle(color: Brand.muted)),
               Flexible(child: SelectableText(l.trackingCode!, style: const TextStyle(fontWeight: FontWeight.w700))),
               IconButton(
                 tooltip: 'Kopyala',
@@ -359,7 +359,7 @@ class _LetterDetailScreenState extends State<LetterDetailScreen> {
             if (l.carrierLastMovement != null)
               Text(
                   'Son hareket: ${l.carrierLastMovement}${l.carrierLastMovementAt == null ? '' : ' · ${dateTimeText(l.carrierLastMovementAt!)}'}',
-                  style: const TextStyle(color: Brand.muted, fontSize: 13)),
+                  style: TextStyle(color: Brand.muted, fontSize: 13)),
           ],
         ]),
       ),
@@ -374,13 +374,13 @@ class _LetterDetailScreenState extends State<LetterDetailScreen> {
       SectionCard(
         title: 'Zarf',
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          const Text('Alıcı', style: TextStyle(color: Brand.muted, fontSize: 12)),
+          Text('Alıcı', style: TextStyle(color: Brand.muted, fontSize: 12)),
           Text(l.recipientName, style: const TextStyle(fontWeight: FontWeight.w700)),
           if (l.recipientNote != null) Text(l.recipientNote!),
           if (l.recipientDetail != null) Text(l.recipientDetail!),
           Text(l.recipientAddress.toString()),
           const SizedBox(height: 10),
-          const Text('Gönderen', style: TextStyle(color: Brand.muted, fontSize: 12)),
+          Text('Gönderen', style: TextStyle(color: Brand.muted, fontSize: 12)),
           Text(l.senderName, style: const TextStyle(fontWeight: FontWeight.w700)),
           Text(l.senderAddress.toString()),
         ]),
@@ -442,15 +442,15 @@ class _LetterDetailScreenState extends State<LetterDetailScreen> {
       return Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: const Color(0xFFFFF7E6),
+          color: Brand.warnBg,
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: const Color(0xFFF1D9A6)),
+          border: Border.all(color: Brand.warnBorder),
         ),
         child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-          const Text('🏦 Havale / EFT bekleniyor', style: TextStyle(fontWeight: FontWeight.w700, color: Color(0xFF8A5A00))),
+          Text('🏦 Havale / EFT bekleniyor', style: TextStyle(fontWeight: FontWeight.w700, color: Brand.warnTitle)),
           const SizedBox(height: 4),
-          const Text('Tutarı aşağıdaki hesaba gönderin; açıklamaya sipariş numaranızı yazın. Havale hesabımıza geçince '
-              'ödemeniz onaylanır ve mektubunuz basıma alınır.', style: TextStyle(color: Color(0xFF6B4A00))),
+          Text('Tutarı aşağıdaki hesaba gönderin; açıklamaya sipariş numaranızı yazın. Havale hesabımıza geçince '
+              'ödemeniz onaylanır ve mektubunuz basıma alınır.', style: TextStyle(color: Brand.warnText)),
           const SizedBox(height: 10),
           BankInfo(
             bankName: bank.bankName,
@@ -470,18 +470,18 @@ class _LetterDetailScreenState extends State<LetterDetailScreen> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: const Color(0xFFFFF7E6),
+        color: Brand.warnBg,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFF1D9A6)),
+        border: Border.all(color: Brand.warnBorder),
       ),
       child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-        const Text('Ödeme tamamlanmadı', style: TextStyle(fontWeight: FontWeight.w700, color: Color(0xFF8A5A00))),
+        Text('Ödeme tamamlanmadı', style: TextStyle(fontWeight: FontWeight.w700, color: Brand.warnTitle)),
         const SizedBox(height: 4),
         Text(
           p == null
               ? 'Ödeme sonucu bekleniyor. Birkaç dakika içinde güncellenecek.'
               : 'Başlattığınız ${money(p.amount)} tutarındaki ödemeye dönebilir veya vazgeçip mektubu düzenleyebilirsiniz.',
-          style: const TextStyle(color: Color(0xFF6B4A00)),
+          style: TextStyle(color: Brand.warnText),
         ),
         const SizedBox(height: 12),
         Row(children: [
@@ -503,7 +503,7 @@ class _LetterDetailScreenState extends State<LetterDetailScreen> {
     return SectionCard(
       title: 'Fotoğraflar (${l.photos.length}/${s.maxPhotos})',
       trailing: l.isEditable
-          ? Text('Adet: +${money(s.prices.photo)}', style: const TextStyle(color: Brand.muted, fontSize: 12))
+          ? Text('Adet: +${money(s.prices.photo)}', style: TextStyle(color: Brand.muted, fontSize: 12))
           : null,
       child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
         if (l.photos.isNotEmpty)
@@ -533,7 +533,7 @@ class _LetterDetailScreenState extends State<LetterDetailScreen> {
                           headers: client.authHeaders,
                           fit: BoxFit.cover,
                           errorBuilder: (_, _, _) =>
-                              Container(color: Brand.paper2, child: const Icon(Icons.broken_image_outlined, color: Brand.muted)),
+                              Container(color: Brand.paper2, child: Icon(Icons.broken_image_outlined, color: Brand.muted)),
                         ),
                       ),
                     ),
@@ -559,7 +559,7 @@ class _LetterDetailScreenState extends State<LetterDetailScreen> {
             ],
           ),
         if (l.photos.isEmpty)
-          const Text('Mektubunuzla birlikte basılacak fotoğraflar ekleyebilirsiniz.', style: TextStyle(color: Brand.muted)),
+          Text('Mektubunuzla birlikte basılacak fotoğraflar ekleyebilirsiniz.', style: TextStyle(color: Brand.muted)),
         if (canAdd) ...[
           const SizedBox(height: 12),
           Row(children: [
@@ -589,10 +589,10 @@ class _LetterDetailScreenState extends State<LetterDetailScreen> {
     return SectionCard(
       title: 'Belgeler (${l.documents.length}/${s.maxDocuments})',
       trailing: l.isEditable
-          ? Text('Adet: +${money(s.prices.document)}', style: const TextStyle(color: Brand.muted, fontSize: 12))
+          ? Text('Adet: +${money(s.prices.document)}', style: TextStyle(color: Brand.muted, fontSize: 12))
           : null,
       child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-        const Text('Dilekçe, vekaletname, okul belgesi gibi evraklar basılıp mektubunuzla aynı zarfa konur.',
+        Text('Dilekçe, vekaletname, okul belgesi gibi evraklar basılıp mektubunuzla aynı zarfa konur.',
             style: TextStyle(color: Brand.muted)),
         for (final d in l.documents)
           ListTile(
@@ -630,7 +630,7 @@ class _LetterDetailScreenState extends State<LetterDetailScreen> {
           ]),
           const SizedBox(height: 4),
           Text('PDF, JPG veya PNG · en fazla ${s.maxDocumentBytes ~/ (1024 * 1024)} MB',
-              style: const TextStyle(color: Brand.muted, fontSize: 12)),
+              style: TextStyle(color: Brand.muted, fontSize: 12)),
         ],
       ]),
     );
@@ -676,7 +676,7 @@ class _LetterPreview extends StatelessWidget {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
             decoration: BoxDecoration(color: Brand.paper2, borderRadius: BorderRadius.circular(8)),
-            child: Text(e, style: const TextStyle(fontSize: 12, color: Brand.muted)),
+            child: Text(e, style: TextStyle(fontSize: 12, color: Brand.muted)),
           ),
         for (final p in l.postcards)
           if (p.imageUrl != null) PostcardTile(imageUrl: AppScope.read(context).api.client.absolute(p.imageUrl!), width: 42),
@@ -732,7 +732,7 @@ class _ReviewCardState extends State<_ReviewCard> {
     if (r != null) {
       return SectionCard(
         title: 'Yorumunuz',
-        trailing: Text(r.statusLabel, style: const TextStyle(color: Brand.muted, fontSize: 12)),
+        trailing: Text(r.statusLabel, style: TextStyle(color: Brand.muted, fontSize: 12)),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Stars(rating: r.rating.toDouble()),
           if (r.comment.isNotEmpty) ...[const SizedBox(height: 6), Text(r.comment)],

@@ -1,4 +1,4 @@
-@model MektupApp.Application.Customers.AccountDto
+﻿@model MektupApp.Application.Customers.AccountDto
 @inject MektupApp.Web.Infrastructure.GoogleSignIn Google
 @{
     ViewData["Title"] = "Hesabım";
@@ -54,6 +54,21 @@
         </div>
     }
 
+    <div class="card mb-3">
+        <div class="card-body">
+            <h2 class="h6 mb-2">🌓 Görünüm</h2>
+            <div class="btn-group theme-choice flex-wrap" role="group" aria-label="Görünüm">
+                <input type="radio" class="btn-check" name="theme" id="themeSystem" value="system" autocomplete="off" />
+                <label class="btn btn-outline-primary" for="themeSystem">🖥️ Sistem</label>
+                <input type="radio" class="btn-check" name="theme" id="themeLight" value="light" autocomplete="off" />
+                <label class="btn btn-outline-primary" for="themeLight">☀️ Açık</label>
+                <input type="radio" class="btn-check" name="theme" id="themeDark" value="dark" autocomplete="off" />
+                <label class="btn btn-outline-primary" for="themeDark">🌙 Koyu</label>
+            </div>
+            <p class="small text-muted mt-2 mb-0" id="themeHint">"Sistem" seçiliyken cihazınızın açık / koyu ayarı kullanılır. Seçim bu tarayıcıda saklanır.</p>
+        </div>
+    </div>
+
     <div class="card">
         <div class="card-body">
             <h2 class="h6 mb-2">🎂 Doğum tarihi</h2>
@@ -76,3 +91,15 @@
         </div>
     </div>
 </div>
+
+@section Scripts {
+    <script>
+        (function () {
+            const current = window.bmTheme?.get() ?? "system";
+            document.querySelectorAll("input[name=theme]").forEach(r => {
+                r.checked = r.value === current;
+                r.addEventListener("change", () => { if (r.checked) window.bmTheme?.set(r.value); });
+            });
+        })();
+    </script>
+}

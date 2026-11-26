@@ -69,6 +69,23 @@ class ApiClient {
     await _storage.delete(key: _refreshKey);
   }
 
+  /// Cihazda saklanan küçük tercihler (ör. tema). Depo okunamazsa null.
+  Future<String?> readPreference(String key) async {
+    try {
+      return await _storage.read(key: 'pref_$key');
+    } catch (_) {
+      return null;
+    }
+  }
+
+  Future<void> writePreference(String key, String value) async {
+    try {
+      await _storage.write(key: 'pref_$key', value: value);
+    } catch (_) {
+      // Tercih kaydedilemezse uygulama açıkken geçerli kalır.
+    }
+  }
+
   // ---------------- HTTP ----------------
 
   Future<dynamic> get(String path, {Map<String, String?>? query}) => _send('GET', path, query: query);

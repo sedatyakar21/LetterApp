@@ -15,7 +15,9 @@
     <meta property="og:type" content="@(ViewData["OgType"] as string ?? "website")" />
     @if (ViewData["OgImage"] is string ogImage) { <meta property="og:image" content="@ogImage" /> }
     <meta name="theme-color" content="#26304E" />
-    <link rel="icon" href="~/favicon.svg" type="image/svg+xml" />
+    <partial name="_ThemeInit" />
+    <link rel="icon" href="~/favicon-32.png" type="image/png" sizes="32x32" />
+    <link rel="apple-touch-icon" href="~/apple-touch-icon.png" />
     <link rel="alternate icon" href="~/favicon.ico" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -28,7 +30,7 @@
         <nav class="navbar navbar-expand-lg py-2">
             <div class="container">
                 <a class="navbar-brand brand" asp-area="" asp-controller="Home" asp-action="Index" aria-label="BiMektubum ana sayfa">
-                    <img src="~/img/bimektubum-mark.svg" class="brand-mark" alt="" />
+                    <img src="~/img/bimektubum-mark.png" class="brand-mark" alt="" />
                     <span class="brand-word"><span class="bi">Bi</span>Mektubum</span>
                 </a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav"
