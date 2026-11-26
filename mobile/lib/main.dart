@@ -27,7 +27,7 @@ class BiMektupApp extends StatelessWidget {
     return AppScope(
       session: session,
       child: MaterialApp(
-        title: 'BiMektup',
+        title: 'BiMektubum',
         debugShowCheckedModeBanner: false,
         theme: buildTheme(),
         locale: const Locale('tr', 'TR'),

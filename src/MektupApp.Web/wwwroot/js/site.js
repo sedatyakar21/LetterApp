@@ -1,4 +1,4 @@
-﻿// BiMektup — kaydırma efektleri
+﻿// BiMektubum — kaydırma efektleri
 //  - [data-reveal]        : ekrana girerken yumuşakça belirir (fade-up). Değer "left" / "right" / "zoom" olabilir.
 //  - [data-reveal-group]  : içindeki [data-reveal] öğeleri sırayla (kademeli) belirir.
 //  - [data-parallax="0.15"]: kaydırırken hafifçe yavaş hareket eder.

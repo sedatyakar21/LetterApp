@@ -124,7 +124,7 @@ class AccountScreen extends StatelessWidget {
                   title: const Text('WhatsApp destek'),
                   subtitle: Text([support.whatsAppDisplay, support.hours].whereType<String>().join(' · ')),
                   onTap: () => _open(context, Uri.parse(
-                      'https://wa.me/${support.whatsAppNumber}?text=${Uri.encodeComponent('Merhaba, BiMektup uygulaması hakkında yardım almak istiyorum.')}')),
+                      'https://wa.me/${support.whatsAppNumber}?text=${Uri.encodeComponent('Merhaba, BiMektubum uygulaması hakkında yardım almak istiyorum.')}')),
                 ),
               ],
               if (support.email != null) ...[

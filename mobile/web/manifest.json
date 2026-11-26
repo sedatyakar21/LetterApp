@@ -1,11 +1,11 @@
 {
-    "name": "bimektup",
-    "short_name": "bimektup",
+    "name": "BiMektubum",
+    "short_name": "BiMektubum",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
     "theme_color": "#0175C2",
-    "description": "BiMektup mobil uygulaması",
+    "description": "BiMektubum mobil uygulaması",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

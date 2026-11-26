@@ -1,7 +1,7 @@
 @model IReadOnlyList<MektupApp.Application.Campaigns.CampaignCardDto>
 @{
     ViewData["Title"] = "Kampanyalar";
-    ViewData["Description"] = "BiMektup kampanyaları: özel günlere indirimler, ücretsiz ekstralar ve fırsatlar.";
+    ViewData["Description"] = "BiMektubum kampanyaları: özel günlere indirimler, ücretsiz ekstralar ve fırsatlar.";
     var ended = ViewBag.Ended as IReadOnlyList<MektupApp.Application.Campaigns.CampaignCardDto> ?? [];
 }
 
@@ -45,6 +45,6 @@
     }
 
     <p class="small text-muted mt-5 mb-0">
-        Kampanya koşulları ve süreleri her kampanyanın sayfasında belirtilmiştir. BiMektup kampanyaları önceden haber vermeksizin değiştirme hakkını saklı tutar.
+        Kampanya koşulları ve süreleri her kampanyanın sayfasında belirtilmiştir. BiMektubum kampanyaları önceden haber vermeksizin değiştirme hakkını saklı tutar.
     </p>
 </div>

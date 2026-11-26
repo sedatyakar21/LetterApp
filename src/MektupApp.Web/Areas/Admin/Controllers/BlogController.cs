@@ -27,7 +27,7 @@ public sealed class BlogPostForm
     public string ContentMarkdown { get; set; } = string.Empty;
 
     [Required(ErrorMessage = "Yazar zorunludur."), StringLength(100), Display(Name = "Yazar")]
-    public string AuthorName { get; set; } = "BiMektup";
+    public string AuthorName { get; set; } = "BiMektubum";
 
     // Sadece düzenleme ekranında gösterilir
     public BlogPostStatus Status { get; set; }
@@ -42,7 +42,7 @@ public class BlogController(BlogService blog) : AdminControllerBase
 {
     public async Task<IActionResult> Index(CancellationToken ct) => View(await blog.ListAllAsync(ct));
 
-    public IActionResult Create() => View("Edit", new BlogPostForm { AuthorName = User.Identity?.Name ?? "BiMektup" });
+    public IActionResult Create() => View("Edit", new BlogPostForm { AuthorName = User.Identity?.Name ?? "BiMektubum" });
 
     /// <param name="publish">"Kaydet ve Yayınla" butonuyla true gelir.</param>
     [HttpPost]

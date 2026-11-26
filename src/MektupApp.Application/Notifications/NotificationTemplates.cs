@@ -9,7 +9,7 @@ public sealed class NotificationOptions
 {
     public const string Section = "Notifications";
     public string SiteUrl { get; set; } = "https://bimektup.net";
-    public string BrandName { get; set; } = "BiMektup";
+    public string BrandName { get; set; } = "BiMektubum";
 }
 
 /// <summary>Bir bildirimin SMS ve e-posta içerikleri.</summary>
@@ -147,7 +147,7 @@ public sealed class NotificationTemplates(NotificationOptions options)
                 <tr><td align="center">
                   <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;background:#ffffff;border:1px solid #E3DFD2;border-radius:12px;overflow:hidden">
                     <tr><td style="background:#26304E;padding:18px 24px;font-size:22px;font-weight:bold;color:#ffffff">
-                      <span style="color:#E8A0AC">Bi</span>Mektup<span style="font-size:13px;opacity:.75">.net</span>
+                      <span style="color:#E8A0AC">Bi</span>Mektubum
                     </td></tr>
                     <tr><td style="padding:28px 24px 8px 24px">
                       <h1 style="margin:0 0 16px 0;font-size:22px;color:#26304E">{Esc(heading)}</h1>

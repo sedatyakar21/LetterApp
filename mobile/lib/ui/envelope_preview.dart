@@ -29,7 +29,7 @@ class EnvelopePreview extends StatelessWidget {
 
   static const _navy = Color(0xFF26304E);
   static const _burgundy = Color(0xFF8E2235);
-  static const intermediary = 'Aracı Firma : BiMektup.net';
+  static const intermediary = 'Aracı Firma : BiMektubum';
 
   @override
   Widget build(BuildContext context) {

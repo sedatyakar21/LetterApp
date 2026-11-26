@@ -7,7 +7,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
-	<string>BiMektup</string>
+	<string>BiMektubum</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>Mektubunuza fotoğraf eklemek için galerinize erişmemiz gerekiyor.</string>
 	<key>NSCameraUsageDescription</key>

@@ -1,5 +1,5 @@
 /* ==========================================================================
-   BiMektup teması — logodaki renkler: lacivert mürekkep, bordo kalp, krem kağıt.
+   BiMektubum teması — logodaki renkler: lacivert mürekkep, bordo kalp, krem kağıt.
    ========================================================================== */
 :root {
     --navy: #26304E;           /* logo: zarf ve "Mektup" yazısı */
@@ -98,12 +98,6 @@ a:hover { color: var(--burgundy); }
 .brand-mark { height: 34px; width: auto; }
 .brand-word { font-family: var(--font-serif); font-size: 1.55rem; font-weight: 700; letter-spacing: -.01em; line-height: 1; color: var(--navy); }
 .brand-word .bi { color: var(--burgundy); font-style: italic; }
-/* Logodaki gibi ".net" küçük, lacivert ve "Mektup"un son harfi "p"nin altında, sağa hizalı */
-.brand-word { position: relative; padding-bottom: .42em; }
-.brand-word .tld {
-    position: absolute; right: -.15em; bottom: 0;
-    font-size: .48em; font-weight: 600; font-style: italic; color: var(--navy); line-height: 1; letter-spacing: 0;
-}
 
 /* ---------- Ana sayfa ---------- */
 .hero {

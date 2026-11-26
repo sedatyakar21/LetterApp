@@ -9,7 +9,7 @@
     var orderRef = ViewData["SupportOrderRef"] as string; // mektup detay sayfası doldurur
     string Msg(string text)
     {
-        var lines = new List<string> { "Merhaba BiMektup, " + text };
+        var lines = new List<string> { "Merhaba BiMektubum, " + text };
         if (orderRef is not null) lines.Add($"Sipariş: {orderRef}");
         if (name is not null) lines.Add($"Ad Soyad: {name}");
         return string.Join("\n", lines);
@@ -31,7 +31,7 @@
         <div class="wa-panel-head">
             <div class="wa-avatar" aria-hidden="true"><img src="~/favicon.svg" alt="" width="36" height="36" /></div>
             <div class="min-w-0">
-                <div class="fw-semibold" id="waTitle">BiMektup Destek</div>
+                <div class="fw-semibold" id="waTitle">BiMektubum Destek</div>
                 <div class="small opacity-75">@(support.Hours ?? "Genellikle birkaç dakika içinde yanıt verir")</div>
             </div>
             <button type="button" class="wa-close" id="waClose" aria-label="Yardım menüsünü kapat">×</button>

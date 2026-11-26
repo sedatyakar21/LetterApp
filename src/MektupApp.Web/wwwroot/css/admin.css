@@ -1,6 +1,6 @@
 /* ---------- Yönetim paneli ---------- */
 :root {
-    /* BiMektup paleti (site.css'teki --navy / --burgundy ile aynı aile) */
+    /* BiMektubum paleti (site.css'teki --navy / --burgundy ile aynı aile) */
     --admin-sidebar: #1B2238;
     --admin-surface: #ffffff;
     --admin-bg: #F4F3EE;
@@ -24,8 +24,7 @@ body.admin { background: var(--admin-bg); }
                font-family: "Lora", Georgia, serif; font-weight: 700; font-size: 1.15rem; }
 .admin-brand img { border-radius: 8px; }
 .admin-brand .bi { color: #f0a7b3; font-style: italic; }
-.admin-brand .admin-word { position: relative; padding-bottom: .5em; line-height: 1; }
-.admin-brand .tld { position: absolute; right: -.15em; bottom: 0; font-size: .55em; font-style: italic; font-weight: 600; opacity: .85; line-height: 1; }
+.admin-brand .admin-word { line-height: 1; }
 .admin-brand small { opacity: .6; font-weight: 400; font-family: system-ui, sans-serif; font-size: .75rem; margin-left: .15rem; }
 .admin-main h1 { font-family: "Lora", Georgia, serif; }
 .admin-link {

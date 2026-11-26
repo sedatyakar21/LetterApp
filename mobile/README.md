@@ -1,6 +1,6 @@
 # bimektup
 
-BiMektup mobil uygulaması
+BiMektubum mobil uygulaması
 
 ## Getting Started
 

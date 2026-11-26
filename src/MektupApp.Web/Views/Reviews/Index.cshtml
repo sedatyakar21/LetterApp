@@ -3,8 +3,8 @@
     var summary = (MektupApp.Domain.Reviews.RatingSummary)ViewBag.Summary;
     ViewData["Title"] = "Müşteri Yorumları";
     ViewData["Description"] = summary.Count > 0
-        ? $"BiMektup müşteri yorumları: {summary.Count} değerlendirme, ortalama {summary.Average:0.0} / 5."
-        : "BiMektup ile mektup gönderen müşterilerimizin yorumları.";
+        ? $"BiMektubum müşteri yorumları: {summary.Count} değerlendirme, ortalama {summary.Average:0.0} / 5."
+        : "BiMektubum ile mektup gönderen müşterilerimizin yorumları.";
 }
 
 <section class="blog-hero">

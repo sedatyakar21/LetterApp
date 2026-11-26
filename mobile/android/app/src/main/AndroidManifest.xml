@@ -2,7 +2,7 @@
     <!-- API'ye bağlanmak için (yayın sürümünde de gerekli). -->
     <uses-permission android:name="android.permission.INTERNET"/>
     <application
-        android:label="BiMektup"
+        android:label="BiMektubum"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity

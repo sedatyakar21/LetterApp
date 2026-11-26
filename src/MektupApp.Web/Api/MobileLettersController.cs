@@ -404,7 +404,7 @@ public sealed class MobilePaymentReturnController : Controller
     [HttpGet(MobileApi.PaymentReturnPath)]
     public ContentResult Index() => Content(
         "<!doctype html><html lang=\"tr\"><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width,initial-scale=1\">" +
-        "<title>BiMektup</title><body style=\"font-family:system-ui;text-align:center;padding:3rem 1rem;color:#232A3D;background:#F7F6F0\">" +
-        "<h1 style=\"font-size:1.3rem\">Ödeme işlemi tamamlandı</h1><p>BiMektup uygulamasına dönebilirsiniz.</p></body></html>",
+        "<title>BiMektubum</title><body style=\"font-family:system-ui;text-align:center;padding:3rem 1rem;color:#232A3D;background:#F7F6F0\">" +
+        "<h1 style=\"font-size:1.3rem\">Ödeme işlemi tamamlandı</h1><p>BiMektubum uygulamasına dönebilirsiniz.</p></body></html>",
         "text/html; charset=utf-8");
 }

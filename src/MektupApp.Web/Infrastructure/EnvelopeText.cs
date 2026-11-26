@@ -4,5 +4,5 @@ namespace MektupApp.Web.Infrastructure;
 public static class EnvelopeText
 {
     /// <summary>Zarf çıktısında (yönetim baskı sayfası) sol altta, logonun üzerinde basılır.</summary>
-    public const string Intermediary = "Aracı Firma : BiMektup.net";
+    public const string Intermediary = "Aracı Firma : BiMektubum";
 }
