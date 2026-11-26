@@ -28,10 +28,6 @@
 
     <div class="row g-4">
         <div class="col-lg-7">
-            <div class="envelope envelope-@Model.Style.Envelope mb-3">
-                <div class="envelope-from small">@Model.SenderName<br />@Model.SenderAddress.Line, @Model.SenderAddress.District / @Model.SenderAddress.City</div>
-                <div class="envelope-to">@Model.RecipientName</div>
-            </div>
             <partial name="_LetterPaper" model="Model" />
         </div>
 
