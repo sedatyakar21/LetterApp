@@ -320,6 +320,7 @@
                                     <div class="btn-group w-100 mb-3 d-none" role="group" aria-label="Ödeme yöntemi" id="payMethods">
                                         <button type="button" class="btn btn-sm btn-outline-primary" data-method="Card">💳 Kart</button>
                                         <button type="button" class="btn btn-sm btn-outline-primary" data-method="Mobile">📱 Mobil ödeme</button>
+                                        <button type="button" class="btn btn-sm btn-outline-primary" data-method="BankTransfer">🏦 Havale / EFT</button>
                                     </div>
                                     <table class="table table-sm mb-2">
                                         <tbody id="payLines"><tr><td class="text-muted">Hesaplanıyor…</td></tr></tbody>
@@ -347,8 +348,21 @@
                         </div>
                         <div class="col-md-6">
                             <div class="card h-100">
-                                <div class="card-header fw-semibold">🔒 Kart bilgileri</div>
+                                <div class="card-header fw-semibold" id="payPanelTitle">🔒 Kart bilgileri</div>
                                 <div class="card-body">
+                                    <div id="payBankBox" class="d-none">
+                                        <p class="small mb-2">Siparişinizi oluşturun, ardından tutarı aşağıdaki hesaba gönderin. Havale hesabımıza geçtiğinde ödemeniz onaylanır ve mektubunuz basıma alınır.</p>
+                                        <dl class="bank-info small mb-2">
+                                            <dt>Banka</dt><dd id="payBankName"></dd>
+                                            <dt>Alıcı</dt><dd id="payBankHolder"></dd>
+                                            <dt>IBAN</dt><dd class="font-monospace" id="payBankIban"></dd>
+                                            <dt>Tutar</dt><dd class="fw-bold" id="payBankAmount"></dd>
+                                            <dt>Açıklama</dt><dd>Sipariş numaranız (sipariş oluşturulunca gösterilir)</dd>
+                                        </dl>
+                                        <div class="alert alert-light border small mb-2 d-none" id="payBankNote"></div>
+                                        <p class="small text-muted mb-2" id="payBankDays"></p>
+                                        <button type="button" class="btn btn-primary btn-lg w-100" id="payBankButton">Havale ile Siparişi Oluştur</button>
+                                    </div>
                                     <div class="small text-muted mb-2" id="payNote">🔒 Kart bilgileriniz güvenli ödeme altyapısı <strong>PayTR</strong> üzerinden alınır; bizim sistemimizde saklanmaz.</div>
                                     <div class="alert alert-warning small d-none" id="paySimulation"><strong>Test modu:</strong> gerçek tahsilat yapılmaz; aşağıda ödemenin sonucunu seçin.</div>
                                     <div id="payStatus" class="small text-muted" role="status">Ödeme formu hazırlanıyor…</div>

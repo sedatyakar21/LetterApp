@@ -36,6 +36,7 @@ public static class DependencyInjection
         services.AddScoped<Prisons.PrisonService>();
         services.AddScoped<Postcards.PostcardService>();
         services.AddScoped<Scents.ScentService>();
+        services.AddScoped<Payments.BankTransferService>();
 
         // Bildirimler: olaylar kuyruğa SMS / e-posta ekler, arka plan servisi gönderir.
         services.AddScoped<Notifications.NotificationTemplates>();

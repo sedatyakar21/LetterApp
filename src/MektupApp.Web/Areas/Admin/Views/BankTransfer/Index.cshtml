@@ -1,0 +1,128 @@
+@model MektupApp.Web.Areas.Admin.Controllers.BankTransferSettingsForm
+@{
+    ViewData["Title"] = "Havale / EFT";
+    var inv = System.Globalization.CultureInfo.InvariantCulture;
+}
+
+<h1 class="h4 mb-1">Havale / EFT</h1>
+<p class="text-muted small mb-3">
+    Açıkken müşteri ödeme sekmesinde "Havale / EFT"yi seçebilir; seçtiğinde aşağıdaki oranda indirim uygulanır.
+    Sipariş, havale gelip siz <strong>Siparişler → Detay</strong> ekranında "Havale alındı" deyene kadar ödeme bekler;
+    bekleme süresi dolarsa sipariş kendiliğinden taslağa döner.
+    @if (Model.UpdatedAt is { } at && Model.UpdatedBy is not null)
+    {
+        <br />@:Son güncelleme: @at.ToLocalTime().ToString("dd.MM.yyyy HH:mm") · @Model.UpdatedBy
+    }
+</p>
+
+<div class="row g-3">
+    <div class="col-lg-6">
+        <form asp-action="Index" method="post" id="bankForm">
+            <div asp-validation-summary="All" class="text-danger small"></div>
+
+            <section class="admin-card p-3 mb-3">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <h2 class="h6 mb-0">Ödeme yöntemi</h2>
+                    <div class="form-check form-switch mb-0">
+                        <input class="form-check-input" type="checkbox" role="switch" id="Enabled" name="Enabled" value="true" @(Model.Enabled ? "checked" : "") />
+                        <input type="hidden" name="Enabled" value="false" />
+                        <label class="form-check-label" for="Enabled">Açık</label>
+                    </div>
+                </div>
+                <div class="row g-2">
+                    <div class="col-6">
+                        <label class="form-label small" for="DiscountPercent">İndirim</label>
+                        <div class="input-group input-group-sm">
+                            <span class="input-group-text">%</span>
+                            <input class="form-control text-end" type="number" step="0.1" min="0" max="50" id="DiscountPercent" name="DiscountPercent"
+                                   value="@Model.DiscountPercent.ToString("0.##", inv)" required />
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <label class="form-label small" for="ValidDays">Bekleme süresi</label>
+                        <div class="input-group input-group-sm">
+                            <input class="form-control text-end" type="number" min="1" max="30" id="ValidDays" name="ValidDays" value="@Model.ValidDays" required />
+                            <span class="input-group-text">gün</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="alert alert-light border small mt-2 mb-0" id="discountPreview" aria-live="polite"></div>
+            </section>
+
+            <section class="admin-card p-3 mb-3">
+                <h2 class="h6">Banka hesabı</h2>
+                <div class="mb-2">
+                    <label asp-for="BankName" class="form-label small"></label>
+                    <input asp-for="BankName" class="form-control form-control-sm" placeholder="ör. Ziraat Bankası" />
+                </div>
+                <div class="mb-2">
+                    <label asp-for="AccountHolder" class="form-label small"></label>
+                    <input asp-for="AccountHolder" class="form-control form-control-sm" placeholder="Hesabın kayıtlı olduğu ad / unvan" />
+                </div>
+                <div class="mb-2">
+                    <label asp-for="Iban" class="form-label small"></label>
+                    <input asp-for="Iban" class="form-control form-control-sm font-monospace" placeholder="TR00 0000 0000 0000 0000 0000 00" autocomplete="off" />
+                    <div class="form-text">Kaydederken biçimi ve kontrol hanesi doğrulanır.</div>
+                </div>
+                <div class="mb-0">
+                    <label asp-for="Note" class="form-label small"></label>
+                    <textarea asp-for="Note" class="form-control form-control-sm" rows="2"
+                              placeholder="ör. Açıklama kısmına sipariş numaranızı yazmayı unutmayın."></textarea>
+                </div>
+            </section>
+
+            <button type="submit" class="btn btn-primary">Kaydet</button>
+        </form>
+    </div>
+
+    <div class="col-lg-6">
+        <section class="admin-card p-3">
+            <h2 class="h6">Onay bekleyen havaleler <span class="badge bg-warning text-dark">@Model.Pending.Count</span></h2>
+            @if (Model.Pending.Count == 0)
+            {
+                <p class="small text-muted mb-0">Bekleyen havale yok.</p>
+            }
+            else
+            {
+                <div class="table-responsive">
+                    <table class="table table-sm align-middle mb-0">
+                        <thead><tr><th>Sipariş</th><th class="text-end">Tutar</th><th>Oluşturma</th><th>Son gün</th><th></th></tr></thead>
+                        <tbody>
+                            @foreach (var p in Model.Pending)
+                            {
+                                var late = p.DueAt < DateTime.UtcNow.AddHours(12);
+                                <tr>
+                                    <td class="font-monospace">@p.OrderNumber</td>
+                                    <td class="text-end">@p.Amount.ToString("N2") ₺</td>
+                                    <td class="small">@p.CreatedAt.ToLocalTime().ToString("dd.MM HH:mm")</td>
+                                    <td class="small @(late ? "text-danger fw-semibold" : "")">@p.DueAt.ToLocalTime().ToString("dd.MM HH:mm")</td>
+                                    <td class="text-end"><a class="btn btn-sm btn-outline-primary" asp-controller="Orders" asp-action="Details" asp-route-id="@p.LetterId">Aç</a></td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </section>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        (function () {
+            const fmt = v => v.toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            const el = id => document.getElementById(id);
+            function render() {
+                const pct = parseFloat(el("DiscountPercent").value) || 0;
+                const days = parseInt(el("ValidDays").value) || 0;
+                if (!el("Enabled").checked) { el("discountPreview").textContent = "Kapalı: müşteriler ödeme sekmesinde Havale / EFT seçeneğini görmez."; return; }
+                const d = Math.round(290 * pct) / 100;
+                el("discountPreview").innerHTML = "Örnek: 290,00 ₺'lik sipariş havale ile <strong>" + fmt(290 - d) + " ₺</strong> (" + fmt(d) +
+                    " ₺ indirim). Havale " + days + " gün içinde onaylanmazsa sipariş taslağa döner.";
+            }
+            el("bankForm").addEventListener("input", render);
+            el("bankForm").addEventListener("change", render);
+            render();
+        })();
+    </script>
+}

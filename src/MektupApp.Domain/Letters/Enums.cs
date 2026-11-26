@@ -56,5 +56,7 @@ public enum InkColor
 public enum PaymentMethod
 {
     [Display(Name = "Kredi / Banka Kartı")] Card = 0,
-    [Display(Name = "Mobil Ödeme")] Mobile = 1
+    [Display(Name = "Mobil Ödeme")] Mobile = 1,
+    /// <summary>Havale / EFT: müşteri banka hesabına gönderir, yönetici gelen parayı onaylar. Yönetim panelindeki oranda indirimlidir.</summary>
+    [Display(Name = "Havale / EFT")] BankTransfer = 2
 }

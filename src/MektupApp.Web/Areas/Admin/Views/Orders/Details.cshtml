@@ -116,6 +116,32 @@
     </div>
 
     <div class="col-xl-5">
+        @if (Model.BankTransfer is { } bt)
+        {
+            <div class="card admin-card mb-3 border-warning">
+                <div class="card-header bg-warning-subtle">🏦 Havale / EFT bekleniyor</div>
+                <div class="card-body small">
+                    <p class="mb-2">
+                        Beklenen tutar: <strong>@(new Money(bt.Amount))</strong>
+                        @if (bt.Discount > 0) { <span class="text-success">(havale indirimi −@(new Money(bt.Discount)))</span> }<br />
+                        Açıklama / referans: <span class="font-monospace fw-semibold">@bt.Reference</span><br />
+                        Hesap: @bt.BankName · <span class="font-monospace">@bt.Iban</span><br />
+                        Son gün: @bt.DueAt.ToLocalTime().ToString("dd.MM.yyyy HH:mm") <span class="text-muted">(dolunca sipariş taslağa döner)</span>
+                    </p>
+                    <div class="d-flex flex-wrap gap-2 align-items-start">
+                        <form asp-action="ConfirmBankTransfer" asp-route-id="@l.Id" method="post"
+                              onsubmit="return confirm('@bt.Amount.ToString("N2") ₺ hesaba geçti mi? Sipariş ödendi olarak işaretlenecek.')">
+                            <button class="btn btn-sm btn-success">✓ Havale alındı</button>
+                        </form>
+                        <form asp-action="RejectBankTransfer" asp-route-id="@l.Id" method="post" class="d-flex gap-1 flex-grow-1"
+                              onsubmit="return confirm('Sipariş müşterinin taslaklarına dönecek. Emin misiniz?')">
+                            <input name="reason" class="form-control form-control-sm" maxlength="100" placeholder="Neden (isteğe bağlı)" />
+                            <button class="btn btn-sm btn-outline-danger text-nowrap">Gelmedi</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        }
         <div class="card admin-card mb-3">
             <div class="card-header">Sipariş bilgileri</div>
             <ul class="list-group list-group-flush small">

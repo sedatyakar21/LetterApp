@@ -99,6 +99,7 @@ public static class DependencyInjection
         var payment = section.Get<PaymentOptions>() ?? new PaymentOptions();
 
         services.AddScoped<IPaymentRepository, PaymentRepository>();
+        services.AddScoped<IBankTransferSettingsRepository, BankTransferSettingsRepository>();
 
         if (payment.UsePayTr)
         {

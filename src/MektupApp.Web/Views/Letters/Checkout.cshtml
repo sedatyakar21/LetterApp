@@ -19,10 +19,11 @@
         </div>
     </div>
 
-    @if (q.MobilePaymentAvailable)
+    @if (q.MobilePaymentAvailable || q.BankTransferAvailable)
     {
         <div class="btn-group w-100 mb-3" role="group" aria-label="Ödeme yöntemi">
-            @foreach (var m in Enum.GetValues<PaymentMethod>())
+            @foreach (var m in Enum.GetValues<PaymentMethod>().Where(m => (m != PaymentMethod.Mobile || q.MobilePaymentAvailable)
+                         && (m != PaymentMethod.BankTransfer || q.BankTransferAvailable)))
             {
                 <a class="btn @(q.Method == m ? "btn-primary" : "btn-outline-primary")"
                    asp-action="Checkout" asp-route-id="@l.Id" asp-route-method="@m" asp-route-usePoints="@q.UsePoints" asp-route-kupon="@coupon">@m.DisplayName()</a>
@@ -43,13 +44,17 @@
                     <td class="text-end">−@(new Money(q.CampaignDiscount))</td>
                 </tr>
             }
+            @if (q.BankTransferDiscount > 0)
+            {
+                <tr class="text-success"><td>🏦 Havale / EFT indirimi <span class="small">(%@((q.BankTransferRate * 100).ToString("0.##")))</span></td><td class="text-end">−@(new Money(q.BankTransferDiscount))</td></tr>
+            }
             @if (q.PointsUsed > 0)
             {
                 <tr class="text-success"><td>MektupPuan kullanımı <span class="small">(@q.PointsUsed.ToString("N2") puan)</span></td><td class="text-end">−@(new Money(q.PointsDiscount))</td></tr>
             }
         </tbody>
         <tfoot>
-            @if (q.Campaign is not null || q.PointsUsed > 0)
+            @if (q.Campaign is not null || q.PointsUsed > 0 || q.BankTransferDiscount > 0)
             {
                 <tr class="text-muted small"><td>Ara toplam</td><td class="text-end text-decoration-line-through">@(new Money(q.Total))</td></tr>
             }
@@ -128,7 +133,11 @@
         </div>
     }
 
-    @if (q.AmountToPay > 0)
+    @if (q.AmountToPay > 0 && q.Method == PaymentMethod.BankTransfer)
+    {
+        <div class="small text-muted mb-3">🏦 Siparişi oluşturduktan sonra hesap bilgilerimiz ve sipariş numaranız gösterilir; havale hesabımıza geçince mektubunuz basıma alınır.</div>
+    }
+    else if (q.AmountToPay > 0)
     {
         @if (q.ProviderIsSimulation)
         {
@@ -150,7 +159,8 @@
         <input type="hidden" name="usePoints" value="@(q.UsePoints ? "true" : "false")" />
         @if (coupon is not null) { <input type="hidden" name="coupon" value="@coupon" /> }
         <button type="submit" class="btn btn-primary btn-lg w-100">
-            @(q.AmountToPay > 0 ? $"{new Money(q.AmountToPay)} Ödemeye Geç"
+            @(q.AmountToPay > 0 && q.Method == PaymentMethod.BankTransfer ? "Havale ile Siparişi Oluştur"
+              : q.AmountToPay > 0 ? $"{new Money(q.AmountToPay)} Ödemeye Geç"
               : q.PointsUsed > 0 ? "Puanla Öde ve Gönder" : "Ücretsiz Gönder")
         </button>
     </form>

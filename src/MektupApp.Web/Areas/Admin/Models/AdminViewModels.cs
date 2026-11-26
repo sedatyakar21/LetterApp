@@ -21,6 +21,8 @@ public sealed class OrderDetailsViewModel
     public required LetterDetailsDto Letter { get; init; }
     public CustomerRowDto? Customer { get; init; }
     public IReadOnlyList<MektupApp.Application.Payments.PaymentRowDto> Payments { get; init; } = [];
+    /// <summary>Sipariş havale / EFT bekliyorsa bilgileri (onay / ret paneli için).</summary>
+    public MektupApp.Application.Payments.BankTransferInstructionsDto? BankTransfer { get; init; }
 }
 
 public sealed class CustomersIndexViewModel

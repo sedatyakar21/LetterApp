@@ -239,6 +239,8 @@ public sealed class PendingPaymentViewModel
 {
     public required LetterDetailsDto Letter { get; init; }
     public MektupApp.Application.Payments.PaymentStatusDto? Payment { get; init; }
+    /// <summary>Havale / EFT bekleniyorsa müşterinin göndereceği hesap ve tutar.</summary>
+    public MektupApp.Application.Payments.BankTransferInstructionsDto? BankTransfer { get; init; }
 }
 
 public sealed class ShipInput

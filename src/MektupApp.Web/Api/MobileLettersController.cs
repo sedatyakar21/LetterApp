@@ -48,7 +48,12 @@ public sealed record PhotoApiDto(Guid Id, string FileName, string Url);
 
 public sealed record ReviewMineDto(int Rating, string Comment, string Status, string StatusLabel, string? RejectionReason);
 
-public sealed record PendingPaymentApiDto(string MerchantOid, decimal Amount, string? FormUrl, bool Simulation, DateTime CreatedAt);
+/// <param name="BankTransfer">Havale / EFT bekleniyorsa gönderilecek hesap, tutar ve açıklama (sipariş no).</param>
+public sealed record PendingPaymentApiDto(string MerchantOid, decimal Amount, string? FormUrl, bool Simulation, DateTime CreatedAt,
+    BankTransferInstructionsDto? BankTransfer = null);
+
+/// <summary>Havale / EFT hesabı (ödeme sekmesinde, sipariş oluşturulmadan önce gösterilir).</summary>
+public sealed record BankAccountApiDto(string BankName, string AccountHolder, string Iban, string? Note, int ValidDays);
 
 public sealed record LetterApiDto(
     Guid Id,
@@ -118,7 +123,11 @@ public sealed record QuoteApiDto(
     bool ProviderIsSimulation,
     string? CouponCode,
     bool CouponApplied,
-    string? CouponMessage);
+    string? CouponMessage,
+    bool BankTransferAvailable = false,
+    decimal BankTransferPercent = 0,
+    decimal BankTransferDiscount = 0,
+    BankAccountApiDto? BankAccount = null);
 
 public sealed record PayRequest(PaymentMethod Method, bool UsePoints, string? Coupon);
 
@@ -140,6 +149,7 @@ public sealed class MobileLettersController(
     LetterService letters,
     PaymentService payments,
     ReviewService reviews,
+    BankTransferService bankTransfers,
     IPaymentProvider provider) : MobileApiController
 {
     [HttpGet]
@@ -255,6 +265,9 @@ public sealed class MobileLettersController(
         string? coupon = null, CancellationToken ct = default)
     {
         var q = await letters.GetQuoteAsync(id, CustomerId, method, usePoints, ct, coupon);
+        if (q.Method == PaymentMethod.BankTransfer && !q.BankTransferAvailable)
+            q = await letters.GetQuoteAsync(id, CustomerId, PaymentMethod.Card, usePoints, ct, coupon);
+        var bank = q.BankTransferAvailable ? await bankTransfers.GetAsync(ct) : null;
         string? couponMessage = q.CouponCode switch
         {
             null => null,
@@ -266,7 +279,9 @@ public sealed class MobileLettersController(
         return new QuoteApiDto(q.Method.ToString(), q.Lines.Select(l => new QuoteLineDto(l.Description, l.Amount)).ToList(),
             q.Total, q.CampaignDiscount, q.Campaign?.Title, q.UsePoints, q.PointsBalance, q.PointsUsed, q.PointsDiscount,
             q.BalanceValue, q.AmountToPay, q.PointsToEarn, q.LoyaltyEnabled, q.MobilePaymentAvailable, q.ProviderLabel,
-            q.ProviderIsSimulation, q.CouponCode, q.CouponApplied, couponMessage);
+            q.ProviderIsSimulation, q.CouponCode, q.CouponApplied, couponMessage,
+            q.BankTransferAvailable, decimal.Round(q.BankTransferRate * 100, 2), q.BankTransferDiscount,
+            bank is null ? null : new BankAccountApiDto(bank.BankName, bank.AccountHolder, bank.IbanDisplay, bank.Note, bank.ValidDays));
     }
 
     /// <summary>
@@ -283,7 +298,7 @@ public sealed class MobileLettersController(
             oid => $"{returnUrl}?oid={Uri.EscapeDataString(oid)}",
             string.IsNullOrWhiteSpace(req.Coupon) ? null : req.Coupon), ct);
         return new PayResponse(result.Completed, result.MerchantOid, ExternalFormUrl(result.FormUrl),
-            !result.Completed && provider.IsSimulation, returnUrl);
+            !result.Completed && result.FormUrl is not null && provider.IsSimulation, returnUrl);
     }
 
     /// <summary>Ödemeden vazgeç: mektup tekrar düzenlenebilir, ayrılan puan iade edilir.</summary>
@@ -334,7 +349,11 @@ public sealed class MobileLettersController(
 
         PendingPaymentApiDto? pending = null;
         if (l.Status == LetterStatus.AwaitingPayment && await payments.GetPendingForLetterAsync(id, CustomerId, ct) is { } p)
-            pending = new PendingPaymentApiDto(p.MerchantOid, p.Amount, ExternalFormUrl(p.FormUrl), provider.IsSimulation, p.CreatedAt);
+        {
+            var bank = await payments.GetBankTransferInstructionsAsync(id, CustomerId, ct);
+            pending = new PendingPaymentApiDto(p.MerchantOid, p.Amount, ExternalFormUrl(p.FormUrl), bank is null && provider.IsSimulation,
+                p.CreatedAt, bank);
+        }
 
         return new LetterApiDto(
             l.Id, l.SenderName, l.SenderAddress, l.RecipientName, l.RecipientType.ToString(), l.RecipientDetail, l.RecipientAddress,

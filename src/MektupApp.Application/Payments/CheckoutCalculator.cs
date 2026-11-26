@@ -6,6 +6,7 @@ using MektupApp.Application.Pricing;
 using MektupApp.Domain.Campaigns;
 using MektupApp.Domain.Letters;
 using MektupApp.Domain.Loyalty;
+using MektupApp.Domain.Payments;
 
 namespace MektupApp.Application.Payments;
 
@@ -20,7 +21,8 @@ public sealed class CheckoutCalculator(
     ILoyaltyAccountRepository loyaltyAccounts,
     ICampaignRepository campaigns,
     MektupApp.Domain.Customers.ICustomerRepository customers,
-    IPaymentProvider provider)
+    IPaymentProvider provider,
+    IBankTransferSettingsRepository bankTransfers)
 {
     public async Task<(QuoteDto Quote, LoyaltyAccount? Account)> CalculateAsync(
         Letter letter, PaymentMethod method, bool usePoints, CancellationToken ct, string? couponCode = null)
@@ -50,8 +52,13 @@ public sealed class CheckoutCalculator(
         var campaignDiscount = applied?.Discount ?? 0;
         var afterCampaign = price.Total.Amount - campaignDiscount;
 
-        var redemption = usePoints ? settings.Redeem(afterCampaign, balance) : default;
-        var amountToPay = afterCampaign - redemption.Discount;
+        // Havale / EFT indirimi kampanyadan sonra, puandan önce uygulanır (yönetim panelindeki oranla).
+        var bank = await bankTransfers.GetAsync(ct) ?? BankTransferSettings.CreateDefault();
+        var bankDiscount = method == PaymentMethod.BankTransfer && bank.IsAvailable ? bank.DiscountFor(afterCampaign) : 0;
+        var afterBankDiscount = afterCampaign - bankDiscount;
+
+        var redemption = usePoints ? settings.Redeem(afterBankDiscount, balance) : default;
+        var amountToPay = afterBankDiscount - redemption.Discount;
 
         var quote = new QuoteDto(
             letter.Id, method,
@@ -75,7 +82,10 @@ public sealed class CheckoutCalculator(
             CouponApplied = applied is not null && current.Any(c => c.Id == applied.CampaignId && c.MatchesCoupon(couponCode)),
             CouponRecognized = current.Any(c => c.HasDiscount && c.PhaseOn(today) == CampaignPhase.Active && c.MatchesCoupon(couponCode)),
             CouponNotEligible = current.Any(c => c.HasDiscount && c.PhaseOn(today) == CampaignPhase.Active && c.MatchesCoupon(couponCode)
-                                                 && !c.IsEligible(who, today))
+                                                 && !c.IsEligible(who, today)),
+            BankTransferAvailable = bank.IsAvailable,
+            BankTransferRate = bank.DiscountRate,
+            BankTransferDiscount = bankDiscount
         };
         return (quote, account);
     }

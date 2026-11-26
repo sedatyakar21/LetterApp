@@ -156,6 +156,12 @@ public sealed record QuoteDto(
     /// <summary>Kod geçerli ama müşteri bu kampanyanın hedef kitlesinde değil ya da kullanım hakkı doldu.</summary>
     public bool CouponNotEligible { get; init; }
     public decimal CampaignDiscount => Campaign?.Discount ?? 0;
+    /// <summary>Havale / EFT müşteriye sunuluyor mu (yönetim panelinde açık ve hesap bilgileri tam).</summary>
+    public bool BankTransferAvailable { get; init; }
+    /// <summary>Havale / EFT indirim oranı (0,05 = %5).</summary>
+    public decimal BankTransferRate { get; init; }
+    /// <summary>Seçilen yöntem Havale / EFT ise uygulanan indirim (kampanyadan sonra, puandan önce).</summary>
+    public decimal BankTransferDiscount { get; init; }
 }
 
 public sealed record TrackingResultDto(string TrackingCode, string RecipientInitials, string City, LetterStatus Status, IReadOnlyList<StatusChangeDto> History);

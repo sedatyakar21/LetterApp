@@ -209,14 +209,16 @@ public class LettersController(LetterService letters, AccountService accounts, P
             return View("PendingPayment", new PendingPaymentViewModel
             {
                 Letter = letter,
-                Payment = await payments.GetPendingForLetterAsync(id, CustomerId, ct)
+                Payment = await payments.GetPendingForLetterAsync(id, CustomerId, ct),
+                BankTransfer = await payments.GetBankTransferInstructionsAsync(id, CustomerId, ct)
             });
 
         if (!letter.IsEditable) return RedirectToAction(nameof(Details), new { id });
         try
         {
             var quote = await letters.GetQuoteAsync(id, CustomerId, method, usePoints, ct, coupon);
-            if (quote.Method == PaymentMethod.Mobile && !quote.MobilePaymentAvailable)
+            if ((quote.Method == PaymentMethod.Mobile && !quote.MobilePaymentAvailable)
+                || (quote.Method == PaymentMethod.BankTransfer && !quote.BankTransferAvailable))
                 return RedirectToAction(nameof(Checkout), new { id, method = PaymentMethod.Card, usePoints, kupon = quote.CouponCode });
             return View(new CheckoutViewModel { Letter = letter, Quote = quote });
         }
@@ -232,17 +234,27 @@ public class LettersController(LetterService letters, AccountService accounts, P
     /// </summary>
     [HttpGet("mektup/{id:guid}/odeme/teklif")]
     public async Task<IActionResult> QuoteJson(Guid id, PaymentMethod method, bool usePoints,
-        [FromQuery(Name = "kupon")] string? coupon, CancellationToken ct)
+        [FromQuery(Name = "kupon")] string? coupon, [FromServices] Application.Payments.BankTransferService bankTransfers, CancellationToken ct)
     {
         try
         {
             var q = await letters.GetQuoteAsync(id, CustomerId, method, usePoints, ct, coupon);
-            if (q.Method == PaymentMethod.Mobile && !q.MobilePaymentAvailable)
+            if ((q.Method == PaymentMethod.Mobile && !q.MobilePaymentAvailable)
+                || (q.Method == PaymentMethod.BankTransfer && !q.BankTransferAvailable))
                 q = await letters.GetQuoteAsync(id, CustomerId, PaymentMethod.Card, usePoints, ct, coupon);
+            var bank = q.BankTransferAvailable ? await bankTransfers.GetAsync(ct) : null;
             return Ok(new
             {
                 method = q.Method.ToString(),
                 q.MobilePaymentAvailable,
+                q.BankTransferAvailable,
+                bankTransferPercent = decimal.Round(q.BankTransferRate * 100, 2),
+                q.BankTransferDiscount,
+                bankTransfer = bank is null ? null : new
+                {
+                    bankName = bank.BankName, accountHolder = bank.AccountHolder, iban = bank.IbanDisplay,
+                    note = bank.Note, validDays = bank.ValidDays
+                },
                 lines = q.Lines.Select(l => new { description = l.Description, amount = l.Amount }),
                 campaign = q.Campaign is null ? null : new { title = q.Campaign.Title, discount = q.CampaignDiscount },
                 q.CouponCode, q.CouponApplied,
@@ -291,6 +303,16 @@ public class LettersController(LetterService letters, AccountService accounts, P
         catch (Exception ex) when (embedded && ex is DomainException or AppException)
         {
             return BadRequest(new { message = ex.Message });
+        }
+
+        // Havale / EFT: ödeme formu yok; müşteri havale bilgilerinin olduğu bekleme sayfasına gider.
+        if (!result.Completed && result.FormUrl is null)
+        {
+            TempData["Success"] = "Siparişiniz oluşturuldu. Havale / EFT hesabımıza geçtiğinde onaylanıp basıma alınacak.";
+            var pendingUrl = Url.Action(nameof(Checkout), new { id })!;
+            return embedded
+                ? Ok(new { completed = false, merchantOid = result.MerchantOid, formUrl = (string?)null, redirectUrl = pendingUrl })
+                : Redirect(pendingUrl);
         }
 
         if (embedded)

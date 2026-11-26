@@ -29,8 +29,25 @@ public class OrdersController(IAdminQueries queries, FulfillmentService fulfillm
         {
             Letter = letter,
             Customer = customer,
-            Payments = await payments.ListForLetterAsync(id, ct)
+            Payments = await payments.ListForLetterAsync(id, ct),
+            BankTransfer = await payments.GetBankTransferInstructionsAsync(id, null, ct)
         });
+    }
+
+    /// <summary>Havale / EFT hesaba geçti: sipariş ödenmiş sayılır, müşteriye "sipariş alındı" bildirimi gider.</summary>
+    [HttpPost]
+    public async Task<IActionResult> ConfirmBankTransfer(Guid id, CancellationToken ct)
+    {
+        await payments.ConfirmBankTransferAsync(id, ct);
+        return BackWith("Havale / EFT onaylandı; sipariş ödendi olarak işaretlendi.", DetailsUrl(id));
+    }
+
+    /// <summary>Havale / EFT gelmedi: sipariş müşterinin taslaklarına döner.</summary>
+    [HttpPost]
+    public async Task<IActionResult> RejectBankTransfer(Guid id, string? reason, CancellationToken ct)
+    {
+        await payments.RejectBankTransferAsync(id, reason, ct);
+        return BackWith("Havale / EFT reddedildi; sipariş müşterinin taslaklarına döndü.", DetailsUrl(id));
     }
 
     /// <summary>PTT'de gönderi kaydı açar, barkodu otomatik alır ve mektubu postaya verir.</summary>

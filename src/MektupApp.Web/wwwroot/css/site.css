@@ -545,6 +545,10 @@ a:hover { color: var(--burgundy); }
 /* Ödeme sekmesi: sağdaki güvenli kart formu çerçevesi (PayTR iFrame / test modu). */
 .pay-frame { display: block; width: 100%; min-height: 560px; border: 0; }
 #payLines .text-success td:last-child { white-space: nowrap; }
+/* Havale / EFT hesap bilgileri: etiket solda, değer sağda */
+.bank-info { display: grid; grid-template-columns: max-content 1fr; gap: .35rem 1rem; }
+.bank-info dt { font-weight: 500; color: var(--bs-secondary-color); }
+.bank-info dd { margin: 0; overflow-wrap: anywhere; }
 
 /* Kontrol sekmesi */
 .review-label { font-size: .8rem; font-weight: 600; text-transform: uppercase; letter-spacing: .04em; color: var(--bs-secondary-color, #6c757d); margin-bottom: .35rem; }

@@ -1,36 +1,90 @@
 @model PendingPaymentViewModel
 @using MektupApp.Domain.Common
 @{
-    ViewData["Title"] = "Ödeme Bekleniyor";
     var l = Model.Letter;
     var p = Model.Payment;
+    var bt = Model.BankTransfer;
+    ViewData["Title"] = bt is null ? "Ödeme Bekleniyor" : "Havale / EFT Bekleniyor";
 }
 <div class="container py-4" style="max-width: 640px">
     <a asp-action="Details" asp-route-id="@l.Id" class="small">← Mektup</a>
-    <h1 class="h4 mt-1 mb-3">Ödemeniz devam ediyor</h1>
 
-    <div class="card mb-3">
-        <div class="card-body">
-            <p class="mb-2">
-                <strong>@l.RecipientName</strong> adlı alıcıya mektubunuz için başlatılmış bir ödeme var
-                @if (p is not null) { <span>(@(new Money(p.Amount)), @p.CreatedAt.ToLocalTime().ToString("HH:mm"))</span> }.
-                Ödeme tamamlanana kadar mektup düzenlenemez.
-            </p>
-            <div class="d-flex flex-wrap gap-2 mt-3">
-                @if (p?.FormUrl is not null)
-                {
-                    <a class="btn btn-primary" asp-action="SecurePayment" asp-route-id="@l.Id" asp-route-oid="@p.MerchantOid">Ödemeye Devam Et</a>
-                    <a class="btn btn-outline-secondary" asp-action="PaymentResult" asp-route-id="@l.Id" asp-route-oid="@p.MerchantOid">Ödedim, sonucu göster</a>
-                }
+    @if (bt is not null)
+    {
+        <h1 class="h4 mt-1 mb-3">🏦 Havale / EFT bekleniyor</h1>
+        <div class="card mb-3">
+            <div class="card-body">
+                <p class="mb-3">
+                    <strong>@l.RecipientName</strong> adlı alıcıya mektubunuzun siparişi oluşturuldu. Aşağıdaki hesaba
+                    <strong>@(new Money(bt.Amount))</strong> gönderdiğinizde ödemeniz onaylanır ve mektubunuz basıma alınır.
+                </p>
+                <dl class="bank-info mb-3">
+                    <dt>Banka</dt><dd>@bt.BankName</dd>
+                    <dt>Alıcı</dt><dd>@bt.AccountHolder</dd>
+                    <dt>IBAN</dt>
+                    <dd>
+                        <span class="font-monospace" id="ibanText">@bt.Iban</span>
+                        <button type="button" class="btn btn-sm btn-link p-0 ms-1 align-baseline" data-copy="@bt.Iban.Replace(" ", "")">Kopyala</button>
+                    </dd>
+                    <dt>Tutar</dt>
+                    <dd><strong>@(new Money(bt.Amount))</strong>
+                        @if (bt.Discount > 0) { <span class="text-success small">(havale indirimi −@(new Money(bt.Discount)))</span> }</dd>
+                    <dt>Açıklama</dt>
+                    <dd>
+                        <span class="font-monospace fw-semibold">@bt.Reference</span>
+                        <button type="button" class="btn btn-sm btn-link p-0 ms-1 align-baseline" data-copy="@bt.Reference">Kopyala</button>
+                        <div class="small text-muted">Havale açıklamasına sipariş numaranızı yazın.</div>
+                    </dd>
+                    <dt>Son gün</dt><dd>@bt.DueAt.ToLocalTime().ToString("dd.MM.yyyy HH:mm")</dd>
+                </dl>
+                @if (bt.Note is not null) { <div class="alert alert-light border small">@bt.Note</div> }
                 <form asp-action="AbandonPayment" asp-route-id="@l.Id" method="post"
-                      onsubmit="return confirm('Bu ödemeden vazgeçilecek. Ödemeyi tamamladıysanız vazgeçmeyin. Devam edilsin mi?')">
-                    <button class="btn btn-outline-danger">Vazgeç ve Yeniden Başla</button>
+                      onsubmit="return confirm('Havale ile siparişten vazgeçilecek ve mektubunuz taslağa dönecek. Havaleyi gönderdiyseniz vazgeçmeyin. Devam edilsin mi?')">
+                    <button class="btn btn-outline-danger">Vazgeç ve Başka Yöntemle Öde</button>
                 </form>
             </div>
         </div>
-    </div>
-    <p class="small text-muted">
-        Vazgeçerseniz mektubunuz tekrar düzenlenebilir olur ve ödemede kullandığınız puan iade edilir.
-        Vazgeçtikten sonra ödeme yine de onaylanırsa tutar otomatik olarak kartınıza iade edilir.
-    </p>
+        <p class="small text-muted">
+            Havale son güne kadar hesabımıza geçmezse sipariş kendiliğinden iptal olur ve mektubunuz taslaklarınıza döner.
+            Ödemede kullandığınız puan bu durumda iade edilir.
+        </p>
+    }
+    else
+    {
+        <h1 class="h4 mt-1 mb-3">Ödemeniz devam ediyor</h1>
+        <div class="card mb-3">
+            <div class="card-body">
+                <p class="mb-2">
+                    <strong>@l.RecipientName</strong> adlı alıcıya mektubunuz için başlatılmış bir ödeme var
+                    @if (p is not null) { <span>(@(new Money(p.Amount)), @p.CreatedAt.ToLocalTime().ToString("HH:mm"))</span> }.
+                    Ödeme tamamlanana kadar mektup düzenlenemez.
+                </p>
+                <div class="d-flex flex-wrap gap-2 mt-3">
+                    @if (p?.FormUrl is not null)
+                    {
+                        <a class="btn btn-primary" asp-action="SecurePayment" asp-route-id="@l.Id" asp-route-oid="@p.MerchantOid">Ödemeye Devam Et</a>
+                        <a class="btn btn-outline-secondary" asp-action="PaymentResult" asp-route-id="@l.Id" asp-route-oid="@p.MerchantOid">Ödedim, sonucu göster</a>
+                    }
+                    <form asp-action="AbandonPayment" asp-route-id="@l.Id" method="post"
+                          onsubmit="return confirm('Bu ödemeden vazgeçilecek. Ödemeyi tamamladıysanız vazgeçmeyin. Devam edilsin mi?')">
+                        <button class="btn btn-outline-danger">Vazgeç ve Yeniden Başla</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <p class="small text-muted">
+            Vazgeçerseniz mektubunuz tekrar düzenlenebilir olur ve ödemede kullandığınız puan iade edilir.
+            Vazgeçtikten sonra ödeme yine de onaylanırsa tutar otomatik olarak kartınıza iade edilir.
+        </p>
+    }
 </div>
+
+@section Scripts {
+    <script>
+        document.querySelectorAll("[data-copy]").forEach(b => b.addEventListener("click", async () => {
+            try { await navigator.clipboard.writeText(b.dataset.copy); b.textContent = "Kopyalandı ✓"; }
+            catch { b.textContent = "Kopyalanamadı"; }
+            setTimeout(() => b.textContent = "Kopyala", 1800);
+        }));
+    </script>
+}

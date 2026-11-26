@@ -962,6 +962,53 @@ namespace MektupApp.Infrastructure.Persistence.Migrations
                     b.ToTable("NotificationSettings", (string)null);
                 });
 
+            modelBuilder.Entity("MektupApp.Domain.Payments.BankTransferSettings", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("AccountHolder")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("nvarchar(150)");
+
+                    b.Property<string>("BankName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<decimal>("DiscountRate")
+                        .HasPrecision(5, 4)
+                        .HasColumnType("decimal(5,4)");
+
+                    b.Property<bool>("Enabled")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Iban")
+                        .IsRequired()
+                        .HasMaxLength(34)
+                        .IsUnicode(false)
+                        .HasColumnType("varchar(34)");
+
+                    b.Property<string>("Note")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<int>("ValidDays")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("BankTransferSettings", (string)null);
+                });
+
             modelBuilder.Entity("MektupApp.Domain.Payments.Payment", b =>
                 {
                     b.Property<Guid>("Id")
@@ -969,6 +1016,10 @@ namespace MektupApp.Infrastructure.Persistence.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<decimal>("Amount")
+                        .HasPrecision(10, 2)
+                        .HasColumnType("decimal(10,2)");
+
+                    b.Property<decimal>("BankTransferDiscount")
                         .HasPrecision(10, 2)
                         .HasColumnType("decimal(10,2)");
 

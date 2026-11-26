@@ -47,6 +47,10 @@ public sealed record PaymentRowDto(
     DateTime CreatedAt,
     DateTime? CompletedAt);
 
+/// <summary>Havale / EFT talimatı: hesap bilgileri, gönderilecek tutar, açıklamaya yazılacak sipariş no ve son gün.</summary>
+public sealed record BankTransferInstructionsDto(string BankName, string AccountHolder, string Iban, decimal Amount,
+    string Reference, string? Note, DateTime DueAt, decimal Discount);
+
 public enum PaymentCompletion { Paid, Failed, AlreadyProcessed, LateSuccessRefunded, LateSuccessRefundFailed, Unknown }
 
 /// <summary>
@@ -63,6 +67,7 @@ public sealed class PaymentService(
     LoyaltyService loyalty,
     CheckoutCalculator checkout,
     IPaymentProvider provider,
+    IBankTransferSettingsRepository bankTransfers,
     IUnitOfWork unitOfWork)
 {
     public const string PointsOnlyProvider = "MektupPuan";
@@ -76,6 +81,9 @@ public sealed class PaymentService(
         letter.EnsureReadyForCheckout();
         if (cmd.Method == PaymentMethod.Mobile && !provider.SupportsMobilePayment)
             throw new AppException("Mobil ödeme şu an kullanılamıyor. Lütfen kart ile ödeyin.");
+        var bank = await bankTransfers.GetAsync(ct) ?? BankTransferSettings.CreateDefault();
+        if (cmd.Method == PaymentMethod.BankTransfer && !bank.IsAvailable)
+            throw new AppException("Havale / EFT ile ödeme şu an kullanılamıyor. Lütfen kart ile ödeyin.");
 
         var customer = await customers.GetAsync(cmd.CustomerId, ct) ?? throw new AppException("Müşteri bulunamadı.");
         var (quote, account) = await checkout.CalculateAsync(letter, cmd.Method, cmd.UsePoints, ct, cmd.CouponCode);
@@ -86,9 +94,12 @@ public sealed class PaymentService(
 
         // Kampanya indirimiyle tutar 0'a inerse de ödeme formu açılmaz.
         var pointsOnly = quote.AmountToPay == 0;
-        var payment = Payment.Start(letter.Id, customer.Id, pointsOnly ? PointsOnlyProvider : provider.Name, cmd.Method,
+        var bankTransfer = !pointsOnly && cmd.Method == PaymentMethod.BankTransfer;
+        var payment = Payment.Start(letter.Id, customer.Id,
+            pointsOnly ? PointsOnlyProvider : bankTransfer ? BankTransferSettings.ProviderName : provider.Name, cmd.Method,
             quote.AmountToPay, quote.PointsUsed, quote.PointsDiscount, quote.PointsToEarn, referrerId, referralPoints,
             quote.Campaign);
+        payment.SetBankTransferDiscount(quote.BankTransferDiscount);
         payments.Add(payment);
 
         // Puan, ödeme başlarken ayrılır: aynı puan iki ayrı ödemede kullanılamaz.
@@ -107,6 +118,9 @@ public sealed class PaymentService(
         // Sağlayıcıya gitmeden önce kilitle ve kaydet: bildirim çok hızlı gelse bile kaydı bulabilsin.
         letter.BeginPayment(payment.MerchantOid);
         await unitOfWork.SaveChangesAsync(ct);
+
+        // Havale / EFT: ödeme formu yok; müşteri banka hesabına gönderir, yönetici gelen parayı onaylar.
+        if (bankTransfer) return new StartPaymentResult(false, payment.MerchantOid, null);
 
         var start = await provider.StartAsync(new PaymentStartRequest(
             payment.MerchantOid,
@@ -183,13 +197,64 @@ public sealed class PaymentService(
     /// <summary>Arka plan görevi: sonucu gelmeyen eski ödeme denemelerini kapatır.</summary>
     public async Task<int> ExpireStaleAsync(TimeSpan maxAge, int maxCount, CancellationToken ct = default)
     {
-        var stale = await payments.ListPendingOlderThanAsync(DateTime.UtcNow - maxAge, maxCount, ct);
+        // Kart / mobil ödemeler dakikalarla, havale / EFT siparişleri ayarlardaki gün sayısıyla beklenir.
+        var bank = await bankTransfers.GetAsync(ct) ?? BankTransferSettings.CreateDefault();
+        var stale = (await payments.ListPendingOlderThanAsync(DateTime.UtcNow - maxAge, maxCount, ct))
+            .Concat(await payments.ListPendingBankTransfersOlderThanAsync(DateTime.UtcNow - TimeSpan.FromDays(bank.ValidDays), maxCount, ct))
+            .ToList();
+        var closed = 0;
         foreach (var payment in stale)
         {
             var letter = await letters.GetAsync(payment.LetterId, ct);
-            await CloseUnpaidAsync(payment, letter, p => p.Expire(), "Ödeme süresi doldu.", ct);
+            await CloseUnpaidAsync(payment, letter, p => p.Expire(payment.IsBankTransfer
+                    ? $"Havale / EFT {bank.ValidDays} gün içinde gelmedi." : "Ödeme süresi doldu."),
+                payment.IsBankTransfer ? "Havale / EFT süresinde gelmedi; sipariş taslağa döndü." : "Ödeme süresi doldu.", ct);
+            closed++;
         }
-        return stale.Count;
+        return closed;
+    }
+
+    // ---------------- Havale / EFT (yönetici onayı) ----------------
+
+    /// <summary>Yönetici, bankaya gelen havaleyi onaylar: mektup ödenir (müşteriye "sipariş alındı" bildirimi gider).</summary>
+    public async Task ConfirmBankTransferAsync(Guid letterId, CancellationToken ct = default)
+    {
+        var (payment, letter) = await LoadPendingBankTransferAsync(letterId, ct);
+        payment.Succeed(payment.Amount, isTest: false);
+        ApplyToLetter(letter, payment);
+        await unitOfWork.SaveChangesAsync(ct);
+    }
+
+    /// <summary>Yönetici, havalenin gelmediğini işaretler: sipariş taslağa döner, ayrılan puan iade edilir.</summary>
+    public async Task RejectBankTransferAsync(Guid letterId, string? reason, CancellationToken ct = default)
+    {
+        var (payment, letter) = await LoadPendingBankTransferAsync(letterId, ct);
+        var why = string.IsNullOrWhiteSpace(reason) ? "Havale / EFT ulaşmadı." : reason.Trim();
+        await CloseUnpaidAsync(payment, letter, p => p.Fail(why), $"Havale / EFT onaylanmadı: {why}", ct);
+    }
+
+    /// <summary>Müşteriye gösterilecek havale bilgileri (banka hesabı, tutar, açıklama, son gün).</summary>
+    public async Task<BankTransferInstructionsDto?> GetBankTransferInstructionsAsync(Guid letterId, Guid? customerId, CancellationToken ct = default)
+    {
+        var letter = await letters.GetAsync(letterId, ct);
+        if (letter is null || (customerId is { } c && letter.CustomerId != c)) return null;
+        if (letter.Status != LetterStatus.AwaitingPayment || letter.PaymentReference is null) return null;
+        var payment = await payments.GetByMerchantOidAsync(letter.PaymentReference, ct);
+        if (payment is not { IsPending: true, IsBankTransfer: true }) return null;
+        var bank = await bankTransfers.GetAsync(ct) ?? BankTransferSettings.CreateDefault();
+        return new BankTransferInstructionsDto(bank.BankName, bank.AccountHolder, bank.IbanDisplay, payment.Amount,
+            OrderNumber.Format(letter.Id), bank.Note, payment.CreatedAt.AddDays(bank.ValidDays), payment.BankTransferDiscount);
+    }
+
+    private async Task<(Payment Payment, Letter Letter)> LoadPendingBankTransferAsync(Guid letterId, CancellationToken ct)
+    {
+        var letter = await letters.GetAsync(letterId, ct) ?? throw new AppException("Mektup bulunamadı.");
+        if (letter.Status != LetterStatus.AwaitingPayment || letter.PaymentReference is null)
+            throw new AppException("Bu sipariş havale / EFT beklemiyor.");
+        var payment = await payments.GetByMerchantOidAsync(letter.PaymentReference, ct);
+        if (payment is not { IsPending: true, IsBankTransfer: true })
+            throw new AppException("Bu sipariş havale / EFT beklemiyor.");
+        return (payment, letter);
     }
 
     public async Task<PaymentStatusDto?> GetStatusAsync(string merchantOid, Guid customerId, CancellationToken ct = default)

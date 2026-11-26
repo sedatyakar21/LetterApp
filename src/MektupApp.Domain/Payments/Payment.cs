@@ -97,6 +97,18 @@ public sealed class Payment : AggregateRoot
 
     public bool IsPending => Status == PaymentStatus.Pending;
 
+    /// <summary>Havale / EFT: para yönetici onayıyla alınır; süre aşımı gün olarak ayarlardadır.</summary>
+    public bool IsBankTransfer => Provider == BankTransferSettings.ProviderName;
+
+    /// <summary>Havale / EFT indirimi (ödeme anında sabitlenir).</summary>
+    public decimal BankTransferDiscount { get; private set; }
+
+    public void SetBankTransferDiscount(decimal discount)
+    {
+        if (discount < 0) throw new DomainException("İndirim negatif olamaz.");
+        BankTransferDiscount = decimal.Round(discount, 2);
+    }
+
     /// <summary>Sağlayıcı ödemenin alındığını bildirdi. Eksik tahsilat kabul edilmez.</summary>
     public void Succeed(decimal paidTotal, bool isTest)
     {
@@ -171,6 +183,10 @@ public interface IPaymentRepository
     Task<Payment?> GetByMerchantOidAsync(string merchantOid, CancellationToken ct = default);
     Task<Payment?> GetSucceededForLetterAsync(Guid letterId, CancellationToken ct = default);
     Task<IReadOnlyList<Payment>> ListForLetterAsync(Guid letterId, CancellationToken ct = default);
+    /// <summary>Bekleyen kart / mobil ödemeler (havale / EFT hariç; onların süresi gün olarak ayrı işlenir).</summary>
     Task<IReadOnlyList<Payment>> ListPendingOlderThanAsync(DateTime createdBefore, int maxCount, CancellationToken ct = default);
+    Task<IReadOnlyList<Payment>> ListPendingBankTransfersOlderThanAsync(DateTime createdBefore, int maxCount, CancellationToken ct = default);
+    /// <summary>Onay bekleyen tüm havale / EFT'ler (yönetim paneli).</summary>
+    Task<IReadOnlyList<Payment>> ListPendingBankTransfersAsync(CancellationToken ct = default);
     void Add(Payment payment);
 }

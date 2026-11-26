@@ -1,6 +1,7 @@
 // Sunucudan gelen JSON modelleri (alan adları /api/mobile yanıtlarıyla aynıdır).
 
 double _d(dynamic v) => v == null ? 0 : (v as num).toDouble();
+String _utc(String s) => RegExp(r'(Z|[+-]\d\d:?\d\d)$').hasMatch(s) ? s : '${s}Z';
 double? _dn(dynamic v) => v == null ? null : (v as num).toDouble();
 DateTime _dt(dynamic v) => DateTime.parse(v as String).toLocal();
 DateTime? _dtn(dynamic v) => v == null ? null : DateTime.parse(v as String).toLocal();
@@ -313,11 +314,48 @@ class PendingPayment {
       : merchantOid = j['merchantOid'] as String,
         amount = _d(j['amount']),
         formUrl = j['formUrl'] as String?,
-        simulation = j['simulation'] as bool;
+        simulation = j['simulation'] as bool,
+        bankTransfer = j['bankTransfer'] == null
+            ? null
+            : BankTransferInstructions.fromJson(j['bankTransfer'] as Map<String, dynamic>);
   final String merchantOid;
   final double amount;
   final String? formUrl;
   final bool simulation;
+
+  /// Havale / EFT bekleniyorsa: gönderilecek hesap, tutar ve açıklama.
+  final BankTransferInstructions? bankTransfer;
+}
+
+/// Havale / EFT talimatı (sipariş oluşturulduktan sonra).
+class BankTransferInstructions {
+  BankTransferInstructions.fromJson(Map<String, dynamic> j)
+      : bankName = j['bankName'] as String,
+        accountHolder = j['accountHolder'] as String,
+        iban = j['iban'] as String,
+        amount = _d(j['amount']),
+        reference = j['reference'] as String,
+        note = j['note'] as String?,
+        // Sunucu UTC saati bölge işareti olmadan gönderir.
+        dueAt = DateTime.parse(_utc(j['dueAt'] as String)).toLocal(),
+        discount = _d(j['discount']);
+  final String bankName, accountHolder, iban, reference;
+  final String? note;
+  final double amount, discount;
+  final DateTime dueAt;
+}
+
+/// Havale / EFT hesabı (ödeme adımında, sipariş oluşturulmadan önce).
+class BankAccount {
+  BankAccount.fromJson(Map<String, dynamic> j)
+      : bankName = j['bankName'] as String,
+        accountHolder = j['accountHolder'] as String,
+        iban = j['iban'] as String,
+        note = j['note'] as String?,
+        validDays = j['validDays'] as int;
+  final String bankName, accountHolder, iban;
+  final String? note;
+  final int validDays;
 }
 
 class Letter {
@@ -502,13 +540,20 @@ class Quote {
         providerIsSimulation = j['providerIsSimulation'] as bool,
         couponCode = j['couponCode'] as String?,
         couponApplied = j['couponApplied'] as bool,
-        couponMessage = j['couponMessage'] as String?;
+        couponMessage = j['couponMessage'] as String?,
+        bankTransferAvailable = j['bankTransferAvailable'] as bool? ?? false,
+        bankTransferPercent = _d(j['bankTransferPercent'] ?? 0),
+        bankTransferDiscount = _d(j['bankTransferDiscount'] ?? 0),
+        bankAccount = j['bankAccount'] == null ? null : BankAccount.fromJson(j['bankAccount'] as Map<String, dynamic>);
 
   final String method, providerLabel;
   final List<QuoteLine> lines;
   final double total, campaignDiscount, pointsBalance, pointsUsed, pointsDiscount, balanceValue, amountToPay, pointsToEarn;
   final String? campaignTitle, couponCode, couponMessage;
   final bool usePoints, loyaltyEnabled, mobilePaymentAvailable, providerIsSimulation, couponApplied;
+  final bool bankTransferAvailable;
+  final double bankTransferPercent, bankTransferDiscount;
+  final BankAccount? bankAccount;
 
   double get subtotal => lines.fold(0, (s, l) => s + l.amount);
 }

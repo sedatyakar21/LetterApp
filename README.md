@@ -260,6 +260,14 @@ cd mobile
 flutter test
 ```
 
+### Havale / EFT ile ödeme
+
+Yönetim panelindeki **🏦 Havale / EFT** sayfasından açılıp kapatılır; indirim oranı (%0–50), banka adı, hesap sahibi, IBAN (TR biçimi ve mod-97 kontrol hanesi doğrulanır), müşteriye not ve bekleme süresi (1–30 gün) buradan girilir.
+
+- **Müşteri:** Ödeme sekmesinde "Havale / EFT"yi seçince indirim satırı eklenir, sağda hesap bilgileri ve **Havale ile Siparişi Oluştur** düğmesi çıkar. İndirim kampanyadan sonra, MektupPuan'dan önce uygulanır ve `Payment.BankTransferDiscount`'ta sabitlenir. Sipariş **Ödeme Bekleniyor**'a geçer; bekleme sayfasında (ve mobilde mektup ekranında) IBAN, tutar, açıklamaya yazılacak sipariş numarası ve son gün gösterilir.
+- **Yönetici:** Bekleyen havaleler ayar sayfasının sağında listelenir; **Siparişler → Detay**'da "Havale alındı" mektubu ödenmiş yapar, "Gelmedi" taslağa döndürür (ayrılan puan iade edilir).
+- **Süre dolumu:** onaylanmayan havaleler bekleme süresi sonunda arka planda kapatılır ve mektup taslağa döner.
+
 ### PayTR ödeme entegrasyonu
 
 [PayTR iFrame API](https://dev.paytr.com/iframe-api) kullanılır. Ödeme asenkrondur: kesin sonuç, müşterinin döndüğü sayfadan değil PayTR'nin sunucuya gönderdiği bildirimden gelir.

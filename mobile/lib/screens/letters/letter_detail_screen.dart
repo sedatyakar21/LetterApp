@@ -13,6 +13,7 @@ import '../../ui/theme.dart';
 import 'checkout_screen.dart';
 import 'letter_editor_screen.dart';
 import 'payment_flow.dart';
+import 'payment_step.dart' show BankInfo;
 
 class LetterDetailScreen extends StatefulWidget {
   const LetterDetailScreen({super.key, required this.letterId, this.openCheckout = false});
@@ -436,6 +437,36 @@ class _LetterDetailScreenState extends State<LetterDetailScreen> {
 
   Widget _pendingPayment(Letter l) {
     final p = l.pendingPayment;
+    final bank = p?.bankTransfer;
+    if (bank != null) {
+      return Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: const Color(0xFFFFF7E6),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: const Color(0xFFF1D9A6)),
+        ),
+        child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+          const Text('🏦 Havale / EFT bekleniyor', style: TextStyle(fontWeight: FontWeight.w700, color: Color(0xFF8A5A00))),
+          const SizedBox(height: 4),
+          const Text('Tutarı aşağıdaki hesaba gönderin; açıklamaya sipariş numaranızı yazın. Havale hesabımıza geçince '
+              'ödemeniz onaylanır ve mektubunuz basıma alınır.', style: TextStyle(color: Color(0xFF6B4A00))),
+          const SizedBox(height: 10),
+          BankInfo(
+            bankName: bank.bankName,
+            accountHolder: bank.accountHolder,
+            iban: bank.iban,
+            amount: bank.amount,
+            discount: bank.discount,
+            reference: bank.reference,
+            note: bank.note,
+            dueAt: bank.dueAt,
+          ),
+          const SizedBox(height: 12),
+          OutlinedButton(onPressed: _busy ? null : _abandon, child: const Text('Vazgeç, başka yöntemle öde')),
+        ]),
+      );
+    }
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(

@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
 import '../../api/models.dart';
@@ -14,11 +15,14 @@ import 'payment_flow.dart';
 /// Adım açılınca ödeme başlatılır (mektup kilitlenir); kupon / puan / yöntem değişirse deneme kapatılıp yenisi başlar.
 /// Adımdan geri çıkılırken [PaymentStepState.leave] çağrılmalıdır.
 class PaymentStep extends StatefulWidget {
-  const PaymentStep({super.key, required this.letterId, required this.onPaid});
+  const PaymentStep({super.key, required this.letterId, required this.onPaid, required this.onBankTransferOrdered});
   final String letterId;
 
   /// Ödeme tamamlandı ([free]: kart gerekmeden — puan / kampanya).
   final void Function(bool free) onPaid;
+
+  /// Havale / EFT ile sipariş oluşturuldu (ödeme yönetici onayını bekler).
+  final VoidCallback onBankTransferOrdered;
 
   @override
   State<PaymentStep> createState() => PaymentStepState();
@@ -85,8 +89,12 @@ class PaymentStepState extends State<PaymentStep> {
       if (!await _abandon()) return;
       final q = await api.quote(widget.letterId, method: _method, usePoints: _usePoints, coupon: _appliedCoupon);
       if (!mounted) return;
-      setState(() => _quote = q);
-      if (q.amountToPay <= 0) return; // ücretsiz: düğmeyle tamamlanır
+      setState(() {
+        _quote = q;
+        _method = q.method; // havale / mobil kapalıysa sunucu karta döner
+      });
+      // Ücretsiz veya havale: ödeme hemen başlatılmaz, müşteri düğmeyle siparişi tamamlar.
+      if (q.amountToPay <= 0 || q.method == 'BankTransfer') return;
       final r = await api.pay(widget.letterId,
           method: _method, usePoints: _usePoints, coupon: q.couponApplied ? q.couponCode : null);
       if (!mounted) return;
@@ -124,7 +132,12 @@ class PaymentStepState extends State<PaymentStep> {
       final r = await AppScope.read(context)
           .api
           .pay(widget.letterId, method: _method, usePoints: _usePoints, coupon: _quote?.couponApplied == true ? _quote!.couponCode : null);
-      if (mounted && r.completed) widget.onPaid(true);
+      if (!mounted) return;
+      if (r.completed) {
+        widget.onPaid(true);
+      } else if (_method == 'BankTransfer') {
+        widget.onBankTransferOrdered();
+      }
     } catch (e) {
       if (mounted) showMessage(context, errorText(e), error: true);
     } finally {
@@ -186,11 +199,15 @@ class PaymentStepState extends State<PaymentStep> {
     return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
       if (_busy) const LinearProgressIndicator(minHeight: 2),
       if (q != null) ...[
-        if (q.mobilePaymentAvailable) ...[
+        if (q.mobilePaymentAvailable || q.bankTransferAvailable) ...[
           SegmentedButton<String>(
-            segments: const [
-              ButtonSegment(value: 'Card', icon: Icon(Icons.credit_card), label: Text('Kart')),
-              ButtonSegment(value: 'Mobile', icon: Icon(Icons.phone_iphone), label: Text('Mobil ödeme')),
+            showSelectedIcon: false,
+            segments: [
+              const ButtonSegment(value: 'Card', icon: Icon(Icons.credit_card), label: Text('Kart')),
+              if (q.mobilePaymentAvailable)
+                const ButtonSegment(value: 'Mobile', icon: Icon(Icons.phone_iphone), label: Text('Mobil')),
+              if (q.bankTransferAvailable)
+                const ButtonSegment(value: 'BankTransfer', icon: Icon(Icons.account_balance_outlined), label: Text('Havale')),
             ],
             selected: {_method},
             onSelectionChanged: _busy
@@ -206,6 +223,12 @@ class PaymentStepState extends State<PaymentStep> {
               child: Text('Mobil ödemede operatör farkı (%${(settings.prices.mobileSurchargeRate * 100).round()}) eklenir.',
                   style: const TextStyle(color: Brand.muted, fontSize: 12)),
             ),
+          if (q.bankTransferAvailable && q.bankTransferPercent > 0 && _method != 'BankTransfer')
+            Padding(
+              padding: const EdgeInsets.only(top: 6),
+              child: Text('Havale / EFT ile ödemede %${number(q.bankTransferPercent)} indirim.',
+                  style: const TextStyle(color: Brand.success, fontSize: 12, fontWeight: FontWeight.w600)),
+            ),
           const SizedBox(height: 12),
         ],
         SectionCard(
@@ -214,6 +237,9 @@ class PaymentStepState extends State<PaymentStep> {
             for (final l in q.lines) InfoRow(l.description, money(l.amount)),
             if (q.campaignDiscount > 0)
               InfoRow('🎁 ${q.campaignTitle ?? 'Kampanya'}', '−${money(q.campaignDiscount)}', valueColor: Brand.success),
+            if (q.method == 'BankTransfer' && q.bankTransferDiscount > 0)
+              InfoRow('🏦 Havale / EFT indirimi (%${number(q.bankTransferPercent)})', '−${money(q.bankTransferDiscount)}',
+                  valueColor: Brand.success),
             if (q.pointsDiscount > 0)
               InfoRow('MektupPuan (${number(q.pointsUsed)} puan)', '−${money(q.pointsDiscount)}', valueColor: Brand.success),
             const Divider(height: 20),
@@ -270,7 +296,7 @@ class PaymentStepState extends State<PaymentStep> {
         const SizedBox(height: 12),
       ],
       SectionCard(
-        title: '🔒 Kart bilgileri',
+        title: q?.method == 'BankTransfer' ? '🏦 Havale / EFT bilgileri' : '🔒 Kart bilgileri',
         child: _paymentArea(q),
       ),
     ]);
@@ -295,6 +321,25 @@ class PaymentStepState extends State<PaymentStep> {
           onPressed: _busy ? null : _completeFree,
           icon: const Icon(Icons.send),
           label: Text(q.pointsUsed > 0 ? 'Puanla Öde ve Gönder' : 'Ücretsiz Gönder'),
+        ),
+      ]);
+    }
+    if (q.method == 'BankTransfer') {
+      final b = q.bankAccount;
+      return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+        const Text('Siparişinizi oluşturun, ardından tutarı aşağıdaki hesaba gönderin. Havale hesabımıza geçtiğinde '
+            'ödemeniz onaylanır ve mektubunuz basıma alınır.'),
+        const SizedBox(height: 10),
+        if (b != null)
+          BankInfo(bankName: b.bankName, accountHolder: b.accountHolder, iban: b.iban, amount: q.amountToPay, note: b.note),
+        const SizedBox(height: 6),
+        Text('Havale ${b?.validDays ?? ''} gün içinde hesabımıza geçmezse sipariş iptal olur ve mektubunuz taslaklarınıza döner.',
+            style: const TextStyle(color: Brand.muted, fontSize: 12)),
+        const SizedBox(height: 10),
+        FilledButton.icon(
+          onPressed: _busy ? null : _completeFree,
+          icon: const Icon(Icons.account_balance_outlined),
+          label: const Text('Havale ile Siparişi Oluştur'),
         ),
       ]);
     }
@@ -352,6 +397,57 @@ class PaymentStepState extends State<PaymentStep> {
           ),
         ),
       ),
+    ]);
+  }
+}
+
+/// Havale / EFT hesap bilgileri; IBAN ve açıklama (sipariş no) kopyalanabilir.
+class BankInfo extends StatelessWidget {
+  const BankInfo({super.key, required this.bankName, required this.accountHolder, required this.iban,
+      required this.amount, this.reference, this.note, this.discount = 0, this.dueAt});
+  final String bankName, accountHolder, iban;
+  final String? reference, note;
+  final double amount, discount;
+  final DateTime? dueAt;
+
+  @override
+  Widget build(BuildContext context) {
+    Widget copy(String label, String value) => IconButton(
+          visualDensity: VisualDensity.compact,
+          tooltip: '$label kopyala',
+          icon: const Icon(Icons.copy, size: 18),
+          onPressed: () {
+            Clipboard.setData(ClipboardData(text: value.replaceAll(' ', '')));
+            showMessage(context, '$label kopyalandı.');
+          },
+        );
+    Widget row(String label, Widget value, [Widget? action]) => Padding(
+          padding: const EdgeInsets.symmetric(vertical: 3),
+          child: Row(crossAxisAlignment: CrossAxisAlignment.center, children: [
+            SizedBox(width: 82, child: Text(label, style: const TextStyle(color: Brand.muted))),
+            Expanded(child: value),
+            ?action,
+          ]),
+        );
+    return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+      row('Banka', Text(bankName)),
+      row('Alıcı', Text(accountHolder)),
+      row('IBAN', Text(iban, style: const TextStyle(fontFamily: 'monospace', fontWeight: FontWeight.w600)), copy('IBAN', iban)),
+      row('Tutar', Text.rich(TextSpan(children: [
+        TextSpan(text: money(amount), style: const TextStyle(fontWeight: FontWeight.w700)),
+        if (discount > 0)
+          TextSpan(text: '  (havale indirimi −${money(discount)})', style: const TextStyle(color: Brand.success, fontSize: 12)),
+      ]))),
+      if (reference != null)
+        row('Açıklama', Text(reference!, style: const TextStyle(fontFamily: 'monospace', fontWeight: FontWeight.w700)),
+            copy('Sipariş no', reference!)),
+      if (dueAt != null)
+        row('Son gün', Text('${dueAt!.day.toString().padLeft(2, '0')}.${dueAt!.month.toString().padLeft(2, '0')}.${dueAt!.year} '
+            '${dueAt!.hour.toString().padLeft(2, '0')}:${dueAt!.minute.toString().padLeft(2, '0')}')),
+      if (note != null && note!.isNotEmpty) ...[
+        const SizedBox(height: 6),
+        Text(note!, style: const TextStyle(fontSize: 12, fontStyle: FontStyle.italic)),
+      ],
     ]);
   }
 }

@@ -466,11 +466,17 @@
         pay.quote = q;
         pay.method = q.method;
         $("payRecipient").textContent = [field("RecipientName").value.trim(), addressText("RecipientAddress")].filter(Boolean).join(" — ");
-        $("payMethods").classList.toggle("d-none", !q.mobilePaymentAvailable);
+        $("payMethods").classList.toggle("d-none", !q.mobilePaymentAvailable && !q.bankTransferAvailable);
         $("payMethods").querySelectorAll("[data-method]").forEach(b => {
-            b.classList.toggle("btn-primary", b.dataset.method === q.method);
-            b.classList.toggle("btn-outline-primary", b.dataset.method !== q.method);
+            const m = b.dataset.method;
+            b.classList.toggle("d-none", (m === "Mobile" && !q.mobilePaymentAvailable) || (m === "BankTransfer" && !q.bankTransferAvailable));
+            b.classList.toggle("btn-primary", m === q.method);
+            b.classList.toggle("btn-outline-primary", m !== q.method);
         });
+        const bankBtn = $("payMethods").querySelector("[data-method=BankTransfer]");
+        bankBtn.textContent = q.bankTransferPercent > 0
+            ? `🏦 Havale / EFT (%${q.bankTransferPercent.toLocaleString("tr-TR")} indirim)` : "🏦 Havale / EFT";
+        const bank = q.method === "BankTransfer";
         const row = (label, amount, cls = "") => {
             const tr = document.createElement("tr");
             if (cls) tr.className = cls;
@@ -481,9 +487,11 @@
         };
         const rows = q.lines.map(l => row(l.description, money(l.amount)));
         if (q.campaign) rows.push(row(`🎉 Kampanya: ${q.campaign.title}${q.couponApplied ? ` (kupon ${q.couponCode})` : ""}`, `−${money(q.campaign.discount)}`, "text-success"));
+        if (bank && q.bankTransferDiscount > 0)
+            rows.push(row(`🏦 Havale / EFT indirimi (%${q.bankTransferPercent.toLocaleString("tr-TR")})`, `−${money(q.bankTransferDiscount)}`, "text-success"));
         if (q.pointsUsed > 0) rows.push(row(`MektupPuan (${q.pointsUsed.toLocaleString("tr-TR")} puan)`, `−${money(q.pointsDiscount)}`, "text-success"));
         $("payLines").replaceChildren(...rows);
-        $("paySubtotalRow").classList.toggle("d-none", !(q.campaign || q.pointsUsed > 0));
+        $("paySubtotalRow").classList.toggle("d-none", !(q.campaign || q.pointsUsed > 0 || (bank && q.bankTransferDiscount > 0)));
         $("paySubtotal").textContent = money(q.total);
         $("payTotal").textContent = money(q.amountToPay);
 
@@ -499,8 +507,22 @@
         $("payPointsLabel").textContent = `MektupPuan kullan — bakiye ${q.pointsBalance.toLocaleString("tr-TR")} puan (= ${money(q.balanceValue)})`;
         $("payEarn").classList.toggle("d-none", !(q.pointsToEarn > 0));
         $("payEarn").textContent = `🎁 Bu mektup postaya verildiğinde ${q.pointsToEarn.toLocaleString("tr-TR")} MektupPuan (= ${money(q.pointsToEarnValue)}) kazanacaksınız.`;
-        $("paySimulation").classList.toggle("d-none", !q.providerIsSimulation);
-        $("payNote").classList.toggle("d-none", q.providerIsSimulation);
+        $("paySimulation").classList.toggle("d-none", bank || !q.providerIsSimulation);
+        $("payNote").classList.toggle("d-none", bank || q.providerIsSimulation);
+        $("payPanelTitle").textContent = bank ? "🏦 Havale / EFT bilgileri" : "🔒 Kart bilgileri";
+    }
+
+    // Havale / EFT: kart formu açılmaz; banka bilgileri ve "Siparişi Oluştur" gösterilir.
+    function showBankTransfer(q) {
+        const b = q.bankTransfer ?? {};
+        $("payBankName").textContent = b.bankName ?? "";
+        $("payBankHolder").textContent = b.accountHolder ?? "";
+        $("payBankIban").textContent = b.iban ?? "";
+        $("payBankAmount").textContent = money(q.amountToPay);
+        $("payBankNote").textContent = b.note ?? "";
+        $("payBankNote").classList.toggle("d-none", !b.note);
+        $("payBankDays").textContent = `Havale ${b.validDays ?? ""} gün içinde hesabımıza geçmezse sipariş iptal olur ve mektubunuz taslaklarınıza döner.`;
+        $("payBankBox").classList.remove("d-none");
     }
 
     async function postPayment(url, body) {
@@ -527,6 +549,7 @@
     function resetPaymentPanel() {
         $("payFrameBox").classList.add("d-none");
         $("payFreeBox").classList.add("d-none");
+        $("payBankBox").classList.add("d-none");
         $("payFrame").removeAttribute("src");
     }
 
@@ -561,6 +584,7 @@
                 $("payFreeBox").classList.remove("d-none");
                 return;
             }
+            if (q.method === "BankTransfer") { payStatus(""); showBankTransfer(q); return; }
             const body = new FormData();
             body.append("method", pay.method);
             body.append("usePoints", pay.usePoints);
@@ -603,8 +627,9 @@
     $("payCouponApply").addEventListener("click", applyCoupon);
     $("payCoupon").addEventListener("keydown", (e) => { if (e.key === "Enter") { e.preventDefault(); applyCoupon(); } });
     $("payCouponRemove").addEventListener("click", () => { pay.coupon = null; $("payCoupon").value = ""; startCheckout(); });
-    $("payFreeButton").addEventListener("click", async () => {
-        $("payFreeButton").disabled = true;
+    // Ücretsiz / puanla tamamlama ve havale ile sipariş: ikisi de ödemeyi tek istekle başlatıp yönlendirir.
+    const submitOrder = (button) => async () => {
+        button.disabled = true;
         try {
             const body = new FormData();
             body.append("method", pay.method);
@@ -614,10 +639,12 @@
             dirty = false;
             location.href = done.redirectUrl ?? `/mektup/${letterId()}`;
         } catch (e) {
-            $("payFreeButton").disabled = false;
+            button.disabled = false;
             payStatus(e.message, "danger");
         }
-    });
+    };
+    $("payBankButton").addEventListener("click", submitOrder($("payBankButton")));
+    $("payFreeButton").addEventListener("click", submitOrder($("payFreeButton")));
     field("Content").addEventListener("input", () => { if (field("Content").value.trim()) $("contentError").hidden = true; });
 
     // Sunucu doğrulama hatasıyla dönülürse hatalı alanın bulunduğu adım açılır.

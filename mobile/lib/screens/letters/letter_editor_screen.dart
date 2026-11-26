@@ -188,7 +188,24 @@ class _LetterEditorScreenState extends State<LetterEditorScreen> {
   }
 
   /// Ödeme tamamlandı: teşekkür penceresi, ardından mektup ekranı.
-  Future<void> _onPaid(bool free) async {
+  Future<void> _onPaid(bool free) => _finishOrder(
+        title: 'Siparişiniz alındı!',
+        message: free
+            ? 'Ödemeniz MektupPuan / kampanya indirimiyle tamamlandı. Mektubunuz ilk iş gününde basılıp postaya verilecek.'
+            : 'Ödemeniz alındı. Mektubunuz ilk iş gününde basılıp postaya verilecek.',
+      );
+
+  /// Havale / EFT ile sipariş oluşturuldu: mektup ekranında hesap bilgileri ve sipariş no gösterilir.
+  Future<void> _onBankTransferOrdered() => _finishOrder(
+        title: 'Siparişiniz oluşturuldu',
+        message: 'Havale / EFT hesabımıza geçtiğinde ödemeniz onaylanır ve mektubunuz basıma alınır. '
+            'Hesap bilgileri ve açıklamaya yazacağınız sipariş numarası mektup ekranında.',
+        icon: Icons.account_balance_outlined,
+        button: 'Hesap bilgilerini göster',
+      );
+
+  Future<void> _finishOrder({required String title, required String message,
+      IconData icon = Icons.mark_email_read_outlined, String button = 'Harika'}) async {
     final session = AppScope.read(context);
     session.lettersChanged();
     session.refreshMe().catchError((_) {});
@@ -197,12 +214,10 @@ class _LetterEditorScreenState extends State<LetterEditorScreen> {
       context: context,
       barrierDismissible: false,
       builder: (c) => AlertDialog(
-        icon: const Icon(Icons.mark_email_read_outlined, size: 48, color: Brand.success),
-        title: const Text('Siparişiniz alındı!'),
-        content: Text(free
-            ? 'Ödemeniz MektupPuan / kampanya indirimiyle tamamlandı. Mektubunuz ilk iş gününde basılıp postaya verilecek.'
-            : 'Ödemeniz alındı. Mektubunuz ilk iş gününde basılıp postaya verilecek.'),
-        actions: [FilledButton(onPressed: () => Navigator.pop(c), child: const Text('Harika'))],
+        icon: Icon(icon, size: 48, color: Brand.success),
+        title: Text(title),
+        content: Text(message),
+        actions: [FilledButton(onPressed: () => Navigator.pop(c), child: Text(button))],
       ),
     );
     if (!mounted) return;
@@ -339,7 +354,11 @@ class _LetterEditorScreenState extends State<LetterEditorScreen> {
             _page(3, _reviewStep(settings)),
             // Ödeme adımı yalnızca açıkken kurulur (kurulunca ödeme başlatılır).
             _page(4, _step == _paymentIndex && _letterId != null
-                ? PaymentStep(key: _paymentKey, letterId: _letterId!, onPaid: _onPaid)
+                ? PaymentStep(
+                    key: _paymentKey,
+                    letterId: _letterId!,
+                    onPaid: _onPaid,
+                    onBankTransferOrdered: _onBankTransferOrdered)
                 : const SizedBox.shrink()),
           ]),
         ),
