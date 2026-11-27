@@ -127,6 +127,21 @@
         </div>
     </footer>
 
+    @* Çerez bildirimi: "Tamam" ile kapatılınca bm-cookie-ok çerezi bir yıl saklanır, sunucu bir daha göstermez. *@
+    @if (!Context.Request.Cookies.ContainsKey("bm-cookie-ok"))
+    {
+        <div class="cookie-notice" id="cookieNotice" role="region" aria-label="Çerez bildirimi">
+            <div class="container d-flex flex-column flex-sm-row align-items-sm-center gap-2 gap-sm-3">
+                <p class="mb-0 flex-grow-1">
+                    🍪 BiMektubum uygulamasını kullandığınız için <strong>çerez kullanımını</strong> kabul etmektesiniz.
+                    <a asp-area="" asp-controller="Legal" asp-action="Show"
+                       asp-route-slug="@MektupApp.Domain.Legal.LegalDocument.PrivacyPolicySlug">Gizlilik ve Çerez Politikası</a>
+                </p>
+                <button type="button" class="btn btn-primary btn-sm px-4 align-self-end align-self-sm-center" id="cookieOk">Tamam</button>
+            </div>
+        </div>
+    }
+
     <partial name="_WhatsAppHelp" />
     <button type="button" id="toTop" class="to-top" aria-label="Sayfanın başına dön" title="Başa dön">↑</button>
 

@@ -193,6 +193,17 @@ a:hover { color: var(--burgundy); }
     transition: opacity .25s ease, transform .25s ease;
 }
 .to-top.show { opacity: 1; transform: none; pointer-events: auto; }
+
+/* Çerez bildirimi (alt şerit) */
+.cookie-notice {
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 1050;
+    padding: .85rem 0; font-size: .92rem;
+    background: var(--surface, #fff); color: var(--bs-body-color);
+    border-top: 1px solid var(--bs-border-color);
+    box-shadow: 0 -6px 20px rgba(27, 34, 56, .12);
+}
+.cookie-notice a { color: var(--brand); white-space: nowrap; }
+.wa-help, .to-top { margin-bottom: var(--cookie-h, 0px); }
 .to-top:focus-visible { outline: 3px solid rgba(142, 34, 53, .4); outline-offset: 2px; }
 
 /* ---------- Blog ---------- */

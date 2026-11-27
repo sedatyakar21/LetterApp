@@ -67,6 +67,22 @@
         panel.querySelectorAll(".wa-topics a").forEach(a => a.addEventListener("click", () => setOpen(false)));
     }
 
+    // ---------- Çerez bildirimi ----------
+    // Bildirim açıkken sağ alttaki butonlar onun üstüne kayar (--cookie-h); "Tamam" çerezi bir yıl saklar.
+    const cookieNotice = document.getElementById("cookieNotice");
+    if (cookieNotice) {
+        const syncHeight = () => root.style.setProperty("--cookie-h", `${cookieNotice.offsetHeight}px`);
+        syncHeight();
+        window.addEventListener("resize", syncHeight);
+        document.getElementById("cookieOk")?.addEventListener("click", () => {
+            const secure = location.protocol === "https:" ? "; Secure" : "";
+            document.cookie = `bm-cookie-ok=1; Max-Age=31536000; Path=/; SameSite=Lax${secure}`;
+            window.removeEventListener("resize", syncHeight);
+            cookieNotice.remove();
+            root.style.removeProperty("--cookie-h");
+        });
+    }
+
     // ---------- Görünürken belirme ----------
     const items = document.querySelectorAll("[data-reveal]");
     if (reduceMotion || !("IntersectionObserver" in window) || items.length === 0) return;
