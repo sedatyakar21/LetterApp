@@ -264,6 +264,13 @@ cd mobile
 flutter test
 ```
 
+### Sözleşmeler ve yasal metinler
+
+Yönetim panelindeki **📜 Sözleşmeler** ekranından Markdown olarak girilir (önizlemeli), sitede `/sozlesme/{adres}` sayfasında yayınlanır; tüm liste `/sozlesmeler`. Alt bilgide "Alt bilgide göster" işaretli yayındaki belgeler listelenir. İçerik her değiştiğinde sürüm numarası artar.
+
+- **Sistem belgeleri** (ilk açılışta taslak yer tutucu metinle oluşturulur; adresleri sabit, silinemez): Üyelik Sözleşmesi, Mesafeli Satış Sözleşmesi, Ön Bilgilendirme Formu, İptal ve İade Koşulları, KVKK Aydınlatma Metni, Gizlilik ve Çerez Politikası. Yeni belgeler de eklenebilir.
+- Kayıt formu üyelik sözleşmesine, ödeme adımı (web ve mobil) ön bilgilendirme formu ve mesafeli satış sözleşmesine bağlantı verir. Eski `/uyelik-sozlesmesi` adresi yeni sayfaya yönlenir.
+
 ### Havale / EFT ile ödeme
 
 Yönetim panelindeki **🏦 Havale / EFT** sayfasından açılıp kapatılır; indirim oranı (%0–50), banka adı, hesap sahibi, IBAN (TR biçimi ve mod-97 kontrol hanesi doğrulanır), müşteriye not ve bekleme süresi (1–30 gün) buradan girilir.

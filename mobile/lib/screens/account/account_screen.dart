@@ -198,9 +198,9 @@ class AccountScreen extends StatelessWidget {
               const Divider(height: 1, indent: 16, endIndent: 16),
               ListTile(
                 leading: Icon(Icons.description_outlined, color: Brand.navy),
-                title: const Text('Üyelik sözleşmesi'),
+                title: const Text('Sözleşmeler ve yasal metinler'),
                 trailing: const Icon(Icons.open_in_new, size: 18),
-                onTap: () => _open(context, Uri.parse('$base/uyelik-sozlesmesi')),
+                onTap: () => _open(context, Uri.parse('$base/sozlesmeler')),
               ),
             ]),
           ),

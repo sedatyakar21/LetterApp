@@ -154,6 +154,12 @@
         }
     }
 
+    <p class="small text-muted">
+        Ödemeyi tamamlayarak
+        <a asp-controller="Legal" asp-action="Show" asp-route-slug="@MektupApp.Domain.Legal.LegalDocument.PreInformationSlug" target="_blank">Ön Bilgilendirme Formu</a>'nu ve
+        <a asp-controller="Legal" asp-action="Show" asp-route-slug="@MektupApp.Domain.Legal.LegalDocument.DistanceSalesSlug" target="_blank">Mesafeli Satış Sözleşmesi</a>'ni
+        okuduğunuzu ve kabul ettiğinizi onaylarsınız.
+    </p>
     <form asp-action="Pay" asp-route-id="@l.Id" method="post">
         <input type="hidden" name="method" value="@q.Method" />
         <input type="hidden" name="usePoints" value="@(q.UsePoints ? "true" : "false")" />

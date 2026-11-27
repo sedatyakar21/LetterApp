@@ -1,4 +1,5 @@
-﻿<!DOCTYPE html>
+﻿@inject MektupApp.Application.Legal.LegalDocumentService LegalDocuments
+<!DOCTYPE html>
 <html lang="tr">
 <head>
     <meta charset="utf-8" />
@@ -107,9 +108,19 @@
                     <a asp-area="" asp-controller="Blog" asp-action="Index">Blog</a>
                     <a asp-area="" asp-controller="Reviews" asp-action="Index">Müşteri Yorumları</a>
                     <a asp-area="" asp-controller="Home" asp-action="Faq">Sıkça Sorulan Sorular</a>
-                    <a asp-area="" asp-controller="Home" asp-action="Terms">Üyelik Sözleşmesi</a>
                 </nav>
             </div>
+            @* Yönetim → Sözleşmeler'de "Alt bilgide göster" işaretli, yayındaki belgeler *@
+            @{ var legalLinks = await LegalDocuments.ListPublishedAsync(footerOnly: true); }
+            @if (legalLinks.Count > 0)
+            {
+                <nav class="footer-legal d-flex flex-wrap gap-3 mt-3 small" aria-label="Sözleşmeler">
+                    @foreach (var d in legalLinks)
+                    {
+                        <a asp-area="" asp-controller="Legal" asp-action="Show" asp-route-slug="@d.Slug">@d.Title</a>
+                    }
+                </nav>
+            }
             <div class="mt-4 pt-3 border-top border-light border-opacity-25 small opacity-75">
                 &copy; @DateTime.Now.Year BiMektubum — Online mektup gönderme
             </div>

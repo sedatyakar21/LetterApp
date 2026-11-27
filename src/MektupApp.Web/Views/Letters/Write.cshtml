@@ -348,6 +348,12 @@
                                         <label class="form-check-label small" for="payUsePoints" id="payPointsLabel">MektupPuan kullan</label>
                                     </div>
                                     <div class="alert alert-success small mt-3 mb-0 d-none" id="payEarn"></div>
+                                    <p class="small text-muted mt-3 mb-0">
+                                        Ödemeyi tamamlayarak
+                                        <a asp-controller="Legal" asp-action="Show" asp-route-slug="@MektupApp.Domain.Legal.LegalDocument.PreInformationSlug" target="_blank">Ön Bilgilendirme Formu</a>'nu ve
+                                        <a asp-controller="Legal" asp-action="Show" asp-route-slug="@MektupApp.Domain.Legal.LegalDocument.DistanceSalesSlug" target="_blank">Mesafeli Satış Sözleşmesi</a>'ni
+                                        okuduğunuzu ve kabul ettiğinizi onaylarsınız.
+                                    </p>
                                 </div>
                             </div>
                         </div>

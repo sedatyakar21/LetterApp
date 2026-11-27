@@ -394,6 +394,8 @@ a:hover { color: var(--burgundy); }
 .site-footer { background: var(--footer-bg, var(--navy-solid)); color: rgba(255, 255, 255, .75); padding: 2rem 0 1.5rem; font-size: .9rem; }
 .site-footer a { color: #fff; text-decoration-color: rgba(255, 255, 255, .35); }
 .site-footer a:hover { color: #f3c6cd; }
+.site-footer .footer-legal a { color: rgba(255, 255, 255, .75); }
+.site-footer .footer-legal a:hover { color: #f3c6cd; }
 .site-footer .footer-brand { font-family: var(--font-serif); font-size: 1.25rem; color: #fff; font-weight: 700; }
 .site-footer .footer-brand .bi { color: #f0a7b3; font-style: italic; }
 

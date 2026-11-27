@@ -1,0 +1,17 @@
+@model IReadOnlyList<MektupApp.Application.Legal.LegalDocumentSummaryDto>
+@{
+    ViewData["Title"] = "Sözleşmeler ve Yasal Metinler";
+}
+<div class="container py-4" style="max-width: 860px">
+    <h1 class="h3 mb-3">Sözleşmeler ve Yasal Metinler</h1>
+    <div class="list-group">
+        @foreach (var d in Model)
+        {
+            <a class="list-group-item list-group-item-action d-flex justify-content-between align-items-center"
+               asp-action="Show" asp-route-slug="@d.Slug">
+                <span>@d.Title</span>
+                <span class="small text-muted">@d.UpdatedAt.ToLocalTime().ToString("dd.MM.yyyy")</span>
+            </a>
+        }
+    </div>
+</div>

@@ -20,8 +20,10 @@ public class HomeController(PricingService pricing, MektupApp.Application.Blog.B
     [HttpGet("sss")]
     public async Task<IActionResult> Faq(CancellationToken ct) => View(await pricing.GetCurrentAsync(ct));
 
+    /// <summary>Eski adres (kayıt formu, mobil uygulama): yönetim panelinden girilen üyelik sözleşmesine yönlendirir.</summary>
     [HttpGet("uyelik-sozlesmesi")]
-    public IActionResult Terms() => View();
+    public IActionResult Terms() =>
+        RedirectToActionPermanent("Show", "Legal", new { slug = MektupApp.Domain.Legal.LegalDocument.MembershipSlug });
 
     [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
     public IActionResult Error() =>

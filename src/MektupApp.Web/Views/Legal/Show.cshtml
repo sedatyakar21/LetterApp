@@ -1,0 +1,17 @@
+@model MektupApp.Application.Legal.LegalDocumentDto
+@{
+    ViewData["Title"] = Model.Title;
+    ViewData["Description"] = $"BiMektubum {Model.Title}.";
+}
+<div class="container py-4" style="max-width: 860px">
+    @if (!Model.IsPublished)
+    {
+        <div class="alert alert-warning small">Önizleme: bu belge yayında değil, yalnızca yöneticiler görebilir.</div>
+    }
+    <h1 class="h3 mb-1">@Model.Title</h1>
+    <p class="small text-muted mb-4">Son güncelleme: @Model.UpdatedAt.ToLocalTime().ToString("d MMMM yyyy") · Sürüm @Model.Version</p>
+    <article class="blog-content legal-content">
+        @MektupApp.Web.Infrastructure.MarkdownRenderer.ToHtml(Model.ContentMarkdown)
+    </article>
+    <p class="small mt-4"><a asp-action="Index">← Tüm sözleşmeler ve yasal metinler</a></p>
+</div>

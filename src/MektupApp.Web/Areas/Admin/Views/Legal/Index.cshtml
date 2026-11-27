@@ -1,0 +1,47 @@
+@model IReadOnlyList<MektupApp.Application.Legal.LegalDocumentSummaryDto>
+@{
+    ViewData["Title"] = "Sözleşmeler";
+}
+
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-1">
+    <h1 class="h4 mb-0">Sözleşmeler ve Yasal Metinler</h1>
+    <a class="btn btn-sm btn-primary" asp-action="Create">+ Yeni Belge</a>
+</div>
+<p class="text-muted small mb-3">
+    Metinler sitede <span class="font-monospace">/sozlesme/adres</span> sayfasında yayınlanır. 🔒 işaretli belgelerin bağlantısı
+    sitede ve uygulamada kullanılır (kayıt formu, ödeme, alt bilgi); adresleri değiştirilemez ve silinemez.
+    İçerik her değiştiğinde sürüm numarası artar.
+</p>
+
+<div class="admin-card overflow-hidden">
+    <div class="table-responsive">
+        <table class="table table-admin table-hover">
+            <thead>
+                <tr><th>Belge</th><th>Durum</th><th>Alt bilgi</th><th>Sürüm</th><th>Güncelleme</th><th></th></tr>
+            </thead>
+            <tbody>
+                @foreach (var d in Model)
+                {
+                    <tr>
+                        <td>
+                            <a asp-action="Edit" asp-route-id="@d.Id" class="fw-semibold">@(d.IsSystem ? "🔒 " : "")@d.Title</a>
+                            <div class="small text-muted font-monospace">/sozlesme/@d.Slug</div>
+                        </td>
+                        <td><span class="badge @(d.IsPublished ? "bg-success" : "bg-secondary")">@(d.IsPublished ? "Yayında" : "Taslak")</span></td>
+                        <td class="small">@(d.ShowInFooter ? "✓" : "—")</td>
+                        <td class="small">v@(d.Version)</td>
+                        <td class="small text-muted">@d.UpdatedAt.ToLocalTime().ToString("dd.MM.yyyy HH:mm")<br />@d.UpdatedBy</td>
+                        <td class="text-end">
+                            <a class="btn btn-sm btn-outline-secondary" target="_blank"
+                               href="@Url.Action("Show", "Legal", new { area = "", slug = d.Slug, onizleme = d.IsPublished ? (bool?)null : true })">Görüntüle</a>
+                        </td>
+                    </tr>
+                }
+                @if (Model.Count == 0)
+                {
+                    <tr><td colspan="6" class="text-center text-muted py-4">Henüz belge yok.</td></tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
 import '../../api/models.dart';
@@ -299,7 +300,29 @@ class PaymentStepState extends State<PaymentStep> {
         title: q?.method == 'BankTransfer' ? '🏦 Havale / EFT bilgileri' : '🔒 Kart bilgileri',
         child: _paymentArea(q),
       ),
+      const SizedBox(height: 10),
+      _legalNotice(),
     ]);
+  }
+
+  /// Ön bilgilendirme formu ve mesafeli satış sözleşmesi (yönetim panelinden girilen metinler, sitede açılır).
+  Widget _legalNotice() {
+    final base = AppScope.read(context).api.client.baseUrl;
+    TextSpan link(String text, String slug) => TextSpan(
+          text: text,
+          style: TextStyle(color: Brand.burgundy, decoration: TextDecoration.underline),
+          recognizer: TapGestureRecognizer()
+            ..onTap = () => launchUrl(Uri.parse('$base/sozlesme/$slug'), mode: LaunchMode.externalApplication),
+        );
+    return Text.rich(
+      TextSpan(style: TextStyle(color: Brand.muted, fontSize: 12), children: [
+        const TextSpan(text: 'Ödemeyi tamamlayarak '),
+        link('Ön Bilgilendirme Formu', 'on-bilgilendirme-formu'),
+        const TextSpan(text: '\'nu ve '),
+        link('Mesafeli Satış Sözleşmesi', 'mesafeli-satis-sozlesmesi'),
+        const TextSpan(text: '\'ni okuduğunuzu ve kabul ettiğinizi onaylarsınız.'),
+      ]),
+    );
   }
 
   Widget _paymentArea(Quote? q) {

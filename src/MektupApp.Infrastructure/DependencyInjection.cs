@@ -37,6 +37,7 @@ public static class DependencyInjection
         services.AddScoped<ICustomerRepository, CustomerRepository>();
         services.AddScoped<IPasswordResetRepository, PasswordResetRepository>();
         services.AddScoped<IContactChangeRepository, ContactChangeRepository>();
+        services.AddScoped<MektupApp.Domain.Legal.ILegalDocumentRepository, LegalDocumentRepository>();
         services.AddScoped<MektupApp.Domain.Postcards.IPostcardRepository, PostcardRepository>();
         services.AddScoped<MektupApp.Domain.Scents.IScentRepository, ScentRepository>();
         services.AddScoped<IPricingSettingsRepository, PricingSettingsRepository>();
@@ -161,6 +162,7 @@ public static class DependencyInjection
         await db.Database.MigrateAsync();
         await scope.ServiceProvider.GetRequiredService<PricingService>().EnsureInitializedAsync();
         await scope.ServiceProvider.GetRequiredService<LoyaltyService>().EnsureInitializedAsync();
+        await scope.ServiceProvider.GetRequiredService<MektupApp.Application.Legal.LegalDocumentService>().EnsureDefaultsAsync();
         await SeedPrisonsAsync(scope.ServiceProvider);
 
         var adminEmail = config["Seed:AdminEmail"];
