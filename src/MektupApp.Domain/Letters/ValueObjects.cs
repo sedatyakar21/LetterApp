@@ -131,8 +131,9 @@ public sealed record Recipient
     }
 }
 
-/// <summary>Mektubun görünümü: kağıt, zarf, yazı tipi ve mürekkep.</summary>
-public sealed record LetterStyle(PaperColor Paper, EnvelopeColor Envelope, LetterFont Font, InkColor Ink)
+/// <summary>Mektubun görünümü: kağıt, zarf, yazı tipi, mürekkep ve yazı boyutu.</summary>
+public sealed record LetterStyle(PaperColor Paper, EnvelopeColor Envelope, LetterFont Font, InkColor Ink,
+    TextSize Size = TextSize.Medium)
 {
     public static LetterStyle Default { get; } =
         new(PaperColor.White, EnvelopeColor.White, LetterFont.Serif, InkColor.Black);

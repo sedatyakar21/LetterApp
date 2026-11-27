@@ -546,6 +546,13 @@ class _LetterEditorScreenState extends State<LetterEditorScreen> {
                 onSelect: (v) => _draft.ink = v,
                 itemIcon: (v) => Swatch(LetterLook.inkColor(v), size: 14),
               ),
+              _toolbarMenu(
+                tooltip: 'Yazı boyutu',
+                icon: const Icon(Icons.format_size, size: 18, color: _paperMuted),
+                options: s.textSizes,
+                value: _draft.textSize,
+                onSelect: (v) => _draft.textSize = v,
+              ),
             ]),
           ),
           Padding(
@@ -558,7 +565,7 @@ class _LetterEditorScreenState extends State<LetterEditorScreen> {
             maxLength: s.maxContentLength,
             keyboardType: TextInputType.multiline,
             textCapitalization: TextCapitalization.sentences,
-            style: LetterLook.textStyle(_draft.font, _draft.ink),
+            style: LetterLook.textStyle(_draft.font, _draft.ink, _draft.textSize),
             decoration: const InputDecoration(
               hintStyle: TextStyle(color: Color(0x99686D7A)),
               hintText: 'Sevgili ...\n\nBuraya yazdıklarınız kâğıda basılıp zarflanacak.',
@@ -1040,7 +1047,7 @@ class _LetterEditorScreenState extends State<LetterEditorScreen> {
           TextButton(onPressed: () => setState(() => _step = step), child: const Text('Düzenle')),
         ]);
     final postcards = _selectedPostcards(s);
-    final style = LetterLook.textStyle(d.font, d.ink);
+    final style = LetterLook.textStyle(d.font, d.ink, d.textSize);
 
     return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
       Text('Göndermeden önce zarfınızı, mektubunuzu ve eklediklerinizi kontrol edin.',

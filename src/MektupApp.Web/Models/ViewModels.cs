@@ -165,6 +165,7 @@ public sealed class LetterFormViewModel
     [Display(Name = "Zarf Rengi")] public EnvelopeColor Envelope { get; set; }
     [Display(Name = "Yazı Stili")] public LetterFont Font { get; set; }
     [Display(Name = "Mürekkep")] public InkColor Ink { get; set; }
+    [Display(Name = "Yazı Boyutu")] public TextSize Size { get; set; } = TextSize.Medium;
     /// <summary>Yönetim panelinden girilen kokulardan seçilen (boş: kokusuz).</summary>
     [Display(Name = "Koku")] public Guid? ScentId { get; set; }
     /// <summary>Mektuptaki kokunun adı: koku sonradan pasife alındıysa listede yine gösterilir.</summary>
@@ -186,7 +187,7 @@ public sealed class LetterFormViewModel
         Id, customerId, SenderName, SenderAddress.ToDto(),
         RecipientName, RecipientType, RecipientDetail, RecipientAddress.ToDto(),
         Content, Paper, Envelope, Font, Ink, ScentId, PostcardIds,
-        RecipientFatherName, RecipientWard);
+        RecipientFatherName, RecipientWard, Size);
 
     /// <summary>Aynı türdeki son mektubun alıcı / gönderen bilgilerini forma yazar (yeni mektupta).</summary>
     public void ApplyPrefill(LetterPrefillDto p)
@@ -217,6 +218,7 @@ public sealed class LetterFormViewModel
         Envelope = d.Style.Envelope,
         Font = d.Style.Font,
         Ink = d.Style.Ink,
+        Size = d.Style.Size,
         ScentId = d.Scent?.ScentId,
         ScentName = d.Scent?.Name,
         PostcardIds = d.Postcards.Where(p => p.DesignId is not null).Select(p => p.DesignId!.Value).ToList(),
@@ -233,6 +235,20 @@ public sealed class CheckoutViewModel
 {
     public required LetterDetailsDto Letter { get; init; }
     public required QuoteDto Quote { get; init; }
+}
+
+/// <summary>Hesabım'da e-posta veya cep telefonu satırı: değiştir formu ve onay kodu alanı.</summary>
+public sealed class ContactFieldModel
+{
+    public MektupApp.Domain.Customers.ContactChangeKind Kind { get; init; }
+    public string Current { get; init; } = "";
+    public bool HasPassword { get; init; }
+    /// <summary>Kodu gönderilmiş, onay bekleyen değişiklik.</summary>
+    public MektupApp.Application.Customers.PendingContactChangeDto? Pending { get; init; }
+    /// <summary>Hatalı bir denemeden dönüldü: form açık gelir.</summary>
+    public bool Open { get; init; }
+    public string? Entered { get; init; }
+    public bool IsEmail => Kind == MektupApp.Domain.Customers.ContactChangeKind.Email;
 }
 
 public sealed class PendingPaymentViewModel

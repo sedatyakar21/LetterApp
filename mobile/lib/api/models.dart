@@ -98,6 +98,9 @@ class AppSettings {
         envelopeColors = _list(j['envelopeColors'], Option.fromJson),
         fonts = _list(j['fonts'], Option.fromJson),
         inks = _list(j['inks'], Option.fromJson),
+        textSizes = j['textSizes'] == null
+            ? const [Option('Small', 'Küçük'), Option('Medium', 'Orta'), Option('Large', 'Büyük')]
+            : _list(j['textSizes'], Option.fromJson),
         scents = j['scents'] == null ? const [] : _list(j['scents'], ScentInfo.fromJson),
         postcards = j['postcards'] == null ? const [] : _list(j['postcards'], PostcardInfo.fromJson),
         maxPostcards = j['maxPostcards'] as int? ?? 5,
@@ -119,6 +122,9 @@ class AppSettings {
 
   final Prices prices;
   final List<Option> recipientTypes, paperColors, envelopeColors, fonts, inks, acquisitionChannels;
+
+  /// Mektup yazı boyutu seçenekleri (Küçük / Orta / Büyük).
+  final List<Option> textSizes;
 
   /// Yönetim panelinden girilen aktif kokular (sırasıyla); "Kokusuz" listede yoktur, uygulama ekler.
   final List<ScentInfo> scents;
@@ -219,7 +225,22 @@ class Me {
         googleLinked = j['googleLinked'] as bool,
         pointsBalance = _d(j['pointsBalance']),
         pointValue = _d(j['pointValue']),
-        loyaltyEnabled = j['loyaltyEnabled'] as bool;
+        loyaltyEnabled = j['loyaltyEnabled'] as bool,
+        hasPassword = j['hasPassword'] as bool? ?? true,
+        pendingChanges = j['pendingChanges'] == null ? const [] : _list(j['pendingChanges'], PendingContactChange.fromJson);
+
+  /// Onay kodu gönderilmiş, onay bekleyen e-posta / telefon değişiklikleri.
+  final List<PendingContactChange> pendingChanges;
+
+  PendingContactChange? pending(String kind) {
+    for (final p in pendingChanges) {
+      if (p.kind == kind) return p;
+    }
+    return null;
+  }
+
+  /// Şifreli hesap mı (Google ile açılan hesaplarda false): bilgi değiştirirken şifre istenir.
+  final bool hasPassword;
 
   final String fullName, email, phone, referralCode;
   final DateTime memberSince;
@@ -372,6 +393,7 @@ class Letter {
         envelope = j['envelope'] as String,
         font = j['font'] as String,
         ink = j['ink'] as String,
+        textSize = j['textSize'] as String? ?? 'Medium',
         scent = j['scent'] == null ? null : ScentInfo.fromJson(j['scent'] as Map<String, dynamic>),
         postcards = j['postcards'] == null ? const [] : _list(j['postcards'], PostcardInfo.fromJson),
         status = j['status'] as String,
@@ -412,6 +434,9 @@ class Letter {
 
   final String id, senderName, recipientName, recipientType, content, paper, envelope, font, ink, status, statusLabel;
 
+  /// Yazı boyutu: Small / Medium / Large.
+  final String textSize;
+
   /// Seçilen koku (yoksa kokusuz).
   final ScentInfo? scent;
   final Address senderAddress, recipientAddress;
@@ -447,6 +472,7 @@ class LetterDraft {
     this.envelope = 'White',
     this.font = 'Serif',
     this.ink = 'Black',
+    this.textSize = 'Medium',
     this.scentId,
     List<String>? postcardIds,
     this.recipientFatherName,
@@ -477,13 +503,14 @@ class LetterDraft {
         envelope: l.envelope,
         font: l.font,
         ink: l.ink,
+        textSize: l.textSize,
         scentId: l.scent?.id,
         postcardIds: [for (final p in l.postcards) if (p.id != null) p.id!],
         recipientFatherName: l.recipientFatherName,
         recipientWard: l.recipientWard,
       );
 
-  String senderName, recipientName, recipientType, content, paper, envelope, font, ink;
+  String senderName, recipientName, recipientType, content, paper, envelope, font, ink, textSize;
 
   /// Seçilen koku (null: kokusuz).
   String? scentId;
@@ -505,6 +532,7 @@ class LetterDraft {
         'envelope': envelope,
         'font': font,
         'ink': ink,
+        'size': textSize,
         'scentId': scentId,
         'postcardIds': postcardIds,
         'recipientFatherName': recipientType == 'Inmate' ? recipientFatherName : null,
@@ -678,4 +706,16 @@ class Tracking {
         history = _list(j['history'], StatusChange.fromJson);
   final String trackingCode, recipientInitials, city, status, statusLabel;
   final List<StatusChange> history;
+}
+
+/// Onay bekleyen e-posta / telefon değişikliği ([kind]: Email / Phone).
+class PendingContactChange {
+  PendingContactChange.fromJson(Map<String, dynamic> j)
+      : kind = j['kind'] as String,
+        destination = j['destination'] as String,
+        expiresAt = DateTime.parse(_utc(j['expiresAt'] as String)).toLocal(),
+        remainingAttempts = j['remainingAttempts'] as int;
+  final String kind, destination;
+  final DateTime expiresAt;
+  final int remainingAttempts;
 }

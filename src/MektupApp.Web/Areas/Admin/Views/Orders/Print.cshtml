@@ -67,7 +67,7 @@
                 </div>
                 <div class="label-caption mt-1 mb-1">ZARFA KONACAKLAR</div>
                 <ul class="checklist small">
-                    <li>Mektup — @l.PageCount sayfa · @l.Style.Paper.DisplayName() kâğıt · @l.Style.Font.DisplayName() / @l.Style.Ink.DisplayName()</li>
+                    <li>Mektup — @l.PageCount sayfa · @l.Style.Paper.DisplayName() kâğıt · @l.Style.Font.DisplayName() / @l.Style.Ink.DisplayName() / @l.Style.Size.DisplayName() yazı</li>
                     @if (photoCount > 0) { <li>Fotoğraf × @photoCount</li> }
                     @if (docCount > 0) { <li>Belge × @docCount: @string.Join(", ", l.Documents.Select(d => d.OriginalFileName))</li> }
                     @if (l.Postcards.Count > 0)
@@ -142,7 +142,7 @@
                 @* Baskıda imza satırı yok; yerine her sayfanın altında ortada "[gönderen → alıcı]".
                    Uzun mektuplar order-print.js tarafından A4 sayfalara bölünür (başlık yalnızca ilk sayfada). *@
                 <div class="letter-body">
-                    <div class="paper paper-@l.Style.Paper font-@l.Style.Font ink-@l.Style.Ink">
+                    <div class="paper paper-@l.Style.Paper font-@l.Style.Font ink-@l.Style.Ink tsize-@l.Style.Size">
                         <div class="paper-content">@l.Content</div>
                     </div>
                 </div>

@@ -60,6 +60,19 @@ class BiMektupApi {
 
   Future<void> setBirthDate(DateTime date) => client.post('/api/mobile/me/birth-date', {'birthDate': _date(date)});
 
+  /// Yeni e-postaya / telefona onay kodu gönderir (şifreli hesaplarda mevcut şifre zorunlu).
+  Future<PendingContactChange> requestEmailChange(String email, String? currentPassword) async => PendingContactChange.fromJson(
+      await client.post('/api/mobile/me/email', {'email': email, 'currentPassword': currentPassword}));
+
+  Future<PendingContactChange> requestPhoneChange(String phone, String? currentPassword) async => PendingContactChange.fromJson(
+      await client.post('/api/mobile/me/phone', {'phone': phone, 'currentPassword': currentPassword}));
+
+  /// [kind]: 'email' / 'phone'. Kod doğruysa değişiklik uygulanır.
+  Future<Me> confirmContactChange(String kind, String code) async =>
+      Me.fromJson(await client.post('/api/mobile/me/$kind/confirm', {'code': code}));
+
+  Future<Me> cancelContactChange(String kind) async => Me.fromJson(await client.post('/api/mobile/me/$kind/cancel', {}));
+
   Future<PointsInfo> points() async => PointsInfo.fromJson(await client.get('/api/mobile/me/points'));
 
   // ---------------- Mektuplar ----------------

@@ -27,15 +27,23 @@ class LetterLook {
   static Color paperColor(String v) => paper[v] ?? Colors.white;
   static Color inkColor(String v) => ink[v] ?? const Color(0xFF222222);
 
-  static TextStyle textStyle(String font, String inkName) {
+  /// Yazı boyutu çarpanı (sitedeki .tsize-* ile aynı): Küçük %85, Orta %100, Büyük %120.
+  static double sizeScale(String size) => switch (size) {
+        'Small' => 0.85,
+        'Large' => 1.2,
+        _ => 1.0,
+      };
+
+  static TextStyle textStyle(String font, String inkName, [String size = 'Medium']) {
     final color = inkColor(inkName);
+    final k = sizeScale(size);
     return switch (font) {
       // Sistem el yazısı fontu: Android "cursive" (Dancing Script), iOS Snell Roundhand.
       // Yapay italik kullanılmaz; bazı cihazlarda "ı" harfi yanlış çiziliyor.
       'Handwriting' => TextStyle(
-          color: color, fontSize: 21, height: 1.45, fontFamily: 'cursive', fontFamilyFallback: const ['Snell Roundhand', 'Segoe Script']),
-      'Sans' => TextStyle(color: color, fontSize: 15, height: 1.6),
-      _ => TextStyle(color: color, fontSize: 16, height: 1.6, fontFamily: 'serif', fontFamilyFallback: const ['Georgia', 'Times New Roman']),
+          color: color, fontSize: 21 * k, height: 1.45, fontFamily: 'cursive', fontFamilyFallback: const ['Snell Roundhand', 'Segoe Script']),
+      'Sans' => TextStyle(color: color, fontSize: 15 * k, height: 1.6),
+      _ => TextStyle(color: color, fontSize: 16 * k, height: 1.6, fontFamily: 'serif', fontFamilyFallback: const ['Georgia', 'Times New Roman']),
     };
   }
 }

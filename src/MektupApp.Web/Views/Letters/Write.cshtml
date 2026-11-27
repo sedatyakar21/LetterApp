@@ -68,8 +68,13 @@
                                         <span class="visually-hidden">@Html.DisplayNameFor(m => m.Ink)</span>
                                         <select asp-for="Ink" asp-items="Html.GetEnumSelectList<InkColor>()" class="form-select form-select-sm"></select>
                                     </label>
+                                    <label for="Size" class="letter-editor-tool" title="Yazı boyutu">
+                                        <span aria-hidden="true" class="small fw-semibold">Aa</span>
+                                        <span class="visually-hidden">@Html.DisplayNameFor(m => m.Size)</span>
+                                        <select asp-for="Size" asp-items="Html.GetEnumSelectList<TextSize>()" class="form-select form-select-sm"></select>
+                                    </label>
                                 </div>
-                                <textarea asp-for="Content" class="form-control letter-textarea paper-@Model.Paper font-@Model.Font ink-@Model.Ink" rows="14"
+                                <textarea asp-for="Content" class="form-control letter-textarea paper-@Model.Paper font-@Model.Font ink-@Model.Ink tsize-@Model.Size" rows="14"
                                           placeholder="Sevgili ..., (emoji kullanabilirsiniz 😊)" aria-describedby="contentError"></textarea>
                             </div>
                             <div class="d-flex justify-content-between small text-muted mt-1">
@@ -286,7 +291,7 @@
                             </div>
 
                             <div class="review-label">Mektup <button type="button" class="btn btn-link btn-sm p-0 ms-1" data-goto-step="1">Düzenle</button></div>
-                            <div class="paper paper-@Model.Paper font-@Model.Font ink-@Model.Ink mb-3" id="paperPreview">
+                            <div class="paper paper-@Model.Paper font-@Model.Font ink-@Model.Ink tsize-@Model.Size mb-3" id="paperPreview">
                                 <div class="paper-content" id="pvContent">@Model.Content</div>
                             </div>
 

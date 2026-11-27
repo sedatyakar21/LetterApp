@@ -91,6 +91,19 @@ internal sealed class PostcardRepository(AppDbContext db) : MektupApp.Domain.Pos
     public void Remove(MektupApp.Domain.Postcards.PostcardDesign postcard) => Set.Remove(postcard);
 }
 
+internal sealed class ContactChangeRepository(AppDbContext db) : IContactChangeRepository
+{
+    public async Task<IReadOnlyList<ContactChangeRequest>> ListOpenAsync(Guid customerId, DateTime now, CancellationToken ct = default) =>
+        await db.Set<ContactChangeRequest>()
+            .Where(r => r.CustomerId == customerId && r.ClosedAt == null && r.ExpiresAt > now)
+            .ToListAsync(ct);
+
+    public Task<int> CountSinceAsync(Guid customerId, ContactChangeKind kind, DateTime since, CancellationToken ct = default) =>
+        db.Set<ContactChangeRequest>().CountAsync(r => r.CustomerId == customerId && r.Kind == kind && r.CreatedAt >= since, ct);
+
+    public void Add(ContactChangeRequest request) => db.Set<ContactChangeRequest>().Add(request);
+}
+
 internal sealed class PasswordResetRepository(AppDbContext db) : IPasswordResetRepository
 {
     // Varsayılan ayar aynı istekte eklenmiş ama henüz kaydedilmemiş olabilir: önce bellekteki kayda bakılır.

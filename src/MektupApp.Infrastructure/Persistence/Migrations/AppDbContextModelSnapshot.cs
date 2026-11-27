@@ -167,6 +167,53 @@ namespace MektupApp.Infrastructure.Persistence.Migrations
                     b.ToTable("Campaigns", (string)null);
                 });
 
+            modelBuilder.Entity("MektupApp.Domain.Customers.ContactChangeRequest", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("ClosedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("CodeHash")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .IsUnicode(false)
+                        .HasColumnType("varchar(64)");
+
+                    b.Property<DateTime?>("ConfirmedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("CustomerId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("ExpiresAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("FailedAttempts")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Kind")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)");
+
+                    b.Property<string>("NewValue")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CustomerId", "CreatedAt");
+
+                    b.ToTable("ContactChangeRequests", (string)null);
+                });
+
             modelBuilder.Entity("MektupApp.Domain.Customers.Customer", b =>
                 {
                     b.Property<Guid>("Id")
@@ -536,6 +583,12 @@ namespace MektupApp.Infrastructure.Persistence.Migrations
                                 .HasMaxLength(20)
                                 .HasColumnType("nvarchar(20)")
                                 .HasColumnName("PaperColor");
+
+                            b1.Property<string>("Size")
+                                .IsRequired()
+                                .HasMaxLength(20)
+                                .HasColumnType("nvarchar(20)")
+                                .HasColumnName("TextSize");
                         });
 
                     b.HasKey("Id");
@@ -1368,6 +1421,15 @@ namespace MektupApp.Infrastructure.Persistence.Migrations
                     b.HasKey("Carrier");
 
                     b.ToTable("CarrierBarcodeCounters", (string)null);
+                });
+
+            modelBuilder.Entity("MektupApp.Domain.Customers.ContactChangeRequest", b =>
+                {
+                    b.HasOne("MektupApp.Domain.Customers.Customer", null)
+                        .WithMany()
+                        .HasForeignKey("CustomerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("MektupApp.Domain.Customers.Customer", b =>

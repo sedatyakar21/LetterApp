@@ -103,6 +103,12 @@ public sealed class Customer : AggregateRoot
         BirthDate = birthDate;
     }
 
+    /// <summary>Onay koduyla doğrulanan yeni e-posta (aynı zamanda giriş adı); benzersizliği uygulama katmanı denetler.</summary>
+    public void ChangeEmail(Email email) => Email = email ?? throw new DomainException("E-posta zorunludur.");
+
+    /// <summary>SMS koduyla doğrulanan yeni cep telefonu.</summary>
+    public void ChangePhone(PhoneNumber phone) => Phone = phone ?? throw new DomainException("Cep telefonu zorunludur.");
+
     /// <summary>Yönetici, hatalı girilen doğum tarihini silebilir.</summary>
     public void ClearBirthDate() => BirthDate = null;
 

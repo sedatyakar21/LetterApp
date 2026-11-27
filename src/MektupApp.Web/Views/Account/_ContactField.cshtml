@@ -1,0 +1,72 @@
+@model ContactFieldModel
+@{
+    var id = Model.IsEmail ? "email" : "phone";
+    var label = Model.IsEmail ? "E-posta" : "Cep Telefonu";
+    var p = Model.Pending;
+}
+<li class="list-group-item">
+    <div class="d-flex justify-content-between align-items-start gap-2">
+        <div class="min-w-0">
+            <span class="text-muted small d-block">@label</span>
+            <span class="text-break">@Model.Current</span>
+        </div>
+        @if (p is null)
+        {
+            <button type="button" class="btn btn-sm btn-outline-secondary flex-shrink-0" data-bs-toggle="collapse"
+                    data-bs-target="#@(id)Change" aria-expanded="@(Model.Open ? "true" : "false")" aria-controls="@(id)Change">✏️ Değiştir</button>
+        }
+    </div>
+
+    @if (p is not null)
+    {
+        @* Kod gönderildi: onay alanı *@
+        <div class="alert alert-light border small mt-3 mb-2">
+            @(Model.IsEmail ? "📧" : "📱") Onay kodu <strong>@p.Destination</strong> @(Model.IsEmail ? "adresine e-postayla" : "numarasına SMS ile") gönderildi.
+            Kod @p.ExpiresAt.ToLocalTime().ToString("HH:mm")'e kadar geçerli.
+        </div>
+        <form asp-action="ConfirmContactChange" method="post" class="d-flex flex-wrap gap-2 align-items-start">
+            <input type="hidden" name="kind" value="@Model.Kind" />
+            <input type="text" name="code" class="form-control font-monospace text-center" style="max-width: 9rem; letter-spacing: .3em"
+                   inputmode="numeric" pattern="[0-9 ]{6,7}" maxlength="7" autocomplete="one-time-code" placeholder="000000" required
+                   aria-label="@(label) onay kodu" />
+            <button type="submit" class="btn btn-primary">Onayla</button>
+        </form>
+        <div class="d-flex flex-wrap gap-3 mt-2 small">
+            <button type="button" class="btn btn-link btn-sm p-0" data-bs-toggle="collapse" data-bs-target="#@(id)Change">Kodu tekrar gönder / farklı @(Model.IsEmail ? "adres" : "numara")</button>
+            <form asp-action="CancelContactChange" method="post" class="d-inline">
+                <input type="hidden" name="kind" value="@Model.Kind" />
+                <button type="submit" class="btn btn-link btn-sm p-0 text-danger">Vazgeç</button>
+            </form>
+        </div>
+    }
+
+    <form asp-action="@(Model.IsEmail ? "RequestEmailChange" : "RequestPhoneChange")" method="post"
+          id="@(id)Change" class="collapse @(Model.Open ? "show" : "") mt-3">
+        <div class="mb-2">
+            <label for="@(id)New" class="form-label small mb-1">Yeni @label.ToLowerInvariant()</label>
+            @if (Model.IsEmail)
+            {
+                <input type="email" id="@(id)New" name="email" class="form-control" required maxlength="200" autocomplete="email"
+                       value="@(Model.Entered ?? p?.Destination)" />
+                <div class="form-text">Onay kodu yeni adrese gönderilir. Onaylayınca girişte bu adresi kullanırsınız.</div>
+            }
+            else
+            {
+                <input type="tel" id="@(id)New" name="phone" class="form-control" required maxlength="20" autocomplete="tel"
+                       placeholder="05XX XXX XX XX" value="@(Model.Entered ?? p?.Destination)" />
+                <div class="form-text">Onay kodu yeni numaraya SMS ile gönderilir.</div>
+            }
+        </div>
+        @if (Model.HasPassword)
+        {
+            <div class="mb-2">
+                <label for="@(id)Password" class="form-label small mb-1">Mevcut şifreniz</label>
+                <input type="password" id="@(id)Password" name="currentPassword" class="form-control" required autocomplete="current-password" />
+            </div>
+        }
+        <div class="d-flex gap-2">
+            <button type="submit" class="btn btn-primary btn-sm">Onay Kodu Gönder</button>
+            <button type="button" class="btn btn-link btn-sm" data-bs-toggle="collapse" data-bs-target="#@(id)Change">Vazgeç</button>
+        </div>
+    </form>
+</li>

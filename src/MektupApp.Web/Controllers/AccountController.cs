@@ -12,7 +12,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace MektupApp.Web.Controllers;
 
-public class AccountController(AccountService accounts) : Controller
+public class AccountController(AccountService accounts, ContactChangeService contactChanges) : Controller
 {
     [HttpGet("giris")]
     public IActionResult Login(string? returnUrl) => View(new LoginViewModel { ReturnUrl = returnUrl });
@@ -72,8 +72,11 @@ public class AccountController(AccountService accounts) : Controller
     }
 
     [Authorize, HttpGet("hesabim")]
-    public async Task<IActionResult> Profile(CancellationToken ct) =>
-        View(await accounts.GetAccountAsync(CurrentUserId, ct) ?? throw new AppException("Üyelik bulunamadı."));
+    public async Task<IActionResult> Profile(CancellationToken ct)
+    {
+        ViewData["PendingContact"] = await contactChanges.ListPendingAsync(CurrentUserId, ct);
+        return View(await accounts.GetAccountAsync(CurrentUserId, ct) ?? throw new AppException("Üyelik bulunamadı."));
+    }
 
     [Authorize, HttpPost("hesabim/dogum-tarihi")]
     public async Task<IActionResult> BirthDate(DateOnly? birthDate, CancellationToken ct)
@@ -81,6 +84,60 @@ public class AccountController(AccountService accounts) : Controller
         if (birthDate is null) throw new AppException("Lütfen doğum tarihinizi seçin.");
         await accounts.SetBirthDateAsync(CurrentUserId, birthDate.Value, ct);
         TempData["Success"] = "Doğum tarihiniz kaydedildi. 🎂 Doğum günü kampanyalarından yararlanabilirsiniz.";
+        return RedirectToAction(nameof(Profile));
+    }
+
+    // ---------------- E-posta / cep telefonu değişikliği (yeni adrese onay kodu) ----------------
+
+    [Authorize, HttpPost("hesabim/eposta")]
+    public Task<IActionResult> RequestEmailChange(string? email, string? currentPassword, CancellationToken ct) =>
+        ContactStepAsync(ContactChangeKind.Email, async () =>
+        {
+            var p = await contactChanges.RequestEmailChangeAsync(CurrentUserId, email, currentPassword, ct);
+            return $"Onay kodu {p.Destination} adresine gönderildi. Kodu aşağıya girin.";
+        }, email);
+
+    [Authorize, HttpPost("hesabim/telefon")]
+    public Task<IActionResult> RequestPhoneChange(string? phone, string? currentPassword, CancellationToken ct) =>
+        ContactStepAsync(ContactChangeKind.Phone, async () =>
+        {
+            var p = await contactChanges.RequestPhoneChangeAsync(CurrentUserId, phone, currentPassword, ct);
+            return $"Onay kodu {p.Destination} numarasına SMS ile gönderildi. Kodu aşağıya girin.";
+        }, phone);
+
+    [Authorize, HttpPost("hesabim/iletisim/onayla")]
+    public Task<IActionResult> ConfirmContactChange(ContactChangeKind kind, string? code, CancellationToken ct) =>
+        ContactStepAsync(kind, async () =>
+        {
+            // E-posta değiştiyse oturum çerezi yeni adresle yenilenir (çıkış yapmaya gerek kalmaz).
+            await SignInAsync(await contactChanges.ConfirmAsync(CurrentUserId, kind, code, ct));
+            return kind == ContactChangeKind.Email ? "E-posta adresiniz güncellendi." : "Cep telefonunuz güncellendi.";
+        }, openForm: false);
+
+    [Authorize, HttpPost("hesabim/iletisim/vazgec")]
+    public async Task<IActionResult> CancelContactChange(ContactChangeKind kind, CancellationToken ct)
+    {
+        await contactChanges.CancelAsync(CurrentUserId, kind, ct);
+        return RedirectToAction(nameof(Profile));
+    }
+
+    /// <summary>Adımı çalıştırır; hata olursa ilgili form açık ve girilen değerle döner.</summary>
+    private async Task<IActionResult> ContactStepAsync(ContactChangeKind kind, Func<Task<string>> step, string? enteredValue = null,
+        bool openForm = true)
+    {
+        try
+        {
+            TempData["Success"] = await step();
+        }
+        catch (Exception ex) when (ex is AppException or DomainException)
+        {
+            TempData["Error"] = ex.Message;
+            if (openForm)
+            {
+                TempData["ContactKind"] = kind.ToString();
+                TempData["ContactValue"] = enteredValue;
+            }
+        }
         return RedirectToAction(nameof(Profile));
     }
 

@@ -10,7 +10,8 @@
         Paper: ["White", "Cream", "Pink", "Blue", "Green"],
         Envelope: ["White", "Kraft", "Red", "Navy", "Pink"],
         Font: ["Serif", "Sans", "Handwriting"],
-        Ink: ["Black", "Navy", "Burgundy"]
+        Ink: ["Black", "Navy", "Burgundy"],
+        Size: ["Small", "Medium", "Large"]
     };
 
     function swapClass(el, prefix, value) {
@@ -109,6 +110,7 @@
         swapClass(paper, "paper-", enumNames.Paper[field("Paper").value]);
         swapClass(paper, "font-", enumNames.Font[field("Font").value]);
         swapClass(paper, "ink-", enumNames.Ink[field("Ink").value]);
+        swapClass(paper, "tsize-", enumNames.Size[field("Size").value]);
         swapClass($("envelopePreview"), "env-color-", enumNames.Envelope[field("Envelope").value]);
 
         // Editörün kendisi de seçilen kâğıt rengi, yazı stili ve mürekkeple görünür.
@@ -116,6 +118,7 @@
         swapClass(editor, "paper-", enumNames.Paper[field("Paper").value]);
         swapClass(editor, "font-", enumNames.Font[field("Font").value]);
         swapClass(editor, "ink-", enumNames.Ink[field("Ink").value]);
+        swapClass(editor, "tsize-", enumNames.Size[field("Size").value]);
         swapClass($("inkDot"), "ink-dot-", enumNames.Ink[field("Ink").value]);
 
         updateRecipientDetail();

@@ -419,9 +419,13 @@ a:hover { color: var(--burgundy); }
 .paper-Blue  { --paper-color: #e3eefb; background-color: #e3eefb; }
 .paper-Green { --paper-color: #e5f4e3; background-color: #e5f4e3; }
 
-.font-Serif { font-family: "Lora", Georgia, serif; font-size: 1.05rem; }
-.font-Sans { font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; font-size: 1rem; }
-.font-Handwriting { font-family: "Caveat", "Segoe Script", cursive; font-size: 1.5rem; }
+.font-Serif { font-family: "Lora", Georgia, serif; font-size: calc(1.05rem * var(--text-scale, 1)); }
+.font-Sans { font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; font-size: calc(1rem * var(--text-scale, 1)); }
+.font-Handwriting { font-family: "Caveat", "Segoe Script", cursive; font-size: calc(1.5rem * var(--text-scale, 1)); }
+/* Yazı boyutu: yazı stilinin taban boyutunu ölçekler (Küçük / Orta / Büyük) */
+.tsize-Small { --text-scale: .85; }
+.tsize-Medium { --text-scale: 1; }
+.tsize-Large { --text-scale: 1.2; }
 
 .ink-Black { --ink-color: #222; color: #222; }
 .ink-Navy { --ink-color: #1f3a68; color: #1f3a68; }

@@ -36,6 +36,7 @@ public static class DependencyInjection
         services.AddScoped<ILetterRepository, LetterRepository>();
         services.AddScoped<ICustomerRepository, CustomerRepository>();
         services.AddScoped<IPasswordResetRepository, PasswordResetRepository>();
+        services.AddScoped<IContactChangeRepository, ContactChangeRepository>();
         services.AddScoped<MektupApp.Domain.Postcards.IPostcardRepository, PostcardRepository>();
         services.AddScoped<MektupApp.Domain.Scents.IScentRepository, ScentRepository>();
         services.AddScoped<IPricingSettingsRepository, PricingSettingsRepository>();

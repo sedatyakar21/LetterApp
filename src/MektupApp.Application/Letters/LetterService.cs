@@ -75,7 +75,7 @@ public sealed class LetterService(
         }
 
         letter.WriteContent(cmd.Content);
-        letter.ChangeStyle(new LetterStyle(cmd.Paper, cmd.Envelope, cmd.Font, cmd.Ink));
+        letter.ChangeStyle(new LetterStyle(cmd.Paper, cmd.Envelope, cmd.Font, cmd.Ink, cmd.Size));
         letter.ChooseScent(await ResolveScentAsync(letter.Scent, cmd.ScentId, ct));
         letter.SetPostcards(await ResolvePostcardsAsync(letter.Postcards, cmd.PostcardIds, ct));
 

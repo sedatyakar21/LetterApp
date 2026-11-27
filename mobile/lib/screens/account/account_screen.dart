@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../../api/models.dart';
 import '../../state/session.dart';
 import '../../ui/common.dart';
 import '../../ui/theme.dart';
@@ -43,6 +44,20 @@ class AccountScreen extends StatelessWidget {
     }
   }
 
+  /// E-posta / telefon satırı: onay bekleyen değişiklik varsa altında belirtilir; dokununca değiştirme penceresi açılır.
+  Widget _contactTile(BuildContext context, Me me,
+      {required String kind, required IconData icon, required String title, required String value}) {
+    final pending = me.pending(kind == 'email' ? 'Email' : 'Phone');
+    return ListTile(
+      leading: Icon(icon, color: Brand.navy),
+      title: Text(title),
+      subtitle: Text(pending == null ? value : '$value\nOnay bekliyor: ${pending.destination}'),
+      isThreeLine: pending != null,
+      trailing: Text(pending == null ? 'Değiştir' : 'Kodu gir', style: TextStyle(color: Brand.burgundy, fontWeight: FontWeight.w600)),
+      onTap: () => showDialog<void>(context: context, builder: (_) => ContactChangeDialog(me: me, kind: kind)),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final session = AppScope.of(context);
@@ -64,6 +79,14 @@ class AccountScreen extends StatelessWidget {
               Text(me.phone, style: const TextStyle(color: Colors.white70)),
               const SizedBox(height: 10),
               Text('Üyelik: ${dateText(me.memberSince)}', style: const TextStyle(color: Colors.white70, fontSize: 12)),
+            ]),
+          ),
+          const SizedBox(height: 12),
+          Card(
+            child: Column(children: [
+              _contactTile(context, me, kind: 'email', icon: Icons.mail_outline, title: 'E-posta', value: me.email),
+              const Divider(height: 1, indent: 16, endIndent: 16),
+              _contactTile(context, me, kind: 'phone', icon: Icons.phone_iphone, title: 'Cep telefonu', value: me.phone),
             ]),
           ),
           const SizedBox(height: 12),
@@ -194,6 +217,175 @@ class AccountScreen extends StatelessWidget {
           ),
         ]),
       ),
+    );
+  }
+}
+
+/// E-posta veya cep telefonu değişikliği: 1) yeni değer (+ şifreli hesaplarda mevcut şifre) → onay kodu gönderilir,
+/// 2) yeni adrese gelen 6 haneli kod girilir → değişiklik uygulanır.
+class ContactChangeDialog extends StatefulWidget {
+  const ContactChangeDialog({super.key, required this.me, required this.kind});
+  final Me me;
+
+  /// 'email' / 'phone'
+  final String kind;
+
+  @override
+  State<ContactChangeDialog> createState() => _ContactChangeDialogState();
+}
+
+class _ContactChangeDialogState extends State<ContactChangeDialog> {
+  final _form = GlobalKey<FormState>();
+  final _value = TextEditingController();
+  final _password = TextEditingController();
+  final _code = TextEditingController();
+  PendingContactChange? _pending;
+  bool _busy = false;
+  String? _error;
+
+  bool get _isEmail => widget.kind == 'email';
+
+  @override
+  void initState() {
+    super.initState();
+    _pending = widget.me.pending(_isEmail ? 'Email' : 'Phone');
+  }
+
+  @override
+  void dispose() {
+    _value.dispose();
+    _password.dispose();
+    _code.dispose();
+    super.dispose();
+  }
+
+  Future<void> _run(Future<void> Function() action) async {
+    if (!_form.currentState!.validate()) return;
+    setState(() {
+      _busy = true;
+      _error = null;
+    });
+    try {
+      await action();
+    } catch (e) {
+      if (mounted) setState(() => _error = errorText(e));
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
+  Future<void> _sendCode() => _run(() async {
+        final api = AppScope.read(context).api;
+        final password = widget.me.hasPassword ? _password.text : null;
+        final p = _isEmail
+            ? await api.requestEmailChange(_value.text.trim(), password)
+            : await api.requestPhoneChange(_value.text.trim(), password);
+        if (!mounted) return;
+        setState(() {
+          _pending = p;
+          _code.clear();
+        });
+        AppScope.read(context).refreshMe().catchError((_) {});
+      });
+
+  Future<void> _confirm() => _run(() async {
+        final session = AppScope.read(context);
+        await session.api.confirmContactChange(widget.kind, _code.text.trim());
+        await session.refreshMe();
+        if (!mounted) return;
+        Navigator.of(context).pop();
+        showMessage(context, _isEmail ? 'E-posta adresiniz güncellendi.' : 'Cep telefonunuz güncellendi.');
+      });
+
+  Future<void> _cancel() async {
+    final session = AppScope.read(context);
+    try {
+      await session.api.cancelContactChange(widget.kind);
+      await session.refreshMe();
+    } catch (_) {}
+    if (mounted) Navigator.of(context).pop();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final p = _pending;
+    final title = _isEmail ? 'E-posta değiştir' : 'Cep telefonu değiştir';
+    return AlertDialog(
+      title: Text(title),
+      content: SingleChildScrollView(
+        child: Form(
+          key: _form,
+          child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+            if (_error != null) ...[
+              Text(_error!, style: TextStyle(color: Theme.of(context).colorScheme.error)),
+              const SizedBox(height: 10),
+            ],
+            if (p == null) ...[
+              Text('Mevcut: ${_isEmail ? widget.me.email : widget.me.phone}', style: TextStyle(color: Brand.muted)),
+              const SizedBox(height: 10),
+              TextFormField(
+                controller: _value,
+                keyboardType: _isEmail ? TextInputType.emailAddress : TextInputType.phone,
+                autofillHints: [_isEmail ? AutofillHints.email : AutofillHints.telephoneNumber],
+                decoration: InputDecoration(
+                  labelText: _isEmail ? 'Yeni e-posta' : 'Yeni cep telefonu',
+                  hintText: _isEmail ? null : '05XX XXX XX XX',
+                  prefixIcon: Icon(_isEmail ? Icons.mail_outline : Icons.phone_iphone),
+                ),
+                validator: (v) => _isEmail
+                    ? (v == null || !v.contains('@') ? 'Geçerli bir e-posta girin.' : null)
+                    : ((v ?? '').replaceAll(RegExp(r'\D'), '').length < 10 ? 'Geçerli bir cep telefonu girin.' : null),
+              ),
+              if (widget.me.hasPassword) ...[
+                const SizedBox(height: 10),
+                TextFormField(
+                  controller: _password,
+                  obscureText: true,
+                  autofillHints: const [AutofillHints.password],
+                  decoration: const InputDecoration(labelText: 'Mevcut şifreniz', prefixIcon: Icon(Icons.lock_outline)),
+                  validator: (v) => (v ?? '').isEmpty ? 'Güvenliğiniz için şifrenizi girin.' : null,
+                ),
+              ],
+              const SizedBox(height: 8),
+              Text(_isEmail ? 'Yeni adrese 6 haneli onay kodu gönderilir.' : 'Yeni numaraya SMS ile 6 haneli onay kodu gönderilir.',
+                  style: TextStyle(color: Brand.muted, fontSize: 12)),
+            ] else ...[
+              Text('Onay kodu ${p.destination} ${_isEmail ? 'adresine e-postayla' : 'numarasına SMS ile'} gönderildi. '
+                  'Kod ${p.expiresAt.hour.toString().padLeft(2, '0')}:${p.expiresAt.minute.toString().padLeft(2, '0')}\'e kadar geçerli.'),
+              const SizedBox(height: 12),
+              TextFormField(
+                controller: _code,
+                keyboardType: TextInputType.number,
+                autofillHints: const [AutofillHints.oneTimeCode],
+                maxLength: 6,
+                textAlign: TextAlign.center,
+                style: const TextStyle(fontSize: 22, letterSpacing: 6, fontWeight: FontWeight.w700),
+                decoration: const InputDecoration(labelText: 'Onay kodu', counterText: ''),
+                validator: (v) => (v ?? '').replaceAll(RegExp(r'\D'), '').length != 6 ? '6 haneli kodu girin.' : null,
+              ),
+              Align(
+                alignment: Alignment.centerLeft,
+                child: TextButton(
+                  onPressed: _busy ? null : () => setState(() => _pending = null),
+                  child: Text(_isEmail ? 'Kodu tekrar gönder / farklı adres' : 'Kodu tekrar gönder / farklı numara'),
+                ),
+              ),
+            ],
+          ]),
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: _busy ? null : (p == null ? () => Navigator.of(context).pop() : _cancel),
+          child: Text(p == null ? 'Kapat' : 'Vazgeç'),
+        ),
+        FilledButton(
+          onPressed: _busy ? null : (p == null ? _sendCode : _confirm),
+          child: _busy
+              ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+              : Text(p == null ? 'Kod Gönder' : 'Onayla'),
+        ),
+      ],
     );
   }
 }

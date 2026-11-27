@@ -131,6 +131,24 @@ public sealed class NotificationTemplates(NotificationOptions options)
     public string PasswordResetSms(string code, TimeSpan lifetime) =>
         $"{Brand} şifre sıfırlama kodunuz: {code}. {(int)lifetime.TotalMinutes} dakika geçerlidir. Bu kodu kimseyle paylaşmayın.";
 
+    /// <summary>E-posta değişikliği: yeni adrese gönderilen onay kodu.</summary>
+    public NotificationContent EmailChangeCode(string name, string code, TimeSpan lifetime) => Build(NotificationType.None,
+        sms: "",
+        subject: $"{Brand} e-posta onay kodunuz: {code}",
+        heading: "E-posta adresinizi onaylayın",
+        paragraphs:
+        [
+            $"Merhaba {Esc(FirstName(name))}, {Brand} hesabınızın e-posta adresini bu adresle değiştirmek istediniz.",
+            $"Onay kodunuz: <strong style=\"font-family:monospace;font-size:22px;letter-spacing:4px\">{Esc(code)}</strong>",
+            $"Kodu Hesabım sayfasındaki onay alanına girin. Kod <strong>{(int)lifetime.TotalMinutes} dakika</strong> geçerlidir.",
+            "Bu talebi siz yapmadıysanız bu e-postayı dikkate almayın; hesabınızdaki e-posta değişmez."
+        ],
+        button: ("Hesabıma Git", $"{Site}/hesabim"));
+
+    /// <summary>Cep telefonu değişikliği: yeni numaraya gönderilen onay kodu.</summary>
+    public string PhoneChangeSms(string code, TimeSpan lifetime) =>
+        $"{Brand} telefon onay kodunuz: {code}. {(int)lifetime.TotalMinutes} dakika geçerlidir. Bu kodu kimseyle paylaşmayın.";
+
     /// <summary>Sıfırlama bağlantısının adresi (yapılandırılmış site adresiyle; isteğin Host başlığına güvenilmez).</summary>
     public string PasswordResetUrl(string token) => $"{Site}/sifre-sifirla?token={Uri.EscapeDataString(token)}";
 

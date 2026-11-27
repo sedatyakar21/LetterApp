@@ -25,6 +25,7 @@ public static class DependencyInjection
         services.AddScoped<WeightService>();
         services.AddScoped<AccountService>();
         services.AddScoped<PasswordResetService>();
+        services.AddScoped<ContactChangeService>();
         services.AddScoped<CustomerAdminService>();
         services.AddScoped<LoyaltyService>();
         services.AddScoped<CheckoutCalculator>();

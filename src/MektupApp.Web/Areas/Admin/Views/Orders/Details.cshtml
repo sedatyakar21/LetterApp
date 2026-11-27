@@ -160,7 +160,7 @@
                 <li class="list-group-item">
                     <div class="text-muted">Üretim</div>
                     @l.PageCount sayfa · Kağıt: @l.Style.Paper.DisplayName() · Zarf: @l.Style.Envelope.DisplayName()<br />
-                    Yazı: @l.Style.Font.DisplayName() / @l.Style.Ink.DisplayName() · Koku: @(l.Scent?.Name ?? "Kokusuz")<br />
+                    Yazı: @l.Style.Font.DisplayName() / @l.Style.Ink.DisplayName() / @l.Style.Size.DisplayName() · Koku: @(l.Scent?.Name ?? "Kokusuz")<br />
                     Fotoğraf: @l.Photos.Count · Belge: @l.Documents.Count<br />
                     Kartpostal@(l.Postcards.Count > 1 ? $" ({l.Postcards.Count})" : ""): <partial name="_PostcardList" model="l.Postcards" />
                 </li>

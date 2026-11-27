@@ -645,11 +645,12 @@ class _LetterPreview extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l = letter;
-    final style = LetterLook.textStyle(l.font, l.ink);
+    final style = LetterLook.textStyle(l.font, l.ink, l.textSize);
     final extras = [
       '${settings.label(settings.paperColors, l.paper)} kâğıt',
       '${settings.label(settings.envelopeColors, l.envelope)} zarf',
       settings.label(settings.fonts, l.font),
+      '${settings.label(settings.textSizes, l.textSize)} yazı',
       if (l.scent != null) '${l.scent!.name} kokulu',
       if (l.postcards.isNotEmpty)
         '${l.postcards.length > 1 ? 'Kartpostallar' : 'Kartpostal'}: ${l.postcards.map((p) => p.title).join(', ')}',

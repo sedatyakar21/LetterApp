@@ -8,9 +8,21 @@ namespace MektupApp.Web.Api;
 
 public sealed record MeDto(
     string FullName, string Email, string Phone, DateOnly MemberSince, DateOnly? BirthDate,
-    string ReferralCode, int ReferredCount, bool GoogleLinked, decimal PointsBalance, decimal PointValue, bool LoyaltyEnabled);
+    string ReferralCode, int ReferredCount, bool GoogleLinked, decimal PointsBalance, decimal PointValue, bool LoyaltyEnabled,
+    bool HasPassword = true,
+    IReadOnlyList<PendingContactApiDto>? PendingChanges = null);
+
+/// <param name="Kind">Email / Phone.</param>
+public sealed record PendingContactApiDto(string Kind, string Destination, DateTime ExpiresAt, int RemainingAttempts);
 
 public sealed record BirthDateRequest(DateOnly? BirthDate);
+
+/// <param name="CurrentPassword">Şifreli hesaplarda zorunlu (Google ile açılmış hesaplarda yok).</param>
+public sealed record EmailChangeRequest(string? Email, string? CurrentPassword);
+
+public sealed record PhoneChangeRequest(string? Phone, string? CurrentPassword);
+
+public sealed record ContactCodeRequest(string? Code);
 
 public sealed record PointTransactionApiDto(string Type, string TypeLabel, decimal Points, Guid? LetterId, string Note, DateTime At);
 
@@ -21,7 +33,7 @@ public sealed record PointsDto(
 
 /// <summary>Hesabım ve MektupPuan.</summary>
 [Route("api/mobile/me")]
-public sealed class MobileAccountController(AccountService accounts, LoyaltyService loyalty) : MobileApiController
+public sealed class MobileAccountController(AccountService accounts, LoyaltyService loyalty, ContactChangeService contactChanges) : MobileApiController
 {
     [HttpGet]
     public async Task<MeDto> Get(CancellationToken ct)
@@ -30,8 +42,46 @@ public sealed class MobileAccountController(AccountService accounts, LoyaltyServ
         var referral = await accounts.GetReferralInfoAsync(CustomerId, ct);
         var settings = await loyalty.GetSettingsAsync(ct);
         return new MeDto(a.FullName, a.Email, a.Phone, a.MemberSince, a.BirthDate, a.ReferralCode, referral?.ReferredCount ?? 0,
-            a.GoogleLinked, await loyalty.GetBalanceAsync(CustomerId, ct), settings.PointValue, settings.IsEnabled);
+            a.GoogleLinked, await loyalty.GetBalanceAsync(CustomerId, ct), settings.PointValue, settings.IsEnabled, a.HasPassword,
+            (await contactChanges.ListPendingAsync(CustomerId, ct)).Select(ToApi).ToList());
     }
+
+    // ---------------- E-posta / cep telefonu değişikliği: yeni adrese onay kodu ----------------
+
+    /// <summary>Yeni e-postaya onay kodu gönderir; değişiklik kod onaylanınca uygulanır.</summary>
+    [HttpPost("email")]
+    public async Task<PendingContactApiDto> RequestEmail(EmailChangeRequest req, CancellationToken ct) =>
+        ToApi(await contactChanges.RequestEmailChangeAsync(CustomerId, req.Email, req.CurrentPassword, ct));
+
+    /// <summary>Yeni cep telefonuna SMS ile onay kodu gönderir.</summary>
+    [HttpPost("phone")]
+    public async Task<PendingContactApiDto> RequestPhone(PhoneChangeRequest req, CancellationToken ct) =>
+        ToApi(await contactChanges.RequestPhoneChangeAsync(CustomerId, req.Phone, req.CurrentPassword, ct));
+
+    /// <summary>Onay kodunu doğrular ve değişikliği uygular. Giriş token'ı üye kimliğine bağlı olduğu için oturum sürer.</summary>
+    [HttpPost("{kind}/confirm")]
+    public async Task<MeDto> Confirm(string kind, ContactCodeRequest req, CancellationToken ct)
+    {
+        await contactChanges.ConfirmAsync(CustomerId, ParseKind(kind), req.Code, ct);
+        return await Get(ct);
+    }
+
+    [HttpPost("{kind}/cancel")]
+    public async Task<MeDto> Cancel(string kind, CancellationToken ct)
+    {
+        await contactChanges.CancelAsync(CustomerId, ParseKind(kind), ct);
+        return await Get(ct);
+    }
+
+    private static Domain.Customers.ContactChangeKind ParseKind(string kind) => kind.ToLowerInvariant() switch
+    {
+        "email" => Domain.Customers.ContactChangeKind.Email,
+        "phone" => Domain.Customers.ContactChangeKind.Phone,
+        _ => throw new AppException("Geçersiz değişiklik türü.")
+    };
+
+    private static PendingContactApiDto ToApi(PendingContactChangeDto p) =>
+        new(p.Kind.ToString(), p.Destination, p.ExpiresAt, p.RemainingAttempts);
 
     /// <summary>Doğum tarihi bir kez girilir; sonra yalnızca yönetici değiştirebilir.</summary>
     [HttpPost("birth-date")]

@@ -28,7 +28,8 @@ public sealed record SaveLetterCommand(
     Guid? ScentId,
     IReadOnlyList<Guid>? PostcardIds,
     string? RecipientFatherName = null,
-    string? RecipientWard = null);
+    string? RecipientWard = null,
+    TextSize Size = TextSize.Medium);
 
 /// <summary>
 /// Aynı türdeki (cezaevi / asker) son mektubun alıcı ve gönderen bilgileri: yeni mektup formunu doldurmak için.

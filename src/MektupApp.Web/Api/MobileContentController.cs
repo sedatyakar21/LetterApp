@@ -42,7 +42,8 @@ public sealed record MobileConfigDto(
     bool MobilePaymentAvailable,
     bool PaymentSimulation,
     SupportDto Support,
-    PaperWeights? Weights = null);
+    PaperWeights? Weights = null,
+    IReadOnlyList<OptionDto>? TextSizes = null);
 
 public sealed record CampaignCardApiDto(
     Guid Id, string Title, string Slug, string Summary, string? BadgeText, string? CouponCode,
@@ -99,7 +100,8 @@ public sealed class MobileContentController(
             paymentProvider.SupportsMobilePayment, paymentProvider.IsSimulation,
             new SupportDto(s.WhatsAppEnabled ? s.Digits : null, s.WhatsAppDisplay, s.Email, s.Hours),
             // Kontrol adımındaki zarfa yazılan tahmini ağırlık için birim ağırlıklar (Yönetim → Ağırlıklar).
-            await weights.GetCurrentAsync(ct));
+            await weights.GetCurrentAsync(ct),
+            Options<TextSize>());
     }
 
     /// <summary>81 il ve ilçeleri (adres formundaki açılır listeler için), Türkçe alfabeye göre sıralı.</summary>

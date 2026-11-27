@@ -46,6 +46,14 @@ public enum LetterFont
     [Display(Name = "El Yazısı")] Handwriting = 2
 }
 
+/// <summary>Mektup yazısının boyutu (yazı stilinin taban boyutuna göre).</summary>
+public enum TextSize
+{
+    [Display(Name = "Küçük")] Small = 0,
+    [Display(Name = "Orta")] Medium = 1,
+    [Display(Name = "Büyük")] Large = 2
+}
+
 public enum InkColor
 {
     [Display(Name = "Siyah")] Black = 0,

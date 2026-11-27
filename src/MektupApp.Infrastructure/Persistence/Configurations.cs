@@ -62,6 +62,7 @@ internal sealed class LetterConfiguration : IEntityTypeConfiguration<Letter>
             s.Property(x => x.Envelope).HasColumnName("EnvelopeColor").HasConversion<string>().HasMaxLength(20);
             s.Property(x => x.Font).HasColumnName("Font").HasConversion<string>().HasMaxLength(20);
             s.Property(x => x.Ink).HasColumnName("InkColor").HasConversion<string>().HasMaxLength(20);
+            s.Property(x => x.Size).HasColumnName("TextSize").HasConversion<string>().HasMaxLength(20);
         });
         // Seçilen kartpostallar: katalogdaki kimlik + anlık kopya (ad, kategori). Katalogdan silinse de sipariş bilgisi kalır (FK yok).
         // Sıra, eklenme sırasıdır (Id artan).
@@ -178,6 +179,22 @@ internal sealed class CustomerConfiguration : IEntityTypeConfiguration<Customer>
         b.HasIndex(c => c.ReferredByCustomerId);
         // Davet eden üyeye referans (silinirse bağ korunmaz, kayıt kalır).
         b.HasOne<Customer>().WithMany().HasForeignKey(c => c.ReferredByCustomerId).OnDelete(DeleteBehavior.NoAction);
+    }
+}
+
+internal sealed class ContactChangeRequestConfiguration : IEntityTypeConfiguration<ContactChangeRequest>
+{
+    public void Configure(EntityTypeBuilder<ContactChangeRequest> b)
+    {
+        b.ToTable("ContactChangeRequests");
+        b.HasKey(r => r.Id);
+        b.Ignore(r => r.DomainEvents);
+        b.Ignore(r => r.RemainingAttempts);
+        b.Property(r => r.Kind).HasConversion<string>().HasMaxLength(10);
+        b.Property(r => r.NewValue).HasMaxLength(200).IsRequired();
+        b.Property(r => r.CodeHash).HasMaxLength(64).IsUnicode(false).IsRequired();
+        b.HasIndex(r => new { r.CustomerId, r.CreatedAt });
+        b.HasOne<Customer>().WithMany().HasForeignKey(r => r.CustomerId).OnDelete(DeleteBehavior.Cascade);
     }
 }
 

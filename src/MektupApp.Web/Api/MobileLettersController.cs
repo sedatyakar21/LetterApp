@@ -28,7 +28,8 @@ public sealed record LetterSaveRequest(
     Guid? ScentId,
     IReadOnlyList<Guid>? PostcardIds,
     string? RecipientFatherName = null,
-    string? RecipientWard = null);
+    string? RecipientWard = null,
+    TextSize Size = TextSize.Medium);
 
 public sealed record LetterPrefillApiDto(
     string RecipientType, string RecipientName, string? RecipientDetail, string? RecipientFatherName, string? RecipientWard,
@@ -97,7 +98,8 @@ public sealed record LetterApiDto(
     string? RecipientFatherName,
     string? RecipientWard,
     string? RecipientNote,
-    IReadOnlyList<DocumentApiDto> Documents);
+    IReadOnlyList<DocumentApiDto> Documents,
+    string TextSize = "Medium");
 
 /// <param name="PageCount">Basılacak yaprak sayısı (PDF sayfa sayısı, görsel 1).</param>
 public sealed record DocumentApiDto(Guid Id, string FileName, bool IsPdf, string Url, int PageCount = 1);
@@ -369,7 +371,8 @@ public sealed class MobileLettersController(
             l.PointsUsed, l.PointsDiscount, l.PointsToEarn, l.CampaignTitle, l.CampaignDiscount, l.CreatedAt,
             l.Status == LetterStatus.Delivered && review is null, review, pending,
             l.RecipientFatherName, l.RecipientWard, l.RecipientNote,
-            l.Documents.Select(d => new DocumentApiDto(d.Id, d.OriginalFileName, d.IsPdf, $"/api/mobile/letters/{l.Id}/documents/{d.Id}", d.PageCount)).ToList());
+            l.Documents.Select(d => new DocumentApiDto(d.Id, d.OriginalFileName, d.IsPdf, $"/api/mobile/letters/{l.Id}/documents/{d.Id}", d.PageCount)).ToList(),
+            l.Style.Size.ToString());
     }
 
     /// <summary>Simülasyon formu sitenin kendi sayfasıdır (çerez ister); uygulama onun yerine kendi ekranını gösterir.</summary>
@@ -385,7 +388,7 @@ public sealed class MobileLettersController(
             r.RecipientName?.Trim() ?? "", r.RecipientType, string.IsNullOrWhiteSpace(r.RecipientDetail) ? null : r.RecipientDetail.Trim(),
             Clean(r.RecipientAddress, "Alıcı"), r.Content, r.Paper, r.Envelope, r.Font, r.Ink, r.ScentId,
             r.PostcardIds,
-            r.RecipientFatherName, r.RecipientWard);
+            r.RecipientFatherName, r.RecipientWard, r.Size);
 
     /// <summary>Boş alanlar kabul edilir (taslak); posta kodu isteğe bağlı, girilirse 5 haneli.</summary>
     private static AddressDto Clean(AddressDto? a, string who)
